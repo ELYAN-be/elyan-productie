@@ -1,0 +1,9 @@
+{
+  "name": "elyan",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ELYAN — renovatie-inschattingsplatform voor België",
+  "dependencies": {
+    "pdfkit": "^0.19.1"
+  }
+}

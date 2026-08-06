@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELYAN — Bereken de kostprijs van jouw renovatie in 2 minuten</title>
+<meta name="description" content="Ontvang binnen 2 minuten een gratis, realistische prijsinschatting voor jouw renovatie in België, gebaseerd op actuele richtprijzen en vergelijkbare projecten.">
+<link rel="canonical" href="https://elyan.vercel.app/">
+<meta name="theme-color" content="#3F4A32">
+<meta name="robots" content="index, follow">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="ELYAN">
+<meta property="og:title" content="ELYAN — Bereken de kostprijs van jouw renovatie in 2 minuten">
+<meta property="og:description" content="Ontvang binnen 2 minuten een gratis, realistische prijsinschatting voor jouw renovatie in België, gebaseerd op actuele richtprijzen en vergelijkbare projecten.">
+<meta property="og:url" content="https://elyan.vercel.app/">
+<meta property="og:image" content="https://elyan.vercel.app/assets/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="nl_BE">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ELYAN — Bereken de kostprijs van jouw renovatie in 2 minuten">
+<meta name="twitter:description" content="Gratis, realistische prijsinschatting voor jouw renovatie in België. Resultaat binnen 2 minuten.">
+<meta name="twitter:image" content="https://elyan.vercel.app/assets/og-image.png">
+
+<!-- Favicons -->
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" href="/favicon.ico">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+<a href="#main" class="skip-link">Ga naar inhoud</a>
+
+<!-- ICON SPRITE -->
+<svg style="display:none" aria-hidden="true">
+<defs>
+<symbol id="i-logo" viewBox="0 0 32 32">
+  <rect x="4" y="14" width="6" height="14" rx="2" fill="currentColor"/>
+  <rect x="13" y="8" width="6" height="20" rx="2" fill="currentColor"/>
+  <rect x="22" y="2" width="6" height="26" rx="2" fill="currentColor"/>
+</symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-arrow-left" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M8.5 12.2l2.4 2.4 4.6-5" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M12 7.5v5l3.5 2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M11.5 3c.4 3 1.7 5 5 5.5-3.3.5-4.6 2.5-5 5.5-.4-3-1.7-5-5-5.5 3.3-.5 4.6-2.5 5-5.5z" fill="currentColor"/><path d="M18.5 14.5c.25 1.6.9 2.6 2.5 2.9-1.6.3-2.25 1.3-2.5 2.9-.25-1.6-.9-2.6-2.5-2.9 1.6-.3 2.25-1.3 2.5-2.9z" fill="currentColor"/></symbol>
+<symbol id="i-gift" viewBox="0 0 24 24">
+  <rect x="4" y="10.5" width="16" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <rect x="3" y="7.5" width="18" height="3.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <line x1="12" y1="7.5" x2="12" y2="19.5" stroke="currentColor" stroke-width="1.75"/>
+  <path d="M12 7.5c0-2.2-1.8-4-4-3.2-1.4.5-1.4 2.5 0 3.2h4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M12 7.5c0-2.2 1.8-4 4-3.2 1.4.5 1.4 2.5 0 3.2h-4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+</symbol>
+<symbol id="i-target" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"/>
+  <circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="1.75"/>
+  <circle cx="12" cy="12" r="1.5" fill="currentColor"/>
+</symbol>
+<symbol id="i-file" viewBox="0 0 24 24">
+  <path d="M6 3h9l4 4v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M14 3v5h5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M8.5 12.5h7M8.5 16h7M8.5 9h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+</symbol>
+<symbol id="i-pin" viewBox="0 0 24 24">
+  <path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <circle cx="12" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="1.75"/>
+</symbol>
+<symbol id="i-layers" viewBox="0 0 24 24">
+  <path d="M12 3l9 5-9 5-9-5 9-5z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M3 13l9 5 9-5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M3 18l9 5 9-5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+</symbol>
+<symbol id="i-roof" viewBox="0 0 24 24">
+  <path d="M2.5 12.5L12 4l9.5 8.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M5.5 10.5V20M18.5 10.5V20" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+  <path d="M5.5 20h13" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+</symbol>
+<symbol id="i-utensils" viewBox="0 0 24 24">
+  <path d="M7 3v6a2 2 0 0 0 2 2v10M7 3v5M9 3v5M5 3v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M17 3c-2 0-3 2.2-3 5s1.2 4 3 4v9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</symbol>
+<symbol id="i-bath" viewBox="0 0 24 24">
+  <path d="M3 12h18v3a5 5 0 0 1-5 5H8a5 5 0 0 1-5-5v-3z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M5 12V7a2.5 2.5 0 0 1 4.5-1.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+  <path d="M7 20v1.5M17 20v1.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+</symbol>
+<symbol id="i-roller" viewBox="0 0 24 24">
+  <rect x="4" y="4" width="13" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M9.5 10v3.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+  <path d="M9.5 13.5h5a1.5 1.5 0 0 1 1.5 1.5v1.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="14.25" y="16.5" width="3" height="4.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+</symbol>
+<symbol id="i-mail" viewBox="0 0 24 24">
+  <rect x="3" y="5.5" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+</symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+<symbol id="i-info" viewBox="0 0 24 24">
+  <circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.75"/>
+  <path d="M12 11v5.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+  <circle cx="12" cy="8" r="1" fill="currentColor"/>
+</symbol>
+<symbol id="i-euro" viewBox="0 0 24 24">
+  <path d="M17.5 6.5A7 7 0 1 0 17.5 17.5" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+  <path d="M5.5 10h9M5.5 14h8" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+</symbol>
+<symbol id="i-bulb" viewBox="0 0 24 24">
+  <path d="M9 18h6M9.75 21h4.5" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+  <path d="M12 3a6.5 6.5 0 0 0-3.6 11.9c.4.28.6.74.6 1.22V17h6v-.88c0-.48.2-.94.6-1.22A6.5 6.5 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+</symbol>
+<symbol id="i-shield" viewBox="0 0 24 24">
+  <path d="M12 3.5l7 2.7v5.6c0 4.4-3 7.6-7 8.7-4-1.1-7-4.3-7-8.7V6.2l7-2.7z" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/>
+  <path d="M9 12l2.2 2.2L15.5 9.8" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+</symbol>
+</defs>
+</svg>
+
+<!-- HEADER -->
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a href="#top" class="logo"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</a>
+    <nav class="nav-links">
+      <a href="#waarom">Waarom ELYAN</a>
+      <a href="#hoe-het-werkt">Hoe het werkt</a>
+    </nav>
+    <button type="button" class="btn btn-primary btn-sm" data-action="start-calculator">Start gratis</button>
+  </div>
+</header>
+
+<main id="main">
+<!-- HERO -->
+<section class="hero" id="top">
+  <div class="container hero-inner">
+    <div class="hero-copy">
+      <span class="hero-badge"><svg class="icon"><use href="#i-target"></use></svg> Gebaseerd op actuele Belgische richtprijzen</span>
+      <h1>Bereken de kostprijs van jouw renovatie <span class="accent">in 2 minuten</span>.</h1>
+      <p class="hero-sub">Ontvang gratis een realistische prijsinschatting en een persoonlijk renovatierapport voor jouw project in België.</p>
+      <div class="hero-actions">
+        <button type="button" class="btn btn-primary btn-lg" data-action="start-calculator">
+          Start gratis <svg class="icon"><use href="#i-arrow-right"></use></svg>
+        </button>
+        <div class="hero-trust">
+          <span><svg class="icon"><use href="#i-check"></use></svg> Gratis</span>
+          <span><svg class="icon"><use href="#i-check"></use></svg> Geen verplichtingen</span>
+          <span><svg class="icon"><use href="#i-check"></use></svg> Binnen 2 minuten</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="blob blob-1"></div>
+      <div class="blob blob-2"></div>
+      <div class="demo-card" id="demoCard">
+        <div class="demo-row">
+          <span class="demo-chip"><svg class="icon"><use id="demoTypeIcon" href="#i-bath"></use></svg> <span id="demoType">Badkamer</span></span>
+          <span class="demo-chip"><svg class="icon"><use href="#i-pin"></use></svg> <span id="demoProvince">Antwerpen</span></span>
+        </div>
+        <div class="demo-divider"><span class="pulse-dot"></span> ELYAN berekent</div>
+        <span class="demo-label">Geschatte prijs</span>
+        <span class="demo-price" id="demoPrice">€11.400</span>
+        <span class="demo-range" id="demoRange">€9.700 – €13.150</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST STRIP -->
+<div class="trust-strip">
+  <div class="container trust-strip-row">
+    <span class="trust-strip-item"><svg class="icon"><use href="#i-shield"></use></svg> Privacyvriendelijk, geen doorverkoop van gegevens</span>
+    <span class="trust-strip-item"><svg class="icon"><use href="#i-target"></use></svg> Gebaseerd op actuele Belgische marktdata</span>
+    <span class="trust-strip-item"><svg class="icon"><use href="#i-file"></use></svg> Transparante, realistische inschattingen</span>
+  </div>
+</div>
+
+<!-- WAAROM ELYAN -->
+<section class="section" id="waarom">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Waarom ELYAN</span>
+      <h2>Waarom ELYAN?</h2>
+      <p class="lead">Een prijsinschatting waar je op kan vertrouwen, zonder gedoe.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg class="icon"><use href="#i-target"></use></svg></div>
+        <h3>Realistische prijsinschatting</h3>
+        <p>Gebaseerd op actuele materiaal- en arbeidskosten in jouw regio, geen slag in de lucht.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg class="icon"><use href="#i-file"></use></svg></div>
+        <h3>Persoonlijk renovatierapport</h3>
+        <p>Een overzichtelijk rapport op maat van jouw project, klaar om te delen met een aannemer.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg class="icon"><use href="#i-check-circle"></use></svg></div>
+        <h3>Gratis</h3>
+        <p>Volledig kosteloos, zonder verborgen kosten of verplichte offerteaanvraag.</p>
+      </div>
+      <div class="feature-card reveal">
+        <div class="feature-icon"><svg class="icon"><use href="#i-sparkle"></use></svg></div>
+        <h3>Binnen 2 minuten</h3>
+        <p>Beantwoord enkele korte vragen en ontvang meteen jouw inschatting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOE WERKT HET -->
+<section class="section section-subtle" id="hoe-het-werkt">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Hoe het werkt</span>
+      <h2>Van vraag tot rapport in drie stappen.</h2>
+    </div>
+    <div class="steps-row">
+      <div class="step-item reveal">
+        <div class="step-num">1</div>
+        <h3>Beantwoord enkele vragen.</h3>
+        <p>Vertel ons over je renovatieproject: type, oppervlakte en gewenste afwerking.</p>
+      </div>
+      <div class="step-item reveal">
+        <div class="step-num">2</div>
+        <h3>ELYAN berekent jouw renovatie.</h3>
+        <p>Jouw project wordt vergeleken met actuele Belgische richtprijzen en gelijkaardige renovatieprojecten.</p>
+      </div>
+      <div class="step-item reveal">
+        <div class="step-num">3</div>
+        <h3>Ontvang jouw persoonlijk rapport.</h3>
+        <p>Krijg een heldere prijsinschatting met kostenoverzicht en concrete aandachtspunten.</p>
+      </div>
+    </div>
+    <div class="how-cta reveal">
+      <button type="button" class="btn btn-primary btn-lg" data-action="start-calculator">
+        Start gratis <svg class="icon"><use href="#i-arrow-right"></use></svg>
+      </button>
+    </div>
+  </div>
+</section>
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <div class="footer-brand"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</div>
+        <p class="footer-tagline">Realistische renovatie-inschattingen voor België, gebaseerd op actuele richtprijzen en vergelijkbare projecten.</p>
+        <p class="footer-contact" style="margin-top:10px;">Vragen? Mail naar <a href="mailto:elyan.info@gmail.com">elyan.info@gmail.com</a></p>
+      </div>
+      <nav class="footer-links" aria-label="Juridische informatie">
+        <a href="/contact.html">Contact</a>
+        <a href="/over-ons.html">Over ELYAN</a>
+        <a href="/privacybeleid.html">Privacybeleid</a>
+        <a href="/cookiebeleid.html">Cookiebeleid</a>
+        <a href="/voorwaarden.html">Algemene voorwaarden</a>
+      </nav>
+    </div>
+    <div class="footer-bottom">
+      <p class="footer-meta">© <span id="footerYear">2026</span> ELYAN. Alle prijzen zijn indicatief.</p>
+      <p class="footer-meta">Made in Belgium 🇧🇪</p>
+    </div>
+  </div>
+</footer>
+
+<!-- CALCULATOR OVERLAY -->
+<div class="app-overlay" id="calculatorOverlay">
+  <div class="app-bar">
+    <div class="app-bar-inner">
+      <button type="button" class="app-back" id="appBack">
+        <svg class="icon"><use href="#i-arrow-left"></use></svg>
+        <span>Terug</span>
+      </button>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <span class="app-step-count" id="stepCount">Stap 1 van 5</span>
+      <button type="button" class="app-close" data-action="close-app" aria-label="Sluiten">
+        <svg class="icon"><use href="#i-x"></use></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="app-body">
+
+    <!-- STEP 1: renovatietype -->
+    <div class="calc-step active" data-step="1">
+      <h2 class="calc-question">Welke renovatie wil je uitvoeren?</h2>
+      <p class="calc-hint">Kies de categorie die het best past bij jouw project.</p>
+      <div class="option-grid option-grid-5">
+        <button type="button" class="option-card js-type-option" data-type="badkamer">
+          <svg class="icon"><use href="#i-bath"></use></svg>
+          <span class="opt-label">Badkamer</span>
+        </button>
+        <button type="button" class="option-card js-type-option" data-type="keuken">
+          <svg class="icon"><use href="#i-utensils"></use></svg>
+          <span class="opt-label">Keuken</span>
+        </button>
+        <button type="button" class="option-card js-type-option" data-type="dak">
+          <svg class="icon"><use href="#i-roof"></use></svg>
+          <span class="opt-label">Dak</span>
+        </button>
+        <button type="button" class="option-card js-type-option" data-type="vloeren">
+          <svg class="icon"><use href="#i-layers"></use></svg>
+          <span class="opt-label">Vloeren</span>
+        </button>
+        <button type="button" class="option-card js-type-option" data-type="schilderwerken">
+          <svg class="icon"><use href="#i-roller"></use></svg>
+          <span class="opt-label">Schilderwerken</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 2: provincie -->
+    <div class="calc-step" data-step="2">
+      <h2 class="calc-question">In welke provincie bevindt het project zich?</h2>
+      <p class="calc-hint">Dit helpt ELYAN rekening te houden met regionale prijsverschillen.</p>
+      <div class="option-grid option-grid-provinces">
+        <button type="button" class="chip-btn js-province-option" data-province="antwerpen">Antwerpen</button>
+        <button type="button" class="chip-btn js-province-option" data-province="brussel">Brussel</button>
+        <button type="button" class="chip-btn js-province-option" data-province="henegouwen">Henegouwen</button>
+        <button type="button" class="chip-btn js-province-option" data-province="limburg">Limburg</button>
+        <button type="button" class="chip-btn js-province-option" data-province="luik">Luik</button>
+        <button type="button" class="chip-btn js-province-option" data-province="luxemburg">Luxemburg</button>
+        <button type="button" class="chip-btn js-province-option" data-province="namen">Namen</button>
+        <button type="button" class="chip-btn js-province-option" data-province="oost-vlaanderen">Oost-Vlaanderen</button>
+        <button type="button" class="chip-btn js-province-option" data-province="vlaams-brabant">Vlaams-Brabant</button>
+        <button type="button" class="chip-btn js-province-option" data-province="waals-brabant">Waals-Brabant</button>
+        <button type="button" class="chip-btn js-province-option" data-province="west-vlaanderen">West-Vlaanderen</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: vierkante meter -->
+    <div class="calc-step" data-step="3">
+      <h2 class="calc-question">Hoeveel vierkante meter omvat het project?</h2>
+      <p class="calc-hint">Een schatting volstaat, je kan dit later steeds verfijnen.</p>
+      <div class="size-input-wrap">
+        <button type="button" class="size-btn" id="sizeDecrement" aria-label="Verminder aantal vierkante meter">−</button>
+        <div class="size-display">
+          <label class="sr-only" for="sizeInput">Aantal vierkante meter</label>
+          <input type="number" id="sizeInput" inputmode="numeric" min="1" max="999" value="20" aria-label="Aantal vierkante meter">
+          <span class="size-unit">m²</span>
+        </div>
+        <button type="button" class="size-btn" id="sizeIncrement" aria-label="Verhoog aantal vierkante meter">+</button>
+      </div>
+      <p class="field-error" id="sizeFieldError" role="alert"></p>
+      <div class="size-presets" id="sizePresets"></div>
+      <button type="button" class="btn btn-primary btn-lg btn-block" id="sizeNextBtn">Volgende <svg class="icon"><use href="#i-arrow-right"></use></svg></button>
+    </div>
+
+    <!-- STEP 4: afwerkingsniveau -->
+    <div class="calc-step" data-step="4">
+      <h2 class="calc-question">Welk afwerkingsniveau heb je in gedachten?</h2>
+      <p class="calc-hint">Dit bepaalt de kwaliteit van materialen en afwerking.</p>
+      <div class="option-grid finish-grid">
+        <button type="button" class="option-card js-level-option finish-card" data-level="basis">
+          <span class="finish-price">€</span>
+          <span class="opt-label">Basis</span>
+          <p>Functioneel en efficiënt, met standaard materialen.</p>
+        </button>
+        <button type="button" class="option-card js-level-option finish-card" data-level="standaard">
+          <span class="finish-price">€€</span>
+          <span class="opt-label">Standaard</span>
+          <p>Kwalitatieve materialen met een verzorgde afwerking.</p>
+        </button>
+        <button type="button" class="option-card js-level-option finish-card" data-level="premium">
+          <span class="finish-price">€€€</span>
+          <span class="opt-label">Premium</span>
+          <p>Hoogwaardige materialen en maatwerk tot in het detail.</p>
+        </button>
+      </div>
+    </div>
+
+    <!-- STEP 5: opmerkingen -->
+    <div class="calc-step" data-step="5">
+      <h2 class="calc-question">Nog specifieke wensen of opmerkingen?</h2>
+      <p class="calc-hint">Optioneel — help ELYAN om een nog nauwkeurigere inschatting te maken.</p>
+      <label class="sr-only" for="notesInput">Extra opmerkingen</label>
+      <textarea id="notesInput" placeholder="Bijv. open keuken, inloopdouche, vloerverwarming..."></textarea>
+      <span class="char-count" id="notesCount">0 / 500</span>
+      <div class="calc-actions">
+        <button type="button" class="btn btn-ghost" id="skipNotesBtn">Overslaan</button>
+        <button type="button" class="btn btn-primary btn-lg" id="calculateBtn">Bereken mijn renovatie <svg class="icon"><use href="#i-arrow-right"></use></svg></button>
+      </div>
+    </div>
+
+    <!-- LOADING -->
+    <div class="calc-step calc-loading" id="loadingStep">
+      <div class="loading-ring"></div>
+      <p class="loading-text" id="loadingText">Marktprijzen analyseren...</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- RESULTS OVERLAY -->
+<div class="results-overlay" id="resultsOverlay">
+  <div class="results-bar">
+    <div class="results-bar-inner">
+      <span class="logo" aria-hidden="true"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</span>
+      <button type="button" class="app-close" data-action="restart" aria-label="Nieuwe berekening starten">
+        <svg class="icon"><use href="#i-x"></use></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="results-body">
+    <div class="results-top">
+      <span class="eyebrow">Jouw inschatting</span>
+      <h1 id="resultsTitle">Jouw renovatie</h1>
+    </div>
+
+    <div class="price-card">
+      <span class="label">Geschatte prijs</span>
+      <span class="price" id="resultPrice">€0</span>
+      <span class="range" id="resultRange">€0 – €0</span>
+      <span class="duration"><svg class="icon"><use href="#i-clock"></use></svg><span id="resultDuration">– weken</span></span>
+    </div>
+
+    <div class="results-grid">
+      <div class="results-card">
+        <h3><svg class="icon"><use href="#i-euro"></use></svg> Belangrijkste kosten</h3>
+        <div class="cost-row" data-cost="materiaal">
+          <div class="cost-row-top"><span>Materiaal</span><span class="amt">€0</span></div>
+          <div class="cost-bar"><span class="cost-bar-fill" data-pct="0"></span></div>
+        </div>
+        <div class="cost-row" data-cost="arbeid">
+          <div class="cost-row-top"><span>Arbeid</span><span class="amt">€0</span></div>
+          <div class="cost-bar"><span class="cost-bar-fill" data-pct="0"></span></div>
+        </div>
+        <div class="cost-row" data-cost="overige">
+          <div class="cost-row-top"><span>Afwerking &amp; overige</span><span class="amt">€0</span></div>
+          <div class="cost-bar"><span class="cost-bar-fill" data-pct="0"></span></div>
+        </div>
+      </div>
+      <div class="results-card">
+        <h3><svg class="icon"><use href="#i-info"></use></svg> Belangrijke aandachtspunten</h3>
+        <ul class="tips-list" id="aandachtspuntenList"></ul>
+      </div>
+    </div>
+
+    <div class="results-grid">
+      <div class="results-card">
+        <h3><svg class="icon"><use href="#i-gift"></use></svg> Mogelijke premies</h3>
+        <p style="font-size:.87rem;margin-bottom:var(--sp-3);" id="premieNote"></p>
+        <p style="font-size:.87rem;" id="btwTipText"></p>
+        <div class="card-note">Check de actuele bedragen en voorwaarden via <a id="premieLink" href="#" target="_blank" rel="noopener">het officiële premieloket</a>.</div>
+      </div>
+      <div class="results-card">
+        <h3><svg class="icon"><use href="#i-bulb"></use></svg> Praktische tips</h3>
+        <ul class="tips-list" id="praktischeTipsList"></ul>
+      </div>
+    </div>
+
+    <div class="cta-card">
+      <h3><svg class="icon"><use href="#i-mail"></use></svg> Ontvang je volledige renovatierapport</h3>
+      <p>Een uitgebreid rapport met gedetailleerde kostenraming, tijdlijn en concrete tips, rechtstreeks in je mailbox.</p>
+      <ul class="cta-benefits">
+        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Volledige kostenraming per post</li>
+        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Vergelijking met gelijkaardige projecten</li>
+        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Concrete tips en mogelijke premies</li>
+        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Direct in je mailbox, geen wachttijd</li>
+      </ul>
+      <div id="emailCaptureForm">
+        <div class="email-form">
+          <label class="sr-only" for="emailInput">E-mailadres</label>
+          <input type="email" id="emailInput" placeholder="jouw@email.com" autocomplete="email">
+          <button type="button" class="btn btn-primary" id="submitEmailBtn">
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-label">Ontvang mijn rapport</span>
+          </button>
+        </div>
+        <p class="email-error" id="emailErrorMsg" role="alert">Vul een geldig e-mailadres in.</p>
+      </div>
+      <div class="email-success" id="emailSuccessState">
+        <div class="check-circle"><svg class="icon"><use href="#i-check"></use></svg></div>
+        <p>Bedankt! Je rapport is onderweg naar je inbox.<br><span class="success-sub">Niets ontvangen binnen enkele minuten? Kijk ook in je spamfolder.</span></p>
+      </div>
+      <div class="cta-trust-row">
+        <span><svg class="icon"><use href="#i-shield"></use></svg> Geen spam, nooit</span>
+        <span><svg class="icon"><use href="#i-check-circle"></use></svg> Niet doorverkocht aan derden</span>
+        <span><svg class="icon"><use href="#i-clock"></use></svg> Direct verzonden</span>
+      </div>
+    </div>
+
+    <div class="results-footer">
+      <p class="disclaimer">Deze schatting is indicatief en gebaseerd op gemiddelde marktprijzen in België. Ze vervangt geen offerte op maat. Vraag steeds een offerte aan bij een erkende aannemer voor een bindende prijs.</p>
+      <button type="button" class="btn btn-ghost" data-action="restart">Nieuwe berekening starten</button>
+    </div>
+  </div>
+</div>
+
+<!-- Vercel Web Analytics (privacy-friendly, cookieless) -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<!-- Vercel Speed Insights (privacy-friendly, cookieless) -->
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+
+<script src="/js/site.js" defer></script>
+<script src="/js/calculator.js" defer></script>
+<script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
+</body>
+</html>
