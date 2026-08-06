@@ -278,7 +278,7 @@
         <span>Terug</span>
       </button>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
-      <span class="app-step-count" id="stepCount">Stap 1 van 5</span>
+      <span class="app-step-count" id="stepCount">Stap 1 van 14</span>
       <button type="button" class="app-close" data-action="close-app" aria-label="Sluiten">
         <svg class="icon"><use href="#i-x"></use></svg>
       </button>
@@ -287,10 +287,10 @@
 
   <div class="app-body">
 
-    <!-- STEP 1: renovatietype -->
-    <div class="calc-step active" data-step="1">
+    <!-- STEP: renovatietype (altijd eerst) -->
+    <div class="calc-step active" id="typeStep">
       <h2 class="calc-question">Welke renovatie wil je uitvoeren?</h2>
-      <p class="calc-hint">Kies de categorie die het best past bij jouw project.</p>
+      <p class="calc-hint">Kies de categorie die het best past bij jouw project. Daarna volgen gerichte vragen.</p>
       <div class="option-grid option-grid-5">
         <button type="button" class="option-card js-type-option" data-type="badkamer">
           <svg class="icon"><use href="#i-bath"></use></svg>
@@ -315,78 +315,8 @@
       </div>
     </div>
 
-    <!-- STEP 2: provincie -->
-    <div class="calc-step" data-step="2">
-      <h2 class="calc-question">In welke provincie bevindt het project zich?</h2>
-      <p class="calc-hint">Dit helpt ELYAN rekening te houden met regionale prijsverschillen.</p>
-      <div class="option-grid option-grid-provinces">
-        <button type="button" class="chip-btn js-province-option" data-province="antwerpen">Antwerpen</button>
-        <button type="button" class="chip-btn js-province-option" data-province="brussel">Brussel</button>
-        <button type="button" class="chip-btn js-province-option" data-province="henegouwen">Henegouwen</button>
-        <button type="button" class="chip-btn js-province-option" data-province="limburg">Limburg</button>
-        <button type="button" class="chip-btn js-province-option" data-province="luik">Luik</button>
-        <button type="button" class="chip-btn js-province-option" data-province="luxemburg">Luxemburg</button>
-        <button type="button" class="chip-btn js-province-option" data-province="namen">Namen</button>
-        <button type="button" class="chip-btn js-province-option" data-province="oost-vlaanderen">Oost-Vlaanderen</button>
-        <button type="button" class="chip-btn js-province-option" data-province="vlaams-brabant">Vlaams-Brabant</button>
-        <button type="button" class="chip-btn js-province-option" data-province="waals-brabant">Waals-Brabant</button>
-        <button type="button" class="chip-btn js-province-option" data-province="west-vlaanderen">West-Vlaanderen</button>
-      </div>
-    </div>
-
-    <!-- STEP 3: vierkante meter -->
-    <div class="calc-step" data-step="3">
-      <h2 class="calc-question">Hoeveel vierkante meter omvat het project?</h2>
-      <p class="calc-hint">Een schatting volstaat, je kan dit later steeds verfijnen.</p>
-      <div class="size-input-wrap">
-        <button type="button" class="size-btn" id="sizeDecrement" aria-label="Verminder aantal vierkante meter">−</button>
-        <div class="size-display">
-          <label class="sr-only" for="sizeInput">Aantal vierkante meter</label>
-          <input type="number" id="sizeInput" inputmode="numeric" min="1" max="999" value="20" aria-label="Aantal vierkante meter">
-          <span class="size-unit">m²</span>
-        </div>
-        <button type="button" class="size-btn" id="sizeIncrement" aria-label="Verhoog aantal vierkante meter">+</button>
-      </div>
-      <p class="field-error" id="sizeFieldError" role="alert"></p>
-      <div class="size-presets" id="sizePresets"></div>
-      <button type="button" class="btn btn-primary btn-lg btn-block" id="sizeNextBtn">Volgende <svg class="icon"><use href="#i-arrow-right"></use></svg></button>
-    </div>
-
-    <!-- STEP 4: afwerkingsniveau -->
-    <div class="calc-step" data-step="4">
-      <h2 class="calc-question">Welk afwerkingsniveau heb je in gedachten?</h2>
-      <p class="calc-hint">Dit bepaalt de kwaliteit van materialen en afwerking.</p>
-      <div class="option-grid finish-grid">
-        <button type="button" class="option-card js-level-option finish-card" data-level="basis">
-          <span class="finish-price">€</span>
-          <span class="opt-label">Basis</span>
-          <p>Functioneel en efficiënt, met standaard materialen.</p>
-        </button>
-        <button type="button" class="option-card js-level-option finish-card" data-level="standaard">
-          <span class="finish-price">€€</span>
-          <span class="opt-label">Standaard</span>
-          <p>Kwalitatieve materialen met een verzorgde afwerking.</p>
-        </button>
-        <button type="button" class="option-card js-level-option finish-card" data-level="premium">
-          <span class="finish-price">€€€</span>
-          <span class="opt-label">Premium</span>
-          <p>Hoogwaardige materialen en maatwerk tot in het detail.</p>
-        </button>
-      </div>
-    </div>
-
-    <!-- STEP 5: opmerkingen -->
-    <div class="calc-step" data-step="5">
-      <h2 class="calc-question">Nog specifieke wensen of opmerkingen?</h2>
-      <p class="calc-hint">Optioneel — help ELYAN om een nog nauwkeurigere inschatting te maken.</p>
-      <label class="sr-only" for="notesInput">Extra opmerkingen</label>
-      <textarea id="notesInput" placeholder="Bijv. open keuken, inloopdouche, vloerverwarming..."></textarea>
-      <span class="char-count" id="notesCount">0 / 500</span>
-      <div class="calc-actions">
-        <button type="button" class="btn btn-ghost" id="skipNotesBtn">Overslaan</button>
-        <button type="button" class="btn btn-primary btn-lg" id="calculateBtn">Bereken mijn renovatie <svg class="icon"><use href="#i-arrow-right"></use></svg></button>
-      </div>
-    </div>
+    <!-- Dynamische vragen (per categorie, 12–15 stappen) -->
+    <div class="calc-step" id="calcStepHost"></div>
 
     <!-- LOADING -->
     <div class="calc-step calc-loading" id="loadingStep">
@@ -415,9 +345,9 @@
     </div>
 
     <div class="price-card">
-      <span class="label">Geschatte prijs</span>
-      <span class="price" id="resultPrice">€0</span>
-      <span class="range" id="resultRange">€0 – €0</span>
+      <span class="label">Geschatte prijsvork</span>
+      <span class="price" id="resultPrice">€0 – €0</span>
+      <span class="range" id="resultRange">Richtprijs €0</span>
       <span class="duration"><svg class="icon"><use href="#i-clock"></use></svg><span id="resultDuration">– weken</span></span>
     </div>
 
@@ -458,12 +388,12 @@
 
     <div class="cta-card">
       <h3><svg class="icon"><use href="#i-mail"></use></svg> Ontvang je volledige renovatierapport</h3>
-      <p>Een uitgebreid rapport met gedetailleerde kostenraming, tijdlijn en concrete tips, rechtstreeks in je mailbox.</p>
+      <p>Een premium PDF-rapport op maat van jouw antwoorden: prijsvork, kostenuitsplitsing, inzichten, planning en volgende stappen.</p>
       <ul class="cta-benefits">
-        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Volledige kostenraming per post</li>
+        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Gedetailleerde kostenraming per post</li>
         <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Vergelijking met gelijkaardige projecten</li>
-        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Concrete tips en mogelijke premies</li>
-        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Direct in je mailbox, geen wachttijd</li>
+        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Persoonlijke inzichten en planningstips</li>
+        <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Premies, btw-tips en concrete vervolgstappen</li>
       </ul>
       <div id="emailCaptureForm">
         <div class="email-form">
@@ -506,6 +436,9 @@
 <script defer src="/_vercel/speed-insights/script.js"></script>
 
 <script src="/js/site.js" defer></script>
+<script src="/shared/pricing.js" defer></script>
+<script src="/shared/questions.js" defer></script>
+<script src="/shared/insights.js" defer></script>
 <script src="/js/calculator.js" defer></script>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
