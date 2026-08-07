@@ -144,6 +144,9 @@ strong{color:var(--ink);font-weight:600;}
 .hero-trust{display:flex;flex-wrap:wrap;gap:12px 18px;font-size:.84rem;color:var(--ink-soft);font-weight:600;}
 .hero-trust span{display:inline-flex;align-items:center;gap:7px;}
 .hero-trust .icon{width:15px;height:15px;color:var(--primary);}
+/* Mobile-only hero variants — hidden on desktop */
+.hero-sub--mobile,
+.hero-trust-line{display:none;}
 
 .hero-stage{
   position:relative;
@@ -175,66 +178,93 @@ strong{color:var(--ink);font-weight:600;}
   }
 }
 
-/* Mobile / narrow: image fully visible, calculation card below */
+/* ============ MOBILE HERO — architectural quiet luxury ============ */
 @media (max-width:959px){
-  .hero{padding:calc(60px + var(--sp-4)) 0 var(--sp-5);}
-  .hero-inner{gap:1.15rem;}
-  .hero-badge{
-    gap:6px;
-    padding:5px 11px 5px 9px;
-    margin-bottom:10px;
-    font-size:.68rem;
-    font-weight:600;
-    letter-spacing:.01em;
-    color:var(--ink-faint);
-    background:transparent;
-    border:1px solid var(--line);
+  .hero{
+    padding:calc(56px + 1.75rem) 0 2rem;
+    background:linear-gradient(180deg, #FBFaf6 0%, var(--white) 72%);
   }
-  .hero-badge .icon{width:12px;height:12px;opacity:.75;}
-  .hero h1{max-width:12ch;margin-bottom:10px;line-height:1.06;}
-  .hero-sub{margin-bottom:1.05rem;line-height:1.5;}
-  .hero-actions{gap:12px;width:100%;}
-  .hero-trust{
-    display:flex;
-    flex-wrap:nowrap;
-    align-items:center;
-    gap:0;
-    width:100%;
-    font-size:.72rem;
+  .hero-inner{
+    gap:2rem;
+    align-items:stretch;
+  }
+  .hero-copy{max-width:none;}
+
+  /* Remove badge on mobile */
+  .hero-badge{display:none !important;}
+
+  /* Headline as visual hero */
+  .hero h1{
+    max-width:10.5ch;
+    margin:0 0 1rem;
+    font-size:clamp(2.15rem,8.2vw,2.65rem);
     font-weight:600;
+    letter-spacing:-.035em;
+    line-height:1.08;
+  }
+  .hero h1 .accent{color:var(--primary);}
+
+  /* Short line only */
+  .hero-sub--full{display:none;}
+  .hero-sub--mobile{
+    display:block;
+    margin:0 0 1.75rem;
+    max-width:22em;
+    font-size:1.02rem;
+    font-weight:400;
+    line-height:1.45;
+    color:var(--ink-soft);
     letter-spacing:-.01em;
   }
-  .hero-trust span{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    white-space:nowrap;
-    flex:0 1 auto;
-    min-width:0;
+
+  .hero-actions{
+    gap:1.15rem;
+    width:100%;
+    align-items:flex-start;
   }
-  .hero-trust span + span{
-    margin-left:10px;
-    padding-left:10px;
-    border-left:1px solid var(--line);
+
+  /* Refined CTA — not an oversized pill */
+  .hero-cta.btn-lg{
+    height:50px;
+    padding:0 26px;
+    font-size:.92rem;
+    font-weight:600;
+    border-radius:12px;
+    letter-spacing:-.01em;
+    box-shadow:none;
   }
-  .hero-trust .icon{width:13px;height:13px;flex-shrink:0;}
+  .hero-cta.btn-lg .icon{width:16px;height:16px;}
+
+  /* Hide icon trust row; show quiet line */
+  .hero-trust--full{display:none !important;}
+  .hero-trust-line{
+    display:block;
+    margin:0;
+    padding:0;
+    font-size:.78rem;
+    font-weight:500;
+    letter-spacing:.02em;
+    color:var(--ink-faint);
+    line-height:1.4;
+  }
+
+  /* Editorial image — full width within calm gutters, then card */
   .hero-stage{
     display:flex;
     flex-direction:column;
-    gap:var(--sp-4);
+    gap:1.35rem;
     min-height:0;
-    /* Slightly wider editorial photo, controlled side margins */
-    width:calc(100% + 2 * var(--sp-5) - 24px);
+    width:calc(100% + 2 * var(--sp-5) - 28px);
     max-width:none;
-    margin-left:calc(12px - var(--sp-5));
-    margin-right:calc(12px - var(--sp-5));
+    margin-left:calc(14px - var(--sp-5));
+    margin-right:calc(14px - var(--sp-5));
   }
   .hero-photo{
     aspect-ratio:4/3;
-    border-radius:18px;
-    box-shadow:0 14px 40px rgba(20,21,15,.11);
+    border-radius:14px;
+    box-shadow:0 10px 36px rgba(20,21,15,.08);
   }
-  .hero-photo img{object-position:center 38%;}
+  .hero-photo img{object-position:center 36%;}
   .hero-stage .demo-card{
     position:relative;
     left:auto;right:auto;bottom:auto;
@@ -242,58 +272,52 @@ strong{color:var(--ink);font-weight:600;}
     max-width:none;
     margin:0;
     z-index:1;
-    box-shadow:0 8px 28px rgba(20,21,15,.10);
+    border-radius:14px;
+    box-shadow:0 6px 24px rgba(20,21,15,.08);
   }
 }
+
 @media (max-width:520px){
-  .hero{padding:calc(52px + .55rem) 0 1rem;}
-  .hero-inner{gap:.85rem;}
-  .hero-badge{
-    padding:4px 9px 4px 7px;
-    margin-bottom:7px;
-    font-size:.62rem;
-    letter-spacing:.02em;
-  }
-  .hero-badge .icon{width:11px;height:11px;}
+  .hero{padding:calc(52px + 1.5rem) 0 1.75rem;}
+  .hero-inner{gap:1.75rem;}
   .hero h1{
-    max-width:11ch;
-    font-size:clamp(1.88rem,7.4vw,2.28rem);
-    margin-bottom:7px;
-    line-height:1.05;
+    font-size:clamp(2.05rem,8.5vw,2.45rem);
+    margin-bottom:.9rem;
   }
-  .hero-sub{
+  .hero-sub--mobile{
+    font-size:.98rem;
+    margin-bottom:1.5rem;
+  }
+  .hero-actions{gap:1rem;}
+  .hero-cta.btn-lg{
+    height:48px;
+    padding:0 22px;
     font-size:.9rem;
-    line-height:1.45;
-    margin-bottom:.85rem;
+    border-radius:11px;
   }
-  .hero-actions{gap:10px;}
-  .hero-actions .btn-lg{height:48px;padding:0 22px;font-size:.9rem;}
-  .hero-trust{
-    font-size:clamp(.64rem,2.9vw,.72rem);
-    justify-content:flex-start;
-  }
-  .hero-trust span{gap:4px;}
-  .hero-trust span + span{margin-left:8px;padding-left:8px;}
-  .hero-trust .icon{width:11px;height:11px;}
+  .hero-trust-line{font-size:.74rem;}
   .hero-stage{
-    width:calc(100% + 2 * var(--sp-5) - 20px);
-    margin-left:calc(10px - var(--sp-5));
-    margin-right:calc(10px - var(--sp-5));
-    gap:.9rem;
+    width:calc(100% + 2 * var(--sp-5) - 24px);
+    margin-left:calc(12px - var(--sp-5));
+    margin-right:calc(12px - var(--sp-5));
+    gap:1.2rem;
   }
   .hero-photo{
     aspect-ratio:5/4;
-    border-radius:16px;
+    border-radius:12px;
   }
-  .hero-stage .demo-card{padding:14px 14px 12px;border-radius:16px;}
+  .hero-stage .demo-card{
+    padding:14px 14px 12px;
+    border-radius:12px;
+  }
   .demo-meta{gap:6px;margin-bottom:10px;}
   .demo-meta-item{padding:7px 8px;}
 }
-/* Ultra-narrow: keep trust on one line without overflow */
-@media (max-width:380px){
-  .hero-trust{font-size:.62rem;letter-spacing:-.012em;}
-  .hero-trust span + span{margin-left:7px;padding-left:7px;}
-  .hero-trust .icon{width:10px;height:10px;}
+
+@media (max-width:360px){
+  .hero h1{font-size:1.95rem;}
+  .hero-sub--mobile{font-size:.94rem;}
+  .hero-trust-line{font-size:.7rem;letter-spacing:.01em;}
 }
 
 .demo-card{
