@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "ELYAN — renovatie-inschattingsplatform voor België",
+  "scripts": {
+    "validate:pricing": "node scripts/validate-pricing.js",
+    "test:parity": "node scripts/test-parity.js",
+    "test:pdfs": "node scripts/generate-test-pdfs.js"
+  },
   "dependencies": {
     "pdfkit": "^0.19.1"
   }

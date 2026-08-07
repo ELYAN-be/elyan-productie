@@ -494,9 +494,15 @@
       var priceLabel = document.querySelector('.price-card .label');
       if (priceLabel) priceLabel.textContent = 'Geschatte prijsvork';
 
-      var materiaalBedrag = Math.round(r.price * r.split.materiaal);
-      var arbeidBedrag = Math.round(r.price * r.split.arbeid);
-      var overigeBedrag = r.price - materiaalBedrag - arbeidBedrag;
+      var materiaalBedrag = (r.amounts && r.amounts.materiaal != null)
+        ? r.amounts.materiaal
+        : Math.round(r.price * r.split.materiaal);
+      var arbeidBedrag = (r.amounts && r.amounts.arbeid != null)
+        ? r.amounts.arbeid
+        : Math.round(r.price * r.split.arbeid);
+      var overigeBedrag = (r.amounts && r.amounts.overige != null)
+        ? r.amounts.overige
+        : (r.price - materiaalBedrag - arbeidBedrag);
       setCostRow('materiaal', materiaalBedrag, r.split.materiaal);
       setCostRow('arbeid', arbeidBedrag, r.split.arbeid);
       setCostRow('overige', overigeBedrag, r.split.overige);

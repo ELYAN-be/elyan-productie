@@ -1,15 +1,22 @@
 /* ============================================================
-   ELYAN — Prijsengine (Belgische mid-market richtprijzen 2025-2026)
-   Indicatief. Server herberekent altijd; client toont dezelfde logica.
+   ELYAN — Componentprijsengine België 2026
+   Single source of truth voor client + server.
+   Werkpakketten → materiaal / manuren / overige → low/base/high
    ============================================================ */
 (function (root, factory) {
+  var market;
   if (typeof module === 'object' && module.exports) {
-    module.exports = factory();
+    market = require('./market-data-2026');
+    module.exports = factory(market);
   } else {
-    root.ElyanPricing = factory();
+    root.ElyanPricing = factory(root.ElyanMarketData);
   }
-})(typeof self !== 'undefined' ? self : this, function () {
+})(typeof self !== 'undefined' ? self : this, function (MARKET) {
   'use strict';
+
+  if (!MARKET) {
+    throw new Error('ELYAN: market-data-2026 ontbreekt');
+  }
 
   var CATEGORIES = {
     badkamer: {
@@ -17,49 +24,49 @@
       resultNoun: 'badkamerrenovatie',
       icon: 'i-bath',
       split: { materiaal: 0.40, arbeid: 0.48, overige: 0.12 },
-      premieNote: 'Voor een badkamerrenovatie bestaat doorgaans geen specifieke premie, tenzij het gaat om een aanpassing voor senioren of personen met een beperking.'
+      premieNote: 'Voor een klassieke badkamerrenovatie bestaat doorgaans geen specifieke energiepremie, tenzij aanpassingen voor senioren of personen met een beperking. Check altijd het officiële loket van jouw regio.'
     },
     keuken: {
       label: 'Keuken',
       resultNoun: 'keukenrenovatie',
       icon: 'i-utensils',
       split: { materiaal: 0.55, arbeid: 0.35, overige: 0.10 },
-      premieNote: 'Voor een keukenrenovatie op zich bestaat doorgaans geen specifieke premie.'
+      premieNote: 'Voor een keukenrenovatie op zich bestaat doorgaans geen specifieke renovatiepremie. Energiepremies raken hoogstens toestellen of isolatie elders in de woning.'
     },
     dak: {
       label: 'Dak',
       resultNoun: 'dakrenovatie',
       icon: 'i-roof',
-      split: { materiaal: 0.55, arbeid: 0.38, overige: 0.07 },
-      premieNote: 'Dakisolatie is één van de meest gesubsidieerde renovatiewerken in België — zeker het controleren waard via het loket van jouw regio.'
+      split: { materiaal: 0.45, arbeid: 0.45, overige: 0.10 },
+      premieNote: 'Dakisolatie kan relevant zijn voor Mijn VerbouwPremie (Vlaanderen), Primes Habitation of Renolution — afhankelijk van regio, inkomen en eigendomstype. Sinds 1 maart 2026 gelden strengere MVP-regels voor hogere inkomens.'
     },
     vloeren: {
       label: 'Vloeren',
       resultNoun: 'vloerrenovatie',
       icon: 'i-layers',
-      split: { materiaal: 0.50, arbeid: 0.40, overige: 0.10 },
-      premieNote: 'Bij vloerisolatie kom je in sommige regio’s in aanmerking voor een energiepremie.'
+      split: { materiaal: 0.45, arbeid: 0.45, overige: 0.10 },
+      premieNote: 'Bij vloerisolatie kan een energiepremie relevant zijn. Een afwerkingsvloer op zich geeft meestal geen premie.'
     },
     schilderwerken: {
       label: 'Schilderwerken',
       resultNoun: 'schilderwerken',
       icon: 'i-roller',
-      split: { materiaal: 0.25, arbeid: 0.65, overige: 0.10 },
+      split: { materiaal: 0.20, arbeid: 0.70, overige: 0.10 },
       premieNote: 'Voor schilderwerken op zich zijn er doorgaans geen premies beschikbaar.'
     }
   };
 
   var PROVINCES = {
-    antwerpen: { label: 'Antwerpen', mult: 1.06, region: 'vlaanderen' },
-    brussel: { label: 'Brussel', mult: 1.15, region: 'brussel' },
-    henegouwen: { label: 'Henegouwen', mult: 0.94, region: 'wallonie' },
+    antwerpen: { label: 'Antwerpen', mult: 1.05, region: 'vlaanderen' },
+    brussel: { label: 'Brussel', mult: 1.12, region: 'brussel' },
+    henegouwen: { label: 'Henegouwen', mult: 0.95, region: 'wallonie' },
     limburg: { label: 'Limburg', mult: 0.97, region: 'vlaanderen' },
-    luik: { label: 'Luik', mult: 0.97, region: 'wallonie' },
-    luxemburg: { label: 'Luxemburg', mult: 0.92, region: 'wallonie' },
-    namen: { label: 'Namen', mult: 0.94, region: 'wallonie' },
+    luik: { label: 'Luik', mult: 0.96, region: 'wallonie' },
+    luxemburg: { label: 'Luxemburg', mult: 0.93, region: 'wallonie' },
+    namen: { label: 'Namen', mult: 0.95, region: 'wallonie' },
     'oost-vlaanderen': { label: 'Oost-Vlaanderen', mult: 1.02, region: 'vlaanderen' },
-    'vlaams-brabant': { label: 'Vlaams-Brabant', mult: 1.08, region: 'vlaanderen' },
-    'waals-brabant': { label: 'Waals-Brabant', mult: 1.08, region: 'wallonie' },
+    'vlaams-brabant': { label: 'Vlaams-Brabant', mult: 1.06, region: 'vlaanderen' },
+    'waals-brabant': { label: 'Waals-Brabant', mult: 1.06, region: 'wallonie' },
     'west-vlaanderen': { label: 'West-Vlaanderen', mult: 1.00, region: 'vlaanderen' }
   };
 
@@ -69,32 +76,37 @@
     brussel: { label: 'Renolution (Brussel)', url: 'https://leefmilieu.brussels/professionelen/subsidies/renolution-premies' }
   };
 
-  var BTW_TIP = 'Is je woning ouder dan 10 jaar? Dan kom je mogelijk in aanmerking voor het verlaagd btw-tarief van 6% in plaats van 21%.';
+  var BTW_TIP = 'Indicatief btw-scenario: bij een privéwoning die minstens 10 jaar in gebruik is, kan onder wettelijke voorwaarden 6% btw gelden i.p.v. 21%. Het definitieve tarief moet door de aannemer worden bevestigd.';
 
   var PRAKTISCHE_TIPS = [
-    'Vraag steeds minstens 3 offertes op voor je een aannemer kiest.',
-    'Voorzie 10 à 15% van je budget als buffer voor onvoorziene kosten.',
-    'Controleer het ondernemingsnummer en de erkenning van je aannemer.',
-    'Leg afspraken over timing en betaling altijd schriftelijk vast.'
+    'Vergelijk offertes op scope, niet alleen op totaalprijs: afbraak, afvoer, steiger, btw en garanties.',
+    'Voorzie een buffer gekoppeld aan de onzekerheid van jouw project (typisch 10–15%).',
+    'Controleer het ondernemingsnummer en erkenning van je aannemer.',
+    'Leg timing, meerwerken en betalingsschema schriftelijk vast.'
   ];
 
   var VOLGENDE_STAPPEN = [
-    'Vraag minstens 3 offertes op bij erkende aannemers en vergelijk ze met dit rapport.',
-    'Check of jouw project in aanmerking komt voor een premie via het officiële loket van jouw regio.',
-    'Voorzie een buffer van 10 à 15% van je budget voor onvoorziene kosten.',
-    'Leg een gewenste startdatum vast, rekening houdend met de geschatte duurtijd hierboven.',
-    'Bewaar dit rapport als referentie tijdens je gesprekken met aannemers.'
+    'Controleer oppervlakte en scope van jouw project aan de hand van dit rapport.',
+    'Verzamel foto\'s of plannen en vraag minstens 3 vergelijkbare offertes.',
+    'Gebruik de ELYAN-kostentabel als referentie bij het vergelijken.',
+    'Laat btw-tarief en eventuele premievoorwaarden expliciet bevestigen.',
+    'Leg scope, planning en buffer schriftelijk vast vóór start.'
   ];
 
-  var LEVEL_MULT = { basis: 0.88, standaard: 1.0, premium: 1.32 };
   var LEVEL_LABEL = { basis: 'Basis', standaard: 'Standaard', premium: 'Premium' };
+  var LEVEL_MAT = { basis: 0.88, standaard: 1.0, premium: 1.28 };
+  var LEVEL_LABOUR = { basis: 0.95, standaard: 1.0, premium: 1.08 };
 
   function round50(n) {
-    return Math.round(n / 50) * 50;
+    return Math.round(Number(n) / 50) * 50;
+  }
+
+  function round10(n) {
+    return Math.round(Number(n) / 10) * 10;
   }
 
   function fmtEUR(n) {
-    return '€' + Math.round(n).toLocaleString('nl-BE');
+    return '€ ' + Math.round(n).toLocaleString('nl-BE');
   }
 
   function isValidEmail(v) {
@@ -105,401 +117,1401 @@
     return map[key] !== undefined ? map[key] : fallback;
   }
 
-  function addItem(items, label, amount, bucket) {
-    var amt = Math.round(amount);
-    if (amt <= 0) return;
-    items.push({ label: label, amount: amt, bucket: bucket || 'overige' });
+  function band(obj) {
+    if (!obj) return { low: 0, base: 0, high: 0 };
+    if (typeof obj === 'number') return { low: obj, base: obj, high: obj };
+    return {
+      low: Number(obj.low) || 0,
+      base: Number(obj.base) || 0,
+      high: Number(obj.high) || 0
+    };
+  }
+
+  function scaleBand(b, factor) {
+    return { low: b.low * factor, base: b.base * factor, high: b.high * factor };
+  }
+
+  function addBands(a, b) {
+    return { low: a.low + b.low, base: a.base + b.base, high: a.high + b.high };
   }
 
   function weeksFromDays(days) {
-    var weeksLow = Math.max(1, Math.round((days / 7) * 0.85));
-    var weeksHigh = Math.max(weeksLow + 1, Math.round((days / 7) * 1.25));
+    var calDays = Math.max(1, days * 1.35);
+    var weeksLow = Math.max(1, Math.round((calDays / 7) * 0.9));
+    var weeksHigh = Math.max(weeksLow + 1, Math.round((calDays / 7) * 1.35));
     return { weeksLow: weeksLow, weeksHigh: weeksHigh };
   }
 
-  function finalize(catKey, provKey, answers, items, days, drivers, bandPad) {
-    var cat = CATEGORIES[catKey];
-    var prov = PROVINCES[provKey];
-    var level = answers.level || 'standaard';
-    var size = Math.max(1, Number(answers.size) || 1);
-    var subtotal = 0;
-    items.forEach(function (it) { subtotal += it.amount; });
-
-    var withRegion = subtotal * (prov ? prov.mult : 1);
-    var mid = round50(Math.max(500, withRegion));
-    var padLow = bandPad && bandPad.low !== undefined ? bandPad.low : 0.87;
-    var padHigh = bandPad && bandPad.high !== undefined ? bandPad.high : 1.18;
-    var low = round50(mid * padLow);
-    var high = round50(mid * padHigh);
-    if (high <= low) high = low + 500;
-
-    var weeks = weeksFromDays(days);
-    var contingency = round50(mid * 0.12);
-
-    var buckets = { materiaal: 0, arbeid: 0, overige: 0 };
-    items.forEach(function (it) {
-      buckets[it.bucket] = (buckets[it.bucket] || 0) + it.amount;
-    });
-    var itemSum = buckets.materiaal + buckets.arbeid + buckets.overige || 1;
-    var split = {
-      materiaal: buckets.materiaal / itemSum,
-      arbeid: buckets.arbeid / itemSum,
-      overige: buckets.overige / itemSum
+  function rateFor(trade, complexity) {
+    var r = MARKET.labour[trade] || MARKET.labour.general;
+    var c = complexity || 1;
+    return {
+      low: r.low * Math.min(1, c),
+      base: r.base * c,
+      high: r.high * Math.max(1, c)
     };
-    // fallback to category defaults if empty
-    if (!itemSum) split = cat.split;
+  }
 
-    var scaledItems = items.map(function (it) {
-      return {
-        label: it.label,
-        amount: round50(it.amount * (prov ? prov.mult : 1) * (mid / Math.max(1, withRegion))),
-        bucket: it.bucket
-      };
+  /* ---------- work package builder ---------- */
+
+  function createPackage(id, label, opts) {
+    opts = opts || {};
+    var mat = band(opts.material);
+    var hours = band(opts.labourHours);
+    var other = band(opts.other);
+    var rate = opts.labourRate || MARKET.labour.general.base;
+    var rateBand = typeof rate === 'object' ? band(rate) : { low: rate * 0.92, base: rate, high: rate * 1.08 };
+
+    var labourAmt = {
+      low: hours.low * rateBand.low,
+      base: hours.base * rateBand.base,
+      high: hours.high * rateBand.high
+    };
+
+    return {
+      id: id,
+      label: label,
+      materialLow: round10(mat.low),
+      materialBase: round10(mat.base),
+      materialHigh: round10(mat.high),
+      labourHoursLow: Math.round(hours.low * 10) / 10,
+      labourHoursBase: Math.round(hours.base * 10) / 10,
+      labourHoursHigh: Math.round(hours.high * 10) / 10,
+      labourRate: Math.round(rateBand.base),
+      labourLow: round10(labourAmt.low),
+      labourBase: round10(labourAmt.base),
+      labourHigh: round10(labourAmt.high),
+      otherLow: round10(other.low),
+      otherBase: round10(other.base),
+      otherHigh: round10(other.high),
+      totalLow: round10(mat.low + labourAmt.low + other.low),
+      totalBase: round10(mat.base + labourAmt.base + other.base),
+      totalHigh: round10(mat.high + labourAmt.high + other.high),
+      reason: opts.reason || ''
+    };
+  }
+
+  function sumPackages(packages, keyLow, keyBase, keyHigh) {
+    var out = { low: 0, base: 0, high: 0 };
+    packages.forEach(function (p) {
+      out.low += p[keyLow] || 0;
+      out.base += p[keyBase] || 0;
+      out.high += p[keyHigh] || 0;
     });
-    // Fix rounding so items sum near mid
-    var scaledSum = 0;
-    scaledItems.forEach(function (it) { scaledSum += it.amount; });
-    if (scaledItems.length && scaledSum !== mid) {
-      scaledItems[scaledItems.length - 1].amount += mid - scaledSum;
+    return out;
+  }
+
+  function applyRegion(packages, mult) {
+    return packages.map(function (p) {
+      var m = mult;
+      return createPackage(p.id, p.label, {
+        material: { low: p.materialLow * m, base: p.materialBase * m, high: p.materialHigh * m },
+        labourHours: { low: p.labourHoursLow, base: p.labourHoursBase, high: p.labourHoursHigh },
+        labourRate: { low: p.labourRate * 0.92 * m, base: p.labourRate * m, high: p.labourRate * 1.08 * m },
+        other: { low: p.otherLow * m, base: p.otherBase * m, high: p.otherHigh * m },
+        reason: p.reason
+      });
+    });
+  }
+
+  function vatScenario(housingAge) {
+    var indicativeRate = (housingAge === 'middel' || housingAge === 'oud')
+      ? MARKET.vat.reducedRenovation
+      : MARKET.vat.standard;
+    return {
+      rate: indicativeRate,
+      label: indicativeRate === 0.06 ? '6% (indicatief renovatie)' : '21% (standaard)',
+      disclaimer: 'Indicatief btw-scenario op basis van woningouderdom. Definitief btw-tarief moet door de aannemer worden bevestigd op basis van de wettelijke voorwaarden.'
+    };
+  }
+
+  function contingencyFor(answers, packages) {
+    var unknown = 0;
+    Object.keys(answers || {}).forEach(function (k) {
+      if (answers[k] === 'onbekend' || answers[k] === 'mogelijk') unknown++;
+    });
+    var cfg = MARKET.contingency.normal;
+    if (unknown >= 2 || answers.asbestos === 'ja' || answers.substrate === 'slecht' || answers.surface === 'slecht') {
+      cfg = MARKET.contingency.highUncertainty;
+    } else if (unknown === 0 && answers.access !== 'moeilijk' && answers.plumbingMove !== 'ja' && answers.connections !== 'ja') {
+      cfg = MARKET.contingency.lowUncertainty;
+    }
+    return cfg;
+  }
+
+  function premieInfo(type, answers, provKey) {
+    var prov = PROVINCES[provKey];
+    var region = prov ? prov.region : 'vlaanderen';
+    var link = REGION_LINKS[region];
+    var items = [];
+
+    if (region === 'vlaanderen') {
+      if (type === 'dak' && (answers.insulation === 'ja' || answers.workType === 'isolatie' || answers.workType === 'volledig')) {
+        items.push({
+          scheme: 'Mijn VerbouwPremie — dakisolatie',
+          relevance: 'mogelijk',
+          reason: 'Dakisolatie kan premie-gevoelig zijn, maar sinds 1 maart 2026 komen eigenaar-bewoners uit inkomenscategorie 1 en 2 hiervoor niet meer in aanmerking. Categorie 3 en 4 behouden mogelijkheden.',
+          conditions: [
+            'Eigendomstype en inkomenscategorie bepalen de toegang',
+            'Technische eisen (o.a. Rd-waarde) moeten gehaald worden',
+            'Aanvraag op basis van factuur, binnen de geldende termijnen'
+          ],
+          missing: ['Inkomen / categorie', 'Eigendomstype (eigenaar-bewoner of investeerder)', 'Exacte isolatiespecificatie'],
+          officialUrl: link.url,
+          checkedAt: MARKET.meta.asOf,
+          regulationDate: '2026-03-01'
+        });
+      } else if (type === 'vloeren' && answers.ufh === 'nieuw') {
+        items.push({
+          scheme: 'Mijn VerbouwPremie — vloerisolatie / energie',
+          relevance: 'mogelijk',
+          reason: 'Alleen relevant als er effectief vloerisolatie of een premiewaardige energie-ingreep gebeurt — niet voor enkel een afwerkingsvloer.',
+          conditions: ['Inkomenscategorie 3 of 4 (of specifieke uitzonderingen)', 'Technische eisen'],
+          missing: ['Of isolatie deel uitmaakt van de werken', 'Inkomen'],
+          officialUrl: link.url,
+          checkedAt: MARKET.meta.asOf,
+          regulationDate: '2026-03-01'
+        });
+      } else {
+        items.push({
+          scheme: link.label,
+          relevance: 'beperkt',
+          reason: CATEGORIES[type].premieNote,
+          conditions: ['Controleer of jouw werken onder een premiecategorie vallen'],
+          missing: ['Inkomen', 'Eigendomstype'],
+          officialUrl: link.url,
+          checkedAt: MARKET.meta.asOf,
+          regulationDate: '2026-03-01'
+        });
+      }
+    } else {
+      items.push({
+        scheme: link.label,
+        relevance: 'mogelijk',
+        reason: 'Regionale premies verschillen. Raadpleeg het officiële loket voor actuele voorwaarden.',
+        conditions: ['Regiospecifieke voorwaarden'],
+        missing: ['Persoonlijke premievoorwaarden'],
+        officialUrl: link.url,
+        checkedAt: MARKET.meta.asOf,
+        regulationDate: null
+      });
     }
 
-    var peerLow = round50(low * 0.95);
-    var peerHigh = round50(high * 1.05);
+    return items;
+  }
+
+  function enrichBm(src, sizeOrFactor, opts) {
+    opts = opts || {};
+    var factor = opts.factor != null ? opts.factor : (sizeOrFactor || 1);
+    var low = (src && src.low != null ? src.low : 0) * factor;
+    var high = (src && src.high != null ? src.high : 0) * factor;
+    return {
+      low: round50(low),
+      high: round50(high),
+      unit: opts.unit || (src && src.unit) || 'EUR',
+      vatStatus: (src && src.vatStatus) || opts.vatStatus || 'excl',
+      kind: (src && src.kind) || opts.kind || 'marketBenchmark',
+      scope: (src && src.scope) || opts.scope || '',
+      scopeMatch: opts.scopeMatch || 'direct',
+      reason: (src && src.reason) || opts.reason || '',
+      sources: (src && src.sources) || opts.sources || [],
+      softSources: (src && src.softSources) || [],
+      compareMode: opts.compareMode || 'total',
+      excludePackageIds: opts.excludePackageIds || null,
+      label: opts.label || ''
+    };
+  }
+
+  function marketBenchmark(type, answers, size) {
+    if (type === 'dak') {
+      var roof = MARKET.roof.benchmarks;
+      var exclExtras = ['scaffold', 'gutters', 'asbestos', 'asbestos-survey'];
+      if (answers.workType === 'herstelling') {
+        return enrichBm(
+          { low: 50, high: 120, unit: 'EUR/m2', vatStatus: 'excl', kind: 'modelAssumption',
+            scope: 'Lokale herstelling (geen publicatie-identieke band)', reason: 'Afgeleid van cover-only lower range' },
+          size * 0.45,
+          { scopeMatch: 'not-direct', compareMode: 'exScaffoldEtc', excludePackageIds: exclExtras, label: 'Herstelling (model)' }
+        );
+      }
+      if (answers.workType === 'isolatie') {
+        var isoSrc = answers.roofType === 'plat' ? roof.flatCoverInsulation : roof.pitchedCoverInsulation;
+        return enrichBm(isoSrc, size, {
+          scopeMatch: 'direct',
+          compareMode: 'exScaffoldEtc',
+          excludePackageIds: exclExtras,
+          label: 'Bedekking+isolatie / isolatiewerken'
+        });
+      }
+      if (answers.workType === 'vernieuwen') {
+        var coverSrc = answers.roofType === 'plat' ? roof.flatCoverOnly : roof.pitchedCoverOnly;
+        return enrichBm(coverSrc, size, {
+          scopeMatch: answers.insulation === 'ja' ? 'not-direct' : 'direct',
+          compareMode: 'exScaffoldEtc',
+          excludePackageIds: exclExtras,
+          label: 'Enkel bedekking',
+          reason: answers.insulation === 'ja'
+            ? 'ELYAN heeft ook isolatie; cover-only benchmark is niet-direct voor het totaal'
+            : coverSrc.reason
+        });
+      }
+      // volledig
+      if (answers.roofType === 'plat') {
+        return enrichBm(roof.flatCoverInsulation, size, {
+          scopeMatch: 'direct',
+          compareMode: 'exScaffoldEtc',
+          excludePackageIds: exclExtras,
+          label: 'Plat bedekking+isolatie'
+        });
+      }
+      return enrichBm(roof.pitchedFullComparable, size, {
+        scopeMatch: 'direct',
+        compareMode: 'exScaffoldEtc',
+        excludePackageIds: exclExtras,
+        label: 'Hellend volledig (zonder steiger/goten/asbest)'
+      });
+    }
+
+    if (type === 'badkamer') {
+      var b = MARKET.bathroom.benchmarks;
+      var bandSrc = answers.scope === 'opfrissing' ? b.light
+        : answers.scope === 'gedeeltelijk' ? b.partial
+        : answers.level === 'premium' ? b.premium : b.fullStandard;
+      var sf = Math.max(0.75, Math.min(1.4, size / 8));
+      var label = answers.scope === 'opfrissing' ? 'Light/basic'
+        : answers.scope === 'gedeeltelijk' ? 'Gedeeltelijk'
+        : answers.level === 'premium' ? 'Premium' : 'Volledig standaard';
+      return enrichBm(bandSrc, sf, {
+        unit: 'EUR/project',
+        scopeMatch: 'direct',
+        label: label
+      });
+    }
+
+    if (type === 'keuken') {
+      var k = MARKET.kitchen.benchmarks;
+      var kSrc;
+      var kLabel;
+      if (answers.scope === 'fronten') {
+        return enrichBm(
+          { low: 3500, high: 9000, vatStatus: 'unclear→soft', kind: 'modelAssumption',
+            scope: 'Facelift/fronten — geen harde BE €/project-publicatie', reason: 'Soft derived from Alkeba lower band' },
+          1,
+          { scopeMatch: 'not-direct', label: 'Fronten (soft)', unit: 'EUR/project' }
+        );
+      }
+      if (answers.cabinets === 'hoog' || answers.level === 'premium') {
+        kSrc = k.premium; kLabel = 'Premium (soft BE)';
+      } else if (answers.cabinets === 'budget' || answers.level === 'basis') {
+        kSrc = k.budget; kLabel = 'Budget (BE)';
+      } else {
+        kSrc = k.mid; kLabel = 'Midden (BE excl. Tipsentricks)';
+      }
+      var kMatch = 'direct';
+      if (kSrc.vatStatus && String(kSrc.vatStatus).indexOf('unclear') !== -1) kMatch = 'soft';
+      if (answers.scope === 'herindelen' || answers.connections === 'ja') kMatch = 'not-direct';
+      return enrichBm(kSrc, 1, {
+        unit: 'EUR/project',
+        scopeMatch: kMatch,
+        label: kLabel
+      });
+    }
+
+    if (type === 'vloeren') {
+      var key = answers.floorMaterial === 'parket' ? 'parket'
+        : answers.floorMaterial === 'tegel' ? 'tegel'
+        : answers.floorMaterial === 'gietvloer' ? 'gietvloer'
+        : answers.floorMaterial === 'vinyl' ? 'vinyl' : 'laminaat';
+      var f = MARKET.floors.benchmarksBaseInstall[key] || MARKET.floors.benchmarksBaseInstall.laminaat;
+      var prep = MARKET.floors.prep;
+      var fLow = f.low * size;
+      var fHigh = f.high * size;
+      var scopeParts = ['basisplaatsing ' + key];
+      var match = 'direct';
+      if (answers.removal === 'ja') {
+        fLow += prep.removal.low * size;
+        fHigh += prep.removal.high * size;
+        scopeParts.push('uitbraak');
+        match = 'direct'; // prep added to both sides
+      }
+      if (answers.leveling === 'volledig' || answers.substrate === 'slecht') {
+        fLow += prep.levelingFull.low * size;
+        fHigh += prep.levelingFull.high * size;
+        scopeParts.push('volledige egalisatie');
+      } else if (answers.leveling === 'beperkt' || answers.substrate === 'matig') {
+        fLow += prep.levelingLimited.low * size;
+        fHigh += prep.levelingLimited.high * size;
+        scopeParts.push('beperkte egalisatie');
+      }
+      if (answers.ufh === 'nieuw') {
+        fLow += 55 * size;
+        fHigh += 95 * size;
+        scopeParts.push('UFH (model)');
+        match = 'not-direct';
+      }
+      if (answers.skirting === 'ja') {
+        fLow += 3.5 * size;
+        fHigh += 7 * size;
+        scopeParts.push('plinten');
+      }
+      return enrichBm(
+        {
+          low: fLow, high: fHigh, unit: 'EUR/project', vatStatus: 'excl',
+          kind: f.kind, sources: f.sources, softSources: f.softSources,
+          scope: scopeParts.join(' + '),
+          reason: f.reason + ' — prep-adders apart van base-install waar van toepassing'
+        },
+        1,
+        { scopeMatch: match, label: 'Vloer ' + key + (match === 'not-direct' ? ' (UFH niet-direct)' : '') }
+      );
+    }
+
+    if (type === 'schilderwerken') {
+      var p = answers.paintScope === 'buiten' || answers.paintScope === 'beide'
+        ? MARKET.painting.benchmarks.exteriorAllIn
+        : MARKET.painting.benchmarks.interiorAllIn;
+      var paintMatch = 'direct';
+      if (answers.woodwork === 'beperkt' || answers.woodwork === 'uitgebreid') paintMatch = 'not-direct';
+      if (answers.floors === '2' || answers.floors === '3plus') paintMatch = 'not-direct';
+      return enrichBm(p, size, {
+        scopeMatch: paintMatch,
+        label: answers.paintScope === 'buiten' ? 'Buiten all-in excl.' : 'Binnen all-in excl.',
+        reason: paintMatch === 'not-direct'
+          ? 'Benchmark is all-in muren/plafonds; schrijnwerk/steiger in ELYAN maakt totaal niet-direct vergelijkbaar'
+          : p.reason
+      });
+    }
+
+    return enrichBm({ low: 0, high: 0 }, 1, { scopeMatch: 'not-direct', kind: 'modelAssumption' });
+  }
+
+  function comparableSubtotal(packages, excludeIds) {
+    if (!excludeIds || !excludeIds.length) {
+      return sumPackages(packages, 'totalLow', 'totalBase', 'totalHigh');
+    }
+    var skip = {};
+    excludeIds.forEach(function (id) { skip[id] = true; });
+    var out = { low: 0, base: 0, high: 0 };
+    packages.forEach(function (p) {
+      if (skip[p.id]) return;
+      out.low += p.totalLow || 0;
+      out.base += p.totalBase || 0;
+      out.high += p.totalHigh || 0;
+    });
+    return out;
+  }
+
+  function labourPlan(packages, crewSize) {
+    var hours = sumPackages(packages, 'labourHoursLow', 'labourHoursBase', 'labourHoursHigh');
+    var phRaw = MARKET.labour.productiveHoursPerDay;
+    var ph = typeof phRaw === 'object' && phRaw && phRaw.value != null ? Number(phRaw.value) : Number(phRaw) || 6.5;
+    var crew = Math.max(1, crewSize || 2);
+    var workDays = hours.base > 0 ? Math.max(1, Math.ceil(hours.base / (crew * ph))) : 0;
+    var workDaysLow = hours.low > 0 ? Math.max(1, Math.ceil(hours.low / (crew * ph))) : 0;
+    var workDaysHigh = hours.high > 0 ? Math.max(workDays, Math.ceil(hours.high / (crew * ph))) : workDays;
+
+    var byPkg = packages
+      .filter(function (p) { return p.labourHoursBase > 0; })
+      .map(function (p) {
+        return { id: p.id, label: p.label, hours: p.labourHoursBase };
+      })
+      .sort(function (a, b) { return b.hours - a.hours; });
+
+    var labourAmt = sumPackages(packages, 'labourLow', 'labourBase', 'labourHigh');
+    var effectiveRate = hours.base > 0 ? Math.round(labourAmt.base / hours.base) : 0;
+
+    return {
+      labourHours: Math.round(hours.base),
+      labourHoursLow: Math.round(hours.low),
+      labourHoursHigh: Math.round(hours.high),
+      crewSize: crew,
+      workDays: workDays,
+      workDaysLow: workDaysLow,
+      workDaysHigh: workDaysHigh,
+      productiveHoursPerDay: ph,
+      effectiveHourlyRate: effectiveRate,
+      topLabourPackages: byPkg.slice(0, 6)
+    };
+  }
+
+  function finalize(catKey, provKey, answers, packages, crewSize, driverDefs) {
+    var cat = CATEGORIES[catKey];
+    var prov = PROVINCES[provKey];
+    var mult = prov ? prov.mult : 1;
+    var size = Math.max(1, Number(answers.size) || 1);
+    var level = answers.level || 'standaard';
+
+    var scaled = applyRegion(packages, mult);
+
+    var mat = sumPackages(scaled, 'materialLow', 'materialBase', 'materialHigh');
+    var lab = sumPackages(scaled, 'labourLow', 'labourBase', 'labourHigh');
+    var oth = sumPackages(scaled, 'otherLow', 'otherBase', 'otherHigh');
+
+    var totalLow = round50(Math.max(400, mat.low + lab.low + oth.low));
+    var totalBase = round50(Math.max(500, mat.base + lab.base + oth.base));
+    var totalHigh = round50(Math.max(totalBase + 300, mat.high + lab.high + oth.high));
+    if (totalLow > totalBase) totalLow = round50(totalBase * 0.88);
+    if (totalHigh < totalBase) totalHigh = round50(totalBase * 1.15);
+
+    var plan = labourPlan(scaled, crewSize);
+    var weeks = weeksFromDays(plan.workDays);
+    var vat = vatScenario(answers.housingAge);
+    var subtotalExVat = totalBase;
+    var vatAmount = round50(subtotalExVat * vat.rate);
+    var totalInclVat = subtotalExVat + vatAmount;
+
+    var sumParts = Math.max(1, mat.base + lab.base + oth.base);
+    var split = {
+      materiaal: Math.round((mat.base / sumParts) * 100) / 100,
+      arbeid: Math.round((lab.base / sumParts) * 100) / 100,
+      overige: Math.round((oth.base / sumParts) * 100) / 100
+    };
+    // normalize rounding
+    var splitSum = split.materiaal + split.arbeid + split.overige;
+    if (Math.abs(splitSum - 1) > 0.01) {
+      split.overige = Math.round((1 - split.materiaal - split.arbeid) * 100) / 100;
+    }
+
+    var lineItems = scaled
+      .filter(function (p) { return p.totalBase > 0; })
+      .map(function (p) {
+        return {
+          id: p.id,
+          label: p.label,
+          amount: round50(p.totalBase),
+          material: round50(p.materialBase),
+          labour: round50(p.labourBase),
+          other: round50(p.otherBase),
+          labourHours: p.labourHoursBase,
+          bucket: p.labourBase >= p.materialBase && p.labourBase >= p.otherBase ? 'arbeid'
+            : p.materialBase >= p.otherBase ? 'materiaal' : 'overige',
+          reason: p.reason
+        };
+      });
+
+    var contCfg = contingencyFor(answers, scaled);
+    var contingency = round50(totalBase * ((contCfg.low + contCfg.high) / 2));
+    var contingencyPct = { low: contCfg.low, high: contCfg.high };
+
+    var bm = marketBenchmark(catKey, answers, size);
+    var compareBase = totalBase;
+    var comparableNote = '';
+    if (bm.compareMode === 'exScaffoldEtc' && bm.excludePackageIds) {
+      var comp = comparableSubtotal(scaled, bm.excludePackageIds);
+      compareBase = round50(Math.max(400, comp.base));
+      comparableNote = 'Positie t.o.v. benchmark op scope-identiek subtotaal (excl. steiger/goten/asbest): ' + fmtEUR(compareBase);
+    }
+    var position = 'marktconform';
+    if (bm.scopeMatch === 'not-direct') {
+      position = 'niet-direct-vergelijkbaar';
+    } else if (compareBase < bm.low * 0.9) {
+      position = 'lager';
+    } else if (compareBase > bm.high * 1.1) {
+      position = 'hoger';
+    }
 
     var unknownCount = 0;
     Object.keys(answers).forEach(function (k) {
       if (answers[k] === 'onbekend' || answers[k] === 'mogelijk') unknownCount++;
     });
     var confidence = unknownCount >= 2 ? 'indicatief' : unknownCount === 1 ? 'gemiddeld' : 'hoog';
+    if (bm.kind === 'modelAssumption' || bm.scopeMatch === 'soft' || bm.scopeMatch === 'not-direct') {
+      if (confidence === 'hoog') confidence = 'gemiddeld';
+    }
+    if (String(bm.vatStatus || '').indexOf('unclear') !== -1 && confidence === 'hoog') {
+      confidence = 'gemiddeld';
+    }
+    // Keuken: all-in BM verbeterd, maar componentprijzen (kasten €/m², uren) blijven modelAssumption
+    if (catKey === 'keuken' && confidence === 'hoog') {
+      confidence = 'gemiddeld';
+    }
 
-    return {
-      price: mid,
-      low: low,
-      high: high,
-      weeksLow: weeks.weeksLow,
-      weeksHigh: weeks.weeksHigh,
-      split: {
-        materiaal: Math.round(split.materiaal * 100) / 100,
-        arbeid: Math.round(split.arbeid * 100) / 100,
-        overige: Math.round(split.overige * 100) / 100
-      },
-      lineItems: scaledItems,
-      drivers: drivers.slice(0, 5),
-      contingency: contingency,
-      peerLow: peerLow,
-      peerHigh: peerHigh,
-      confidence: confidence,
-      perM2: Math.round(mid / size),
-      levelLabel: LEVEL_LABEL[level] || level,
-      size: size
-    };
-  }
+    var drivers = (driverDefs || []).slice(0, 5);
 
-  /* ---------- category calculators ---------- */
-
-  function calcBadkamer(answers, provKey) {
-    var a = answers;
-    var lm = pick(LEVEL_MULT, a.level, 1);
-    var size = Math.max(1, Number(a.size) || 6);
-    var items = [];
-    var drivers = [];
-    var days = 8;
-
-    var scopeBase = { opfrissing: 3200, gedeeltelijk: 5500, volledig: 8200 };
-    var base = pick(scopeBase, a.scope, 5500) * lm;
-    addItem(items, 'Basispakket badkamerrenovatie', base, 'arbeid');
-    drivers.push({
-      text: 'Omvang van de werken (' + (a.scope || 'gedeeltelijk') + ') bepaalt het startbudget.',
-      impact: 'hoog'
+    // legacy-compatible line items (amount + bucket)
+    var legacyItems = lineItems.map(function (it) {
+      return { label: it.label, amount: it.amount, bucket: it.bucket };
     });
 
-    addItem(items, 'Afwerking & montage per m²', size * 220 * lm, 'arbeid');
-    days += size * 0.7;
-
-    var sanitary = {
-      douche: { m: 1600, a: 900 },
-      bad: { m: 1900, a: 1000 },
-      beide: { m: 3400, a: 1600 },
-      behouden: { m: 200, a: 150 }
+    return {
+      price: totalBase,
+      low: totalLow,
+      high: totalHigh,
+      weeksLow: weeks.weeksLow,
+      weeksHigh: weeks.weeksHigh,
+      split: split,
+      amounts: {
+        materiaal: round50(mat.base),
+        arbeid: round50(lab.base),
+        overige: round50(oth.base)
+      },
+      amountsLow: {
+        materiaal: round50(mat.low),
+        arbeid: round50(lab.low),
+        overige: round50(oth.low)
+      },
+      amountsHigh: {
+        materiaal: round50(mat.high),
+        arbeid: round50(lab.high),
+        overige: round50(oth.high)
+      },
+      lineItems: legacyItems,
+      workPackages: scaled,
+      costBreakdown: lineItems,
+      drivers: drivers,
+      contingency: contingency,
+      contingencyPct: contingencyPct,
+      peerLow: bm.low,
+      peerHigh: bm.high,
+      marketBenchmark: bm,
+      marketPosition: position,
+      comparableSubtotal: compareBase,
+      comparableNote: comparableNote,
+      scopeMatch: bm.scopeMatch,
+      confidence: confidence,
+      perM2: Math.round(totalBase / size),
+      levelLabel: LEVEL_LABEL[level] || level,
+      size: size,
+      labourPlan: plan,
+      labourHours: plan.labourHours,
+      crewSize: plan.crewSize,
+      workDays: plan.workDays,
+      effectiveHourlyRate: plan.effectiveHourlyRate,
+      subtotalExVat: subtotalExVat,
+      vatRate: vat.rate,
+      vatLabel: vat.label,
+      vatAmount: vatAmount,
+      vatDisclaimer: vat.disclaimer,
+      totalInclVat: totalInclVat,
+      premies: premieInfo(catKey, answers, provKey),
+      marketDataVersion: MARKET.meta.version,
+      asOf: MARKET.meta.asOf
     };
-    var san = pick(sanitary, a.sanitary, sanitary.douche);
-    addItem(items, 'Sanitair & plaatsing', (san.m + san.a) * lm, a.sanitary === 'behouden' ? 'arbeid' : 'materiaal');
-    if (a.sanitary === 'beide') drivers.push({ text: 'Douche én bad verhogen het sanitaire budget sterk.', impact: 'hoog' });
-
-    var tiling = { volledig: size * 140, gedeeltelijk: size * 75, schilder: size * 35 };
-    addItem(items, 'Betegeling / wandafwerking', pick(tiling, a.tiling, size * 75) * lm, 'materiaal');
-    if (a.tiling === 'volledig') {
-      drivers.push({ text: 'Volledige betegeling vraagt meer materiaal en werkuren.', impact: 'middel' });
-      days += size * 0.35;
-    }
-
-    if (a.plumbingMove === 'beperkt') {
-      addItem(items, 'Beperkte leidingaanpassingen', 1400 * lm, 'arbeid');
-      days += 2;
-    } else if (a.plumbingMove === 'ja') {
-      addItem(items, 'Leidingen verplaatsen (nieuwe layout)', 3200 * lm, 'arbeid');
-      drivers.push({ text: 'Leidingen verplaatsen is een belangrijke meerprijs.', impact: 'hoog' });
-      days += 4;
-    } else {
-      drivers.push({ text: 'Leidingen op dezelfde plaats houden remt de kostprijs.', impact: 'positief' });
-    }
-
-    if (a.ventilation === 'verbeteren' || a.ventilation === 'onbekend') {
-      addItem(items, 'Ventilatie verbeteren', a.ventilation === 'onbekend' ? 450 : 750, 'overige');
-    }
-
-    if (a.ufh === 'ja') {
-      addItem(items, 'Vloerverwarming badkamer', size * 95 * lm + 650, 'materiaal');
-      drivers.push({ text: 'Vloerverwarming verhoogt comfort én droogtijd.', impact: 'middel' });
-      days += 3;
-    }
-
-    if (a.scope === 'gedeeltelijk' || a.scope === 'volledig') {
-      if (a.demolition === 'volledig') {
-        addItem(items, 'Volledige afbraak & afvoer', 1600 + size * 40, 'overige');
-        days += 3;
-      } else if (a.demolition === 'beperkt') {
-        addItem(items, 'Beperkte demontage & afvoer', 700 + size * 20, 'overige');
-        days += 1;
-      }
-    }
-
-    addItem(items, 'Afwerking, kitwerk & oplevering', 450 * lm, 'overige');
-
-    var band = { low: 0.86, high: 1.2 };
-    if (a.plumbingMove === 'ja' || a.scope === 'volledig') band = { low: 0.84, high: 1.22 };
-    return finalize('badkamer', provKey, a, items, days, drivers, band);
   }
 
-  function calcKeuken(answers, provKey) {
-    var a = answers;
-    var lm = pick(LEVEL_MULT, a.level, 1);
-    var size = Math.max(1, Number(a.size) || 12);
-    var items = [];
-    var drivers = [];
-    var days = 10;
-
-    var scopeBase = { fronten: 4500, vervangen: 9500, herindelen: 14000 };
-    addItem(items, 'Basispakket keukenrenovatie', pick(scopeBase, a.scope, 9500) * lm, 'materiaal');
-    drivers.push({ text: 'Keukentype en omvang vormen de kern van het budget.', impact: 'hoog' });
-
-    var cabMult = { budget: 0.9, midden: 1.05, hoog: 1.35 };
-    var cab = pick(cabMult, a.cabinets, 1.05);
-    addItem(items, 'Keukenkasten & montage', size * 380 * cab * lm, 'materiaal');
-    days += size * 0.55;
-
-    var apps = { nee: 0, basis: 2800, uitgebreid: 5200 };
-    var appAmt = pick(apps, a.appliances, 0) * lm;
-    if (appAmt) {
-      addItem(items, 'Inbouwapparatuur', appAmt, 'materiaal');
-      drivers.push({ text: 'Toestellen wegen zwaar door in het totaalbudget.', impact: 'hoog' });
-    }
-
-    var top = { laminaat: 900, composiet: 2200, natuursteen: 3800 };
-    addItem(items, 'Werkblad', pick(top, a.worktop, 2200) * lm, 'materiaal');
-
-    if (a.scope === 'vervangen' || a.scope === 'herindelen') {
-      if (a.connections === 'beperkt') {
-        addItem(items, 'Aanpassen aansluitingen', 1200 * lm, 'arbeid');
-        days += 2;
-      } else if (a.connections === 'ja') {
-        addItem(items, 'Verplaatsen water & elektriciteit', 2800 * lm, 'arbeid');
-        drivers.push({ text: 'Aansluitingen verplaatsen verhoogt arbeid en planning.', impact: 'hoog' });
-        days += 4;
-      }
-    }
-
-    if (a.splashback === 'ja') addItem(items, 'Spatwand / betegeling', 650 * lm, 'materiaal');
-    if (a.flooring === 'ja') {
-      addItem(items, 'Keukenvloer vernieuwen', size * 55 * lm, 'materiaal');
-      days += 2;
-    }
-
-    addItem(items, 'Plaatsing, afwerking & oplevering', 1800 * lm, 'arbeid');
-    if (a.scope === 'herindelen') days += 6;
-    if (a.scope === 'vervangen') days += 3;
-
-    return finalize('keuken', provKey, a, items, days, drivers, { low: 0.86, high: 1.2 });
+  function matFactor(level) {
+    return pick(LEVEL_MAT, level, 1);
   }
+
+  function labFactor(level) {
+    return pick(LEVEL_LABOUR, level, 1);
+  }
+
+  /* ---------- DAK ---------- */
 
   function calcDak(answers, provKey) {
     var a = answers;
-    var lm = pick(LEVEL_MULT, a.level, 1);
     var size = Math.max(1, Number(a.size) || 90);
-    var items = [];
-    var drivers = [];
-    var days = 4;
+    var mf = matFactor(a.level);
+    var lf = labFactor(a.level);
+    var R = MARKET.roof;
+    var rate = rateFor('roofer');
+    var packages = [];
+    var workType = a.workType || 'vernieuwen';
+    var hoursPerM2 = R.labourHoursPerM2[
+      workType === 'herstelling' ? 'repair'
+        : workType === 'isolatie' ? 'insulation'
+        : workType === 'volledig' ? 'full' : 'renew'
+    ];
+    var crew = R.crewSize[
+      workType === 'herstelling' ? 'repair'
+        : workType === 'isolatie' ? 'insulation'
+        : workType === 'volledig' ? 'full' : 'renew'
+    ];
 
-    var workPerM2 = {
-      herstelling: 35,
-      isolatie: 75,
-      vernieuwen: 95,
-      volledig: 130
-    };
-    var per = pick(workPerM2, a.workType, 95) * lm;
-    var minJob = { herstelling: 1800, isolatie: 4500, vernieuwen: 7000, volledig: 11000 };
-    var workAmt = Math.max(pick(minJob, a.workType, 7000) * lm, size * per);
-    addItem(items, 'Dakwerken (richtprijs)', workAmt, 'materiaal');
-    drivers.push({ text: 'Type dakwerk en oppervlakte bepalen het grootste deel van de prijs.', impact: 'hoog' });
-    days += size * (a.workType === 'herstelling' ? 0.04 : 0.12);
-
-    var matAdd = { pannen: 8, leien: 18, epdm: 5, onbekend: 6 };
-    if (a.material) addItem(items, 'Materiaaltoeslag bedekking', size * pick(matAdd, a.material, 6) * lm, 'materiaal');
-
-    if (a.insulation === 'ja' || a.workType === 'isolatie' || a.workType === 'volledig') {
-      if (a.workType !== 'isolatie' && a.workType !== 'volledig') {
-        addItem(items, 'Dakisolatie', size * 45 * lm, 'materiaal');
-      }
-      drivers.push({ text: 'Dakisolatie verbetert comfort en opent vaak premiekansen.', impact: 'positief' });
+    if (workType !== 'herstelling') {
+      packages.push(createPackage('strip', 'Demontage bestaande dakbedekking & afvoer', {
+        material: { low: 0, base: 0, high: 0 },
+        labourHours: { low: 0, base: 0, high: 0 },
+        labourRate: rate,
+        other: scaleBand(R.stripAndDispose, size),
+        reason: 'Vyverman demontage+afvoer all-in als overige — geen aparte uren (voorkomt dubbeltelling)'
+      }));
+    } else {
+      packages.push(createPackage('repair-local', 'Lokale herstelling dak', {
+        material: scaleBand({ low: 15, base: 25, high: 40 }, size * 0.15 * mf),
+        labourHours: scaleBand(hoursPerM2, size * lf),
+        labourRate: rate,
+        other: { low: 150, base: 250, high: 400 },
+        reason: 'Plaatselijke herstelling'
+      }));
     }
+
+    var needCover = workType === 'vernieuwen' || workType === 'volledig' || workType === 'isolatie';
+    var needInsulation = workType === 'isolatie' || workType === 'volledig' || a.insulation === 'ja';
+
+    if (needCover && workType !== 'herstelling') {
+      packages.push(createPackage('underlay', 'Onderdak', {
+        material: scaleBand(R.underlay, size * mf),
+        labourHours: scaleBand({ low: 0.05, base: 0.07, high: 0.1 }, size * lf),
+        labourRate: rate,
+        reason: 'Dampopen onderdakfolie / plaat'
+      }));
+      packages.push(createPackage('battens', 'Tengels & panlatten', {
+        material: scaleBand(R.battens, size * mf),
+        labourHours: scaleBand({ low: 0.06, base: 0.08, high: 0.12 }, size * lf),
+        labourRate: rate,
+        reason: 'Lattenwerk voor ventilatie en bevestiging'
+      }));
+    }
+
+    if (needInsulation) {
+      packages.push(createPackage('insulation', 'Dakisolatie (materiaal)', {
+        material: scaleBand(R.insulation, size * mf),
+        labourHours: { low: 0, base: 0, high: 0 },
+        labourRate: rate,
+        reason: 'Isolatiemateriaal (modelAssumption-band); plaatsing via aparte uren'
+      }));
+      packages.push(createPackage('insulation-labour', 'Plaatsing dakisolatie', {
+        material: { low: 0, base: 0, high: 0 },
+        labourHours: scaleBand({ low: 0.12, base: 0.18, high: 0.26 }, size * lf),
+        labourRate: rate,
+        reason: 'Plaatsingsuren isolatie'
+      }));
+    }
+
+    if (workType === 'vernieuwen' || workType === 'volledig') {
+      var coverMat = R.tilesConcrete;
+      if (a.material === 'leien') coverMat = R.slate;
+      else if (a.material === 'epdm' || a.roofType === 'plat') coverMat = R.epdm;
+      else if (a.level === 'premium' && a.material === 'pannen') coverMat = R.tilesCeramic;
+
+      var waste = (R.materialWasteFactor && R.materialWasteFactor.value) || 1.08;
+      packages.push(createPackage('covering', 'Dakbedekking (materiaal)', {
+        material: scaleBand(coverMat, size * mf * waste),
+        labourHours: { low: 0, base: 0, high: 0 },
+        labourRate: rate,
+        reason: 'Materiaal-only unitprijs × m² × snijverlies — geen % van all-in faseprijs'
+      }));
+      packages.push(createPackage('fasteners', 'Bevestiging & hulpstukken', {
+        material: scaleBand(R.fastenersAccessories || { low: 8, base: 11, high: 16 }, size * mf),
+        labourHours: { low: 0, base: 0, high: 0 },
+        reason: 'Nok/gevelpannen/bevestiging per m²'
+      }));
+      var coverHours = R.coverPlacementHoursPerM2 || { low: 0.7, base: 0.85, high: 1.05 };
+      packages.push(createPackage('covering-labour', 'Plaatsing dakbedekking', {
+        material: { low: 0, base: 0, high: 0 },
+        labourHours: scaleBand(coverHours, size * lf),
+        labourRate: rate,
+        reason: 'Plaatsingsuren afgeleid van BE plaatsings€/m² ÷ uurtarief (niet van all-in split)'
+      }));
+    }
+
+    if (workType === 'isolatie' && !needCover) {
+      packages.push(createPackage('insulation-labour-extra', 'Afwerking isolatiewerken', {
+        material: scaleBand({ low: 8, base: 12, high: 18 }, size * mf),
+        labourHours: scaleBand(hoursPerM2, size * 0.5 * lf),
+        labourRate: rate
+      }));
+    }
+
+    var accessMult = a.access === 'moeilijk' ? 1.55 : a.access === 'vlot' ? 0.75 : 1;
+    packages.push(createPackage('scaffold', 'Steiger, toegang & valbeveiliging', {
+      other: scaleBand(R.scaffolding, accessMult * Math.max(0.7, Math.min(1.4, size / 100))),
+      labourHours: scaleBand({ low: 4, base: 6, high: 10 }, accessMult * lf),
+      labourRate: rate,
+      reason: a.access === 'moeilijk' ? 'Moeilijke toegang verhoogt steiger/veiligheid' : 'Standaard werfinrichting'
+    }));
 
     if (a.gutters === 'ja' || a.gutters === 'onbekend') {
-      addItem(items, 'Goten & regenafvoer', (a.gutters === 'onbekend' ? 900 : 1600) * lm, 'overige');
-    }
-
-    var access = { vlot: 1, normaal: 1.08, moeilijk: 1.2 };
-    var accessMult = pick(access, a.access, 1.08);
-    if (accessMult > 1) {
-      addItem(items, 'Toegang, steiger & veiligheid', workAmt * (accessMult - 1), 'arbeid');
-      if (a.access === 'moeilijk') drivers.push({ text: 'Moeilijke toegang verhoogt steiger- en veiligheidskosten.', impact: 'middel' });
+      var gutterLm = (R.guttersTypicalLm && R.guttersTypicalLm.value) || 20;
+      var gutterFactor = (a.gutters === 'onbekend' ? 0.7 : 1) * gutterLm;
+      packages.push(createPackage('gutters', 'Goten & regenafvoer', {
+        material: { low: 0, base: 0, high: 0 },
+        labourHours: { low: 0, base: 0, high: 0 },
+        labourRate: rate,
+        other: scaleBand(R.guttersPerLm, gutterFactor),
+        reason: 'All-in €/lm incl. plaatsing (BE) × typische lm — geen mat/arb-split van all-in'
+      }));
     }
 
     if (a.asbestos === 'mogelijk') {
-      addItem(items, 'Buffer asbestonderzoek / voorzorg', 1200, 'overige');
-      drivers.push({ text: 'Mogelijke asbest vraagt onderzoek vóór de start.', impact: 'hoog' });
+      packages.push(createPackage('asbestos-survey', 'Buffer asbestonderzoek', {
+        other: R.asbestosSurvey,
+        reason: 'Voorzorg bij vermoeden van asbest'
+      }));
     } else if (a.asbestos === 'ja') {
-      addItem(items, 'Asbestverwijdering (indicatief)', Math.max(2500, size * 18), 'overige');
-      drivers.push({ text: 'Asbestverwijdering is een aparte, gereglementeerde kostenpost.', impact: 'hoog' });
-      days += 3;
+      packages.push(createPackage('asbestos', 'Asbestverwijdering (indicatief)', {
+        other: scaleBand(R.asbestosPerM2, size),
+        labourHours: { low: 0, base: 0, high: 0 },
+        reason: 'Gespecialiseerde verwijdering — aparte aannemer'
+      }));
     }
 
-    addItem(items, 'Afwerking details & oplevering', 800 * lm, 'arbeid');
+    packages.push(createPackage('details', 'Aansluitdetails, dakranden & oplevering', {
+      material: scaleBand(R.detailsFinish, 0.4 * mf),
+      labourHours: { low: 6, base: 10, high: 16 },
+      labourRate: rate,
+      other: scaleBand(R.detailsFinish, 0.3)
+    }));
 
-    var band = { low: 0.85, high: 1.22 };
-    if (a.asbestos === 'ja' || a.asbestos === 'mogelijk') band = { low: 0.82, high: 1.28 };
-    return finalize('dak', provKey, a, items, days, drivers, band);
+    var drivers = buildDrivers('dak', a, provKey, packages, crew);
+    return finalize('dak', provKey, a, packages, crew, drivers);
   }
+
+  /* ---------- BADKAMER ---------- */
+
+  function calcBadkamer(answers, provKey) {
+    var a = answers;
+    var size = Math.max(1, Number(a.size) || 6);
+    var mf = matFactor(a.level);
+    var lf = labFactor(a.level);
+    var B = MARKET.bathroom;
+    var rateGen = rateFor('general');
+    var ratePlumb = rateFor('plumber');
+    var rateElec = rateFor('electrician');
+    var rateTile = rateFor('tiler');
+    var packages = [];
+    var scope = a.scope || 'gedeeltelijk';
+    var wallM2 = size * (a.tiling === 'volledig' ? 2.6 : a.tiling === 'gedeeltelijk' ? 1.4 : 0.4);
+
+    packages.push(createPackage('protect', 'Bescherming & werfinrichting', {
+      other: B.protection,
+      labourHours: { low: 2, base: 3, high: 4 },
+      labourRate: rateGen
+    }));
+
+    var demoKey = a.demolition || (scope === 'volledig' ? 'volledig' : scope === 'opfrissing' ? 'geen' : 'beperkt');
+    if (demoKey !== 'geen' && scope !== 'opfrissing') {
+      packages.push(createPackage('demo', 'Afbraak sanitair/tegels & afvoer', {
+        labourHours: scaleBand({ low: 8, base: 12, high: 18 }, (demoKey === 'volledig' ? 1.3 : 0.8) * lf),
+        labourRate: rateGen,
+        other: addBands(band(B.demolition[demoKey] || B.demolition.beperkt), band(B.waste))
+      }));
+    }
+
+    if (scope !== 'opfrissing') {
+      var plumb = a.plumbingMove === 'ja' ? B.plumbingMove
+        : a.plumbingMove === 'beperkt' ? B.plumbingLimited : B.plumbingSame;
+      var plumbHours = a.plumbingMove === 'ja'
+        ? { low: 20, base: 28, high: 40 }
+        : a.plumbingMove === 'beperkt'
+          ? { low: 10, base: 14, high: 20 }
+          : { low: 6, base: 10, high: 14 };
+      packages.push(createPackage('plumbing', 'Water- & afvoerleidingen', {
+        material: scaleBand(plumb, 0.35 * mf),
+        labourHours: scaleBand(plumbHours, lf),
+        labourRate: ratePlumb,
+        other: scaleBand(plumb, 0.1)
+      }));
+
+      packages.push(createPackage('electrical', 'Elektriciteit badkamer', {
+        material: scaleBand(B.electrical, 0.4 * mf),
+        labourHours: { low: 4, base: 7, high: 12 },
+        labourRate: rateElec,
+        other: scaleBand(B.electrical, 0.1)
+      }));
+    }
+
+    if (a.tiling !== 'schilder') {
+      packages.push(createPackage('waterproof', 'Waterdichting natte zones', {
+        material: scaleBand(B.waterproofingPerM2, Math.max(size, wallM2 * 0.5) * mf),
+        labourHours: scaleBand({ low: 0.2, base: 0.28, high: 0.4 }, size * lf),
+        labourRate: rateTile
+      }));
+    }
+
+    if (a.tiling === 'volledig' || a.tiling === 'gedeeltelijk') {
+      packages.push(createPackage('floor-tiles', 'Vloerbetegeling', {
+        material: addBands(
+          scaleBand(B.floorTileMat, size * mf),
+          scaleBand(B.adhesiveGrout, size)
+        ),
+        labourHours: scaleBand({ low: 0.55, base: 0.7, high: 0.95 }, size * lf),
+        labourRate: rateTile
+      }));
+      if (a.tiling === 'volledig' || a.tiling === 'gedeeltelijk') {
+        packages.push(createPackage('wall-tiles', 'Wandbetegeling', {
+          material: addBands(
+            scaleBand(B.wallTileMat, wallM2 * mf),
+            scaleBand(B.adhesiveGrout, wallM2 * 0.7)
+          ),
+          labourHours: scaleBand({ low: 0.6, base: 0.8, high: 1.1 }, wallM2 * lf),
+          labourRate: rateTile
+        }));
+      }
+    } else {
+      packages.push(createPackage('paint-finish', 'Vochtbestendige wandafwerking', {
+        material: scaleBand({ low: 8, base: 14, high: 22 }, (size * 2.2) * mf),
+        labourHours: scaleBand({ low: 0.15, base: 0.2, high: 0.28 }, size * 2.2 * lf),
+        labourRate: rateFor('painter')
+      }));
+    }
+
+    if (a.sanitary !== 'behouden') {
+      if (a.sanitary === 'douche' || a.sanitary === 'beide') {
+        packages.push(createPackage('shower', 'Douche (materiaal)', {
+          material: scaleBand(B.shower, mf),
+          labourHours: { low: 0, base: 0, high: 0 }
+        }));
+      }
+      if (a.sanitary === 'bad' || a.sanitary === 'beide') {
+        packages.push(createPackage('bath', 'Bad (materiaal)', {
+          material: scaleBand(B.bath, mf)
+        }));
+      }
+      packages.push(createPackage('toilet', 'Toilet', {
+        material: scaleBand(B.toilet, mf)
+      }));
+      packages.push(createPackage('vanity', 'Wastafelmeubel', {
+        material: scaleBand(B.vanity, mf)
+      }));
+      packages.push(createPackage('taps', 'Kranen', {
+        material: scaleBand(B.taps, mf)
+      }));
+      packages.push(createPackage('sanitary-fit', 'Sanitaire montage', {
+        labourHours: scaleBand(B.sanitaryLabourHours, (a.sanitary === 'beide' ? 1.35 : 1) * lf),
+        labourRate: ratePlumb
+      }));
+    } else {
+      packages.push(createPackage('sanitary-keep', 'Behoud & heraansluiting sanitair', {
+        labourHours: { low: 3, base: 5, high: 8 },
+        labourRate: ratePlumb,
+        material: { low: 80, base: 150, high: 250 }
+      }));
+    }
+
+    if (a.ventilation === 'verbeteren' || a.ventilation === 'onbekend') {
+      packages.push(createPackage('vent', 'Ventilatie verbeteren', {
+        material: scaleBand(B.ventilation, (a.ventilation === 'onbekend' ? 0.7 : 1) * mf * 0.6),
+        labourHours: { low: 3, base: 5, high: 8 },
+        labourRate: rateElec,
+        other: scaleBand(B.ventilation, 0.2)
+      }));
+    }
+
+    if (a.ufh === 'ja') {
+      packages.push(createPackage('ufh', 'Vloerverwarming badkamer', {
+        material: addBands(scaleBand(B.ufhPerM2, size * mf), band(B.ufhSetup)),
+        labourHours: scaleBand({ low: 0.35, base: 0.45, high: 0.6 }, size * lf),
+        labourRate: rateGen
+      }));
+    }
+
+    packages.push(createPackage('finish', 'Kitwerk, afwerking & oplevering', {
+      material: scaleBand(B.finishing, 0.35 * mf),
+      labourHours: { low: 4, base: 6, high: 10 },
+      labourRate: rateGen,
+      other: scaleBand(B.finishing, 0.4)
+    }));
+
+    var drivers = buildDrivers('badkamer', a, provKey, packages, B.crewSize);
+    return finalize('badkamer', provKey, a, packages, B.crewSize, drivers);
+  }
+
+  /* ---------- KEUKEN ---------- */
+
+  function calcKeuken(answers, provKey) {
+    var a = answers;
+    var size = Math.max(1, Number(a.size) || 12);
+    var mf = matFactor(a.level);
+    var lf = labFactor(a.level);
+    var K = MARKET.kitchen;
+    var rateFit = rateFor('kitchenFitter');
+    var ratePlumb = rateFor('plumber');
+    var rateElec = rateFor('electrician');
+    var packages = [];
+    var scope = a.scope || 'vervangen';
+    var cabKey = a.cabinets || 'midden';
+
+    if (scope !== 'fronten') {
+      packages.push(createPackage('demo', 'Demontage oude keuken & afvoer', {
+        labourHours: { low: 4, base: 6, high: 10 },
+        labourRate: rateFit,
+        other: K.demolish
+      }));
+    }
+
+    if (scope === 'fronten') {
+      packages.push(createPackage('fronts', 'Nieuwe fronten / facelift', {
+        material: scaleBand(K.frontenOnlyPerM2, size * mf),
+        labourHours: scaleBand(K.fitHours.fronten, lf),
+        labourRate: rateFit
+      }));
+    } else {
+      // Single cabinets package — no separate "basispakket" (avoid double count)
+      packages.push(createPackage('cabinets', 'Keukenkasten & korpus', {
+        material: scaleBand(K.cabinetsPerM2[cabKey] || K.cabinetsPerM2.midden, size * mf),
+        labourHours: { low: 0, base: 0, high: 0 },
+        reason: 'Kastenmateriaal (geen apart basispakket)'
+      }));
+      packages.push(createPackage('install', 'Keukenmontage', {
+        labourHours: scaleBand(K.fitHours[scope] || K.fitHours.vervangen, lf),
+        labourRate: rateFit,
+        reason: 'Plaatsing kasten'
+      }));
+    }
+
+    packages.push(createPackage('worktop', 'Werkblad', {
+      material: scaleBand(K.worktop[a.worktop] || K.worktop.composiet, mf),
+      labourHours: { low: 3, base: 5, high: 8 },
+      labourRate: rateFit
+    }));
+
+    packages.push(createPackage('sink', 'Spoelbak & kraan', {
+      material: scaleBand(K.sinkTap, mf),
+      labourHours: { low: 2, base: 3, high: 5 },
+      labourRate: ratePlumb
+    }));
+
+    if (a.appliances && a.appliances !== 'nee') {
+      packages.push(createPackage('appliances', 'Inbouwapparatuur', {
+        material: scaleBand(K.appliances[a.appliances], mf),
+        labourHours: { low: 3, base: 5, high: 8 },
+        labourRate: rateFit,
+        reason: 'Toestellen + aansluiting'
+      }));
+    }
+
+    if (scope === 'vervangen' || scope === 'herindelen') {
+      if (a.connections === 'beperkt') {
+        packages.push(createPackage('conn', 'Aanpassen water & elektriciteit', {
+          material: scaleBand(K.connectionsLimited, 0.35),
+          labourHours: { low: 6, base: 10, high: 14 },
+          labourRate: ratePlumb,
+          other: scaleBand(K.connectionsLimited, 0.15)
+        }));
+        packages.push(createPackage('conn-elec', 'Elektrische aanpassingen', {
+          labourHours: { low: 3, base: 5, high: 8 },
+          labourRate: rateElec
+        }));
+      } else if (a.connections === 'ja') {
+        packages.push(createPackage('conn-move', 'Verplaatsen waterleidingen', {
+          material: scaleBand(K.connectionsMove, 0.4),
+          labourHours: { low: 12, base: 18, high: 26 },
+          labourRate: ratePlumb
+        }));
+        packages.push(createPackage('conn-elec-move', 'Verplaatsen elektriciteit / groepen', {
+          material: scaleBand(K.connectionsMove, 0.2),
+          labourHours: { low: 8, base: 12, high: 18 },
+          labourRate: rateElec
+        }));
+      } else {
+        packages.push(createPackage('conn-basic', 'Standaard heraansluiting', {
+          labourHours: { low: 3, base: 5, high: 8 },
+          labourRate: ratePlumb,
+          material: { low: 80, base: 150, high: 250 }
+        }));
+      }
+    }
+
+    if (a.splashback === 'ja') {
+      packages.push(createPackage('splash', 'Spatwand', {
+        material: scaleBand(K.splashback, mf),
+        labourHours: { low: 3, base: 5, high: 8 },
+        labourRate: rateFor('tiler')
+      }));
+    }
+
+    if (a.flooring === 'ja') {
+      packages.push(createPackage('floor', 'Keukenvloer vernieuwen', {
+        material: scaleBand(K.flooringPerM2, size * mf * 0.55),
+        labourHours: scaleBand({ low: 0.25, base: 0.35, high: 0.5 }, size * lf),
+        labourRate: rateFor('floorLayer'),
+        other: scaleBand(K.flooringPerM2, size * 0.15)
+      }));
+    }
+
+    packages.push(createPackage('finish', 'Afwerking & oplevering', {
+      material: scaleBand(K.finishing, 0.4 * mf),
+      labourHours: { low: 3, base: 5, high: 8 },
+      labourRate: rateFit,
+      other: scaleBand(K.finishing, 0.4)
+    }));
+
+    var drivers = buildDrivers('keuken', a, provKey, packages, K.crewSize);
+    return finalize('keuken', provKey, a, packages, K.crewSize, drivers);
+  }
+
+  /* ---------- VLOEREN ---------- */
 
   function calcVloeren(answers, provKey) {
     var a = answers;
-    var lm = pick(LEVEL_MULT, a.level, 1);
     var size = Math.max(1, Number(a.size) || 30);
-    var items = [];
-    var drivers = [];
-    var days = 2;
-
-    var matPer = { laminaat: 28, parket: 55, tegel: 48, gietvloer: 85 };
-    var labPer = { laminaat: 18, parket: 28, tegel: 32, gietvloer: 40 };
-    var mKey = a.floorMaterial || 'laminaat';
-    addItem(items, 'Vloermateriaal', size * pick(matPer, mKey, 28) * lm, 'materiaal');
-    addItem(items, 'Plaatsing', size * pick(labPer, mKey, 18) * lm, 'arbeid');
-    drivers.push({ text: 'Materiaalkeuze (' + mKey + ') stuurt zowel prijs als plaatsingstijd.', impact: 'hoog' });
-    days += size * 0.08;
-
-    var roomAdd = { '1': 0, '2-3': 180, meer: 420 };
-    addItem(items, 'Meerwerk meerdere ruimtes', pick(roomAdd, a.rooms, 0), 'arbeid');
+    var mf = matFactor(a.level);
+    var lf = labFactor(a.level);
+    var F = MARKET.floors;
+    var matKey = a.floorMaterial || 'laminaat';
+    if (matKey === 'laminaat' && false) matKey = 'laminaat';
+    var rate = matKey === 'tegel' ? rateFor('tiler') : rateFor('floorLayer');
+    var packages = [];
+    var qty = size * F.cutWasteFactor;
 
     if (a.removal === 'ja') {
-      addItem(items, 'Uitbreken bestaande vloer', size * 12 + 250, 'overige');
-      days += size * 0.03;
+      packages.push(createPackage('removal', 'Uitbreken bestaande vloer & afvoer', {
+        labourHours: scaleBand({ low: 0.12, base: 0.18, high: 0.26 }, size * lf),
+        labourRate: rate,
+        other: addBands(scaleBand(F.removal, size), band(F.wasteBase))
+      }));
     } else if (a.removal === 'onbekend') {
-      addItem(items, 'Buffer uitbraak', size * 6, 'overige');
+      packages.push(createPackage('removal-buffer', 'Buffer uitbraak', {
+        other: scaleBand(F.removal, size * 0.5)
+      }));
     }
 
     if (a.leveling === 'beperkt' || a.substrate === 'matig') {
-      addItem(items, 'Beperkte egalisatie', size * 14 * lm, 'arbeid');
+      packages.push(createPackage('level-limited', 'Beperkte egalisatie', {
+        material: scaleBand(F.levelingLimited, size * 0.55 * mf),
+        labourHours: scaleBand({ low: 0.1, base: 0.14, high: 0.2 }, size * lf),
+        labourRate: rate
+      }));
     }
     if (a.leveling === 'volledig' || a.substrate === 'slecht') {
-      addItem(items, 'Volledige egalisatie / chape-voorbereiding', size * 28 * lm, 'arbeid');
-      drivers.push({ text: 'Een zwakke ondergrond vraagt egalisatie — een aparte kostenpost.', impact: 'middel' });
-      days += 2;
+      packages.push(createPackage('level-full', 'Volledige egalisatie / chape-voorbereiding', {
+        material: scaleBand(F.levelingFull, size * 0.55 * mf),
+        labourHours: scaleBand({ low: 0.18, base: 0.25, high: 0.35 }, size * lf),
+        labourRate: rate
+      }));
     } else if (a.leveling === 'onbekend') {
-      addItem(items, 'Buffer ondergrond', size * 10, 'overige');
+      packages.push(createPackage('level-buffer', 'Buffer ondergrond', {
+        other: scaleBand(F.levelingLimited, size * 0.6)
+      }));
+    }
+
+    packages.push(createPackage('underlay', 'Ondervloer / vochtscherm', {
+      material: scaleBand(F.underlay, qty * mf),
+      labourHours: scaleBand({ low: 0.03, base: 0.04, high: 0.06 }, size * lf),
+      labourRate: rate
+    }));
+
+    packages.push(createPackage('floor-mat', 'Vloermateriaal (' + matKey + ')', {
+      material: scaleBand(F.material[matKey] || F.material.laminaat, qty * mf),
+      reason: 'Inclusief snijverlies ~8%'
+    }));
+
+    if (matKey === 'tegel') {
+      packages.push(createPackage('adhesive', 'Lijm & voegmiddel', {
+        material: scaleBand(F.adhesiveGrout, size)
+      }));
+    }
+
+    var labPer = F.labourPerM2[matKey] || F.labourPerM2.laminaat;
+    // Convert €/m² labour to hours via rate
+    var hoursBand = {
+      low: (labPer.low * size) / rate.high,
+      base: (labPer.base * size) / rate.base,
+      high: (labPer.high * size) / rate.low
+    };
+    packages.push(createPackage('install', 'Plaatsing vloer', {
+      labourHours: scaleBand(hoursBand, lf),
+      labourRate: rate,
+      reason: 'Plaatsingsuren op basis van €/m²-marktarbeid'
+    }));
+
+    if (a.rooms === '2-3') {
+      packages.push(createPackage('rooms', 'Meerwerk meerdere ruimtes', {
+        labourHours: { low: 2, base: 4, high: 6 },
+        labourRate: rate,
+        other: { low: 80, base: 150, high: 250 }
+      }));
+    } else if (a.rooms === 'meer') {
+      packages.push(createPackage('rooms-many', 'Meerwerk 4+ ruimtes', {
+        labourHours: { low: 5, base: 8, high: 12 },
+        labourRate: rate,
+        other: { low: 180, base: 320, high: 480 }
+      }));
     }
 
     if (a.ufh === 'nieuw') {
-      addItem(items, 'Nieuwe vloerverwarming (indicatief)', size * 70 * lm, 'materiaal');
-      drivers.push({ text: 'Nieuwe vloerverwarming verlengt de planning door droogtijd.', impact: 'middel' });
-      days += 5;
+      packages.push(createPackage('ufh', 'Nieuwe vloerverwarming (indicatief)', {
+        material: scaleBand(F.ufhNew, size * mf),
+        labourHours: scaleBand({ low: 0.25, base: 0.35, high: 0.5 }, size * lf),
+        labourRate: rateFor('plumber')
+      }));
     } else if (a.ufh === 'bestaand') {
-      addItem(items, 'Aanpassing rond bestaande vloerverwarming', size * 8, 'arbeid');
+      packages.push(createPackage('ufh-adj', 'Aanpassing rond bestaande vloerverwarming', {
+        labourHours: scaleBand({ low: 0.05, base: 0.08, high: 0.12 }, size * lf),
+        labourRate: rate
+      }));
     }
 
     if (a.wetRooms === 'ja') {
-      addItem(items, 'Extra voor natte zones', 450 * lm, 'overige');
-    }
-    if (a.skirting === 'ja') {
-      addItem(items, 'Plinten leveren & plaatsen', Math.max(180, size * 4.5) * lm, 'materiaal');
+      packages.push(createPackage('wet', 'Extra voor natte zones', {
+        material: scaleBand(F.wetRoomExtra, 0.5 * mf),
+        other: scaleBand(F.wetRoomExtra, 0.5),
+        labourHours: { low: 2, base: 4, high: 6 },
+        labourRate: rate
+      }));
     }
 
-    return finalize('vloeren', provKey, a, items, days, drivers, { low: 0.88, high: 1.16 });
+    if (a.skirting === 'ja') {
+      packages.push(createPackage('skirting', 'Plinten leveren & plaatsen', {
+        material: scaleBand(F.skirtingPerM2, size * mf),
+        labourHours: scaleBand({ low: 0.06, base: 0.09, high: 0.14 }, size * lf),
+        labourRate: rate
+      }));
+    }
+
+    var drivers = buildDrivers('vloeren', a, provKey, packages, F.crewSize);
+    return finalize('vloeren', provKey, a, packages, F.crewSize, drivers);
   }
+
+  /* ---------- SCHILDERWERKEN ---------- */
 
   function calcSchilderwerken(answers, provKey) {
     var a = answers;
-    var lm = pick(LEVEL_MULT, a.level, 1);
     var size = Math.max(1, Number(a.size) || 60);
-    var items = [];
-    var drivers = [];
-    var days = 2;
+    var mf = matFactor(a.level);
+    var lf = labFactor(a.level);
+    var P = MARKET.painting;
+    var rate = rateFor('painter');
+    var packages = [];
+    var surface = a.surface || 'matig';
+    var hoursM2 = P.labourHoursPerM2[surface] || P.labourHoursPerM2.matig;
+    var ext = 1;
+    if (a.paintScope === 'buiten') ext = P.exteriorFactor.base;
+    if (a.paintScope === 'beide') ext = 1 + (P.exteriorFactor.base - 1) * 0.5;
 
-    var basePer = { basis: 16, standaard: 24, premium: 36 };
-    var per = pick(basePer, a.level, 24);
-    if (a.paintScope === 'buiten') per *= 1.15;
-    if (a.paintScope === 'beide') per *= 1.2;
+    packages.push(createPackage('protect', 'Afplakken, beschermen & opruimen', {
+      material: scaleBand(P.protectionPerM2, size * 0.4),
+      labourHours: scaleBand({ low: 0.03, base: 0.04, high: 0.06 }, size * lf),
+      labourRate: rate,
+      other: scaleBand(P.protectionPerM2, size * 0.6)
+    }));
 
-    addItem(items, 'Schilderwerken (materiaal + arbeid)', size * per, 'arbeid');
-    addItem(items, 'Verf & primers', size * (4.5 * lm), 'materiaal');
-    drivers.push({ text: 'Oppervlakte en afwerkingsniveau bepalen het basisbedrag.', impact: 'hoog' });
-    days += size * 0.045;
+    packages.push(createPackage('paint-mat', 'Verf & primers', {
+      material: scaleBand(P.paintMaterial, size * mf * (a.darkColors === 'ja' ? 1.25 : 1)),
+      reason: 'Materiaal gescheiden van schilderuren'
+    }));
 
-    var surf = { goed: 0, matig: size * 4, slecht: size * 9 };
-    var prep = pick(surf, a.surface, 0);
-    if (prep) {
-      addItem(items, 'Voorbereiding ondergrond', prep * lm, 'arbeid');
-      drivers.push({ text: 'De staat van de ondergrond bepaalt veel van de voorbereidingstijd.', impact: 'middel' });
-      days += a.surface === 'slecht' ? 3 : 1;
+    packages.push(createPackage('paint-labour', 'Schilderuren (2 lagen)', {
+      labourHours: scaleBand(hoursM2, size * lf * ext),
+      labourRate: rate,
+      reason: 'Productieve schilderuren inclusief standaard voorbereiding voor staat "' + surface + '"'
+    }));
+
+    // Urenmodel bevat al voorbereiding voor oppervlaktestaat — hier alleen prep-materiaal (geen dubbele uren)
+    if (surface === 'matig' || surface === 'slecht') {
+      packages.push(createPackage('prep', 'Herstelmateriaal (plamuur/primer)', {
+        material: scaleBand(P.prepMaterial, size * mf * (surface === 'slecht' ? 1.6 : 1)),
+        labourHours: { low: 0, base: 0, high: 0 },
+        reason: 'Prep-uren zitten in schilderuren-band voor staat "' + surface + '"'
+      }));
     }
 
-    if (a.wallpaper === 'gedeeltelijk') addItem(items, 'Behang gedeeltelijk verwijderen', size * 3.5, 'arbeid');
-    if (a.wallpaper === 'ja') {
-      addItem(items, 'Behang verwijderen', size * 6.5, 'arbeid');
-      days += 2;
+    if (a.wallpaper === 'gedeeltelijk') {
+      packages.push(createPackage('wallpaper-part', 'Behang gedeeltelijk verwijderen', {
+        labourHours: scaleBand({ low: 0.08, base: 0.12, high: 0.18 }, size * 0.4 * lf),
+        labourRate: rate,
+        other: scaleBand(P.wallpaperPartial, size * 0.4)
+      }));
+    } else if (a.wallpaper === 'ja') {
+      packages.push(createPackage('wallpaper', 'Behang verwijderen', {
+        labourHours: scaleBand({ low: 0.12, base: 0.18, high: 0.26 }, size * lf),
+        labourRate: rate,
+        other: scaleBand(P.wallpaperFull, size * 0.3)
+      }));
     }
 
-    if (a.colors === '2-3') addItem(items, 'Meerwerk meerdere kleuren', 180, 'arbeid');
-    if (a.colors === 'meer') addItem(items, 'Meerwerk complexe kleurverdeling', 420, 'arbeid');
+    if (a.colors === '2-3') {
+      packages.push(createPackage('colors', 'Meerwerk 2–3 kleuren', {
+        labourHours: { low: 2, base: 4, high: 6 },
+        labourRate: rate,
+        material: { low: 40, base: 80, high: 140 }
+      }));
+    } else if (a.colors === 'meer') {
+      packages.push(createPackage('colors-many', 'Meerwerk complexe kleurverdeling', {
+        labourHours: { low: 5, base: 8, high: 12 },
+        labourRate: rate,
+        material: { low: 80, base: 150, high: 250 }
+      }));
+    }
 
     if (a.darkColors === 'ja') {
-      addItem(items, 'Extra lagen voor donkere kleuren', size * 3.2 * lm, 'materiaal');
-      drivers.push({ text: 'Donkere kleuren vragen meestal extra lagen.', impact: 'middel' });
-      days += 1;
+      packages.push(createPackage('dark', 'Extra lagen donkere kleuren', {
+        material: scaleBand(P.darkColorExtraMat, size * mf),
+        labourHours: scaleBand(P.darkColorExtraHours, size * lf),
+        labourRate: rate
+      }));
     }
 
-    if (a.woodwork === 'beperkt') addItem(items, 'Binnenschrijnwerk (beperkt)', 450 * lm, 'arbeid');
-    if (a.woodwork === 'uitgebreid') {
-      addItem(items, 'Binnenschrijnwerk (uitgebreid)', 1200 * lm, 'arbeid');
-      days += 2;
+    if (a.woodwork === 'beperkt') {
+      packages.push(createPackage('wood-lim', 'Binnenschrijnwerk (beperkt)', {
+        material: { low: 40, base: 80, high: 140 },
+        labourHours: scaleBand(P.woodworkLimitedHours, lf),
+        labourRate: rate
+      }));
+    } else if (a.woodwork === 'uitgebreid') {
+      packages.push(createPackage('wood', 'Binnenschrijnwerk (uitgebreid)', {
+        material: { low: 100, base: 180, high: 300 },
+        labourHours: scaleBand(P.woodworkExtendedHours, lf),
+        labourRate: rate
+      }));
     }
 
-    if (a.floors === '2') addItem(items, 'Hoogte / steiger 2 bouwlagen', 650, 'overige');
-    if (a.floors === '3plus') {
-      addItem(items, 'Hoogte / steiger 3+ bouwlagen', 1400, 'overige');
-      drivers.push({ text: 'Hoger buitenwerk vraagt steiger en veiligheidsmaatregelen.', impact: 'middel' });
+    if (a.floors === '2') {
+      packages.push(createPackage('scaffold2', 'Hoogte / steiger 2 bouwlagen', {
+        other: P.scaffold2,
+        labourHours: { low: 2, base: 4, high: 6 },
+        labourRate: rate
+      }));
+    } else if (a.floors === '3plus') {
+      packages.push(createPackage('scaffold3', 'Hoogte / steiger 3+ bouwlagen', {
+        other: P.scaffold3,
+        labourHours: { low: 4, base: 6, high: 10 },
+        labourRate: rate
+      }));
     }
 
-    addItem(items, 'Afplakken, bescherming & oplevering', Math.max(120, size * 1.2), 'overige');
-
-    return finalize('schilderwerken', provKey, a, items, days, drivers, { low: 0.88, high: 1.15 });
+    var drivers = buildDrivers('schilderwerken', a, provKey, packages, P.crewSize);
+    return finalize('schilderwerken', provKey, a, packages, P.crewSize, drivers);
   }
 
+  /* ---------- COST DRIVERS (counterfactuals) ---------- */
+
+  function totalBaseOf(type, answers, provKey) {
+    var fn = {
+      badkamer: calcBadkamer,
+      keuken: calcKeuken,
+      dak: calcDak,
+      vloeren: calcVloeren,
+      schilderwerken: calcSchilderwerken
+    }[type];
+    // Avoid infinite recursion: compute packages without drivers
+    var a = Object.assign({}, answers);
+    var result;
+    // Use internal path via temporary flag
+    a.__skipDrivers = true;
+    result = fn(a, provKey);
+    return result.price;
+  }
+
+  function buildDrivers(type, answers, provKey, packages, crew) {
+    if (answers.__skipDrivers) return [];
+    var drivers = [];
+    var baseAnswers;
+    var delta;
+
+    function pushDriver(label, altAnswers, reason, impact) {
+      try {
+        var current = finalize(type, provKey, answers, packages, crew, []).price;
+        // Recalculate alt without drivers
+        var alt = Object.assign({}, answers, altAnswers, { __skipDrivers: true });
+        var altResult = {
+          badkamer: calcBadkamer,
+          keuken: calcKeuken,
+          dak: calcDak,
+          vloeren: calcVloeren,
+          schilderwerken: calcSchilderwerken
+        }[type](alt, provKey);
+        delta = current - altResult.price;
+        if (Math.abs(delta) >= 200) {
+          drivers.push({
+            text: label,
+            amount: round50(delta),
+            impact: impact || (delta > 0 ? 'hoog' : 'positief'),
+            reason: reason || ''
+          });
+        }
+      } catch (e) { /* ignore */ }
+    }
+
+    if (type === 'dak') {
+      if (answers.access === 'moeilijk') {
+        pushDriver('Moeilijke bereikbaarheid', { access: 'normaal' }, 'Extra steiger- en veiligheidskosten.', 'hoog');
+      }
+      if (answers.workType === 'volledig') {
+        pushDriver('Volledige renovatie (vs. enkel bedekking)', { workType: 'vernieuwen', insulation: 'nee' }, 'Isolatie, zwaardere opbouw en meer manuren.', 'hoog');
+      } else if (answers.insulation === 'ja' || answers.workType === 'isolatie') {
+        pushDriver('Dakisolatie inbegrepen', { insulation: 'nee', workType: answers.workType === 'isolatie' ? 'herstelling' : answers.workType }, 'Isolatie voegt materiaal en plaatsingsuren toe.', 'hoog');
+      }
+      if (answers.asbestos === 'ja') {
+        pushDriver('Asbestverwijdering', { asbestos: 'nee' }, 'Gespecialiseerde verwijdering is een aparte kostenpost.', 'hoog');
+      }
+      if (answers.gutters === 'ja') {
+        pushDriver('Goten & regenafvoer vernieuwen', { gutters: 'nee' }, 'Goten en afvoer als aparte werkpost.', 'middel');
+      }
+      if (answers.material === 'leien') {
+        pushDriver('Leien i.p.v. standaardpannen', { material: 'pannen' }, 'Leien zijn duurder in materiaal.', 'middel');
+      }
+    }
+
+    if (type === 'badkamer') {
+      if (answers.plumbingMove === 'ja') {
+        pushDriver('Leidingen verplaatsen (nieuwe layout)', { plumbingMove: 'nee' }, 'Nieuwe water- en afvoertracés vragen meer loodgietersuren.', 'hoog');
+      } else if (answers.plumbingMove === 'beperkt') {
+        pushDriver('Beperkte leidingaanpassingen', { plumbingMove: 'nee' }, 'Kleine verplaatsingen verhogen loodgieterswerk.', 'middel');
+      }
+      if (answers.tiling === 'volledig') {
+        pushDriver('Volledige wand- en vloerbetegeling', { tiling: 'gedeeltelijk' }, 'Meer tegelmateriaal en tegelzeturen.', 'hoog');
+      }
+      if (answers.sanitary === 'beide') {
+        pushDriver('Douche én bad', { sanitary: 'douche' }, 'Dubbel sanitair verhoogt materiaal en montage.', 'hoog');
+      }
+      if (answers.ufh === 'ja') {
+        pushDriver('Vloerverwarming', { ufh: 'nee' }, 'Extra materiaal, plaatsing en droogtijd.', 'middel');
+      }
+      if (answers.scope === 'volledig') {
+        pushDriver('Volledige renovatie-omvang', { scope: 'gedeeltelijk' }, 'Volledige afbraak en heropbouw sturen het budget.', 'hoog');
+      }
+    }
+
+    if (type === 'keuken') {
+      if (answers.connections === 'ja') {
+        pushDriver('Aansluitingen verplaatsen', { connections: 'nee' }, 'Loodgieter en elektricien moeten meewerken.', 'hoog');
+      }
+      if (answers.worktop === 'natuursteen') {
+        pushDriver('Premium werkblad', { worktop: 'composiet' }, 'Natuursteen is duurder in materiaal en plaatsing.', 'hoog');
+      }
+      if (answers.appliances === 'uitgebreid') {
+        pushDriver('Uitgebreid apparatuurpakket', { appliances: 'basis' }, 'Meer/duurdere toestellen.', 'hoog');
+      } else if (answers.appliances === 'basis') {
+        pushDriver('Basisapparatuur inbegrepen', { appliances: 'nee' }, 'Toestellen vormen een groot deel van het budget.', 'middel');
+      }
+      if (answers.cabinets === 'hoog') {
+        pushDriver('Hoogwaardige / maatwerk kasten', { cabinets: 'midden' }, 'Premium korpus en fronten.', 'hoog');
+      }
+      if (answers.scope === 'herindelen') {
+        pushDriver('Volledige herindeling', { scope: 'vervangen' }, 'Nieuwe layout vraagt meer montage en techniek.', 'hoog');
+      }
+    }
+
+    if (type === 'vloeren') {
+      if (answers.removal === 'ja') {
+        pushDriver('Uitbreken bestaande vloer', { removal: 'nee' }, 'Afbraak, afvoer en voorbereiding.', 'middel');
+      }
+      if (answers.leveling === 'volledig' || answers.substrate === 'slecht') {
+        pushDriver('Volledige egalisatie / slechte ondergrond', { leveling: 'beperkt', substrate: 'matig' }, 'Ondergrondvoorbereiding is cruciaal voor duurzaam resultaat.', 'hoog');
+      }
+      if (answers.floorMaterial === 'parket' || answers.floorMaterial === 'gietvloer' || answers.floorMaterial === 'tegel') {
+        pushDriver('Materiaalkeuze (' + answers.floorMaterial + ')', { floorMaterial: 'laminaat' }, 'Duurder vloertype dan laminaat.', 'hoog');
+      }
+      if (answers.ufh === 'nieuw') {
+        pushDriver('Nieuwe vloerverwarming', { ufh: 'nee' }, 'Installatie + impact op planning.', 'hoog');
+      }
+    }
+
+    if (type === 'schilderwerken') {
+      if (answers.surface === 'slecht') {
+        pushDriver('Slechte ondergrond', { surface: 'goed' }, 'Meer herstel- en plamuureenuren.', 'hoog');
+      } else if (answers.surface === 'matig') {
+        pushDriver('Matige ondergrondvoorbereiding', { surface: 'goed' }, 'Extra voorbereidingstijd.', 'middel');
+      }
+      if (answers.wallpaper === 'ja') {
+        pushDriver('Behang verwijderen', { wallpaper: 'nee' }, 'Arbeidsintensieve voorbereiding.', 'middel');
+      }
+      if (answers.darkColors === 'ja') {
+        pushDriver('Donkere kleuren (extra lagen)', { darkColors: 'nee' }, 'Extra verf en schilderuren.', 'middel');
+      }
+      if (answers.paintScope === 'buiten' || answers.paintScope === 'beide') {
+        pushDriver('Buitenschilderwerk', { paintScope: 'binnen' }, 'Buitenwerk is arbeids- en weergevoeliger.', 'hoog');
+      }
+      if (answers.woodwork === 'uitgebreid') {
+        pushDriver('Uitgebreid schrijnwerk', { woodwork: 'nee' }, 'Precisiewerk op deuren/ramen.', 'middel');
+      }
+    }
+
+    drivers.sort(function (x, y) { return Math.abs(y.amount) - Math.abs(x.amount); });
+    return drivers.slice(0, 5);
+  }
+
+  /* ---------- PUBLIC API ---------- */
+
   function calcEstimate(type, province, answers) {
-    // Backwards-compatible: calcEstimate(type, province, size, level)
     if (typeof answers === 'number' || answers === undefined || answers === null) {
       var sizeArg = answers;
       var levelArg = arguments[3] || 'standaard';
       answers = { size: sizeArg, level: levelArg, province: province };
-      // sensible demo defaults per category
       var defaults = {
         badkamer: { scope: 'gedeeltelijk', sanitary: 'douche', tiling: 'gedeeltelijk', plumbingMove: 'nee', ventilation: 'goed', ufh: 'nee', demolition: 'beperkt', housingAge: 'middel', urgency: 'binnen6' },
         keuken: { scope: 'vervangen', cabinets: 'midden', appliances: 'basis', worktop: 'composiet', connections: 'nee', splashback: 'ja', flooring: 'nee', housingAge: 'middel', urgency: 'binnen6' },
@@ -514,7 +1526,14 @@
     answers = answers || {};
     if (!answers.province) answers.province = province;
     if (!CATEGORIES[type] || !PROVINCES[province]) {
-      return { price: 0, low: 0, high: 0, weeksLow: 1, weeksHigh: 2, split: { materiaal: 0.4, arbeid: 0.5, overige: 0.1 }, lineItems: [], drivers: [], contingency: 0, peerLow: 0, peerHigh: 0, confidence: 'indicatief', perM2: 0, levelLabel: 'Standaard', size: 1 };
+      return {
+        price: 0, low: 0, high: 0, weeksLow: 1, weeksHigh: 2,
+        split: { materiaal: 0.4, arbeid: 0.5, overige: 0.1 },
+        lineItems: [], drivers: [], contingency: 0, peerLow: 0, peerHigh: 0,
+        confidence: 'indicatief', perM2: 0, levelLabel: 'Standaard', size: 1,
+        labourHours: 0, crewSize: 0, workDays: 0, subtotalExVat: 0, vatRate: 0.21,
+        vatAmount: 0, totalInclVat: 0, workPackages: [], costBreakdown: []
+      };
     }
 
     var fn = {
@@ -536,6 +1555,7 @@
     PRAKTISCHE_TIPS: PRAKTISCHE_TIPS,
     VOLGENDE_STAPPEN: VOLGENDE_STAPPEN,
     LEVEL_LABEL: LEVEL_LABEL,
+    MARKET_DATA: MARKET,
     calcEstimate: calcEstimate,
     fmtEUR: fmtEUR,
     isValidEmail: isValidEmail,
