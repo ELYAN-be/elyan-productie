@@ -31,9 +31,22 @@
     var timeline = [];
 
     assumptions.push('De aangegeven oppervlakte (' + (answers.size || result.size) + ' m²) klopt bij benadering.');
-    assumptions.push('Normale werkdagen en standaard leveromstandigheden.');
+    assumptions.push('Afwerkingsniveau "' + ((pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || 'standaard') + '" is representatief voor jouw materiaalkeuze.');
+    assumptions.push('Normale leveromstandigheden en geen uitzonderlijke prijsstijgingen tijdens de werf.');
     assumptions.push('Geen structurele verborgen schade buiten wat je hebt aangegeven.');
-    if (answers.access !== 'moeilijk') assumptions.push('Werftoegang zoals aangegeven is realistisch uitvoerbaar.');
+    if (answers.access === 'moeilijk') {
+      assumptions.push('Moeilijke toegang zoals aangegeven is meegenomen in steiger/veiligheid.');
+    } else if (answers.access === 'vlot') {
+      assumptions.push('Vlotte toegang zoals aangegeven — geen uitzonderlijke steigercomplexiteit.');
+    } else if (answers.access) {
+      assumptions.push('Werftoegang is normaal zoals aangegeven.');
+    }
+    if (answers.asbestos === 'nee') assumptions.push('Geen asbestproblematiek verwacht op basis van jouw antwoord.');
+    if (answers.asbestos === 'mogelijk') assumptions.push('Asbest is als mogelijk risico meegenomen via een onderzoeksbuffer — geen volledige sanering.');
+    if (answers.gutters === 'nee') assumptions.push('Goten blijven buiten scope (niet vernieuwen volgens jouw antwoord).');
+    if (answers.connections === 'nee') assumptions.push('Keukenaansluitingen blijven op bestaande plaatsen.');
+    if (answers.plumbingMove === 'nee') assumptions.push('Badkamerleidingen blijven op bestaande plaatsen.');
+    if (answers.woodwork === 'nee') assumptions.push('Schrijnwerk zit niet in deze schilder-raming.');
 
     redFlags.push('Onduidelijke totaalpost zonder scope of hoeveelheden');
     redFlags.push('Grote voorschotten zonder duidelijke planning of materialenlijst');
@@ -41,6 +54,8 @@
     redFlags.push('Btw-tarief onduidelijk of niet gesplitst');
     redFlags.push('Meerwerken zonder afgesproken prijsmethode');
     redFlags.push('Geen indicatieve start- of oplevertermijn');
+    redFlags.push('Geen garantievoorwaarden');
+    redFlags.push('Offerte veel lager dan marktband zonder uitleg over scope');
 
     if (answers.housingAge === 'jong') {
       insights.push('Je woning is jonger dan 10 jaar: reken doorgaans op 21% btw, tenzij een specifieke uitzondering geldt.');
@@ -109,24 +124,44 @@
         conclusions.push('Volledige renovatie: reken op realistische manuren voor afbraak, techniek en betegeling.');
       }
 
-      timeline.push({ phase: 'Voorbereiding', days: 1, note: 'Beschermen, meten, materialen' });
-      timeline.push({ phase: 'Afbraak', days: answers.demolition === 'volledig' ? 2 : 1, note: 'Sanitair/tegels verwijderen' });
-      timeline.push({ phase: 'Technische werken', days: answers.plumbingMove === 'ja' ? 4 : 2, note: 'Leidingen & elektriciteit' });
-      timeline.push({ phase: 'Waterdichting & tegels', days: Math.max(3, Math.round((answers.size || 6) * 0.5)), note: 'Nat systeem + betegeling' });
-      timeline.push({ phase: 'Sanitair & afwerking', days: 2, note: 'Montage, kitwerk, oplevering' });
+      timeline = [
+        { phase: 'Bescherming', days: 1, note: 'Werf afdekken' },
+        { phase: 'Afbraak', days: answers.demolition === 'volledig' ? 2 : 1, note: 'Sanitair/tegels verwijderen' },
+        { phase: 'Leidingen & elektriciteit', days: answers.plumbingMove === 'ja' ? 4 : answers.plumbingMove === 'beperkt' ? 3 : 2, note: 'Technische werken' },
+        { phase: 'Waterdichting', days: 1, note: 'Nat systeem' },
+        { phase: 'Tegelwerk', days: Math.max(3, Math.round((answers.size || 6) * 0.45)), note: 'Vloer & wand' },
+        { phase: 'Sanitair', days: 2, note: 'Montage toestellen' },
+        { phase: 'Afwerking', days: 1, note: 'Kitwerk & details' },
+        { phase: 'Oplevering', days: 1, note: 'Controle & oplevering' }
+      ];
 
-      quoteChecks = ['Afbraak & afvoer', 'Waterdichtingssysteem', 'Tegelmerk/-formaat + lijm/voeg', 'Sanitairlijst met types', 'Leidingwerken (scope)', 'Elektriciteit natte zone', 'Ventilatie', 'Btw-tarief', 'Planning & droogtijden', 'Garanties & meerwerken'];
+      quoteChecks = [
+        'Exacte m² en scope vermeld',
+        'Afbraak & afvoer inbegrepen',
+        'Waterdichtingssysteem vermeld',
+        'Tegelmerk/-formaat + lijm/voeg inbegrepen',
+        'Sanitairlijst met types',
+        'Leidingwerken (scope) expliciet',
+        'Elektriciteit natte zone',
+        'Ventilatie inbegrepen of uitgesloten',
+        'Btw afzonderlijk vermeld',
+        'Planning & droogtijden',
+        'Garanties & meerwerken',
+        'Betalingsschema'
+      ];
       contractorQuestions = [
-        'Welk waterdichtingssysteem gebruiken jullie en is dat inbegrepen?',
-        'Zijn leidingaanpassingen volledig inbegrepen of meerwerk?',
+        'Welk waterdichtingssysteem gebruikt u?',
+        'Zijn leidingen volledig inbegrepen of meerwerk?',
+        'Is tegelmateriaal, voeg en lijm volledig inbegrepen?',
+        'Is ventilatie inbegrepen?',
+        'Wat gebeurt er bij schade aan de ondergrond?',
         'Welke tegellijm en voeg zijn voorzien bij mijn tegelkeuze?',
-        'Hoe regelen jullie ventilatie in de natte zone?',
-        'Wat gebeurt er als de ondergrond beschadigd blijkt?',
         'Is kitwerk en oplevering inbegrepen?',
         'Welk btw-tarief passen jullie toe en waarom?',
         'Wat is het betalingsschema gekoppeld aan mijlpalen?'
       ];
-      savings.push({ text: 'Kies standaardtegelmaten i.p.v. grootformaattegels om snij- en plaatsingsuren te beperken.', amount: null });
+      savings.push({ text: 'Beperk betegeling waar functioneel mogelijk (bijv. halfhoge wanden i.p.v. volledige hoogte).', amount: null });
+      savings.push({ text: 'Standaardformaten tegels beperken plaatsingsuren t.o.v. grootformaattegels.', amount: null });
     }
 
     if (type === 'keuken') {
@@ -151,22 +186,36 @@
         risks.push('Aansluitingen verplaatsen vraagt coördinatie tussen keukenplaatser, elektricien en loodgieter.');
         riskRows.push({ risk: 'Technische verplaatsingen', impact: 'HOOG', check: 'Technisch plan vóór kastbestelling.' });
         savings.push({ text: 'Zelfde hoofdlayout behouden vermijdt dure leiding- en elektrawerken.', amount: null });
+      } else {
+        savings.push({ text: 'Behoud bestaande aansluitpunten — dat beperkt loodgieter- en elektrakosten.', amount: null });
+      }
+      if (answers.appliances === 'basis') {
+        savings.push({ text: 'Kies middenklasse apparatuur waar prestaties vergelijkbaar zijn met premium.', amount: null });
       }
       if (answers.scope === 'fronten') {
         recommendations.push('Een facelift werkt alleen als de kaststructuur nog stevig is — laat dat eerst nakijken.');
+        savings.push({ text: 'Fronten i.p.v. volledige vervanging bespaart fors als de korpus nog goed is.', amount: null });
       }
       if (answers.worktop === 'natuursteen') {
         insights.push('Premium werkblad: reken op precieze opmeting en langere levertijd.');
         conclusions.push('Werkbladkeuze heeft een groot aandeel in jouw materiaalbudget.');
       }
 
-      timeline.push({ phase: 'Opmeting & bestelling', days: 5, note: 'Keukenplan en levertijd' });
-      timeline.push({ phase: 'Demontage', days: 1, note: 'Oude keuken weg' });
-      timeline.push({ phase: 'Techniek', days: answers.connections === 'ja' ? 3 : 1, note: 'Water/elektra' });
-      timeline.push({ phase: 'Montage kasten', days: 2, note: 'Korpus & fronten' });
-      timeline.push({ phase: 'Werkblad & afwerking', days: 2, note: 'Opmeting/plaatsing/afwerking' });
+      timeline = [
+        { phase: 'Opmeting & bestelling', days: 5, note: 'Keukenplan en levertijd (kalender)' },
+        { phase: 'Demontage', days: 1, note: 'Oude keuken weg' },
+        { phase: 'Techniek', days: answers.connections === 'ja' ? 3 : 1, note: 'Water/elektra' },
+        { phase: 'Montage kasten', days: 2, note: 'Korpus & fronten' },
+        { phase: 'Werkblad', days: 2, note: 'Opmeting na korpus + plaatsing' },
+        { phase: 'Apparatuur & afwerking', days: 1, note: 'Aansluiten & oplevering' },
+        { phase: 'Oplevering', days: 1, note: 'Controle' }
+      ];
 
-      quoteChecks = ['Kastenmerk/-lijn', 'Werkbladtype + plaatsing', 'Apparatuurlijst', 'Demontage & afvoer', 'Water & elektra scope', 'Spatwand', 'Btw', 'Levertijden', 'Garantie op montage', 'Meerwerken'];
+      quoteChecks = [
+        'Kastenmerk/-lijn vermeld', 'Werkbladtype + plaatsing', 'Apparatuurlijst (in/excl.)',
+        'Demontage & afvoer', 'Water & elektra scope', 'Spatwand in/excl.',
+        'Btw afzonderlijk', 'Levertijden', 'Garantie op montage', 'Meerwerken', 'Betalingsschema'
+      ];
       contractorQuestions = [
         'Welke kastlijn en plaatdikte zitten in de prijs?',
         'Is demontage en afvoer van de oude keuken inbegrepen?',
@@ -175,7 +224,8 @@
         'Wat als de muur niet haaks of vlak is?',
         'Zijn plinten, vulstukken en sifonafwerking inbegrepen?',
         'Welk btw-tarief geldt op kast vs. plaatsing?',
-        'Wat is de planning van bestelling tot oplevering?'
+        'Wat is de planning van bestelling tot oplevering?',
+        'Hoe worden meerwerken geprijsd?'
       ];
     }
 
@@ -198,7 +248,7 @@
         insights.push('Dakisolatie zit in jouw scope — check premievoorwaarden sinds 1 maart 2026 (inkomenscategorie telt zwaar).');
         recommendations.push('Vraag R-/U-waarde en premieconforme documentatie aan je aannemer.');
         conclusions.push('Isolatie combineert energievoordeel met werfefficiëntie als bedekking sowieso openligt.');
-        savings.push({ text: 'Combineer isolatie en dakbedekking in één werffase om dubbele steiger- en mobilisatiekosten te vermijden.', amount: null });
+        savings.push({ text: 'Combineer isolatie en dakbedekking in één werffase — vermijd dubbele steiger- en mobilisatiekosten.', amount: null });
       }
       if (answers.asbestos === 'ja' || answers.asbestos === 'mogelijk') {
         risks.push('Asbestverdachte materialen vragen diagnose en gespecialiseerde verwijdering vóór verdere werken.');
@@ -211,25 +261,56 @@
       }
       planning.push('Dakwerken zijn weersafhankelijk: voorjaar en nazomer zijn meestal het meest betrouwbaar.');
       recommendations.push('Laat goten, nokdetails en muuraansluitingen expliciet opnemen — daar ontstaan vaak lekken.');
+      riskRows.push({ risk: 'Verborgen houtrot / constructie', impact: 'MIDDEL', check: 'Laat onderliggende constructie inspecteren tijdens afbraak.' });
       riskRows.push({ risk: 'Aansluitdetails', impact: 'MIDDEL', check: 'Controleer nok, dakramen en muurplaten in de offerte.' });
+      riskRows.push({ risk: 'Weersomstandigheden', impact: 'MIDDEL', check: 'Vraag hoe weerverlet en planning worden geregeld.' });
+      if (answers.asbestos === 'nee') {
+        riskRows.push({ risk: 'Asbest (onverwacht)', impact: 'LAAG', check: 'Bevestig dat inventaris/inspectie niet nodig is of al gebeurd is.' });
+      }
 
-      timeline.push({ phase: 'Voorbereiding', days: 1, note: 'Steiger & veiligheidsplan' });
-      timeline.push({ phase: 'Afbraak', days: Math.max(1, Math.round((answers.size || 90) / 80)), note: 'Bedekking verwijderen' });
-      timeline.push({ phase: 'Isolatie & onderdak', days: Math.max(2, Math.round((answers.size || 90) / 50)), note: 'Opbouw' });
-      timeline.push({ phase: 'Nieuwe bedekking', days: Math.max(2, Math.round((answers.size || 90) / 40)), note: 'Plaatsing' });
-      timeline.push({ phase: 'Details & oplevering', days: 1, note: 'Goten/aansluitingen' });
+      timeline = [
+        { phase: 'Voorbereiding', days: 1, note: 'Steiger, veiligheid, werfinrichting' },
+        { phase: 'Afbraak', days: Math.max(1, Math.round((answers.size || 90) / 80)), note: 'Bedekking demontage & afvoer' },
+        { phase: 'Onderbouw', days: Math.max(1, Math.round((answers.size || 90) / 70)), note: 'Onderdak & lattenwerk' },
+        { phase: 'Isolatie', days: (answers.insulation === 'ja' || answers.workType === 'volledig' || answers.workType === 'isolatie') ? Math.max(1, Math.round((answers.size || 90) / 60)) : 0, note: 'Isolatieplaatsing' },
+        { phase: 'Dakbedekking', days: Math.max(2, Math.round((answers.size || 90) / 40)), note: 'Nieuwe bedekking' },
+        { phase: 'Details & afwerking', days: 1, note: 'Nok, aansluitingen, dakranden' },
+        { phase: 'Oplevering', days: 1, note: 'Controle & steiger afbreken' }
+      ].filter(function (t) { return t.days > 0; });
 
-      quoteChecks = ['Afbraak & afvoer', 'Onderdaktype', 'Isolatiedikte / Rd-waarde', 'Bedekkingstype', 'Steiger & veiligheid', 'Goten/afvoer', 'Asbestprocedure', 'Btw', 'Weersafhankelijke planning', 'Garantie waterdichtheid'];
+      quoteChecks = [
+        'Exacte oppervlakte vermeld',
+        'Afbraak inbegrepen',
+        'Container / afval inbegrepen',
+        'Type onderdak vermeld',
+        'Isolatietype + dikte / Rd-waarde vermeld',
+        'Merk/type dakpan of bedekking vermeld',
+        'Hulpstukken inbegrepen',
+        'Goten inbegrepen of expliciet uitgesloten',
+        'Steiger & valbeveiliging inbegrepen',
+        'Dakranden/details inbegrepen',
+        'Btw afzonderlijk vermeld',
+        'Start- en oplevertermijn vermeld',
+        'Garantie vermeld',
+        'Voorwaarden voor meerwerk beschreven',
+        'Betalingsschema beschreven'
+      ];
       contractorQuestions = [
-        'Wat gebeurt er bij houtrot of aangetaste kepers?',
-        'Welk type onderdak voorzien jullie?',
-        'Welke isolatiewaarde (Rd) garanderen jullie?',
+        'Wat gebeurt er als tijdens afbraak houtrot wordt gevonden?',
         'Is steiger en valbeveiliging volledig inbegrepen?',
+        'Welke isolatiedikte en Rd-waarde is voorzien?',
+        'Welke hulpstukken zijn inbegrepen in de m²-prijs?',
+        'Hoe worden niet-voorziene meerwerken geprijsd?',
         'Is afvoer van oude materialen inbegrepen?',
         'Hoe behandelen jullie nokken, dakdoorvoeren en muurplaten?',
-        'Welk btw-tarief en waarom?',
-        'Wat is de garantie op waterdichtheid?'
+        'Welk btw-tarief passen jullie toe en waarom?',
+        'Wat is de garantie op waterdichtheid?',
+        'Wat is het betalingsschema gekoppeld aan mijlpalen?'
       ];
+      if (answers.gutters !== 'ja') {
+        savings.push({ text: 'Behoud goede bestaande goten wanneer technisch verantwoord — dat vermijdt een aparte gootpost.', amount: null });
+      }
+      savings.push({ text: 'Standaardiseer dakpan en hulpstukken i.p.v. mix van speciale stukken.', amount: null });
     }
 
     if (type === 'vloeren') {
@@ -362,6 +443,30 @@
 
     recommendations.push('Vergelijk offertes niet alleen op totaalprijs, maar op scope: afbraak, afvoer, bescherming, oplevering en garanties.');
 
+    if (type === 'vloeren') {
+      savings.push({ text: 'Controleer de ondergrond vooraf — onverwachte egalisatie is een klassieke meerpost.', amount: null });
+      if (answers.floorMaterial !== 'tegel') {
+        savings.push({ text: 'Vermijd complexe legpatronen als budget belangrijk is.', amount: null });
+      }
+    }
+    if (type === 'schilderwerken') {
+      savings.push({ text: 'Combineer meerdere ruimtes in één opdracht om mobilisatie te delen.', amount: null });
+      savings.push({ text: 'Herstel de ondergrond vooraf waar je zelf eenvoudig kan bijdragen (afdekken, lichte schuur).', amount: null });
+    }
+
+    var pctLow = result.contingencyPct ? Math.round(result.contingencyPct.low * 100) : 10;
+    var pctHigh = result.contingencyPct ? Math.round(result.contingencyPct.high * 100) : 15;
+    var bufferReason = 'Voor dit project adviseren we ' + pctLow + '–' + pctHigh + '% buffer';
+    if (result.confidence === 'indicatief' || pctHigh >= 18) {
+      bufferReason += ' omdat er meerdere onzekerheden in jouw antwoorden zitten.';
+    } else if (pctHigh <= 10) {
+      bufferReason += ' — jouw antwoorden zijn relatief duidelijk, dus een lagere buffer volstaat.';
+    } else {
+      bufferReason += ' — typisch voor een standaard renovatie met normale onzekerheid.';
+    }
+
+    var executiveConclusion = buildExecutiveConclusion(type, answers, result, pricing, conclusions);
+
     function uniq(arr) {
       var out = [];
       arr.forEach(function (x) { if (x && out.indexOf(x) === -1) out.push(x); });
@@ -374,20 +479,51 @@
       recommendations: uniq(recommendations).slice(0, 8),
       risks: uniq(risks).slice(0, 5),
       conclusions: conclusions.slice(0, 3),
+      executiveConclusion: executiveConclusion,
       included: uniq(included),
       confirmItems: uniq(confirmItems),
       assumptions: uniq(assumptions),
       riskRows: riskRows.slice(0, 6),
-      savings: savings.slice(0, 5),
+      savings: uniq(savings.map(function (s) { return s.text || s; })).slice(0, 5).map(function (t) {
+        return typeof t === 'string' ? { text: t, amount: null } : t;
+      }),
       quoteChecks: quoteChecks,
       contractorQuestions: contractorQuestions.slice(0, 10),
-      redFlags: redFlags,
+      redFlags: uniq(redFlags),
       timeline: timeline,
+      bufferReason: bufferReason,
       btwTip: (answers.housingAge === 'middel' || answers.housingAge === 'oud')
         ? pricing.BTW_TIP
         : 'Bij woningen jonger dan 10 jaar geldt meestal 21% btw. Laat dit bevestigen in je offerte.',
       fingerprint: buildFingerprint(type, answers, pricing)
     };
+  }
+
+  function buildExecutiveConclusion(type, answers, result, pricing, conclusions) {
+    var noun = (pricing.CATEGORIES[type] && pricing.CATEGORIES[type].resultNoun) || 'renovatie';
+    var pos = result.marketPosition;
+    var parts = [];
+    if (pos === 'niet-direct-vergelijkbaar') {
+      parts.push('Jouw ' + noun + ' bevat scope-elementen die niet 1-op-1 met de marktband te vergelijken zijn — gebruik de kostentabel als basis, niet alleen het totaal.');
+    } else if (pos === 'hoger') {
+      parts.push('Jouw project ligt boven de typische Belgische marktband voor vergelijkbare scope — vaak door materiaalniveau, bereikbaarheid of extra posten.');
+    } else if (pos === 'lager') {
+      parts.push('Jouw project ligt onder de typische Belgische marktband — meestal door efficiënte scopekeuzes, niet automatisch “te goedkoop”.');
+    } else {
+      parts.push('Jouw project bevindt zich binnen de normale Belgische marktband voor deze ' + noun + '.');
+    }
+    if (result.drivers && result.drivers[0]) {
+      parts.push(result.drivers[0].text + ' is jouw grootste kostendrijver.');
+    } else if (conclusions && conclusions[0]) {
+      parts.push(conclusions[0]);
+    }
+    if (type === 'dak' && answers.access !== 'moeilijk') {
+      parts.push('Bereikbaarheid is in jouw situatie geen uitzonderlijke kostendrijver.');
+    }
+    if (type === 'dak' && (answers.insulation === 'ja' || answers.workType === 'volledig')) {
+      parts.push('Isolatie en dakbedekking wegen zwaar in het budget.');
+    }
+    return parts.slice(0, 3).join(' ');
   }
 
   function buildFingerprint(type, answers, pricing) {

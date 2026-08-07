@@ -1,14 +1,13 @@
 /* ============================================================
-   ELYAN — Premium PDF-renovatierapport (pdfkit)
-   Document-flow: nieuwe pagina alleen wanneer content niet past.
-   Data komt uitsluitend uit de pricing engine + insights.
+   ELYAN — Premium PDF renovatierapport (pdfkit)
+   Presentation layer ONLY — pricing engine is single source of truth.
+   Dense layout, dynamic pagination, category-personalised content.
    ============================================================ */
 
 var PDFDocument = require('pdfkit');
 var path = require('path');
 var pricing = require('./pricing');
 var insightsLib = require('./insights');
-var questionsLib = require('./questions');
 
 var ASSETS = path.join(__dirname, '..', '_pdf-assets');
 var ICON = {
@@ -45,222 +44,543 @@ var COLOR = {
 };
 
 var PAGE = { width: 595.28, height: 841.89 };
-var MARGIN = 48;
+var MARGIN = 44;
 var CONTENT_W = PAGE.width - MARGIN * 2;
-var FOOTER_Y = PAGE.height - 40;
-var CONTENT_BOTTOM = FOOTER_Y - 18;
-var GAP = 10;
+var FOOTER_Y = PAGE.height - 36;
+var CONTENT_BOTTOM = FOOTER_Y - 14;
+var GAP = 8;
 
 function fmtDate(d) {
   var months = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
   return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
 }
 
+function housingAgeLabel(v) {
+  if (v === 'jong') return 'Jonger dan 10 jaar';
+  if (v === 'middel') return '10–30 jaar';
+  if (v === 'oud') return 'Ouder dan 30 jaar';
+  return v || '—';
+}
+
 function safeIcon(doc, key, x, y, size) {
   if (!key || !ICON[key]) return;
-  try { doc.image(ICON[key], x, y, { width: size, height: size }); } catch (e) { /* missing asset */ }
+  try { doc.image(ICON[key], x, y, { width: size, height: size }); } catch (e) { /* missing */ }
 }
 
-function header(doc) {
-  var y = 30;
+function header(doc, reportDate) {
+  var y = 26;
   doc.save();
-  doc.fillColor(COLOR.primary);
-  doc.rect(MARGIN, y + 6, 3.2, 7).fill(COLOR.primary);
-  doc.rect(MARGIN + 5, y + 3, 3.2, 10).fill(COLOR.primary);
-  doc.rect(MARGIN + 10, y, 3.2, 13).fill(COLOR.primary);
+  doc.rect(MARGIN, y + 5, 2.8, 6).fill(COLOR.primary);
+  doc.rect(MARGIN + 4.5, y + 2.5, 2.8, 8.5).fill(COLOR.primary);
+  doc.rect(MARGIN + 9, y, 2.8, 11).fill(COLOR.primary);
   doc.restore();
-  doc.font('Helvetica-Bold').fontSize(11).fillColor(COLOR.ink)
-    .text('ELYAN', MARGIN + 18, y - 1, { characterSpacing: 0.3 });
-  doc.font('Helvetica').fontSize(8.5).fillColor(COLOR.inkFaint)
-    .text('Persoonlijk renovatierapport', MARGIN, y - 1, { width: CONTENT_W, align: 'right' });
-  doc.moveTo(MARGIN, y + 20).lineTo(PAGE.width - MARGIN, y + 20).lineWidth(0.75).strokeColor(COLOR.line).stroke();
-  doc.y = y + 28;
+  doc.font('Helvetica-Bold').fontSize(10).fillColor(COLOR.ink)
+    .text('ELYAN', MARGIN + 16, y - 1, { characterSpacing: 0.4 });
+  doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkFaint)
+    .text('Renovatierapport', MARGIN, y - 1, { width: CONTENT_W, align: 'right' });
+  doc.moveTo(MARGIN, y + 16).lineTo(PAGE.width - MARGIN, y + 16)
+    .lineWidth(0.7).strokeColor(COLOR.line).stroke();
+  doc.y = y + 24;
 }
 
-function footer(doc, pageNum) {
+function footer(doc, pageNum, reportDate, totalHint) {
   var oldBottom = doc.page.margins.bottom;
   doc.page.margins.bottom = 0;
-  var y = FOOTER_Y - 4;
-  doc.moveTo(MARGIN, y).lineTo(PAGE.width - MARGIN, y).lineWidth(0.75).strokeColor(COLOR.line).stroke();
-  doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
-    .text('Indicatief rapport — elyan.info@gmail.com', MARGIN, y + 8, { width: CONTENT_W - 60, lineBreak: false });
-  doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
-    .text('Pagina ' + String(pageNum), MARGIN, y + 8, { width: CONTENT_W, align: 'right', lineBreak: false });
+  var y = FOOTER_Y - 2;
+  doc.moveTo(MARGIN, y).lineTo(PAGE.width - MARGIN, y)
+    .lineWidth(0.7).strokeColor(COLOR.line).stroke();
+  doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
+    .text('Indicatieve renovatieraming — ELYAN' + (reportDate ? '  ·  ' + reportDate : ''), MARGIN, y + 6, {
+      width: CONTENT_W - 70, lineBreak: false
+    });
+  doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
+    .text('Pagina ' + String(pageNum), MARGIN, y + 6, { width: CONTENT_W, align: 'right', lineBreak: false });
   doc.page.margins.bottom = oldBottom;
 }
 
-function ensureSpace(doc, needed, pageNum) {
+function ensureSpace(doc, needed, ctx) {
   if (doc.y + needed > CONTENT_BOTTOM) {
-    footer(doc, pageNum.n);
+    footer(doc, ctx.page.n, ctx.reportDate);
     doc.addPage();
-    pageNum.n++;
-    header(doc);
+    ctx.page.n++;
+    header(doc, ctx.reportDate);
     return true;
   }
   return false;
 }
 
-function eyebrow(doc, text) {
-  doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR.primary)
-    .text(String(text).toUpperCase(), MARGIN, doc.y, { characterSpacing: 1.1 });
-  doc.y += 4;
+function startSectionPage(doc, ctx) {
+  footer(doc, ctx.page.n, ctx.reportDate);
+  doc.addPage();
+  ctx.page.n++;
+  header(doc, ctx.reportDate);
 }
 
-function sectionTitle(doc, iconKey, text, pageNum, opts) {
+function maybeNewSection(doc, ctx, minNeeded) {
+  minNeeded = minNeeded || 160;
+  if (CONTENT_BOTTOM - doc.y < minNeeded) {
+    startSectionPage(doc, ctx);
+  } else {
+    doc.y += 6;
+  }
+}
+
+function eyebrow(doc, text) {
+  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(COLOR.primary)
+    .text(String(text).toUpperCase(), MARGIN, doc.y, { characterSpacing: 1.15 });
+  doc.y += 3;
+}
+
+function sectionTitle(doc, iconKey, text, ctx, opts) {
   opts = opts || {};
-  ensureSpace(doc, 36, pageNum);
-  var size = opts.iconSize || 14;
+  if (!opts.skipEnsure) ensureSpace(doc, 32 + (opts.keepWith || 0), ctx);
+  var size = opts.iconSize || 13;
   var yStart = doc.y;
   safeIcon(doc, iconKey, MARGIN, yStart - 1, size);
-  doc.font('Helvetica-Bold').fontSize(opts.fontSize || 13).fillColor(COLOR.ink)
-    .text(text, MARGIN + (iconKey ? size + 8 : 0), yStart, { width: CONTENT_W - (iconKey ? size + 8 : 0) });
-  doc.y = Math.max(doc.y, yStart + size) + (opts.marginBottom !== undefined ? opts.marginBottom : 8);
+  doc.font('Helvetica-Bold').fontSize(opts.fontSize || 12.5).fillColor(COLOR.ink)
+    .text(text, MARGIN + (iconKey ? size + 7 : 0), yStart, {
+      width: CONTENT_W - (iconKey ? size + 7 : 0)
+    });
+  doc.y = Math.max(doc.y, yStart + size) + (opts.marginBottom !== undefined ? opts.marginBottom : 6);
 }
 
-function bodyText(doc, text, pageNum) {
-  ensureSpace(doc, 28, pageNum);
-  doc.font('Helvetica').fontSize(9.5).fillColor(COLOR.inkSoft)
-    .text(text, MARGIN, doc.y, { width: CONTENT_W, lineGap: 2 });
-  doc.y += 6;
+/* Keep eyebrow + title with at least the first content block (no orphan headings). */
+function startSection(doc, ctx, opts) {
+  opts = opts || {};
+  var keepWith = opts.keepWith != null ? opts.keepWith : 56;
+  ensureSpace(doc, 40 + keepWith, ctx);
+  if (opts.eyebrow) eyebrow(doc, opts.eyebrow);
+  sectionTitle(doc, opts.icon || null, opts.title, ctx, Object.assign({ skipEnsure: true }, opts.titleOpts || {}));
 }
 
-function sandCard(doc, lines, pageNum, minH) {
-  var pad = 12;
+function bodyText(doc, text, ctx, opts) {
+  opts = opts || {};
+  ensureSpace(doc, 24, ctx);
+  doc.font('Helvetica').fontSize(opts.size || 9).fillColor(opts.color || COLOR.inkSoft)
+    .text(text, MARGIN, doc.y, { width: CONTENT_W, lineGap: 1.8 });
+  doc.y += opts.after !== undefined ? opts.after : 5;
+}
+
+function sandCard(doc, lines, ctx, minH) {
+  var pad = 11;
   var textW = CONTENT_W - pad * 2;
   var h = pad;
   lines.forEach(function (line, idx) {
-    doc.font(line.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(line.size || 9.5);
-    h += doc.heightOfString(line.text, { width: textW, lineGap: 2 }) + (idx < lines.length - 1 ? 5 : 0);
+    doc.font(line.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(line.size || 9);
+    h += doc.heightOfString(line.text, { width: textW, lineGap: 1.8 }) + (idx < lines.length - 1 ? 4 : 0);
   });
   h += pad;
   if (minH) h = Math.max(h, minH);
-  ensureSpace(doc, h + 8, pageNum);
+  ensureSpace(doc, h + 6, ctx);
   var startY = doc.y;
-  doc.roundedRect(MARGIN, startY, CONTENT_W, h, 8).fill(COLOR.sand);
+  doc.roundedRect(MARGIN, startY, CONTENT_W, h, 7).fill(COLOR.sand);
   var y = startY + pad;
   lines.forEach(function (line, idx) {
-    doc.font(line.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(line.size || 9.5)
+    doc.font(line.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(line.size || 9)
       .fillColor(line.color || COLOR.inkSoft)
-      .text(line.text, MARGIN + pad, y, { width: textW, lineGap: 2 });
-    y = doc.y + (idx < lines.length - 1 ? 5 : 0);
+      .text(line.text, MARGIN + pad, y, { width: textW, lineGap: 1.8 });
+    y = doc.y + (idx < lines.length - 1 ? 4 : 0);
   });
   doc.y = startY + h + GAP;
 }
 
-function bulletList(doc, items, pageNum, iconKey) {
+function bulletList(doc, items, ctx, iconKey) {
   iconKey = iconKey || 'info';
-  var iconSize = 10;
+  var iconSize = 9;
   items.forEach(function (item) {
-    ensureSpace(doc, 28, pageNum);
+    ensureSpace(doc, 22, ctx);
     var yTop = doc.y;
     safeIcon(doc, iconKey, MARGIN, yTop + 1, iconSize);
-    doc.font('Helvetica').fontSize(9.2).fillColor(COLOR.inkSoft)
-      .text(item, MARGIN + iconSize + 8, yTop, { width: CONTENT_W - iconSize - 8, lineGap: 1.5 });
-    doc.y = Math.max(doc.y, yTop + iconSize) + 6;
+    doc.font('Helvetica').fontSize(8.8).fillColor(COLOR.inkSoft)
+      .text(item, MARGIN + iconSize + 7, yTop, { width: CONTENT_W - iconSize - 7, lineGap: 1.2 });
+    doc.y = Math.max(doc.y, yTop + iconSize) + 5;
   });
 }
 
-function numberedList(doc, items, pageNum) {
+function numberedList(doc, items, ctx) {
   items.forEach(function (item, i) {
-    ensureSpace(doc, 34, pageNum);
+    ensureSpace(doc, 24, ctx);
     var yTop = doc.y;
-    var bubble = 16;
+    var bubble = 14;
     doc.circle(MARGIN + bubble / 2, yTop + bubble / 2, bubble / 2).fill(COLOR.primary);
-    doc.font('Helvetica-Bold').fontSize(8.5).fillColor(COLOR.white)
-      .text(String(i + 1), MARGIN, yTop + bubble / 2 - 4.5, { width: bubble, align: 'center' });
-    doc.font('Helvetica').fontSize(9.2).fillColor(COLOR.inkSoft)
-      .text(item, MARGIN + bubble + 9, yTop + 1, { width: CONTENT_W - bubble - 9, lineGap: 1.5 });
-    doc.y = Math.max(doc.y, yTop + bubble) + 7;
+    doc.font('Helvetica-Bold').fontSize(7.5).fillColor(COLOR.white)
+      .text(String(i + 1), MARGIN, yTop + bubble / 2 - 3.5, { width: bubble, align: 'center' });
+    doc.font('Helvetica').fontSize(8.5).fillColor(COLOR.inkSoft)
+      .text(item, MARGIN + bubble + 8, yTop + 1, { width: CONTENT_W - bubble - 8, lineGap: 1.15 });
+    doc.y = Math.max(doc.y, yTop + bubble) + 4;
   });
 }
 
-function metaGrid(doc, cells, pageNum) {
-  var boxW = (CONTENT_W - 10) / 2;
-  var boxH = 44;
+function kpiRow(doc, cells, ctx) {
+  var n = cells.length;
+  var gap = 7;
+  var boxW = (CONTENT_W - gap * (n - 1)) / n;
+  var boxH = 48;
+  ensureSpace(doc, boxH + 6, ctx);
+  var rowY = doc.y;
+  cells.forEach(function (m, i) {
+    var x = MARGIN + i * (boxW + gap);
+    doc.roundedRect(x, rowY, boxW, boxH, 6).fill(COLOR.sand);
+    doc.font('Helvetica').fontSize(6.5).fillColor(COLOR.inkFaint)
+      .text(String(m.label).toUpperCase(), x + 7, rowY + 8, { width: boxW - 14, characterSpacing: 0.4 });
+    doc.font('Helvetica-Bold').fontSize(m.big ? 12 : 10).fillColor(COLOR.ink)
+      .text(String(m.value), x + 7, rowY + 24, { width: boxW - 14 });
+  });
+  doc.y = rowY + boxH + 7;
+}
+
+function metaGrid2(doc, cells, ctx) {
+  var boxW = (CONTENT_W - 8) / 2;
+  var boxH = 34;
   var i = 0;
   while (i < cells.length) {
-    ensureSpace(doc, boxH + 8, pageNum);
+    ensureSpace(doc, boxH + 5, ctx);
     var rowY = doc.y;
     for (var col = 0; col < 2 && i < cells.length; col++, i++) {
       var m = cells[i];
-      var x = MARGIN + col * (boxW + 10);
-      doc.roundedRect(x, rowY, boxW, boxH, 7).fill(COLOR.sand);
-      doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
-        .text(String(m.label).toUpperCase(), x + 10, rowY + 9, { characterSpacing: 0.5 });
-      doc.font('Helvetica-Bold').fontSize(10).fillColor(COLOR.ink)
-        .text(String(m.value), x + 10, rowY + 23, { width: boxW - 20 });
+      var x = MARGIN + col * (boxW + 8);
+      doc.roundedRect(x, rowY, boxW, boxH, 5).fill(COLOR.sand);
+      doc.font('Helvetica').fontSize(6.2).fillColor(COLOR.inkFaint)
+        .text(String(m.label).toUpperCase(), x + 9, rowY + 6, { characterSpacing: 0.4 });
+      doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
+        .text(String(m.value), x + 9, rowY + 17, { width: boxW - 18 });
     }
-    doc.y = rowY + boxH + 8;
+    doc.y = rowY + boxH + 5;
   }
 }
 
-function drawBudgetBars(doc, r, pageNum) {
+function drawRangeBar(doc, low, mid, high, ctx) {
+  ensureSpace(doc, 56, ctx);
+  var y = doc.y;
+  doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
+    .text('LOW', MARGIN, y)
+    .text('EXPECTED', MARGIN, y, { width: CONTENT_W, align: 'center' })
+    .text('HIGH', MARGIN, y, { width: CONTENT_W, align: 'right' });
+  doc.font('Helvetica-Bold').fontSize(11).fillColor(COLOR.ink)
+    .text(pricing.fmtEUR(low), MARGIN, y + 12)
+    .text(pricing.fmtEUR(mid), MARGIN, y + 12, { width: CONTENT_W, align: 'center' })
+    .text(pricing.fmtEUR(high), MARGIN, y + 12, { width: CONTENT_W, align: 'right' });
+  var barY = y + 34;
+  doc.roundedRect(MARGIN, barY, CONTENT_W, 7, 3.5).fill(COLOR.sandDeep);
+  var span = Math.max(1, high - low);
+  var midX = MARGIN + ((mid - low) / span) * CONTENT_W;
+  doc.roundedRect(MARGIN, barY, Math.max(8, midX - MARGIN), 7, 3.5).fill(COLOR.primarySoft);
+  doc.circle(midX, barY + 3.5, 5).fill(COLOR.primary);
+  doc.y = barY + 16;
+}
+
+function drawSplitBars(doc, r, ctx) {
   var rows = [
     { label: 'Materiaal', amt: r.amounts.materiaal, pct: r.split.materiaal },
     { label: 'Arbeid', amt: r.amounts.arbeid, pct: r.split.arbeid },
     { label: 'Overige', amt: r.amounts.overige, pct: r.split.overige }
   ];
   rows.forEach(function (row) {
-    ensureSpace(doc, 34, pageNum);
+    ensureSpace(doc, 28, ctx);
     var yTop = doc.y;
-    doc.font('Helvetica-Bold').fontSize(9.5).fillColor(COLOR.ink).text(row.label, MARGIN, yTop);
-    doc.font('Helvetica-Bold').fontSize(9.5).fillColor(COLOR.primary)
-      .text(pricing.fmtEUR(row.amt) + '  (' + Math.round(row.pct * 100) + '%)', MARGIN, yTop, { width: CONTENT_W, align: 'right' });
-    doc.y = yTop + 13;
-    doc.roundedRect(MARGIN, doc.y, CONTENT_W, 6, 3).fill(COLOR.sandDeep);
-    doc.roundedRect(MARGIN, doc.y, Math.max(4, CONTENT_W * row.pct), 6, 3).fill(COLOR.primary);
-    doc.y += 14;
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink).text(row.label, MARGIN, yTop);
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.primary)
+      .text(pricing.fmtEUR(row.amt) + '   ·   ' + Math.round(row.pct * 100) + '%', MARGIN, yTop, {
+        width: CONTENT_W, align: 'right'
+      });
+    doc.y = yTop + 12;
+    doc.roundedRect(MARGIN, doc.y, CONTENT_W, 5, 2.5).fill(COLOR.sandDeep);
+    doc.roundedRect(MARGIN, doc.y, Math.max(4, CONTENT_W * row.pct), 5, 2.5).fill(COLOR.primary);
+    doc.y += 12;
   });
 }
 
-function costTable(doc, r, pageNum) {
-  var rows = (r.costBreakdown || []).filter(function (it) { return it.amount > 0; });
-  var col = { label: 0, mat: 210, lab: 275, oth: 340, tot: 405 };
-  var headerH = 22;
-
-  ensureSpace(doc, headerH + 30, pageNum);
+/* Mobile-friendly 2-line cost rows — header repeats on page break */
+function drawCostTableHeader(doc) {
   var hy = doc.y;
-  doc.roundedRect(MARGIN, hy, CONTENT_W, headerH, 4).fill(COLOR.primaryDark);
-  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(COLOR.sand);
-  doc.text('WERKPAKKET', MARGIN + 8, hy + 7);
-  doc.text('MATERIAAL', MARGIN + col.mat, hy + 7, { width: 60, align: 'right' });
-  doc.text('ARBEID', MARGIN + col.lab, hy + 7, { width: 60, align: 'right' });
-  doc.text('OVERIGE', MARGIN + col.oth, hy + 7, { width: 60, align: 'right' });
-  doc.text('TOTAAL', MARGIN + col.tot, hy + 7, { width: CONTENT_W - col.tot - 8, align: 'right' });
-  doc.y = hy + headerH + 2;
+  doc.roundedRect(MARGIN, hy, CONTENT_W, 22, 4).fill(COLOR.primaryDark);
+  doc.font('Helvetica-Bold').fontSize(7.5).fillColor(COLOR.sand)
+    .text('WERKPAKKET', MARGIN + 8, hy + 5)
+    .text('TOTAAL', MARGIN, hy + 5, { width: CONTENT_W - 8, align: 'right' });
+  doc.font('Helvetica').fontSize(6.5).fillColor(COLOR.sandDeep)
+    .text('Materiaal  ·  Arbeid  ·  Overige  ·  uren', MARGIN + 8, hy + 13);
+  doc.y = hy + 26;
+}
+
+function costTable(doc, r, ctx) {
+  var rows = (r.costBreakdown || []).filter(function (it) { return it.amount > 0; });
+  ensureSpace(doc, 44, ctx);
+  drawCostTableHeader(doc);
 
   rows.forEach(function (it, idx) {
-    ensureSpace(doc, 20, pageNum);
+    var rowH = 32;
+    var broke = ensureSpace(doc, rowH + 4, ctx);
+    if (broke) {
+      doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
+        .text('Kostentabel (vervolg)', MARGIN, doc.y);
+      doc.y += 10;
+      drawCostTableHeader(doc);
+    }
     var y = doc.y;
-    if (idx % 2 === 0) doc.rect(MARGIN, y - 2, CONTENT_W, 18).fill(COLOR.sand);
-    doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft)
-      .text(it.label, MARGIN + 8, y, { width: col.mat - 12 });
-    doc.font('Helvetica').fontSize(8).fillColor(COLOR.ink)
-      .text(pricing.fmtEUR(it.material || 0), MARGIN + col.mat, y, { width: 60, align: 'right' })
-      .text(pricing.fmtEUR(it.labour || 0), MARGIN + col.lab, y, { width: 60, align: 'right' })
-      .text(pricing.fmtEUR(it.other || 0), MARGIN + col.oth, y, { width: 60, align: 'right' });
-    doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR.ink)
-      .text(pricing.fmtEUR(it.amount), MARGIN + col.tot, y, { width: CONTENT_W - col.tot - 8, align: 'right' });
-    doc.y = y + 17;
+    if (idx % 2 === 0) doc.rect(MARGIN, y, CONTENT_W, rowH).fill(COLOR.sand);
+    doc.font('Helvetica-Bold').fontSize(8.5).fillColor(COLOR.ink)
+      .text(it.label, MARGIN + 8, y + 5, { width: CONTENT_W - 90 });
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.primary)
+      .text(pricing.fmtEUR(it.amount), MARGIN, y + 5, { width: CONTENT_W - 8, align: 'right' });
+    doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
+      .text(
+        'Mat. ' + pricing.fmtEUR(it.material || 0) +
+        '   ·   Arb. ' + pricing.fmtEUR(it.labour || 0) +
+        '   ·   Ovr. ' + pricing.fmtEUR(it.other || 0) +
+        ((it.labourHours > 0) ? '   ·   ' + Math.round(it.labourHours) + ' u' : ''),
+        MARGIN + 8, y + 18, { width: CONTENT_W - 16 }
+      );
+    doc.y = y + rowH;
   });
 
-  ensureSpace(doc, 70, pageNum);
+  ensureSpace(doc, 58, ctx);
   doc.y += 4;
-  doc.moveTo(MARGIN, doc.y).lineTo(PAGE.width - MARGIN, doc.y).lineWidth(0.6).strokeColor(COLOR.line).stroke();
-  doc.y += 8;
-  var totals = [
+  doc.moveTo(MARGIN, doc.y).lineTo(PAGE.width - MARGIN, doc.y)
+    .lineWidth(0.6).strokeColor(COLOR.line).stroke();
+  doc.y += 6;
+  [
     { label: 'Totaal excl. btw', value: pricing.fmtEUR(r.subtotalExVat || r.price), bold: true },
-    { label: 'BTW ' + (r.vatLabel || ''), value: pricing.fmtEUR(r.vatAmount || 0), bold: false },
+    { label: 'BTW-scenario (' + (r.vatLabel || 'indicatief') + ')', value: pricing.fmtEUR(r.vatAmount || 0), bold: false },
     { label: 'Indicatief totaal incl. btw', value: pricing.fmtEUR(r.totalInclVat || r.price), bold: true }
-  ];
-  totals.forEach(function (t) {
-    doc.font(t.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(9.5).fillColor(COLOR.ink)
+  ].forEach(function (t) {
+    doc.font(t.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(9).fillColor(COLOR.ink)
       .text(t.label, MARGIN, doc.y);
-    doc.font(t.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(9.5).fillColor(COLOR.primary)
+    doc.font(t.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(9).fillColor(COLOR.primary)
       .text(t.value, MARGIN, doc.y, { width: CONTENT_W, align: 'right' });
-    doc.y += 16;
+    doc.y += 13;
+  });
+  doc.y += 2;
+}
+
+function marketBar(doc, r, ctx) {
+  var bm = r.marketBenchmark || { low: r.peerLow, high: r.peerHigh };
+  var compare = r.comparableSubtotal != null ? r.comparableSubtotal : r.price;
+  var scopeMatch = r.scopeMatch || (bm && bm.scopeMatch) || 'direct';
+  var pos = r.marketPosition || 'marktconform';
+
+  ensureSpace(doc, 100, ctx);
+  if (scopeMatch === 'not-direct' || pos === 'niet-direct-vergelijkbaar') {
+    sandCard(doc, [
+      { text: 'Niet direct vergelijkbaar', bold: true, color: COLOR.ink, size: 10 },
+      { text: 'De marktbande en jouw project hebben een andere scope. Gebruik de kostentabel — niet alleen het totaal — om offertes te beoordelen.' },
+      { text: bm.label ? ('Benchmark-label: ' + bm.label) : (r.comparableNote || 'Scope-match: niet-direct.') }
+    ], ctx);
+    return;
+  }
+
+  sandCard(doc, [
+    {
+      text: pos === 'lager' ? 'Lager dan typische band'
+        : pos === 'hoger' ? 'Hoger dan typische band' : 'Marktconform',
+      bold: true, color: COLOR.ink, size: 10
+    },
+    { text: 'Jouw vergelijkbare bedrag: ' + pricing.fmtEUR(compare) +
+      (r.perM2 ? '  ·  ' + pricing.fmtEUR(r.perM2) + '/m² (totaalraming)' : '') },
+    { text: 'Belgische marktband (excl. btw): ' + pricing.fmtEUR(bm.low) + ' – ' + pricing.fmtEUR(bm.high) },
+    { text: (bm.scope || bm.reason || 'Scope-identieke vergelijking volgens pricing-engine.') +
+      (bm.vatStatus ? '  ·  BTW-status benchmark: ' + bm.vatStatus : '') }
+  ], ctx);
+
+  ensureSpace(doc, 36, ctx);
+  var y = doc.y;
+  var labels = ['LAGER', 'MARKTCONFORM', 'HOGER'];
+  var segW = CONTENT_W / 3;
+  labels.forEach(function (lab, i) {
+    var x = MARGIN + i * segW;
+    doc.roundedRect(x + 1, y, segW - 2, 18, 4).fill(i === 1 ? COLOR.sandDeep : COLOR.sand);
+    doc.font('Helvetica-Bold').fontSize(7).fillColor(COLOR.inkSoft)
+      .text(lab, x, y + 5, { width: segW, align: 'center' });
+  });
+  var markerSeg = pos === 'lager' ? 0 : pos === 'hoger' ? 2 : 1;
+  var mx = MARGIN + markerSeg * segW + segW / 2;
+  doc.circle(mx, y + 9, 4).fill(COLOR.primary);
+  doc.y = y + 26;
+  if (r.comparableNote) {
+    bodyText(doc, r.comparableNote, ctx, { size: 8, color: COLOR.inkFaint, after: 4 });
+  }
+}
+
+function drawRiskTableHeader(doc) {
+  var hy = doc.y;
+  doc.roundedRect(MARGIN, hy, CONTENT_W, 18, 4).fill(COLOR.primaryDark);
+  doc.font('Helvetica-Bold').fontSize(7).fillColor(COLOR.sand);
+  doc.text('RISICO', MARGIN + 8, hy + 5);
+  doc.text('NIVEAU', MARGIN + 175, hy + 5);
+  doc.text('WAT CONTROLEREN?', MARGIN + 230, hy + 5);
+  doc.y = hy + 22;
+}
+
+function riskTable(doc, rows, ctx) {
+  ensureSpace(doc, 28, ctx);
+  drawRiskTableHeader(doc);
+
+  rows.forEach(function (row, idx) {
+    var checkH = doc.heightOfString(row.check || '', { width: CONTENT_W - 238 });
+    var rowH = Math.max(28, checkH + 12);
+    var broke = ensureSpace(doc, rowH + 2, ctx);
+    if (broke) {
+      doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
+        .text('Risicotabel (vervolg)', MARGIN, doc.y);
+      doc.y += 10;
+      drawRiskTableHeader(doc);
+    }
+    var y = doc.y;
+    if (idx % 2 === 0) doc.rect(MARGIN, y, CONTENT_W, rowH).fill(COLOR.sand);
+    doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR.ink)
+      .text(row.risk, MARGIN + 8, y + 6, { width: 160 });
+    var impactColor = row.impact === 'HOOG' ? COLOR.riskHigh
+      : row.impact === 'MIDDEL' ? COLOR.riskMid : COLOR.riskLow;
+    doc.font('Helvetica-Bold').fontSize(7.5).fillColor(impactColor)
+      .text(row.impact || 'MIDDEL', MARGIN + 175, y + 7);
+    doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkSoft)
+      .text(row.check || '', MARGIN + 230, y + 6, { width: CONTENT_W - 238 });
+    doc.y = y + rowH;
   });
   doc.y += 4;
+}
+
+function drawCheckbox(doc, x, y, size) {
+  size = size || 8;
+  doc.save();
+  doc.lineWidth(0.9).strokeColor(COLOR.primarySoft);
+  doc.rect(x, y, size, size).stroke();
+  doc.restore();
+}
+
+function checklistTwoCol(doc, items, ctx) {
+  var colW = (CONTENT_W - 10) / 2;
+  var i = 0;
+  while (i < items.length) {
+    ensureSpace(doc, 18, ctx);
+    var y = doc.y;
+    var rowH = 14;
+    for (var c = 0; c < 2 && i < items.length; c++, i++) {
+      var x = MARGIN + c * (colW + 10);
+      drawCheckbox(doc, x, y + 1, 7.5);
+      doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft);
+      var h = doc.heightOfString(items[i], { width: colW - 14, lineGap: 1 });
+      doc.text(items[i], x + 12, y, { width: colW - 14, lineGap: 1 });
+      rowH = Math.max(rowH, h + 2);
+    }
+    doc.y = y + rowH + 3;
+  }
+  doc.y += 2;
+}
+
+function decisionCards(doc, cards, ctx) {
+  var gap = 7;
+  var boxW = (CONTENT_W - gap) / 2;
+  var pad = 10;
+  var i = 0;
+  while (i < cards.length) {
+    var pair = [cards[i], cards[i + 1]].filter(Boolean);
+    var heights = pair.map(function (m) {
+      doc.font('Helvetica-Bold').fontSize(8.5);
+      return 18 + doc.heightOfString(String(m.value), { width: boxW - pad * 2, lineGap: 1.3 });
+    });
+    var boxH = Math.max(44, Math.max.apply(null, heights) + pad);
+    ensureSpace(doc, boxH + 6, ctx);
+    var rowY = doc.y;
+    pair.forEach(function (m, col) {
+      var x = MARGIN + col * (boxW + gap);
+      doc.roundedRect(x, rowY, boxW, boxH, 7).fill(COLOR.sand);
+      doc.font('Helvetica').fontSize(6.5).fillColor(COLOR.inkFaint)
+        .text(String(m.label).toUpperCase(), x + pad, rowY + 8, { characterSpacing: 0.4 });
+      doc.font('Helvetica-Bold').fontSize(8.5).fillColor(COLOR.ink)
+        .text(String(m.value), x + pad, rowY + 20, { width: boxW - pad * 2, lineGap: 1.3 });
+    });
+    doc.y = rowY + boxH + 6;
+    i += 2;
+  }
+}
+
+function labourHourBars(doc, hourRows, ctx) {
+  if (!hourRows.length) return;
+  var maxH = Math.max.apply(null, hourRows.map(function (p) { return p.hours; })) || 1;
+  bodyText(doc, 'Waar zitten de arbeidsuren?', ctx, { after: 4 });
+  hourRows.forEach(function (p) {
+    ensureSpace(doc, 22, ctx);
+    var y = doc.y;
+    doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft)
+      .text(p.label, MARGIN, y, { width: CONTENT_W - 70 });
+    doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR.ink)
+      .text(Math.round(p.hours) + ' u', MARGIN, y, { width: CONTENT_W, align: 'right' });
+    var barY = y + 11;
+    doc.roundedRect(MARGIN, barY, CONTENT_W, 4, 2).fill(COLOR.sandDeep);
+    doc.roundedRect(MARGIN, barY, Math.max(3, CONTENT_W * (p.hours / maxH)), 4, 2).fill(COLOR.primary);
+    doc.y = barY + 10;
+  });
+  doc.y += 2;
+}
+
+function drawTimeline(doc, timeline, ctx) {
+  var railX = MARGIN + 6;
+  var textW = CONTENT_W - 28;
+  timeline.forEach(function (step, idx) {
+    doc.font('Helvetica').fontSize(7.5);
+    var noteH = doc.heightOfString(step.note || '', { width: textW, lineGap: 1.1 });
+    var stepH = Math.max(26, 14 + noteH + 6);
+    var broke = ensureSpace(doc, stepH + 2, ctx);
+    if (broke && idx > 0) {
+      doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
+        .text('Projectplanning — vervolg', MARGIN, doc.y);
+      doc.y += 10;
+    }
+    var y = doc.y;
+    doc.circle(railX, y + 5, 3.5).fill(COLOR.primary);
+    if (idx < timeline.length - 1) {
+      doc.moveTo(railX, y + 9).lineTo(railX, y + stepH)
+        .lineWidth(1.15).strokeColor(COLOR.line).stroke();
+    }
+    doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
+      .text(step.phase, MARGIN + 18, y, { width: CONTENT_W - 100 });
+    doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR.primary)
+      .text('±' + step.days + ' d', MARGIN, y, { width: CONTENT_W, align: 'right' });
+    doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkSoft)
+      .text(step.note || '', MARGIN + 18, y + 12, { width: textW, lineGap: 1.1 });
+    doc.y = y + stepH;
+  });
+  doc.y += 2;
+}
+
+function drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate) {
+  doc.rect(0, 0, PAGE.width, PAGE.height).fill(COLOR.primaryDark);
+  doc.save();
+  doc.opacity(0.35);
+  doc.circle(PAGE.width - 30, 70, 150).fill(COLOR.primarySoft);
+  doc.opacity(0.14);
+  doc.circle(20, PAGE.height - 30, 120).fill(COLOR.sand);
+  doc.restore();
+
+  var lx = MARGIN + 4;
+  var ly = 78;
+  doc.rect(lx, ly + 14, 7, 18).fill(COLOR.sand);
+  doc.rect(lx + 11, ly + 7, 7, 25).fill(COLOR.sand);
+  doc.rect(lx + 22, ly, 7, 32).fill(COLOR.sand);
+  doc.font('Helvetica-Bold').fontSize(20).fillColor(COLOR.white)
+    .text('ELYAN', lx + 40, ly + 8, { characterSpacing: 0.8 });
+
+  doc.font('Helvetica').fontSize(9).fillColor(COLOR.sandDeep)
+    .text('RENOVATIERAPPORT', MARGIN + 4, 210, { characterSpacing: 1.6 });
+  doc.font('Helvetica-Bold').fontSize(28).fillColor(COLOR.white)
+    .text('Persoonlijke kostenanalyse', MARGIN + 4, 232, { width: CONTENT_W * 0.9 });
+  doc.font('Helvetica').fontSize(14).fillColor(COLOR.sandDeep)
+    .text('voor jouw ' + cat.resultNoun, MARGIN + 4, doc.y + 4);
+
+  doc.font('Helvetica').fontSize(11).fillColor(COLOR.sand)
+    .text(prov.label + '  ·  ' + (answers.size || r.size) + ' m²  ·  ' +
+      ((pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || 'Standaard'),
+      MARGIN + 4, 320);
+  doc.font('Helvetica').fontSize(10).fillColor(COLOR.sandDeep)
+    .text(reportDate, MARGIN + 4, doc.y + 8);
+  doc.font('Helvetica').fontSize(9).fillColor(COLOR.primarySoft)
+    .text('Referentie  ' + reportId, MARGIN + 4, doc.y + 10);
+
+  doc.font('Helvetica').fontSize(10).fillColor(COLOR.sandDeep)
+    .text('Persoonlijk opgesteld voor jou', MARGIN + 4, PAGE.height - 100);
+  doc.font('Helvetica').fontSize(8.5).fillColor(COLOR.primarySoft)
+    .text('Belgische marktprijzen ' + (r.asOf || '2026') + '  ·  Indicatief — geen bindende offerte',
+      MARGIN + 4, PAGE.height - 78);
 }
 
 function buildReportPdf(data) {
@@ -277,18 +597,23 @@ function buildReportPdf(data) {
       if (!answers.level) answers.level = data.level;
 
       var pack = insightsLib.buildInsights(data.type, answers, r, pricing);
-      var nextSteps = insightsLib.buildNextSteps(data.type, answers, r, pricing);
+      var nextSteps = insightsLib.buildNextSteps(data.type, answers, r, pricing).slice(0, 5);
       var reportId = 'EL-' + String(Date.now()).slice(-8);
-      var catIconKey = { 'i-bath': 'bath', 'i-utensils': 'utensils', 'i-roof': 'roof', 'i-layers': 'layers', 'i-roller': 'roller' }[cat.icon] || 'target';
+      var reportDate = fmtDate(new Date());
       var lp = r.labourPlan || {};
-
+      var safeBudget = (r.price || 0) + (r.contingency || 0);
+      var topRisk = (pack.riskRows[0] && pack.riskRows[0].risk) || (pack.risks[0] || 'Standaard werfrisico\'s');
+      var topSave = (pack.savings[0] && (pack.savings[0].text || pack.savings[0])) ||
+        'Vergelijk drie offertes op identieke scope.';
+      topSave = String(topSave);
+      
       var doc = new PDFDocument({
         size: 'A4',
-        margins: { top: MARGIN, bottom: 52, left: MARGIN, right: MARGIN },
+        margins: { top: MARGIN, bottom: 48, left: MARGIN, right: MARGIN },
         info: {
           Title: 'ELYAN Renovatierapport — ' + cat.label,
           Author: 'ELYAN',
-          Subject: 'Persoonlijke renovatie-inschatting voor ' + data.email
+          Subject: 'Persoonlijke renovatie-inschatting'
         }
       });
       var chunks = [];
@@ -296,340 +621,342 @@ function buildReportPdf(data) {
       doc.on('end', function () { resolve(Buffer.concat(chunks)); });
       doc.on('error', reject);
 
-      var pageNum = { n: 1 };
+      var ctx = { page: { n: 1 }, reportDate: reportDate };
 
       /* ===== COVER ===== */
-      doc.rect(0, 0, PAGE.width, PAGE.height).fill(COLOR.primaryDark);
-      doc.save();
-      doc.opacity(0.4);
-      doc.circle(PAGE.width - 40, 80, 140).fill(COLOR.primarySoft);
-      doc.opacity(0.18);
-      doc.circle(30, PAGE.height - 40, 110).fill(COLOR.sand);
-      doc.restore();
+      drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate);
 
-      var lx = MARGIN, ly = 72;
-      doc.rect(lx, ly + 16, 8, 20).fill(COLOR.sand);
-      doc.rect(lx + 12, ly + 8, 8, 28).fill(COLOR.sand);
-      doc.rect(lx + 24, ly, 8, 36).fill(COLOR.sand);
-      doc.font('Helvetica-Bold').fontSize(22).fillColor(COLOR.white)
-        .text('ELYAN', lx + 44, ly + 10, { characterSpacing: 0.6 });
+      /* ===== 1. EXECUTIVE SUMMARY ===== */
+      doc.addPage(); ctx.page.n++;
+      header(doc, reportDate);
 
-      doc.font('Helvetica').fontSize(9).fillColor(COLOR.sandDeep)
-        .text('JOUW PERSOONLIJK RENOVATIERAPPORT', MARGIN, 190, { characterSpacing: 1.3 });
-      doc.font('Helvetica-Bold').fontSize(30).fillColor(COLOR.white)
-        .text('Jouw ' + cat.resultNoun, MARGIN, 212, { width: CONTENT_W * 0.92 });
-      doc.font('Helvetica').fontSize(14).fillColor(COLOR.sandDeep)
-        .text(prov.label + '  ·  ' + fmtDate(new Date()), MARGIN, doc.y + 8);
-      doc.font('Helvetica').fontSize(10).fillColor(COLOR.sand)
-        .text(pack.fingerprint, MARGIN, doc.y + 14, { width: CONTENT_W * 0.9, lineGap: 3 });
-
-      var teaserY = 400;
-      doc.roundedRect(MARGIN, teaserY, CONTENT_W, 100, 10).fill(COLOR.primary);
-      doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR.sandDeep)
-        .text('VERWACHT BUDGET (EXCL. BTW)', MARGIN + 20, teaserY + 16, { characterSpacing: 1 });
-      doc.font('Helvetica-Bold').fontSize(26).fillColor(COLOR.white)
-        .text(pricing.fmtEUR(r.price), MARGIN + 20, teaserY + 36);
-      doc.font('Helvetica').fontSize(11).fillColor(COLOR.sandDeep)
-        .text('Vork  ' + pricing.fmtEUR(r.low) + '  –  ' + pricing.fmtEUR(r.high), MARGIN + 20, teaserY + 70);
-
-      doc.font('Helvetica').fontSize(9).fillColor(COLOR.sandDeep)
-        .text('Rapport-ID ' + reportId + '  ·  Voor ' + data.email, MARGIN, PAGE.height - 88, { width: CONTENT_W });
-      doc.font('Helvetica').fontSize(8.5).fillColor(COLOR.primarySoft)
-        .text('Belgische marktprijzen ' + (r.asOf || '2026') + '  ·  Indicatief, geen bindende offerte', MARGIN, PAGE.height - 68);
-
-      /* ===== CONTENT FLOW ===== */
-      doc.addPage(); pageNum.n++;
-      header(doc);
-
-      // 1. Executive summary
       eyebrow(doc, 'Executive summary');
-      sectionTitle(doc, 'target', 'In één oogopslag', pageNum);
+      sectionTitle(doc, 'target', 'Jouw project in één oogopslag', ctx);
 
-      doc.roundedRect(MARGIN, doc.y, CONTENT_W, 78, 10).fill(COLOR.primary);
-      var hy = doc.y;
-      doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR.sandDeep)
-        .text('VERWACHT BUDGET EXCL. BTW', MARGIN + 18, hy + 12, { characterSpacing: 0.8 });
-      doc.font('Helvetica-Bold').fontSize(22).fillColor(COLOR.white)
-        .text(pricing.fmtEUR(r.price), MARGIN + 18, hy + 28);
-      doc.font('Helvetica').fontSize(10).fillColor(COLOR.sandDeep)
-        .text(pricing.fmtEUR(r.low) + '  –  ' + pricing.fmtEUR(r.high) + '   ·   ' + pricing.fmtEUR(r.perM2) + '/m²', MARGIN + 18, hy + 56);
-      doc.y = hy + 88;
+      metaGrid2(doc, [
+        { label: 'Project', value: cat.label },
+        { label: 'Locatie', value: prov.label },
+        { label: 'Oppervlakte', value: (answers.size || r.size) + ' m²' },
+        { label: 'Afwerking', value: (pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || '—' },
+        { label: 'Woningouderdom', value: housingAgeLabel(answers.housingAge) },
+        { label: 'Confidence', value: r.confidence || 'indicatief' }
+      ], ctx);
 
-      metaGrid(doc, [
-        { label: 'Oppervlakte', value: (answers.size || data.size) + ' m²' },
-        { label: 'Doorlooptijd', value: r.weeksLow + '–' + r.weeksHigh + ' weken' },
-        { label: 'Manuren', value: String(r.labourHours || lp.labourHours || '–') + ' u' },
-        { label: 'Ploeg / werkdagen', value: (r.crewSize || lp.crewSize || '–') + ' / ' + (r.workDays || lp.workDays || '–') + ' d' },
-        { label: 'Confidence', value: r.confidence || 'indicatief' },
-        { label: 'BTW-scenario', value: r.vatLabel || 'indicatief' }
-      ], pageNum);
+      startSection(doc, ctx, {
+        eyebrow: 'Investering excl. btw',
+        icon: 'euro',
+        title: 'Jouw verwachte investering',
+        keepWith: 70,
+        titleOpts: { marginBottom: 4 }
+      });
+      drawRangeBar(doc, r.low, r.price, r.high, ctx);
 
-      drawBudgetBars(doc, r, pageNum);
+      kpiRow(doc, [
+        { label: '€ / m²', value: pricing.fmtEUR(r.perM2), big: true },
+        { label: 'Arbeidsuren', value: String(r.labourHours || lp.labourHours || '—') + ' u' },
+        { label: 'Ploeg', value: String(r.crewSize || lp.crewSize || '—') },
+        { label: 'Werkdagen', value: '±' + String(r.workDays || lp.workDays || '—') },
+        { label: 'Kalender', value: r.weeksLow + '–' + r.weeksHigh + ' w' },
+        { label: 'Dataset', value: (r.marketDataVersion || '2026').replace('audit', '').trim() || '2026' }
+      ].slice(0, 5), ctx);
 
-      ensureSpace(doc, 80, pageNum);
-      eyebrow(doc, 'Persoonlijk');
-      sectionTitle(doc, 'bulb', 'De 3 belangrijkste conclusies', pageNum, { marginBottom: 6 });
-      numberedList(doc, pack.conclusions, pageNum);
+      startSection(doc, ctx, {
+        eyebrow: 'Verdeling',
+        icon: null,
+        title: 'Kostenverdeling',
+        keepWith: 56,
+        titleOpts: { marginBottom: 4 }
+      });
+      drawSplitBars(doc, r, ctx);
+
+      sandCard(doc, [
+        { text: 'Onze belangrijkste conclusie', bold: true, color: COLOR.ink, size: 10 },
+        { text: pack.executiveConclusion || pack.conclusions[0] || '' }
+      ], ctx);
 
       if (data.notes) {
-        ensureSpace(doc, 50, pageNum);
         sandCard(doc, [
-          { text: 'Jouw opmerkingen', bold: true, color: COLOR.ink, size: 10 },
+          { text: 'Jouw opmerkingen', bold: true, color: COLOR.ink, size: 9 },
           { text: data.notes }
-        ], pageNum);
+        ], ctx);
       }
 
-      // 2. Cost origin
-      ensureSpace(doc, 120, pageNum);
-      eyebrow(doc, 'Kostentransparantie');
-      sectionTitle(doc, 'euro', 'Waar komt jouw prijs vandaan?', pageNum);
-      bodyText(doc, 'Alle bedragen excl. btw, afgerond. Opgebouwd uit werkpakketten — geen vaste percentages.', pageNum);
-      costTable(doc, r, pageNum);
+      /* ===== 2. COST BREAKDOWN ===== */
+      maybeNewSection(doc, ctx, 240);
+      startSection(doc, ctx, {
+        eyebrow: 'Kostentransparantie',
+        icon: 'euro',
+        title: 'Waar gaat jouw budget naartoe?',
+        keepWith: 72
+      });
+      bodyText(doc, 'Alle bedragen excl. btw. Opgebouwd uit werkpakketten van de ELYAN pricing engine — geen vaste percentages.', ctx);
+      costTable(doc, r, ctx);
 
-      // 3. Labour plan
+      /* ===== 3. LABOUR ===== */
       if ((r.labourHours || 0) > 0) {
-        ensureSpace(doc, 100, pageNum);
-        eyebrow(doc, 'Uitvoering');
-        sectionTitle(doc, 'clock', 'Jouw arbeidsplan', pageNum);
-        metaGrid(doc, [
-          { label: 'Geschatte manuren', value: (lp.labourHours || r.labourHours) + ' u' },
-          { label: 'Geschatte ploeg', value: String(lp.crewSize || r.crewSize) + ' personen' },
-          { label: 'Effectieve werkdagen', value: String(lp.workDays || r.workDays) + ' dagen' },
-          { label: 'Effectief uurtarief', value: pricing.fmtEUR(lp.effectiveHourlyRate || r.effectiveHourlyRate) + '/u' }
-        ], pageNum);
-        bodyText(doc, 'Productieve uren per dag: ' + (lp.productiveHoursPerDay || 6.5) + ' (niet 8 factureerbare uren). Kalenderdoorlooptijd is langer door levertijden en planning.', pageNum);
-        if (lp.topLabourPackages && lp.topLabourPackages.length) {
-          bodyText(doc, 'Waar de meeste manuren naartoe gaan:', pageNum);
-          lp.topLabourPackages.slice(0, 5).forEach(function (p) {
-            ensureSpace(doc, 18, pageNum);
-            doc.font('Helvetica').fontSize(9).fillColor(COLOR.inkSoft).text(p.label, MARGIN, doc.y);
-            doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
-              .text(Math.round(p.hours) + ' u', MARGIN, doc.y, { width: CONTENT_W, align: 'right' });
-            doc.y += 15;
-          });
-          doc.y += 4;
+        startSection(doc, ctx, {
+          eyebrow: 'Uitvoering',
+          icon: 'clock',
+          title: 'De arbeid achter jouw renovatie',
+          keepWith: 58
+        });
+        kpiRow(doc, [
+          { label: 'Manuren', value: String(lp.labourHours || r.labourHours) + ' u', big: true },
+          { label: 'Ploeg', value: String(lp.crewSize || r.crewSize) + ' vakmensen' },
+          { label: 'Werkdagen', value: '±' + String(lp.workDays || r.workDays) },
+          { label: 'Effectief tarief', value: pricing.fmtEUR(lp.effectiveHourlyRate || r.effectiveHourlyRate) + '/u' }
+        ], ctx);
+        bodyText(doc, 'Werkdagen ≠ kalenderdagen. Productieve uren/dag: ' +
+          (lp.productiveHoursPerDay || 6.5) +
+          '. Kalenderdoorlooptijd: ' + r.weeksLow + '–' + r.weeksHigh +
+          ' weken (incl. planning, levering en weersafhankelijkheid).', ctx);
+
+        var hourRows = (lp.topLabourPackages && lp.topLabourPackages.length)
+          ? lp.topLabourPackages
+          : (r.costBreakdown || []).filter(function (it) { return it.labourHours > 0; })
+            .map(function (it) { return { label: it.label, hours: it.labourHours }; })
+            .sort(function (a, b) { return b.hours - a.hours; })
+            .slice(0, 6);
+
+        if (hourRows.length) {
+          labourHourBars(doc, hourRows, ctx);
         }
       }
 
-      // 4. Cost drivers
+      /* ===== 4. PLANNING ===== */
+      if (pack.timeline && pack.timeline.length) {
+        maybeNewSection(doc, ctx, 90);
+        startSection(doc, ctx, {
+          eyebrow: 'Planning',
+          icon: 'clock',
+          title: 'Projectplanning',
+          keepWith: 100
+        });
+        bodyText(doc, 'Indicatieve fasering in productieve werkdagen. Kalenderdoorlooptijd is langer: ' +
+          r.weeksLow + '–' + r.weeksHigh + ' weken.', ctx);
+        drawTimeline(doc, pack.timeline, ctx);
+      }
+
+      /* ===== 5. MARKET ===== */
+      maybeNewSection(doc, ctx, 180);
+      startSection(doc, ctx, {
+        eyebrow: 'Markt 2026',
+        icon: 'target',
+        title: 'Hoe verhoudt jouw raming zich tot de Belgische markt?',
+        keepWith: 90
+      });
+      marketBar(doc, r, ctx);
+
+      /* ===== 6. DRIVERS ===== */
       if (r.drivers && r.drivers.length) {
-        ensureSpace(doc, 90, pageNum);
-        eyebrow(doc, 'Impact');
-        sectionTitle(doc, 'info', 'Jouw belangrijkste kostendrijvers', pageNum);
+        startSection(doc, ctx, {
+          eyebrow: 'Impact',
+          icon: 'info',
+          title: 'Belangrijkste kostendrijvers',
+          keepWith: 46
+        });
         r.drivers.forEach(function (d) {
-          ensureSpace(doc, 40, pageNum);
+          ensureSpace(doc, 38, ctx);
           var y = doc.y;
-          doc.roundedRect(MARGIN, y, CONTENT_W, 36, 7).fill(COLOR.sand);
-          doc.font('Helvetica-Bold').fontSize(9.5).fillColor(COLOR.ink)
-            .text(d.text, MARGIN + 12, y + 8, { width: CONTENT_W - 110 });
+          doc.roundedRect(MARGIN, y, CONTENT_W, 34, 6).fill(COLOR.sand);
+          doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
+            .text(d.text, MARGIN + 11, y + 7, { width: CONTENT_W - 100 });
           if (d.amount) {
             var sign = d.amount > 0 ? '+' : '−';
             doc.font('Helvetica-Bold').fontSize(11).fillColor(COLOR.primary)
-              .text(sign + pricing.fmtEUR(Math.abs(d.amount)), MARGIN + 12, y + 8, { width: CONTENT_W - 24, align: 'right' });
+              .text(sign + pricing.fmtEUR(Math.abs(d.amount)), MARGIN + 11, y + 7, {
+                width: CONTENT_W - 22, align: 'right'
+              });
           }
           if (d.reason) {
-            doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkFaint)
-              .text(d.reason, MARGIN + 12, y + 22, { width: CONTENT_W - 24 });
+            doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
+              .text(d.reason, MARGIN + 11, y + 20, { width: CONTENT_W - 22 });
           }
-          doc.y = y + 42;
+          doc.y = y + 40;
         });
       }
 
-      // 5. Market position
-      ensureSpace(doc, 110, pageNum);
-      eyebrow(doc, 'Markt 2026');
-      sectionTitle(doc, 'target', 'Jouw project vs. Belgische markt', pageNum);
-      var bm = r.marketBenchmark || { low: r.peerLow, high: r.peerHigh };
-      var posLabel = r.marketPosition === 'lager' ? 'Lager dan typische band'
-        : r.marketPosition === 'hoger' ? 'Hoger dan typische band' : 'Marktconform';
-      sandCard(doc, [
-        { text: posLabel, bold: true, color: COLOR.ink, size: 11 },
-        { text: 'Belgische benchmark: ' + pricing.fmtEUR(bm.low) + ' – ' + pricing.fmtEUR(bm.high) + ' excl. btw.' },
-        { text: 'Jouw verwachte prijs: ' + pricing.fmtEUR(r.price) + ' (' + pricing.fmtEUR(r.perM2) + '/m²).' },
-        { text: r.marketPosition === 'hoger'
-          ? 'Hoger betekent hier meestal meer scope, bereikbaarheid of materiaalniveau — niet automatisch een te dure offerte.'
-          : r.marketPosition === 'lager'
-            ? 'Lager komt vaak door beperkte scope of efficiënte keuzes (zelfde layout, basisafwerking).'
-            : 'Je zit binnen de gangbare Belgische mid-market range voor vergelijkbare projecten.' }
-      ], pageNum);
+      /* ===== 7. ASSUMPTIONS ===== */
+      startSection(doc, ctx, {
+        eyebrow: 'Transparantie',
+        icon: 'info',
+        title: 'Welke aannames zitten in jouw raming?',
+        keepWith: 28
+      });
+      bulletList(doc, pack.assumptions, ctx, 'info');
 
-      // 6. Included
-      ensureSpace(doc, 100, pageNum);
-      eyebrow(doc, 'Scope');
-      sectionTitle(doc, 'check', 'Wat is inbegrepen?', pageNum);
-      bulletList(doc, pack.included, pageNum, 'check');
-      if (pack.confirmItems && pack.confirmItems.length) {
-        doc.y += 4;
-        bodyText(doc, 'Te bevestigen in offerte:', pageNum);
-        bulletList(doc, pack.confirmItems, pageNum, 'info');
-      }
-
-      // 7. Assumptions
-      ensureSpace(doc, 80, pageNum);
-      eyebrow(doc, 'Transparantie');
-      sectionTitle(doc, 'info', 'Aannames van de raming', pageNum);
-      bulletList(doc, pack.assumptions, pageNum, 'info');
-
-      // 8. Risks
-      ensureSpace(doc, 90, pageNum);
-      eyebrow(doc, 'Risico\'s');
-      sectionTitle(doc, 'shield', 'Risicoanalyse', pageNum);
+      /* ===== 8. RISKS ===== */
+      startSection(doc, ctx, {
+        eyebrow: 'Risico\'s',
+        icon: 'shield',
+        title: 'Wat kan jouw uiteindelijke offerte nog beïnvloeden?',
+        keepWith: 52
+      });
       if (pack.riskRows && pack.riskRows.length) {
-        pack.riskRows.forEach(function (row) {
-          ensureSpace(doc, 42, pageNum);
-          var y = doc.y;
-          doc.roundedRect(MARGIN, y, CONTENT_W, 38, 7).fill(COLOR.sand);
-          doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink).text(row.risk, MARGIN + 12, y + 7);
-          var impactColor = row.impact === 'HOOG' ? COLOR.riskHigh : row.impact === 'MIDDEL' ? COLOR.riskMid : COLOR.riskLow;
-          doc.font('Helvetica-Bold').fontSize(8).fillColor(impactColor)
-            .text(row.impact, MARGIN + 12, y + 7, { width: CONTENT_W - 24, align: 'right' });
-          doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft)
-            .text(row.check, MARGIN + 12, y + 22, { width: CONTENT_W - 24 });
-          doc.y = y + 44;
-        });
+        riskTable(doc, pack.riskRows, ctx);
       } else if (pack.risks.length) {
-        bulletList(doc, pack.risks, pageNum, 'shield');
+        bulletList(doc, pack.risks, ctx, 'shield');
       } else {
-        bodyText(doc, 'Geen bijzondere hoog-risico signalen op basis van jouw antwoorden. Blijf wel standaard werfrisico\'s checken.', pageNum);
+        bodyText(doc, 'Geen bijzondere hoog-risico signalen op basis van jouw antwoorden. Blijf standaard werfrisico\'s checken.', ctx);
       }
 
-      // 9. Buffer
-      ensureSpace(doc, 70, pageNum);
-      eyebrow(doc, 'Buffer');
-      sectionTitle(doc, 'euro', 'Budgetbuffer', pageNum);
+      /* ===== 9. BUFFER ===== */
+      startSection(doc, ctx, {
+        eyebrow: 'Buffer',
+        icon: 'euro',
+        title: 'Budgetbuffer',
+        keepWith: 82
+      });
       var pctL = r.contingencyPct ? Math.round(r.contingencyPct.low * 100) : 10;
       var pctH = r.contingencyPct ? Math.round(r.contingencyPct.high * 100) : 15;
       sandCard(doc, [
-        { text: 'Aanbevolen buffer: ' + pricing.fmtEUR(r.contingency) + ' (' + pctL + '–' + pctH + '%)', bold: true, color: COLOR.ink, size: 10 },
-        { text: 'De buffer hangt af van onzekerheid in jouw antwoorden (bijv. onbekende ondergrond, asbest, leidingen). Dit is geen verborgen opslag in de richtprijs, maar een advies erbovenop.' }
-      ], pageNum);
+        { text: 'Aanbevolen buffer: ' + pricing.fmtEUR(r.contingency) + '  (' + pctL + '–' + pctH + '%)', bold: true, color: COLOR.ink, size: 10 },
+        { text: 'Veilig budget (expected + buffer): ' + pricing.fmtEUR(safeBudget) + ' excl. btw' },
+        { text: pack.bufferReason || 'Buffer hangt af van onzekerheid in jouw antwoorden. Dit is geen opslag in de richtprijs, maar advies erbovenop.' }
+      ], ctx);
 
-      // 10. Timeline
-      if (pack.timeline && pack.timeline.length) {
-        ensureSpace(doc, 90, pageNum);
-        eyebrow(doc, 'Planning');
-        sectionTitle(doc, 'clock', 'Renovatietijdlijn', pageNum);
-        bodyText(doc, 'Onderscheid: effectieve werkdagen vs. kalenderdoorlooptijd (' + r.weeksLow + '–' + r.weeksHigh + ' weken).', pageNum);
-        pack.timeline.forEach(function (step, idx) {
-          ensureSpace(doc, 28, pageNum);
-          var y = doc.y;
-          doc.circle(MARGIN + 6, y + 7, 5).fill(COLOR.primary);
-          if (idx < pack.timeline.length - 1) {
-            doc.moveTo(MARGIN + 6, y + 13).lineTo(MARGIN + 6, y + 26).lineWidth(1.2).strokeColor(COLOR.line).stroke();
-          }
-          doc.font('Helvetica-Bold').fontSize(9.5).fillColor(COLOR.ink)
-            .text(step.phase, MARGIN + 20, y);
-          doc.font('Helvetica').fontSize(8.5).fillColor(COLOR.inkSoft)
-            .text('±' + step.days + ' werkdag' + (step.days === 1 ? '' : 'en') + ' — ' + step.note, MARGIN + 20, y + 13, { width: CONTENT_W - 20 });
-          doc.y = y + 28;
-        });
-      }
-
-      // 11. Savings
-      if (pack.savings && pack.savings.length) {
-        ensureSpace(doc, 70, pageNum);
-        eyebrow(doc, 'Besparen');
-        sectionTitle(doc, 'bulb', 'Bespaarkansen voor jouw project', pageNum);
-        bulletList(doc, pack.savings.map(function (s) { return s.text; }), pageNum, 'bulb');
-      }
-
-      // 12. Quote check
+      /* ===== 10. QUOTE CHECK ===== */
+      maybeNewSection(doc, ctx, 200);
       if (pack.quoteChecks && pack.quoteChecks.length) {
-        ensureSpace(doc, 90, pageNum);
-        eyebrow(doc, 'Offertes');
-        sectionTitle(doc, 'check', 'Offerte-check', pageNum);
-        bodyText(doc, 'Controleer of elke aannemersofferte minstens dit vermeldt:', pageNum);
-        pack.quoteChecks.forEach(function (c) {
-          ensureSpace(doc, 16, pageNum);
-          doc.font('Helvetica').fontSize(9).fillColor(COLOR.inkSoft)
-            .text('☐  ' + c, MARGIN, doc.y);
-          doc.y += 14;
+        startSection(doc, ctx, {
+          eyebrow: 'Offertes',
+          icon: 'check',
+          title: 'Gebruik dit wanneer je aannemersoffertes vergelijkt',
+          keepWith: 48
         });
-        doc.y += 4;
+        bodyText(doc, 'Checklist — categorie-specifiek voor jouw ' + cat.resultNoun + ':', ctx);
+        checklistTwoCol(doc, pack.quoteChecks, ctx);
       }
 
-      // 13. Questions
+      /* ===== 11. QUESTIONS ===== */
       if (pack.contractorQuestions && pack.contractorQuestions.length) {
-        ensureSpace(doc, 90, pageNum);
-        eyebrow(doc, 'Gesprek');
-        sectionTitle(doc, 'info', 'Vragen aan de aannemer', pageNum);
-        numberedList(doc, pack.contractorQuestions, pageNum);
+        startSection(doc, ctx, {
+          eyebrow: 'Gesprek',
+          icon: 'info',
+          title: 'Vragen aan de aannemer',
+          keepWith: 30
+        });
+        numberedList(doc, pack.contractorQuestions, ctx);
       }
 
-      // 14. Red flags
-      ensureSpace(doc, 80, pageNum);
-      eyebrow(doc, 'Waarschuwingen');
-      sectionTitle(doc, 'shield', 'Rode vlaggen', pageNum);
-      bodyText(doc, 'Geen juridisch advies — wel signalen om offertes kritisch te lezen:', pageNum);
-      bulletList(doc, pack.redFlags, pageNum, 'shield');
+      /* ===== 12. RED FLAGS ===== */
+      startSection(doc, ctx, {
+        eyebrow: 'Signalen',
+        icon: 'shield',
+        title: 'Rode vlaggen',
+        keepWith: 48
+      });
+      bodyText(doc, 'Geen juridisch advies — wel signalen om offertes kritisch te lezen:', ctx);
+      bulletList(doc, pack.redFlags.slice(0, 8), ctx, 'shield');
 
-      // 15. VAT
-      ensureSpace(doc, 70, pageNum);
-      eyebrow(doc, 'BTW');
-      sectionTitle(doc, 'euro', 'Indicatief btw-scenario', pageNum);
+      /* ===== 13. SAVINGS ===== */
+      if (pack.savings && pack.savings.length) {
+        startSection(doc, ctx, {
+          eyebrow: 'Besparen',
+          icon: 'bulb',
+          title: 'Bespaarkansen voor jouw project',
+          keepWith: 28
+        });
+        bulletList(doc, pack.savings.map(function (s) { return s.text || s; }), ctx, 'bulb');
+      }
+
+      /* ===== 14. VAT + PREMIES ===== */
+      maybeNewSection(doc, ctx, 180);
+      startSection(doc, ctx, {
+        eyebrow: 'BTW',
+        icon: 'euro',
+        title: 'Indicatief btw-scenario',
+        keepWith: 88
+      });
       sandCard(doc, [
         { text: r.vatLabel || 'Indicatief', bold: true, color: COLOR.ink, size: 10 },
         { text: 'Subtotaal excl. btw: ' + pricing.fmtEUR(r.subtotalExVat || r.price) },
         { text: 'BTW-bedrag: ' + pricing.fmtEUR(r.vatAmount || 0) },
         { text: 'Indicatief incl. btw: ' + pricing.fmtEUR(r.totalInclVat || r.price) },
-        { text: r.vatDisclaimer || pack.btwTip, size: 8.5 }
-      ], pageNum);
+        { text: 'Dit is een indicatieve fiscale inschatting. De aannemer moet bevestigen of aan alle wettelijke voorwaarden is voldaan.', size: 8 }
+      ], ctx);
 
-      // 16. Premies
-      ensureSpace(doc, 90, pageNum);
-      eyebrow(doc, 'Premies');
-      sectionTitle(doc, 'gift', 'Mogelijke premies', pageNum);
+      startSection(doc, ctx, {
+        eyebrow: 'Premies',
+        icon: 'gift',
+        title: 'Mogelijke premies',
+        keepWith: 78
+      });
       (r.premies || []).forEach(function (pr) {
         sandCard(doc, [
-          { text: pr.scheme + ' — ' + (pr.relevance === 'mogelijk' ? 'mogelijk relevant' : 'beperkt relevant'), bold: true, color: COLOR.ink, size: 10 },
+          {
+            text: pr.scheme + ' — ' + (pr.relevance === 'mogelijk' ? 'mogelijk relevant' : 'beperkt relevant'),
+            bold: true, color: COLOR.ink, size: 9.5
+          },
           { text: pr.reason },
-          { text: 'Ontbrekend in ELYAN: ' + (pr.missing || []).join('; '), size: 8.5 },
-          { text: 'Officieel: ' + pr.officialUrl + (pr.regulationDate ? '  ·  Regelgeving sinds ' + pr.regulationDate : '') + '  ·  Gecontroleerd ' + (pr.checkedAt || ''), size: 8 }
-        ], pageNum);
+          { text: 'Nog nodig: ' + ((pr.missing || []).join('; ') || 'bevestiging via officieel loket'), size: 8 },
+          {
+            text: 'Officieel: ' + pr.officialUrl +
+              (pr.regulationDate ? '  ·  Regelgeving: ' + pr.regulationDate : '') +
+              '  ·  Gecontroleerd ' + (pr.checkedAt || r.asOf || '2026'),
+            size: 7.5
+          }
+        ], ctx);
       });
-      bodyText(doc, 'ELYAN berekent geen exact premiebedrag zonder inkomen en eigendomstype.', pageNum);
+      bodyText(doc, 'ELYAN berekent geen exact premiebedrag zonder inkomen en eigendomstype.', ctx, { size: 8 });
 
-      // 17–18. Next steps + decision + disclaimer as a tight closing block
-      var closingNeeded = 320;
-      ensureSpace(doc, closingNeeded, pageNum);
-      eyebrow(doc, 'Actie');
-      sectionTitle(doc, 'arrowRight', 'Volgende stappen', pageNum);
-      numberedList(doc, nextSteps, pageNum);
+      /* ===== 15. DECISION SUMMARY + CLOSING ===== */
+      // Full closing block (decision + steps + disclaimer + contact) stays together —
+      // never orphan disclaimer/contact on a near-empty last page.
+      maybeNewSection(doc, ctx, 268);
+      startSection(doc, ctx, {
+        eyebrow: 'Besluit',
+        icon: 'target',
+        title: 'Jouw ELYAN beslissingssamenvatting',
+        keepWith: 56
+      });
+      decisionCards(doc, [
+        { label: 'Verwacht budget', value: pricing.fmtEUR(r.price) },
+        { label: 'Veilig budget', value: pricing.fmtEUR(safeBudget) },
+        { label: 'Belangrijkste risico', value: topRisk },
+        { label: 'Beste bespaarkans', value: topSave }
+      ], ctx);
 
-      // Keep decision + disclaimer + contact together when possible
-      var endBlockH = 210;
-      ensureSpace(doc, endBlockH, pageNum);
-      eyebrow(doc, 'Besluit');
-      sectionTitle(doc, 'target', 'ELYAN decision summary', pageNum);
-      var topRisk = (pack.riskRows[0] && pack.riskRows[0].risk) || (pack.risks[0] || 'Standaard werfrisico\'s');
-      var topSave = (pack.savings[0] && pack.savings[0].text) || 'Vergelijk 3 offertes op identieke scope.';
-      sandCard(doc, [
-        { text: 'Verwacht budget: ' + pricing.fmtEUR(r.price) + ' excl. btw', bold: true, color: COLOR.ink, size: 10 },
-        { text: 'Veilig budget (met buffer): ' + pricing.fmtEUR((r.price || 0) + (r.contingency || 0)) },
-        { text: 'Belangrijkste risico: ' + topRisk },
-        { text: 'Belangrijkste bespaarkans: ' + topSave },
-        { text: 'Eerste volgende stap: ' + (nextSteps[0] || 'Vraag drie vergelijkbare offertes.') }
-      ], pageNum);
+      startSection(doc, ctx, {
+        eyebrow: 'Actie',
+        icon: 'arrowRight',
+        title: 'Jouw volgende 5 stappen',
+        keepWith: 30
+      });
+      numberedList(doc, nextSteps, ctx);
 
-      ensureSpace(doc, 100, pageNum);
-      doc.moveTo(MARGIN, doc.y).lineTo(PAGE.width - MARGIN, doc.y).lineWidth(0.75).strokeColor(COLOR.line).stroke();
-      doc.y += 8;
-      doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink).text('Disclaimer', MARGIN, doc.y);
-      doc.y += 5;
-      doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
-        .text('Dit rapport is indicatief en gebaseerd op Belgische mid-market componentprijzen (' + (r.asOf || '2026') + ') en jouw antwoorden. Het vervangt geen offerte op maat en heeft geen contractuele waarde. Vraag steeds een offerte bij een erkende aannemer. ELYAN is niet aansprakelijk voor beslissingen op basis van dit rapport.', MARGIN, doc.y, { width: CONTENT_W, lineGap: 1.5 });
-      doc.y += 10;
+      var disclaimer =
+        'Dit rapport is indicatief en gebaseerd op Belgische mid-market componentprijzen (' +
+        (r.asOf || '2026') + ', dataset ' + (r.marketDataVersion || '') +
+        ') en jouw antwoorden. Het vervangt geen offerte op maat en heeft geen contractuele waarde. Vraag steeds een offerte bij een erkende aannemer. ELYAN is niet aansprakelijk voor beslissingen op basis van dit rapport.';
+      var contactH = 38;
+      doc.font('Helvetica').fontSize(6.5);
+      var discH = doc.heightOfString(disclaimer, { width: CONTENT_W, lineGap: 1.0 });
+      var closeBlock = 10 + discH + 8 + contactH;
+      // If closing barely overflows, nudge up instead of starting an empty page
+      if (doc.y + closeBlock > CONTENT_BOTTOM) {
+        var overflow = doc.y + closeBlock - CONTENT_BOTTOM;
+        if (overflow < 36) doc.y = Math.max(doc.y - overflow - 2, MARGIN + 40);
+      }
+      doc.y += 2;
+      doc.moveTo(MARGIN, doc.y).lineTo(PAGE.width - MARGIN, doc.y)
+        .lineWidth(0.55).strokeColor(COLOR.line).stroke();
+      doc.y += 4;
+      doc.font('Helvetica-Bold').fontSize(7).fillColor(COLOR.inkFaint).text('Disclaimer', MARGIN, doc.y);
+      doc.y += 2;
+      doc.font('Helvetica').fontSize(6.5).fillColor(COLOR.inkFaint)
+        .text(disclaimer, MARGIN, doc.y, { width: CONTENT_W, lineGap: 1.0 });
+      doc.y += 6;
 
-      ensureSpace(doc, 52, pageNum);
-      var contactY = doc.y;
-      doc.roundedRect(MARGIN, contactY, CONTENT_W, 48, 8).fill(COLOR.primary);
-      doc.font('Helvetica-Bold').fontSize(11).fillColor(COLOR.white)
-        .text('Vragen over dit rapport?', MARGIN + 16, contactY + 11);
-      doc.font('Helvetica').fontSize(9).fillColor(COLOR.sandDeep)
-        .text('Mail elyan.info@gmail.com — we helpen je graag verder.', MARGIN + 16, contactY + 28);
-      doc.y = contactY + 56;
+      var contactY = Math.min(doc.y, CONTENT_BOTTOM - contactH);
+      doc.roundedRect(MARGIN, contactY, CONTENT_W, contactH, 6).fill(COLOR.primary);
+      doc.font('Helvetica-Bold').fontSize(9.5).fillColor(COLOR.white)
+        .text('ELYAN — Jouw renovatie. Duidelijker.', MARGIN + 12, contactY + 7);
+      doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.sandDeep)
+        .text('Vragen over dit rapport?  elyan.info@gmail.com', MARGIN + 12, contactY + 22);
+      doc.y = contactY + contactH + 2;
 
-      footer(doc, pageNum.n);
+      footer(doc, ctx.page.n, reportDate);
       doc.end();
     } catch (err) {
       reject(err);
