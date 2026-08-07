@@ -8,8 +8,8 @@ photos/hero.jpg (+ hero-sm.jpg)
   Used in homepage first viewport.
 
 photos/editorial.jpg (+ editorial-sm.jpg)
-  Architectural kitchen/living interior: warm natural stone, subtle oak,
-  soft daylight. Used in “De belofte” editorial split.
+  Bright open-plan living/kitchen: light stone, soft daylight, understated
+  luxury. Used in “De belofte” editorial split.
 
 photos/why.jpg (+ why-sm.jpg)
   Minimal luxury bathroom. Used in Why ELYAN.
