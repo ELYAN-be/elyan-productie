@@ -170,7 +170,7 @@ module.exports = async function handler(req, res) {
         from: FROM_ADDRESS,
         to: [email],
         reply_to: REPLY_TO,
-        subject: 'Jouw ' + cat.resultNoun + ' in ' + prov.label + ' — ' + pricing.fmtEUR(result.low) + '–' + pricing.fmtEUR(result.high),
+        subject: 'Jouw ' + cat.resultNoun + ' in ' + prov.label + ': ' + pricing.fmtEUR(result.low) + '–' + pricing.fmtEUR(result.high),
         html: html,
         attachments: [
           {

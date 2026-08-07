@@ -16,6 +16,7 @@
 
   var CATEGORIES = pricing.CATEGORIES;
   var PROVINCES = pricing.PROVINCES;
+  var LEVEL_LABEL = pricing.LEVEL_LABEL;
   var REGION_LINKS = pricing.REGION_LINKS;
   var BTW_TIP = pricing.BTW_TIP;
   var PRAKTISCHE_TIPS = pricing.PRAKTISCHE_TIPS;
@@ -61,23 +62,50 @@
     ];
     var demoIndex = 0;
     var demoCard = document.getElementById('demoCard');
-    var demoTypeIcon = document.getElementById('demoTypeIcon');
     var demoType = document.getElementById('demoType');
     var demoProvince = document.getElementById('demoProvince');
+    var demoSize = document.getElementById('demoSize');
+    var demoLevel = document.getElementById('demoLevel');
     var demoPrice = document.getElementById('demoPrice');
     var demoRange = document.getElementById('demoRange');
+
+    function moneyText(n) {
+      return String(fmtEUR(n)).replace(/^€\s*/, '€\u00a0').replace(/(\d)\s+(\d)/g, '$1\u00a0$2');
+    }
+    function setRangeEl(el, low, high) {
+      if (!el) return;
+      el.classList.add('price-range', 'is-stack');
+      el.classList.remove('is-forced-stack');
+      el.innerHTML =
+        '<span class="money">' + moneyText(low) + '</span>' +
+        '<span class="range-sep" aria-hidden="true">\u00a0–\u00a0</span>' +
+        '<span class="range-tot" aria-hidden="true">tot </span>' +
+        '<span class="money">' + moneyText(high) + '</span>';
+    }
+
+    function fitDemoPrice() {
+      if (!demoPrice) return;
+      demoPrice.classList.remove('is-forced-stack');
+      /* Force designed stack only when one-line range would overflow the card */
+      if (demoPrice.scrollWidth > demoPrice.clientWidth + 1) {
+        demoPrice.classList.add('is-forced-stack');
+      }
+    }
 
     function paintDemo(i) {
       var ex = demoExamples[i];
       var r = calcEstimate(ex.cat, ex.prov, ex.m2, ex.level);
-      demoTypeIcon.setAttribute('href', '#' + CATEGORIES[ex.cat].icon);
-      demoType.textContent = CATEGORIES[ex.cat].label;
-      demoProvince.textContent = PROVINCES[ex.prov].label;
-      demoPrice.textContent = fmtEUR(r.low) + ' – ' + fmtEUR(r.high);
-      demoRange.textContent = 'Richtprijs ' + fmtEUR(r.price);
+      if (demoType) demoType.textContent = CATEGORIES[ex.cat].label;
+      if (demoProvince) demoProvince.textContent = PROVINCES[ex.prov].label;
+      if (demoSize) demoSize.textContent = ex.m2 + ' m²';
+      if (demoLevel) demoLevel.textContent = (LEVEL_LABEL && LEVEL_LABEL[ex.level]) || ex.level;
+      setRangeEl(demoPrice, r.low, r.high);
+      if (demoRange) demoRange.textContent = 'Verwachte prijs ' + moneyText(r.price);
+      requestAnimationFrame(fitDemoPrice);
     }
     if (demoCard) {
       paintDemo(0);
+      window.addEventListener('resize', fitDemoPrice);
       setInterval(function () {
         demoCard.classList.add('demo-fade');
         setTimeout(function () {
@@ -486,8 +514,8 @@
       var pack = insightsLib ? insightsLib.buildInsights(state.type, answers, r, pricing) : { insights: cat ? [] : [], recommendations: [], planning: [], risks: [], btwTip: BTW_TIP };
 
       document.getElementById('resultsTitle').textContent = 'Jouw ' + cat.resultNoun + ' in ' + prov.label;
-      document.getElementById('resultPrice').textContent = fmtEUR(r.low) + ' – ' + fmtEUR(r.high);
-      document.getElementById('resultRange').textContent = 'Richtprijs ' + fmtEUR(r.price) + '  ·  ca. ' + fmtEUR(r.perM2) + '/m²';
+      setRangeEl(document.getElementById('resultPrice'), r.low, r.high);
+      document.getElementById('resultRange').textContent = 'Richtprijs ' + moneyText(r.price) + '  ·  ca. ' + moneyText(r.perM2) + '/m²';
       document.getElementById('resultDuration').textContent = r.weeksLow + ' – ' + r.weeksHigh + ' weken';
 
       // Update price card label if present

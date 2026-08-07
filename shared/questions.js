@@ -38,7 +38,7 @@
   ];
 
   var URGENCY_OPTIONS = [
-    { value: 'flexibel', label: 'Flexibel', desc: 'Geen harde deadline — tijd om te vergelijken.' },
+    { value: 'flexibel', label: 'Flexibel', desc: 'Geen harde deadline, tijd om te vergelijken.' },
     { value: 'binnen6', label: 'Binnen 6 maanden', desc: 'Planmatig, met ruimte voor offertes.' },
     { value: 'snel', label: 'Zo snel mogelijk', desc: 'Houd rekening met wachttijden bij aannemers.' }
   ];
@@ -98,7 +98,7 @@
       id: 'notes',
       type: 'notes',
       question: 'Nog specifieke wensen of opmerkingen?',
-      hint: 'Optioneel — hoe meer detail, hoe nuttiger je rapport.',
+      hint: 'Optioneel. Hoe meer detail, hoe nuttiger je rapport.',
       optional: true
     };
   }

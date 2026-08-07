@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELYAN — Bereken de kostprijs van jouw renovatie in 2 minuten</title>
-<meta name="description" content="Ontvang binnen 2 minuten een gratis, realistische prijsinschatting voor jouw renovatie in België, gebaseerd op actuele richtprijzen en vergelijkbare projecten.">
+<title>ELYAN | Wat kost jouw renovatie?</title>
+<meta name="description" content="Gratis realistische prijsinschatting voor jouw renovatie in België. Persoonlijk renovatierapport met kosten, arbeid, planning en risico's. Resultaat in ongeveer 2 minuten.">
 <link rel="canonical" href="https://elyan.vercel.app/">
 <meta name="theme-color" content="#3F4A32">
 <meta name="robots" content="index, follow">
@@ -12,16 +12,16 @@
 <!-- Open Graph -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ELYAN">
-<meta property="og:title" content="ELYAN — Bereken de kostprijs van jouw renovatie in 2 minuten">
-<meta property="og:description" content="Ontvang binnen 2 minuten een gratis, realistische prijsinschatting voor jouw renovatie in België, gebaseerd op actuele richtprijzen en vergelijkbare projecten.">
+<meta property="og:title" content="ELYAN | Wat kost jouw renovatie?">
+<meta property="og:description" content="Gratis realistische prijsinschatting voor jouw renovatie in België. Persoonlijk renovatierapport in ongeveer 2 minuten.">
 <meta property="og:url" content="https://elyan.vercel.app/">
 <meta property="og:image" content="https://elyan.vercel.app/assets/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:locale" content="nl_BE">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="ELYAN — Bereken de kostprijs van jouw renovatie in 2 minuten">
-<meta name="twitter:description" content="Gratis, realistische prijsinschatting voor jouw renovatie in België. Resultaat binnen 2 minuten.">
+<meta name="twitter:title" content="ELYAN | Wat kost jouw renovatie?">
+<meta name="twitter:description" content="Gratis realistische prijsinschatting voor jouw renovatie in België. Resultaat in ongeveer 2 minuten.">
 <meta name="twitter:image" content="https://elyan.vercel.app/assets/og-image.png">
 
 <!-- Favicons -->
@@ -126,9 +126,12 @@
 <header class="site-header" id="siteHeader">
   <div class="container header-inner">
     <a href="#top" class="logo"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</a>
-    <nav class="nav-links">
+    <nav class="nav-links" aria-label="Hoofdnavigatie">
       <a href="#waarom">Waarom ELYAN</a>
+      <a href="#rapport">Rapport</a>
       <a href="#hoe-het-werkt">Hoe het werkt</a>
+      <a href="/over-ons.html">Over ELYAN</a>
+      <a href="/contact.html">Contact</a>
     </nav>
     <button type="button" class="btn btn-primary btn-sm" data-action="start-calculator">Start gratis</button>
   </div>
@@ -139,32 +142,52 @@
 <section class="hero" id="top">
   <div class="container hero-inner">
     <div class="hero-copy">
-      <span class="hero-badge"><svg class="icon"><use href="#i-target"></use></svg> Gebaseerd op actuele Belgische richtprijzen</span>
-      <h1>Bereken de kostprijs van jouw renovatie <span class="accent">in 2 minuten</span>.</h1>
-      <p class="hero-sub">Ontvang gratis een realistische prijsinschatting en een persoonlijk renovatierapport voor jouw project in België.</p>
+      <span class="hero-badge"><svg class="icon"><use href="#i-target"></use></svg> Belgische renovatiemarkt 2026</span>
+      <h1>Wat kost jouw <span class="accent">renovatie</span>?</h1>
+      <p class="hero-sub">Realistische prijsinschatting in ongeveer 2&nbsp;minuten. Gratis, voor België, met een persoonlijk renovatierapport.</p>
       <div class="hero-actions">
         <button type="button" class="btn btn-primary btn-lg" data-action="start-calculator">
           Start gratis <svg class="icon"><use href="#i-arrow-right"></use></svg>
         </button>
         <div class="hero-trust">
           <span><svg class="icon"><use href="#i-check"></use></svg> Gratis</span>
-          <span><svg class="icon"><use href="#i-check"></use></svg> Geen verplichtingen</span>
-          <span><svg class="icon"><use href="#i-check"></use></svg> Binnen 2 minuten</span>
+          <span><svg class="icon"><use href="#i-check"></use></svg> ±&nbsp;2&nbsp;minuten</span>
+          <span><svg class="icon"><use href="#i-check"></use></svg> Geen verplichte offerteaanvraag</span>
         </div>
       </div>
     </div>
-    <div class="hero-visual">
-      <div class="blob blob-1"></div>
-      <div class="blob blob-2"></div>
+    <div class="hero-stage">
+      <div class="hero-photo">
+        <picture>
+          <source media="(max-width:720px)" srcset="/assets/photos/hero-sm.jpg">
+          <img src="/assets/photos/hero.jpg" alt="Lichtgevuld modern interieur met grote ramen en verfijnde materialen" width="1536" height="1024" fetchpriority="high" decoding="async">
+        </picture>
+      </div>
       <div class="demo-card" id="demoCard">
-        <div class="demo-row">
-          <span class="demo-chip"><svg class="icon"><use id="demoTypeIcon" href="#i-bath"></use></svg> <span id="demoType">Badkamer</span></span>
-          <span class="demo-chip"><svg class="icon"><use href="#i-pin"></use></svg> <span id="demoProvince">Antwerpen</span></span>
+        <div class="demo-meta">
+          <div class="demo-meta-item">
+            <span class="k">Project</span>
+            <span class="v" id="demoType">Badkamer</span>
+          </div>
+          <div class="demo-meta-item">
+            <span class="k">Locatie</span>
+            <span class="v" id="demoProvince">Antwerpen</span>
+          </div>
+          <div class="demo-meta-item">
+            <span class="k">Oppervlakte</span>
+            <span class="v" id="demoSize">8 m²</span>
+          </div>
+          <div class="demo-meta-item">
+            <span class="k">Afwerking</span>
+            <span class="v" id="demoLevel">Standaard</span>
+          </div>
         </div>
-        <div class="demo-divider"><span class="pulse-dot"></span> ELYAN berekent</div>
-        <span class="demo-label">Geschatte prijs</span>
-        <span class="demo-price" id="demoPrice">€11.400</span>
-        <span class="demo-range" id="demoRange">€9.700 – €13.150</span>
+        <div class="demo-divider"><span class="pulse-dot"></span> Voorbeeldberekening</div>
+        <div class="demo-price-block">
+          <span class="demo-label">Prijsband</span>
+          <span class="demo-price price-range is-stack" id="demoPrice"><span class="money">€&nbsp;9.700</span><span class="range-sep" aria-hidden="true">&nbsp;–&nbsp;</span><span class="range-tot" aria-hidden="true">tot </span><span class="money">€&nbsp;13.150</span></span>
+          <span class="demo-expected" id="demoRange">Verwachte prijs €&nbsp;11.400</span>
+        </div>
       </div>
     </div>
   </div>
@@ -173,40 +196,108 @@
 <!-- TRUST STRIP -->
 <div class="trust-strip">
   <div class="container trust-strip-row">
-    <span class="trust-strip-item"><svg class="icon"><use href="#i-shield"></use></svg> Privacyvriendelijk, geen doorverkoop van gegevens</span>
-    <span class="trust-strip-item"><svg class="icon"><use href="#i-target"></use></svg> Gebaseerd op actuele Belgische marktdata</span>
-    <span class="trust-strip-item"><svg class="icon"><use href="#i-file"></use></svg> Transparante, realistische inschattingen</span>
+    <span class="trust-strip-item"><svg class="icon"><use href="#i-target"></use></svg> Gebouwd voor de Belgische renovatiemarkt</span>
+    <span class="trust-strip-item"><svg class="icon"><use href="#i-layers"></use></svg> Materiaal + arbeid + overige kosten</span>
+    <span class="trust-strip-item"><svg class="icon"><use href="#i-shield"></use></svg> Je gegevens worden niet verkocht</span>
   </div>
 </div>
+
+<!-- EDITORIAL SPLIT -->
+<section class="editorial-split" aria-label="ELYAN belofte">
+  <div class="container editorial-inner">
+    <div class="editorial-copy reveal">
+      <span class="eyebrow">De belofte</span>
+      <h2>Eerst weten wat het kan kosten.</h2>
+      <p class="lead">Daarna pas offertes vergelijken, met een duidelijk referentiekader. Rustig, onafhankelijk en zonder verkoopdruk.</p>
+    </div>
+    <div class="editorial-photo reveal">
+      <picture>
+        <source media="(max-width:720px)" srcset="/assets/photos/editorial-sm.jpg">
+        <img src="/assets/photos/editorial.jpg" alt="Moderne high-end keuken met veel daglicht en rustige materialen" width="1536" height="1024" loading="lazy" decoding="async">
+      </picture>
+    </div>
+  </div>
+</section>
 
 <!-- WAAROM ELYAN -->
 <section class="section" id="waarom">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Waarom ELYAN</span>
-      <h2>Waarom ELYAN?</h2>
-      <p class="lead">Een prijsinschatting waar je op kan vertrouwen, zonder gedoe.</p>
+      <h2>Duidelijkheid vóór je beslist.</h2>
+      <p class="lead">Geen slag in de lucht, geen verkoopdruk. Wel een rustige, onderbouwde eerste inschatting.</p>
     </div>
-    <div class="features-grid">
-      <div class="feature-card reveal">
-        <div class="feature-icon"><svg class="icon"><use href="#i-target"></use></svg></div>
-        <h3>Realistische prijsinschatting</h3>
-        <p>Gebaseerd op actuele materiaal- en arbeidskosten in jouw regio, geen slag in de lucht.</p>
+    <div class="why-layout">
+      <div class="why-photo reveal">
+        <picture>
+          <source media="(max-width:720px)" srcset="/assets/photos/why-sm.jpg">
+          <img src="/assets/photos/why.jpg" alt="Minimalistische luxe badkamer met natuurlijk steen en groot raam" width="1024" height="1536" loading="lazy" decoding="async">
+        </picture>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><svg class="icon"><use href="#i-file"></use></svg></div>
-        <h3>Persoonlijk renovatierapport</h3>
-        <p>Een overzichtelijk rapport op maat van jouw project, klaar om te delen met een aannemer.</p>
+      <div class="why-list">
+        <div class="why-item reveal">
+          <span class="why-num">01</span>
+          <div>
+            <h3>Belgische marktdata</h3>
+            <p>Inschattingen op basis van actuele materiaal- en arbeidskosten, met regionale nuance per provincie.</p>
+          </div>
+        </div>
+        <div class="why-item reveal">
+          <span class="why-num">02</span>
+          <div>
+            <h3>Transparante kosten</h3>
+            <p>Je ziet hoe de raming is opgebouwd: materiaal, arbeid en overige posten, niet enkel een totaalbedrag.</p>
+          </div>
+        </div>
+        <div class="why-item reveal">
+          <span class="why-num">03</span>
+          <div>
+            <h3>Persoonlijk renovatierapport</h3>
+            <p>Na de calculator ontvang je een premium PDF met planning, risico's en aandachtspunten voor jouw project.</p>
+          </div>
+        </div>
+        <div class="why-item reveal">
+          <span class="why-num">04</span>
+          <div>
+            <h3>Gratis en vrijblijvend</h3>
+            <p>Geen verplichte offerteaanvraag. Je start wanneer je wil, zonder verplichtingen.</p>
+          </div>
+        </div>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><svg class="icon"><use href="#i-check-circle"></use></svg></div>
-        <h3>Gratis</h3>
-        <p>Volledig kosteloos, zonder verborgen kosten of verplichte offerteaanvraag.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT PREVIEW -->
+<section class="section report-section" id="rapport">
+  <div class="container">
+    <div class="report-grid">
+      <div class="report-stack reveal" aria-hidden="true">
+        <div class="report-page report-page-3">
+          <img src="/assets/report/page-checklist.png" alt="" width="595" height="842" loading="lazy" decoding="async">
+        </div>
+        <div class="report-page report-page-2">
+          <img src="/assets/report/page-costs.png" alt="" width="595" height="842" loading="lazy" decoding="async">
+        </div>
+        <div class="report-page report-page-1">
+          <img src="/assets/report/page-summary.png" alt="" width="595" height="842" loading="lazy" decoding="async">
+        </div>
       </div>
-      <div class="feature-card reveal">
-        <div class="feature-icon"><svg class="icon"><use href="#i-sparkle"></use></svg></div>
-        <h3>Binnen 2 minuten</h3>
-        <p>Beantwoord enkele korte vragen en ontvang meteen jouw inschatting.</p>
+      <div class="reveal">
+        <div class="section-head" style="margin-bottom:var(--sp-5);">
+          <span class="eyebrow">Jouw resultaat</span>
+          <h2>Meer dan alleen een prijs.</h2>
+          <p class="lead">Je ontvangt een persoonlijk renovatierapport met inzicht in kosten, arbeid, planning, risico's en aandachtspunten.</p>
+        </div>
+        <div class="report-benefits" role="list">
+          <div class="report-benefit" role="listitem"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg><span>Persoonlijke kostenanalyse</span></div>
+          <div class="report-benefit" role="listitem"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg><span>Arbeidsinschatting</span></div>
+          <div class="report-benefit" role="listitem"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg><span>Projectplanning</span></div>
+          <div class="report-benefit" role="listitem"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg><span>Risicoanalyse</span></div>
+          <div class="report-benefit" role="listitem"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg><span>Offertecheck</span></div>
+          <div class="report-benefit" role="listitem"><svg class="icon" aria-hidden="true"><use href="#i-check"></use></svg><span>Belgische marktvergelijking</span></div>
+        </div>
+        <p class="sr-only">Voorbeeldpagina's uit het echte ELYAN renovatierapport.</p>
       </div>
     </div>
   </div>
@@ -221,25 +312,62 @@
     </div>
     <div class="steps-row">
       <div class="step-item reveal">
-        <div class="step-num">1</div>
-        <h3>Beantwoord enkele vragen.</h3>
-        <p>Vertel ons over je renovatieproject: type, oppervlakte en gewenste afwerking.</p>
+        <div class="step-num">01</div>
+        <h3>Vertel over je project</h3>
+        <p>Type, oppervlakte, afwerking en een handvol gerichte vragen. Geen ellenlange formulieren.</p>
       </div>
       <div class="step-item reveal">
-        <div class="step-num">2</div>
-        <h3>ELYAN berekent jouw renovatie.</h3>
-        <p>Jouw project wordt vergeleken met actuele Belgische richtprijzen en gelijkaardige renovatieprojecten.</p>
+        <div class="step-num">02</div>
+        <h3>Bekijk je prijsinschatting</h3>
+        <p>Direct een realistische prijsvork, kostenuitsplitsing en aandachtspunten voor jouw situatie.</p>
       </div>
       <div class="step-item reveal">
-        <div class="step-num">3</div>
-        <h3>Ontvang jouw persoonlijk rapport.</h3>
-        <p>Krijg een heldere prijsinschatting met kostenoverzicht en concrete aandachtspunten.</p>
+        <div class="step-num">03</div>
+        <h3>Ontvang je renovatierapport</h3>
+        <p>Een premium PDF per e-mail, klaar om te bewaren of te delen bij het vergelijken van offertes.</p>
       </div>
     </div>
-    <div class="how-cta reveal">
+  </div>
+</section>
+
+<!-- TRUST FACTS -->
+<section class="section" id="vertrouwen">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Vertrouwen</span>
+      <h2>Transparant over wat ELYAN wel en niet is.</h2>
+    </div>
+    <div class="trust-facts">
+      <div class="trust-fact reveal">
+        <h3>Marktdata 2026</h3>
+        <p>Richtprijzen voor de Belgische mid-market, opgebouwd uit materiaal, arbeid en overige kosten.</p>
+      </div>
+      <div class="trust-fact reveal">
+        <h3>Persoonlijke projectanalyse</h3>
+        <p>Je rapport volgt jouw antwoorden: scope, regio, afwerking en typische risico's voor die categorie.</p>
+      </div>
+      <div class="trust-fact reveal">
+        <h3>Geen verplichte offerteaanvraag</h3>
+        <p>ELYAN is een onafhankelijke eerste inschatting. Geen aannemer, geen verkoopdruk, geen doorverkoop van gegevens.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final-cta" id="start">
+  <div class="container">
+    <h2 class="reveal">Klaar om te weten wat jouw renovatie écht kan kosten?</h2>
+    <p class="lead reveal">Start gratis. Geen verplichtingen. Resultaat in ongeveer 2&nbsp;minuten.</p>
+    <div class="final-cta-actions reveal">
       <button type="button" class="btn btn-primary btn-lg" data-action="start-calculator">
         Start gratis <svg class="icon"><use href="#i-arrow-right"></use></svg>
       </button>
+      <div class="hero-trust">
+        <span><svg class="icon"><use href="#i-check"></use></svg> Gratis</span>
+        <span><svg class="icon"><use href="#i-check"></use></svg> Geen verplichtingen</span>
+        <span><svg class="icon"><use href="#i-check"></use></svg> Resultaat in ±&nbsp;2&nbsp;minuten</span>
+      </div>
     </div>
   </div>
 </section>
@@ -249,22 +377,29 @@
 <footer class="site-footer">
   <div class="container">
     <div class="footer-top">
-      <div>
-        <div class="footer-brand"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</div>
-        <p class="footer-tagline">Realistische renovatie-inschattingen voor België, gebaseerd op actuele richtprijzen en vergelijkbare projecten.</p>
-        <p class="footer-contact" style="margin-top:10px;">Vragen? Mail naar <a href="mailto:elyan.info@gmail.com">elyan.info@gmail.com</a></p>
+      <div class="footer-columns">
+        <div>
+          <div class="footer-brand"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</div>
+          <p class="footer-tagline">Jouw renovatie. Duidelijker.</p>
+          <p class="footer-contact" style="margin-top:12px;">Realistische renovatie-inschattingen voor België.</p>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Navigatie</div>
+          <a href="/over-ons.html">Over ELYAN</a>
+          <a href="/contact.html">Contact</a>
+          <a href="/privacybeleid.html">Privacy</a>
+          <a href="/voorwaarden.html">Voorwaarden</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Contact</div>
+          <a class="mail-plain" href="mailto:elyan.info@gmail.com">elyan.info@gmail.com</a>
+          <a href="/cookiebeleid.html">Cookiebeleid</a>
+        </div>
       </div>
-      <nav class="footer-links" aria-label="Juridische informatie">
-        <a href="/contact.html">Contact</a>
-        <a href="/over-ons.html">Over ELYAN</a>
-        <a href="/privacybeleid.html">Privacybeleid</a>
-        <a href="/cookiebeleid.html">Cookiebeleid</a>
-        <a href="/voorwaarden.html">Algemene voorwaarden</a>
-      </nav>
     </div>
     <div class="footer-bottom">
       <p class="footer-meta">© <span id="footerYear">2026</span> ELYAN. Alle prijzen zijn indicatief.</p>
-      <p class="footer-meta">Made in Belgium 🇧🇪</p>
+      <p class="footer-meta">Made in Belgium</p>
     </div>
   </div>
 </footer>
