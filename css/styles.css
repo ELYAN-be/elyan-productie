@@ -184,8 +184,9 @@ strong{color:var(--ink);font-weight:600;}
     padding:calc(56px + 1.75rem) 0 2rem;
     background:linear-gradient(180deg, #FBFaf6 0%, var(--white) 72%);
   }
+  /* Copy → image: tightened moderately (was 2rem) */
   .hero-inner{
-    gap:2rem;
+    gap:1.4rem;
     align-items:stretch;
   }
   .hero-copy{max-width:none;}
@@ -196,7 +197,7 @@ strong{color:var(--ink);font-weight:600;}
   /* Headline as visual hero */
   .hero h1{
     max-width:10.5ch;
-    margin:0 0 1rem;
+    margin:0 0 .95rem;
     font-size:clamp(2.15rem,8.2vw,2.65rem);
     font-weight:600;
     letter-spacing:-.035em;
@@ -208,7 +209,7 @@ strong{color:var(--ink);font-weight:600;}
   .hero-sub--full{display:none;}
   .hero-sub--mobile{
     display:block;
-    margin:0 0 1.75rem;
+    margin:0 0 1.55rem;
     max-width:22em;
     font-size:1.02rem;
     font-weight:400;
@@ -217,23 +218,25 @@ strong{color:var(--ink);font-weight:600;}
     letter-spacing:-.01em;
   }
 
+  /* CTA → trust: closer so trust supports the button */
   .hero-actions{
-    gap:1.15rem;
+    gap:.85rem;
     width:100%;
     align-items:flex-start;
   }
 
-  /* Refined CTA — not an oversized pill */
+  /* CTA — refined proportions, still comfortable tap target */
   .hero-cta.btn-lg{
-    height:50px;
-    padding:0 26px;
-    font-size:.92rem;
+    height:46px;
+    min-height:46px;
+    padding:0 22px;
+    font-size:.875rem;
     font-weight:600;
-    border-radius:12px;
+    border-radius:10px;
     letter-spacing:-.01em;
     box-shadow:none;
   }
-  .hero-cta.btn-lg .icon{width:16px;height:16px;}
+  .hero-cta.btn-lg .icon{width:15px;height:15px;}
 
   /* Hide icon trust row; show quiet line */
   .hero-trust--full{display:none !important;}
@@ -241,11 +244,12 @@ strong{color:var(--ink);font-weight:600;}
     display:block;
     margin:0;
     padding:0;
-    font-size:.78rem;
-    font-weight:500;
-    letter-spacing:.02em;
-    color:var(--ink-faint);
-    line-height:1.4;
+    font-size:.72rem;
+    font-weight:400;
+    letter-spacing:.03em;
+    color:rgba(107,109,99,.86);
+    line-height:1.35;
+    white-space:nowrap;
   }
 
   /* Editorial image — full width within calm gutters, then card */
@@ -279,23 +283,27 @@ strong{color:var(--ink);font-weight:600;}
 
 @media (max-width:520px){
   .hero{padding:calc(52px + 1.5rem) 0 1.75rem;}
-  .hero-inner{gap:1.75rem;}
+  .hero-inner{gap:1.25rem;}
   .hero h1{
     font-size:clamp(2.05rem,8.5vw,2.45rem);
-    margin-bottom:.9rem;
+    margin-bottom:.85rem;
   }
   .hero-sub--mobile{
     font-size:.98rem;
-    margin-bottom:1.5rem;
+    margin-bottom:1.35rem;
   }
-  .hero-actions{gap:1rem;}
+  .hero-actions{gap:.75rem;}
   .hero-cta.btn-lg{
-    height:48px;
-    padding:0 22px;
-    font-size:.9rem;
-    border-radius:11px;
+    height:44px;
+    min-height:44px;
+    padding:0 20px;
+    font-size:.86rem;
+    border-radius:10px;
   }
-  .hero-trust-line{font-size:.74rem;}
+  .hero-trust-line{
+    font-size:.7rem;
+    letter-spacing:.03em;
+  }
   .hero-stage{
     width:calc(100% + 2 * var(--sp-5) - 24px);
     margin-left:calc(12px - var(--sp-5));
@@ -317,7 +325,11 @@ strong{color:var(--ink);font-weight:600;}
 @media (max-width:360px){
   .hero h1{font-size:1.95rem;}
   .hero-sub--mobile{font-size:.94rem;}
-  .hero-trust-line{font-size:.7rem;letter-spacing:.01em;}
+  .hero-trust-line{
+    font-size:.68rem;
+    letter-spacing:.02em;
+    white-space:nowrap;
+  }
 }
 
 .demo-card{
