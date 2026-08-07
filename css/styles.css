@@ -752,12 +752,27 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
   .report-stack{min-height:420px;}
   .report-page{width:min(72%,360px);}
 }
-/* Mobile only: front page in-flow = full height, back pages stacked behind, then text */
+/* Mobile eyebrow is shown only ≤959px; desktop keeps the in-copy eyebrow */
+.report-eyebrow-mobile{display:none;}
+/* Mobile only: front page in-flow = full height, back pages stacked behind.
+   Order: eyebrow → mockup → heading/copy/benefits. Reduced empty green entrance. */
 @media (max-width:959px){
-  .report-grid{
-    gap:12px;
-    align-items:start;
+  .report-section.section{
+    padding:2.35rem 0 3.25rem;
+    overflow:visible;
   }
+  .report-grid{
+    display:flex;
+    flex-direction:column;
+    gap:1.1rem;
+    align-items:stretch;
+  }
+  .report-eyebrow-mobile{
+    display:inline-flex;
+    margin:0 0 .15rem;
+    order:1;
+  }
+  .report-eyebrow-desktop{display:none !important;}
   .report-stack{
     position:relative;
     width:100%;
@@ -767,9 +782,11 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
     min-height:0;
     overflow:visible;
     perspective:none;
-    padding-top:14px;
-    padding-bottom:8px;
+    padding-top:10px;
+    padding-bottom:4px;
+    order:2;
   }
+  .report-copy{order:3;}
   /* Front page in normal flow → defines full mockup height (no clip) */
   .report-page{
     width:78%;
@@ -809,16 +826,17 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
     transform:rotate(4.5deg);
     opacity:.92;
   }
-  .report-section{
-    overflow:visible;
+  .report-copy .section-head{
+    margin-bottom:1.1rem !important;
   }
-  .report-section .section-head{margin-bottom:var(--sp-4);}
+  .report-copy .section-head h2{margin-bottom:0;}
+  .report-benefits{margin-top:1.15rem;}
 }
 @media (max-width:520px){
   .report-stack{
     max-width:none;
-    padding-top:12px;
-    padding-bottom:6px;
+    padding-top:8px;
+    padding-bottom:4px;
   }
   .report-page,
   .report-page-1,
@@ -880,6 +898,20 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
 }
 .trust-fact h3{font-size:.98rem;margin-bottom:6px;}
 .trust-fact p{font-size:.86rem;margin:0;}
+
+/* Mobile: softer editorial separators (not heavy SaaS/table bars) */
+@media (max-width:719px){
+  .trust-facts{gap:0;}
+  .trust-fact{
+    border-top:1px solid rgba(231,227,211,.9);
+    padding:1.35rem 0;
+  }
+  .trust-fact:first-child{
+    border-top:none;
+    padding-top:0;
+  }
+  .trust-fact:last-child{padding-bottom:0;}
+}
 
 /* ============ FINAL CTA ============ */
 .final-cta{
@@ -959,3 +991,29 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
 /* ============ REVEAL ON SCROLL ============ */
 .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
 .reveal.in-view{opacity:1;transform:translateY(0);}
+
+/* ============ MOBILE VERTICAL RHYTHM (≤959) ============ */
+@media (max-width:959px){
+  .section{padding:3.25rem 0;}
+  .section-head{margin-bottom:1.75rem;}
+
+  /* De belofte: tighten after image — intentional breath, not empty viewport */
+  .editorial-split{
+    padding:3rem 0 2.15rem;
+  }
+  .editorial-inner{gap:1.45rem;}
+  .editorial-photo{border-radius:18px;}
+
+  #waarom.section{padding-top:2.65rem;}
+  #waarom .section-head{margin-bottom:1.5rem;}
+
+  #hoe-het-werkt.section{padding-top:3rem;}
+  #vertrouwen.section{padding-top:3rem;padding-bottom:3rem;}
+  .final-cta{padding:3.25rem 0;}
+}
+@media (max-width:520px){
+  .section{padding:2.85rem 0;}
+  .editorial-split{padding:2.65rem 0 1.85rem;}
+  #waarom.section{padding-top:2.35rem;}
+  .report-section.section{padding:2.1rem 0 2.85rem;}
+}
