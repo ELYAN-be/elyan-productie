@@ -4,6 +4,7 @@
   "private": true,
   "description": "ELYAN — renovatie-inschattingsplatform voor België",
   "scripts": {
+    "dev": "node scripts/dev-server.js",
     "validate:pricing": "node scripts/validate-pricing.js",
     "test:parity": "node scripts/test-parity.js",
     "test:pdfs": "node scripts/generate-test-pdfs.js"
