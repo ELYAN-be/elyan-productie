@@ -123,10 +123,12 @@ module.exports = async function handler(req, res) {
   }
 
   var body = req.body;
-  if (typeof body === 'string') {
-    try { body = JSON.parse(body); } catch (e) { body = {}; }
+  if (Buffer.isBuffer(body)) {
+    try { body = JSON.parse(body.toString('utf8') || '{}'); } catch (e) { body = {}; }
+  } else if (typeof body === 'string') {
+    try { body = JSON.parse(body || '{}'); } catch (e) { body = {}; }
   }
-  body = body || {};
+  body = body && typeof body === 'object' && !Array.isArray(body) ? body : {};
 
   var email = (body.email || '').trim();
   if (!isValidEmail(email)) {
@@ -135,6 +137,7 @@ module.exports = async function handler(req, res) {
 
   var sanitized = sanitizeState(body.state);
   if (sanitized.error) {
+    console.error('Calc2 send-project-report validation:', sanitized.error);
     return res.status(400).json({ error: sanitized.error });
   }
   var state = sanitized.state;

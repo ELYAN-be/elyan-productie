@@ -588,6 +588,16 @@
         if (errorEl) errorEl.classList.remove('show');
         setLoading(true);
 
+        /* Investor dossier only after finance ran — avoids missing_finance_profile 400 from review CTA */
+        if (state.goal === 'investor' && !(analysis && analysis.ran && !analysis.blocked)) {
+          setLoading(false);
+          if (errorEl) {
+            errorEl.textContent = 'Rond eerst de investeringsanalyse af om het investeringsrapport te ontvangen.';
+            errorEl.classList.add('show');
+          }
+          return;
+        }
+
         fetch('/api/send-project-report', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -596,14 +606,28 @@
             state: JSON.parse(StateApi.serialize(state))
           })
         }).then(function (res) {
-          if (!res.ok) throw new Error('request_failed');
-          return res.json();
+          return res.json().then(function (data) {
+            if (!res.ok) {
+              var err = new Error((data && data.error) || 'request_failed');
+              err.code = data && data.error;
+              throw err;
+            }
+            return data;
+          });
         }).then(function () {
           if (form) form.hidden = true;
           if (success) success.hidden = false;
-        }).catch(function () {
+        }).catch(function (err) {
           if (errorEl) {
-            errorEl.textContent = 'Je analyse is klaar, maar het rapport kon niet worden verzonden. Probeer opnieuw.';
+            var msg = 'Je analyse is klaar, maar het rapport kon niet worden verzonden. Probeer opnieuw.';
+            if (err && err.code === 'missing_finance_profile') {
+              msg = 'Rond eerst de investeringsanalyse af om het investeringsrapport te ontvangen.';
+            } else if (err && err.code === 'investor_not_ready') {
+              msg = 'Je project is nog niet klaar voor de investeringsanalyse. Los eerst de open budgetpunten op.';
+            } else if (err && err.code === 'insufficient_project') {
+              msg = 'Er is nog te weinig projectinformatie voor een rapport. Vul eerst de open onderdelen aan.';
+            }
+            errorEl.textContent = msg;
             errorEl.classList.add('show');
           }
         }).finally(function () {

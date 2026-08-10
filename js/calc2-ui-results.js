@@ -327,7 +327,10 @@
         '<ul class="calc2-review-list">' + scopeRows + '</ul>' +
       '</div>' +
 
-      '<div id="calc2ReportCapture"></div>' +
+      /* Investor report requires completed finance analysis — CTA lives on finance result only */
+      (state.goal === 'investor'
+        ? '<p class="calc2-review-note">Wil je het investeringsrapport per e-mail? Rond eerst de investeringsanalyse af.</p>'
+        : '<div id="calc2ReportCapture"></div>') +
 
       '<div class="calc2-nav">' +
         '<button type="button" class="btn btn-ghost btn-lg" id="calc2Restart">Nieuw plan</button>' +
