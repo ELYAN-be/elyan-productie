@@ -375,7 +375,12 @@ function marketBar(doc, r, ctx) {
       bold: true, color: COLOR.ink, size: 10
     },
     { text: 'Jouw vergelijkbare bedrag: ' + pricing.fmtEUR(compare) +
-      (r.perM2 ? '  ·  ' + pricing.fmtEUR(r.perM2) + '/m² (totaalraming)' : '') },
+      (function () {
+        var ur = (pricing.unitRateDisplay && pricing.unitRateDisplay(ctx.type, r)) || r.unitRate;
+        if (ur && ur.formatted) return '  ·  ' + ur.formatted + ur.suffix + ' (totaalraming)';
+        if (r.perM2) return '  ·  ' + pricing.fmtEUR(r.perM2) + '/m² (totaalraming)';
+        return '';
+      })() },
     { text: 'Belgische marktband (excl. btw): ' + pricing.fmtEUR(bm.low) + ' – ' + pricing.fmtEUR(bm.high) },
     { text: (bm.scope || bm.reason || 'Scope-identieke vergelijking volgens pricing-engine.') +
       (bm.vatStatus ? '  ·  BTW-status benchmark: ' + bm.vatStatus : '') }
@@ -543,7 +548,7 @@ function drawTimeline(doc, timeline, ctx) {
   doc.y += 2;
 }
 
-function drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate) {
+function drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate, type) {
   doc.rect(0, 0, PAGE.width, PAGE.height).fill(COLOR.primaryDark);
   doc.save();
   doc.opacity(0.35);
@@ -567,8 +572,11 @@ function drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate) {
   doc.font('Helvetica').fontSize(14).fillColor(COLOR.sandDeep)
     .text('voor jouw ' + cat.resultNoun, MARGIN + 4, doc.y + 4);
 
+  var sizeMeta = (pricing.sizeDisplay && pricing.sizeDisplay(type, answers, r))
+    || r.sizeDisplay
+    || { short: (answers.size || r.size) + ' m²' };
   doc.font('Helvetica').fontSize(11).fillColor(COLOR.sand)
-    .text(prov.label + '  ·  ' + (answers.size || r.size) + ' m²  ·  ' +
+    .text(prov.label + '  ·  ' + sizeMeta.short + '  ·  ' +
       ((pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || 'Standaard'),
       MARGIN + 4, 320);
   doc.font('Helvetica').fontSize(10).fillColor(COLOR.sandDeep)
@@ -621,10 +629,16 @@ function buildReportPdf(data) {
       doc.on('end', function () { resolve(Buffer.concat(chunks)); });
       doc.on('error', reject);
 
-      var ctx = { page: { n: 1 }, reportDate: reportDate };
+      var ctx = { page: { n: 1 }, reportDate: reportDate, type: data.type };
+      var sizeMeta = (pricing.sizeDisplay && pricing.sizeDisplay(data.type, answers, r))
+        || r.sizeDisplay
+        || { fieldLabel: 'Oppervlakte', text: (answers.size || r.size) + ' m²', short: (answers.size || r.size) + ' m²' };
+      var unitMeta = (pricing.unitRateDisplay && pricing.unitRateDisplay(data.type, r))
+        || r.unitRate
+        || { label: '€ / m²', formatted: pricing.fmtEUR(r.perM2), suffix: '/m²' };
 
       /* ===== COVER ===== */
-      drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate);
+      drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate, data.type);
 
       /* ===== 1. EXECUTIVE SUMMARY ===== */
       doc.addPage(); ctx.page.n++;
@@ -636,7 +650,7 @@ function buildReportPdf(data) {
       metaGrid2(doc, [
         { label: 'Project', value: cat.label },
         { label: 'Locatie', value: prov.label },
-        { label: 'Oppervlakte', value: (answers.size || r.size) + ' m²' },
+        { label: sizeMeta.fieldLabel || 'Oppervlakte', value: sizeMeta.text },
         { label: 'Afwerking', value: (pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || '—' },
         { label: 'Woningouderdom', value: housingAgeLabel(answers.housingAge) },
         { label: 'Confidence', value: r.confidence || 'indicatief' }
@@ -652,7 +666,7 @@ function buildReportPdf(data) {
       drawRangeBar(doc, r.low, r.price, r.high, ctx);
 
       kpiRow(doc, [
-        { label: '€ / m²', value: pricing.fmtEUR(r.perM2), big: true },
+        { label: unitMeta.label || '€ / m²', value: unitMeta.formatted || pricing.fmtEUR(r.perM2), big: true },
         { label: 'Arbeidsuren', value: String(r.labourHours || lp.labourHours || '—') + ' u' },
         { label: 'Ploeg', value: String(r.crewSize || lp.crewSize || '—') },
         { label: 'Werkdagen', value: '±' + String(r.workDays || lp.workDays || '—') },

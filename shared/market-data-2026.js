@@ -17,8 +17,8 @@
     meta: {
       market: 'Belgium',
       year: 2026,
-      asOf: '2026-08-07',
-      version: '2026.2.1-audit',
+      asOf: '2026-08-10',
+      version: '2026.3.1-audit7',
       currency: 'EUR',
       vatInternal: 'excl',
       labourNote: 'Gefactureerde aannemerstarieven; overhead/winst in tarief — geen dubbele marge'
@@ -296,6 +296,186 @@
         region: 'Belgium',
         vatStatus: 'n/a',
         reliability: 'official'
+      },
+      vakmanRamen: {
+        url: 'https://vakmanprijzen.be/schrijnwerker',
+        title: 'Vakmanprijzen — schrijnwerker / ramen 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'medium',
+        note: 'Hourly + soft all-in window ranges; consumer pages often incl. → normalize @6%'
+      },
+      bobexRamen: {
+        url: 'https://www.bobex.be/nl-be/ramen-deuren/',
+        title: 'Bobex — ramen & deuren prijs',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'incl',
+        reliability: 'medium',
+        note: 'Consumer incl. ranges €350–650/m² PVC typ.; norm@6% ≈ €330–613 excl.'
+      },
+      renovatieKampioenRamen: {
+        url: 'https://renovatiekampioen.be/ramen-plaatsen/prijs/',
+        title: 'Renovatiekampioen — ramen prijs',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'unclear',
+        reliability: 'medium'
+      },
+      vakmanIsolatie: {
+        url: 'https://vakmanprijzen.be/isolatie',
+        title: 'Vakmanprijzen — isolatie 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'high'
+      },
+      energiesparenIsolatie: {
+        url: 'https://www.energiesparen.be/',
+        title: 'Vlaanderen energiesparen — isolatie richtprijzen',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Flanders',
+        vatStatus: 'unclear',
+        reliability: 'medium',
+        note: 'Soft corroboration for spouw/dak/vloer bands'
+      },
+      vakmanVerwarming: {
+        url: 'https://vakmanprijzen.be/verwarming',
+        title: 'Vakmanprijzen — verwarming / warmtepomp 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'high'
+      },
+      bobexWarmtepomp: {
+        url: 'https://www.bobex.be/nl-be/verwarming/warmtepomp/',
+        title: 'Bobex — warmtepomp prijs',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'unclear',
+        reliability: 'medium'
+      },
+      vakmanElektra: {
+        url: 'https://vakmanprijzen.be/elektricien',
+        title: 'Vakmanprijzen — elektricien 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'high'
+      },
+      bobexElektra: {
+        url: 'https://www.bobex.be/nl-be/elektriciteit/',
+        title: 'Bobex — elektrische installatie renovatie',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'unclear',
+        reliability: 'medium'
+      },
+      renovatieKampioenElektra: {
+        url: 'https://renovatiekampioen.be/elektriciteit/prijs/',
+        title: 'Renovatiekampioen — elektriciteit vernieuwen prijs 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-10',
+        region: 'Belgium',
+        vatStatus: 'unclear',
+        reliability: 'high',
+        note: 'Full rewire €70–120/m² woonoppervlak; keuring €120–250; soft VAT on consumer page'
+      },
+      zonrElektra: {
+        url: 'https://zonr.be/kosten/elektriciteitswerken',
+        title: 'Zonr — elektriciteitswerken kosten 2026',
+        publishedOrUpdated: '2026-07',
+        consulted: '2026-08-10',
+        region: 'Flanders',
+        vatStatus: 'unclear',
+        reliability: 'medium',
+        note: 'Full reinstall €5–15k project; soft corroboration for €/m² bands'
+      },
+      gevelExpertEtics: {
+        url: 'https://www.gevelexpert.be/crepi/isolatie/',
+        title: 'Gevelexpert — crepi isolatie / ETICS prijs',
+        publishedOrUpdated: '2025–2026',
+        consulted: '2026-08-10',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'high',
+        note: 'ETICS crepi €80–140/m² excl. placement; breakdown boards+labour+render'
+      },
+      kijzerGevel: {
+        url: 'https://www.kijzer.be/gevelrenovatie/gevelisolatie/',
+        title: 'Kijzer — gevelisolatie Vlaanderen prijs',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-10',
+        region: 'Flanders',
+        vatStatus: 'excl',
+        reliability: 'medium',
+        note: 'Indicative €100–150/m² excl. for insulated facade + finish'
+      },
+      vakmanGevel: {
+        url: 'https://vakmanprijzen.be/gevelrenovatie',
+        title: 'Vakmanprijzen — gevelrenovatie 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'medium'
+      },
+      bobexGevel: {
+        url: 'https://www.bobex.be/nl-be/gevel/',
+        title: 'Bobex — gevelwerken prijs',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'unclear',
+        reliability: 'medium'
+      },
+      vakmanSolar: {
+        url: 'https://vakmanprijzen.be/zonnepanelen',
+        title: 'Vakmanprijzen — zonnepanelen 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'high',
+        note: '€/Wp bands; consumer incl. often ~€0.90–1.25 → excl. ~€0.85–1.18 @6%'
+      },
+      zonnepanelenBe: {
+        url: 'https://www.energiesparen.be/zonnepanelen',
+        title: 'Vlaanderen — zonnepanelen info',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Flanders',
+        vatStatus: 'n/a',
+        reliability: 'official',
+        note: 'No guaranteed savings/payback used in ELYAN pricing'
+      },
+      vakmanVentilatie: {
+        url: 'https://vakmanprijzen.be/ventilatie',
+        title: 'Vakmanprijzen — ventilatie 2026',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'excl',
+        reliability: 'medium'
+      },
+      bobexVentilatie: {
+        url: 'https://www.bobex.be/nl-be/ventilatie/',
+        title: 'Bobex — ventilatiesysteem prijs',
+        publishedOrUpdated: '2026',
+        consulted: '2026-08-09',
+        region: 'Belgium',
+        vatStatus: 'unclear',
+        reliability: 'medium'
       }
     },
 
@@ -369,6 +549,62 @@
         kind: 'marketBenchmark',
         sources: ['vakmanOverview'],
         reason: 'Overview trades €45–85 excl.'
+      },
+      joiner: {
+        low: 48, base: 58, high: 68,
+        unit: 'EUR/h',
+        vatStatus: 'excl',
+        kind: 'marketBenchmark',
+        sources: ['vakmanRamen', 'vakmanOverview'],
+        reason: 'Schrijnwerker / window fitter billed band ~€48–68 excl.'
+      },
+      windowFitter: {
+        low: 48, base: 58, high: 68,
+        unit: 'EUR/h',
+        vatStatus: 'excl',
+        kind: 'marketBenchmark',
+        sources: ['vakmanRamen', 'vakmanOverview'],
+        reason: 'Alias of joiner — schrijnwerker ramen/deuren.'
+      },
+      heatingTech: {
+        low: 50, base: 60, high: 70,
+        unit: 'EUR/h',
+        vatStatus: 'excl',
+        kind: 'marketBenchmark',
+        sources: ['vakmanVerwarming', 'vakmanOverview'],
+        reason: 'HVAC / verwarmingstechnicus ~€50–70 excl.'
+      },
+      insulator: {
+        low: 42, base: 50, high: 58,
+        unit: 'EUR/h',
+        vatStatus: 'excl',
+        kind: 'marketBenchmark',
+        sources: ['vakmanIsolatie', 'vakmanOverview'],
+        reason: 'Isolatiespecialist ~€42–58 excl.'
+      },
+      facadeWorker: {
+        low: 45, base: 53, high: 62,
+        unit: 'EUR/h',
+        vatStatus: 'excl',
+        kind: 'marketBenchmark',
+        sources: ['vakmanGevel', 'vakmanOverview'],
+        reason: 'Gevelwerker ~€45–62 excl.'
+      },
+      solarInstaller: {
+        low: 48, base: 56, high: 65,
+        unit: 'EUR/h',
+        vatStatus: 'excl',
+        kind: 'marketBenchmark',
+        sources: ['vakmanSolar', 'vakmanOverview'],
+        reason: 'Zonnepanelen-installateur ~€48–65 excl.'
+      },
+      ventilationTech: {
+        low: 48, base: 56, high: 65,
+        unit: 'EUR/h',
+        vatStatus: 'excl',
+        kind: 'marketBenchmark',
+        sources: ['vakmanVentilatie', 'vakmanOverview'],
+        reason: 'Ventilatietechnicus ~€48–65 excl.'
       }
     },
 
@@ -767,6 +1003,369 @@
       scaffold2: { low: 450, base: 650, high: 950, kind: 'modelAssumption', sources: ['blueSkySteiger'], reason: 'Hoogte 2 lagen — soft' },
       scaffold3: { low: 1000, base: 1400, high: 2000, kind: 'modelAssumption', sources: ['blueSkySteiger'], reason: '3+ lagen — soft' },
       exteriorFactor: { low: 1.15, base: 1.25, high: 1.35, kind: 'modelAssumption', reason: 'Buiten toeslag vs binnen' },
+      crewSize: 2
+    },
+
+    windows: {
+      benchmarks: {
+        pvcAllIn: {
+          low: 320, high: 550, unit: 'EUR/m2', vatStatus: 'excl',
+          kind: 'marketBenchmark', sources: ['vakmanRamen', 'bobexRamen'],
+          softSources: ['renovatieKampioenRamen'],
+          scope: 'PVC raam mat+plaatsing excl. btw; zonder grote schuif/buitendeuren.',
+          reason: 'Bobex PVC ~€350–650 incl. → @6% ≈ €330–613; model band €320–550 excl. VP soft.'
+        },
+        aluminiumAllIn: {
+          low: 450, high: 750, unit: 'EUR/m2', vatStatus: 'excl',
+          kind: 'marketBenchmark', sources: ['bobexRamen', 'vakmanRamen'],
+          scope: 'Aluminium raam mat+plaatsing excl. btw.',
+          reason: 'Consumer alu bands normalized excl.; wider than PVC.'
+        },
+        woodAllIn: {
+          low: 400, high: 700, unit: 'EUR/m2', vatStatus: 'excl',
+          kind: 'marketBenchmark', sources: ['bobexRamen', 'renovatieKampioenRamen'],
+          scope: 'Houten raam mat+plaatsing excl. btw.',
+          reason: 'Wood mid-band between PVC and alu; soft VAT on consumer pages.'
+        }
+      },
+      materialPerM2: {
+        pvc: { low: 180, base: 260, high: 360 },
+        aluminium: { low: 260, base: 380, high: 520 },
+        hout: { low: 220, base: 320, high: 460 },
+        kind: 'modelAssumption',
+        sources: ['bobexRamen', 'vakmanRamen'],
+        reason: 'Frame+glass material unit — not derived via % of all-in; wide band.'
+      },
+      labourHoursPerM2: {
+        low: 1.4, base: 2.0, high: 2.8,
+        kind: 'modelAssumption',
+        reason: 'Plaatsingsuren schrijnwerk incl. afstellen; calibrated so PVC all-in lands in €320–550/m² excl. with material band.'
+      },
+      glazingFactor: {
+        hr: { low: 1.0, base: 1.0, high: 1.0 },
+        'hr++': { low: 1.05, base: 1.08, high: 1.12 },
+        'hr+++': { low: 1.10, base: 1.15, high: 1.22 },
+        kind: 'modelAssumption',
+        reason: 'HR++/HR+++ glass uplift on material — moderated 2026.3.1 audit.'
+      },
+      slidingFactor: {
+        nee: 1.0,
+        ja: 1.45,
+        groot: 1.70,
+        kind: 'modelAssumption',
+        reason: 'Schuifpartij uplift on affected share only (not full-area ×2).'
+      },
+      door: {
+        low: 1400, base: 2000, high: 2800, unit: 'EUR/stuk',
+        vatStatus: 'excl', kind: 'marketBenchmark',
+        sources: ['bobexRamen', 'vakmanRamen'],
+        reason: 'Buitendeur mat+plaatsing excl. lump.'
+      },
+      removalPerM2: {
+        low: 20, base: 30, high: 40, unit: 'EUR/m2',
+        kind: 'modelAssumption', sources: ['vakmanRamen'],
+        reason: 'Uithalen bestaand schrijnwerk + afvoer as other.'
+      },
+      revealFinish: {
+        low: 18, base: 28, high: 42, unit: 'EUR/m2',
+        kind: 'modelAssumption',
+        reason: 'Dagkanten / afwerking — moderated to avoid double-count with install hours.'
+      },
+      accessHardFactor: { low: 1.08, base: 1.12, high: 1.20, kind: 'modelAssumption', reason: 'Moeilijke toegang' },
+      crewSize: 2
+    },
+
+    insulation: {
+      benchmarks: {
+        spouw: { low: 15, high: 30, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanIsolatie'], softSources: ['energiesparenIsolatie'], scope: 'Spouwmuurisolatie all-in excl.', reason: 'VP/energiesparen spouw ~€15–30 excl.' },
+        dak_binnen: { low: 25, high: 50, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanIsolatie'], scope: 'Dakisolatie langs binnen (enkel isolatie, geen dakherbouw)', reason: 'Isolatie-only binnen €25–50 excl.' },
+        zoldervloer: { low: 20, high: 40, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanIsolatie'], scope: 'Zoldervloerisolatie', reason: '€20–40 excl.' },
+        vloer: { low: 15, high: 40, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanIsolatie'], scope: 'Vloerisolatie', reason: '€15–40 excl.' },
+        binnenmuur: { low: 40, high: 70, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanIsolatie'], scope: 'Binnenmuurisolatie + basisafwerking', reason: '€40–70 excl.' },
+        buitenmuur: { low: 90, high: 160, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanIsolatie', 'vakmanGevel'], softSources: ['bobexGevel'], scope: 'Buitenmuurisolatie + afwerking (ETICS) excl. steiger', reason: 'Yannova/Gevelexpert ETICS €80–150 excl.; ELYAN band €90–160 excl. steiger' }
+      },
+      materialPerM2: {
+        spouw: { low: 8, base: 12, high: 18 },
+        dak_binnen: { low: 14, base: 22, high: 32 },
+        zoldervloer: { low: 10, base: 16, high: 24 },
+        vloer: { low: 8, base: 14, high: 22 },
+        binnenmuur: { low: 18, base: 28, high: 40 },
+        buitenmuur: { low: 42, base: 62, high: 88 },
+        kind: 'modelAssumption',
+        reason: 'Isolatiemateriaal unitprijs — buitenmuur includes ETICS boards+renders in mat (no separate finish package).'
+      },
+      labourHoursPerM2: {
+        spouw: { low: 0.12, base: 0.18, high: 0.28 },
+        dak_binnen: { low: 0.22, base: 0.35, high: 0.50 },
+        zoldervloer: { low: 0.18, base: 0.28, high: 0.40 },
+        vloer: { low: 0.15, base: 0.25, high: 0.38 },
+        binnenmuur: { low: 0.35, base: 0.50, high: 0.70 },
+        buitenmuur: { low: 0.55, base: 0.80, high: 1.10 },
+        kind: 'modelAssumption',
+        reason: 'Plaatsingsuren; finish only for binnenmuur/dak_binnen (buitenmuur finish in mat).'
+      },
+      performanceHighMat: { low: 1.08, base: 1.14, high: 1.22, kind: 'modelAssumption', reason: 'Hogere Rd / dikkere pakketten — moderated audit' },
+      prepLimited: { low: 2, base: 4, high: 7, unit: 'EUR/m2', kind: 'modelAssumption', reason: 'Beperkte voorbereiding' },
+      prepExtended: { low: 6, base: 10, high: 15, unit: 'EUR/m2', kind: 'modelAssumption', reason: 'Uitgebreide voorbereiding' },
+      finishPerM2: {
+        beperkt: { low: 8, base: 14, high: 22 },
+        standaard: { low: 18, base: 28, high: 40 },
+        hoog: { low: 28, base: 40, high: 55 },
+        kind: 'modelAssumption',
+        reason: 'Afwerking binnenmuur / dak_binnen only'
+      },
+      accessHard: { low: 1.08, base: 1.12, high: 1.20, kind: 'modelAssumption', reason: 'Moeilijke toegang' },
+      crewSize: 2
+    },
+
+    heating: {
+      benchmarks: {
+        ketel: { low: 2800, high: 4500, unit: 'EUR/project', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanVerwarming'], scope: 'Ketel vervangen all-in excl.', reason: 'VP/markt ketel €2.8–4.5k excl.' },
+        lucht_water: { low: 7500, high: 14000, unit: 'EUR/project', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanVerwarming'], softSources: ['bobexWarmtepomp'], scope: 'Lucht-water warmtepomp all-in excl. (toestel+plaatsing basis)', reason: '€7.5–14k excl.; Bobex soft' },
+        hybride: { low: 5500, high: 10000, unit: 'EUR/project', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanVerwarming'], scope: 'Hybride WP+ketel', reason: '€5.5–10k excl.' },
+        vloerverwarming: { low: 55, high: 95, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanVerwarming'], scope: 'Vloerverwarming mat+plaatsing', reason: 'UFH €55–95/m² excl.' },
+        radiatoren: { low: 1800, high: 4500, unit: 'EUR/project', vatStatus: 'excl', kind: 'modelAssumption', sources: ['vakmanVerwarming'], scope: 'Radiatorenpakket woning (aantal/zone afhankelijk)', reason: 'Package band — scaled by heated area soft' }
+      },
+      unitMaterial: {
+        ketel: { low: 1600, base: 2400, high: 3400 },
+        lucht_water: { low: 4500, base: 7000, high: 10000 },
+        hybride: { low: 3500, base: 5500, high: 7800 },
+        kind: 'modelAssumption',
+        reason: 'Toestel/materiaal lump — niet %-split.'
+      },
+      unitLabourHours: {
+        ketel: { low: 14, base: 20, high: 30 },
+        lucht_water: { low: 28, base: 40, high: 56 },
+        hybride: { low: 24, base: 36, high: 50 },
+        kind: 'modelAssumption',
+        reason: 'Installatie-uren HVAC'
+      },
+      ufhPerM2: {
+        material: { low: 28, base: 40, high: 55 },
+        labourHours: { low: 0.35, base: 0.50, high: 0.70 },
+        kind: 'modelAssumption',
+        reason: 'UFH componenten + uren'
+      },
+      radiatorPerM2: {
+        material: { low: 18, base: 28, high: 42 },
+        labourHours: { low: 0.12, base: 0.18, high: 0.28 },
+        kind: 'modelAssumption',
+        reason: 'Radiatoren package scaled by heated m²'
+      },
+      dhwNew: { low: 800, base: 1400, high: 2200, kind: 'modelAssumption', reason: 'Nieuwe SWW-boiler/unit' },
+      insulationPoorFactor: { low: 1.05, base: 1.10, high: 1.18, kind: 'modelAssumption', reason: 'Slechte isolatie → grotere WP/ketelcapaciteit' },
+      insulationGoodFactor: { low: 0.92, base: 0.95, high: 0.98, kind: 'modelAssumption', reason: 'Goede isolatie → kleinere capaciteit' },
+      distributionMixedFactor: { low: 1.08, base: 1.12, high: 1.18, kind: 'modelAssumption', reason: 'Gemengde verdeling' },
+      replaceUplift: { low: 1.0, base: 1.05, high: 1.12, kind: 'modelAssumption', reason: 'Vervanging vs nieuwbouw-aansluiting' },
+      commissioning: { low: 200, base: 350, high: 550, kind: 'modelAssumption', reason: 'Inregeling / oplevering' },
+      crewSize: 2
+    },
+
+    electrical: {
+      benchmarks: {
+        partial: { low: 25, high: 45, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanElektra', 'elektricienBuurt'], softSources: ['zonrElektra'], scope: 'Partiële elektra-aanpassing excl.', reason: '€25–45/m² excl.' },
+        full: { low: 70, high: 120, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['renovatieKampioenElektra', 'vakmanElektra'], softSources: ['bobexElektra', 'zonrElektra'], scope: 'Volledige herbekabeling / vernieuwen excl. (incl. typisch bord soft)', reason: 'Renovatiekampioen 2026: €70–120/m² woonoppervlak; Zonr soft €5–15k project' }
+      },
+      materialPerM2: {
+        partieel: { low: 10, base: 16, high: 24 },
+        volledig: { low: 22, base: 34, high: 48 },
+        renovatie_volledig: { low: 26, base: 38, high: 52 },
+        kind: 'modelAssumption',
+        reason: 'Kabel/dozen/materiaal per m² woning — calibrated to €70–120/m² full mid'
+      },
+      labourHoursPerM2: {
+        partieel: { low: 0.22, base: 0.35, high: 0.50 },
+        volledig: { low: 0.48, base: 0.70, high: 0.95 },
+        renovatie_volledig: { low: 0.58, base: 0.82, high: 1.10 },
+        kind: 'modelAssumption',
+        reason: 'Elektriciensuren; moderated 2026.3.1 so complex stays ~€110–130/m²'
+      },
+      fitOutFactor: {
+        basis: { low: 0.85, base: 0.90, high: 0.95 },
+        standaard: { low: 1.0, base: 1.0, high: 1.0 },
+        uitgebreid: { low: 1.10, base: 1.18, high: 1.28 },
+        kind: 'modelAssumption',
+        reason: 'Aantal stopcontacten/punten — moderated audit'
+      },
+      floorsFactor: {
+        '1': 1.0,
+        '2': 1.08,
+        '3plus': 1.16,
+        kind: 'modelAssumption',
+        reason: 'Meer verdiepingen → trekkingen/kokers — moderated'
+      },
+      board: {
+        behouden: { low: 0, base: 0, high: 0 },
+        nieuw: { low: 800, base: 1300, high: 1800 },
+        kind: 'marketBenchmark',
+        sources: ['vakmanElektra', 'elektricienBuurt', 'zonrElektra'],
+        reason: 'Nieuwe verdeelbord €800–1800 excl. (Zonr €800–2000 soft)'
+      },
+      inspection: {
+        low: 120, base: 200, high: 280, unit: 'EUR',
+        vatStatus: 'excl', kind: 'marketBenchmark',
+        sources: ['vakmanElektra', 'renovatieKampioenElektra'],
+        reason: 'KEURING / AREI-controle €120–280 (Renovatiekampioen €120–250)'
+      },
+      crewSize: 2
+    },
+
+    facade: {
+      benchmarks: {
+        reinigen: { low: 8, high: 25, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanGevel'], softSources: ['bobexGevel'], scope: 'Gevelreiniging', reason: '€8–25/m²' },
+        voegen: { low: 30, high: 55, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanGevel'], scope: 'Voegen / hervoegen', reason: '€30–55/m²' },
+        herstel: { low: 35, high: 65, unit: 'EUR/m2', vatStatus: 'excl', kind: 'modelAssumption', sources: ['vakmanGevel'], scope: 'Lokaal metselwerkherstel', reason: 'Tussen reinigen en crepi' },
+        crepi: { low: 40, high: 70, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanGevel', 'bobexGevel'], scope: 'Crepi / sierpleister', reason: '€40–70/m²' },
+        bekleding: { low: 65, high: 120, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanGevel'], scope: 'Gevelbekleding', reason: '€65–120/m²' },
+        isolatie_afwerking: { low: 90, high: 150, unit: 'EUR/m2', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanGevel', 'vakmanIsolatie', 'gevelExpertEtics'], softSources: ['kijzerGevel', 'bobexGevel'], scope: 'ETICS / isolatie+afwerking excl. steiger', reason: 'Gevelexpert €80–140; Kijzer €100–150; ELYAN €90–150 excl. steiger' }
+      },
+      materialPerM2: {
+        reinigen: { low: 2, base: 4, high: 8 },
+        voegen: { low: 8, base: 14, high: 22 },
+        herstel: { low: 12, base: 20, high: 32 },
+        crepi: { low: 15, base: 25, high: 38 },
+        bekleding: { low: 30, base: 50, high: 80 },
+        isolatie_afwerking: { low: 38, base: 58, high: 85 },
+        kind: 'modelAssumption',
+        reason: 'Gevelmateriaal unit — ETICS includes boards+render (finishExtra partial only)'
+      },
+      labourHoursPerM2: {
+        reinigen: { low: 0.12, base: 0.20, high: 0.32 },
+        voegen: { low: 0.40, base: 0.55, high: 0.75 },
+        herstel: { low: 0.45, base: 0.65, high: 0.90 },
+        crepi: { low: 0.40, base: 0.55, high: 0.75 },
+        bekleding: { low: 0.55, base: 0.80, high: 1.10 },
+        isolatie_afwerking: { low: 0.65, base: 0.90, high: 1.20 },
+        kind: 'modelAssumption',
+        reason: 'Geveluren — ETICS hours moderated 2026.3.1 audit'
+      },
+      conditionFactor: {
+        goed: { low: 0.92, base: 0.95, high: 1.0 },
+        matig: { low: 1.0, base: 1.0, high: 1.0 },
+        slecht: { low: 1.08, base: 1.14, high: 1.22 },
+        kind: 'modelAssumption',
+        reason: 'Staat van de gevel — moderated to avoid stack with scaffold/elevations'
+      },
+      elevationsFactor: {
+        '1': 1.0,
+        '2': 1.05,
+        '3plus': 1.10,
+        kind: 'modelAssumption',
+        reason: 'Meerdere gevelvlakken — moderated'
+      },
+      scaffold: {
+        laag: { low: 0, base: 0, high: 0 },
+        middel: { low: 700, base: 1200, high: 1800 },
+        hoog: { low: 1600, base: 2400, high: 3500 },
+        kind: 'modelAssumption',
+        sources: ['blueSkySteiger', 'woongidsSteiger'],
+        reason: 'Steiger MUST as other when middel/hoog'
+      },
+      finishExtra: {
+        nee: { low: 0, base: 0, high: 0 },
+        basis: { low: 4, base: 7, high: 10 },
+        premium: { low: 8, base: 12, high: 18 },
+        kind: 'modelAssumption',
+        reason: 'Extra kleur/detail; for ETICS applied at 35% scale in calc'
+      },
+      crewSize: 3
+    },
+
+    solar: {
+      benchmarks: {
+        perWp: {
+          low: 0.85, high: 1.15, unit: 'EUR/Wp', vatStatus: 'excl',
+          kind: 'marketBenchmark', sources: ['vakmanSolar'],
+          softSources: ['zonnepanelenBe'],
+          scope: 'PV all-in excl. (panelen+omvormer+montage basis), zonder batterij/besparingsgarantie',
+          reason: '€0.85–1.15/Wp excl. (~€0.90–1.25 incl@6%)'
+        }
+      },
+      materialPerWp: {
+        low: 0.48, base: 0.62, high: 0.78,
+        kind: 'modelAssumption',
+        reason: 'Panelen+omvormer+bekabeling materiaal; inverter included in package'
+      },
+      labourHoursPerKwp: {
+        low: 3.5, base: 5.0, high: 7.0,
+        kind: 'modelAssumption',
+        reason: 'Montage-uren per kWp'
+      },
+      panelWp: { value: 400, kind: 'modelAssumption', reason: 'Typisch paneel ~400 Wp' },
+      flatRoofFactor: { low: 1.05, base: 1.10, high: 1.15, kind: 'modelAssumption', reason: 'Plat dak ballast/frames' },
+      accessHardFactor: { low: 1.15, base: 1.20, high: 1.25, kind: 'modelAssumption', reason: 'Moeilijke daktoegang +15–25%' },
+      electricalAdapt: {
+        nee: { low: 0, base: 0, high: 0 },
+        beperkt: { low: 250, base: 450, high: 700 },
+        nieuw: { low: 800, base: 1400, high: 2200 },
+        kind: 'modelAssumption',
+        reason: 'Elektrische aanpassing / bord'
+      },
+      battery: {
+        low: 4000, base: 5500, high: 7500, unit: 'EUR',
+        vatStatus: 'excl', kind: 'marketBenchmark',
+        sources: ['vakmanSolar'],
+        reason: 'Thuisbatterij add-on €4–7.5k excl. — optioneel'
+      },
+      arei: {
+        low: 150, base: 200, high: 250, unit: 'EUR',
+        vatStatus: 'excl', kind: 'marketBenchmark',
+        sources: ['vakmanSolar', 'vakmanElektra'],
+        reason: 'AREI-keuring PV €150–250'
+      },
+      crewSize: 2
+    },
+
+    ventilation: {
+      benchmarks: {
+        decentraal: { low: 1200, high: 2800, unit: 'EUR/project', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanVentilatie'], softSources: ['bobexVentilatie'], scope: 'Decentrale units', reason: '€1.2–2.8k excl.' },
+        systeem_c: { low: 2800, high: 4800, unit: 'EUR/project', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanVentilatie'], scope: 'Systeem C', reason: '€2.8–4.8k excl.' },
+        systeem_d: { low: 5500, high: 9500, unit: 'EUR/project', vatStatus: 'excl', kind: 'marketBenchmark', sources: ['vakmanVentilatie'], softSources: ['bobexVentilatie'], scope: 'Systeem D WTW', reason: '€5.5–9.5k excl. scaled by size' }
+      },
+      unitMaterial: {
+        decentraal: { low: 700, base: 1200, high: 1800 },
+        systeem_c: { low: 1400, base: 2200, high: 3200 },
+        systeem_d: { low: 2800, base: 4200, high: 6000 },
+        kind: 'modelAssumption',
+        reason: 'Unit/materiaal basis'
+      },
+      unitLabourHours: {
+        decentraal: { low: 8, base: 12, high: 18 },
+        systeem_c: { low: 16, base: 24, high: 34 },
+        systeem_d: { low: 28, base: 40, high: 56 },
+        kind: 'modelAssumption',
+        reason: 'Basis installatie-uren'
+      },
+      sizeScalePerM2: {
+        decentraal: { low: 1.5, base: 2.5, high: 4.0 },
+        systeem_c: { low: 4, base: 7, high: 11 },
+        systeem_d: { low: 8, base: 14, high: 22 },
+        kind: 'modelAssumption',
+        reason: 'Schaal met woninggrootte boven referentiesize'
+      },
+      refSizeM2: { value: 120, kind: 'modelAssumption', reason: 'Referentiewoning voor schaling' },
+      wetRoomExtra: {
+        '1': { low: 0, base: 0, high: 0 },
+        '2': { low: 150, base: 250, high: 400 },
+        '3plus': { low: 350, base: 550, high: 850 },
+        kind: 'modelAssumption',
+        reason: 'Extra natte ruimtes / afvoerpunten'
+      },
+      floorsFactor: {
+        '1': 1.0,
+        '2': 1.10,
+        '3plus': 1.22,
+        kind: 'modelAssumption',
+        reason: 'Verdiepingen → kanalen'
+      },
+      routingHours: {
+        eenvoudig: { low: 0, base: 2, high: 4 },
+        renovatie: { low: 6, base: 12, high: 20 },
+        complex: { low: 14, base: 24, high: 36 },
+        kind: 'modelAssumption',
+        reason: 'Kanaalcomplexiteit voegt uren toe'
+      },
+      commissioning: { low: 150, base: 250, high: 400, kind: 'modelAssumption', reason: 'Inregeling / oplevering' },
       crewSize: 2
     },
 

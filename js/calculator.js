@@ -57,8 +57,11 @@
       { cat: 'badkamer', prov: 'antwerpen', m2: 8, level: 'standaard' },
       { cat: 'dak', prov: 'west-vlaanderen', m2: 90, level: 'standaard' },
       { cat: 'keuken', prov: 'vlaams-brabant', m2: 14, level: 'premium' },
+      { cat: 'ramen', prov: 'oost-vlaanderen', m2: 15, level: 'standaard' },
+      { cat: 'isolatie', prov: 'limburg', m2: 80, level: 'standaard' },
       { cat: 'vloeren', prov: 'limburg', m2: 45, level: 'basis' },
-      { cat: 'schilderwerken', prov: 'namen', m2: 120, level: 'standaard' }
+      { cat: 'schilderwerken', prov: 'namen', m2: 120, level: 'standaard' },
+      { cat: 'gevel', prov: 'antwerpen', m2: 90, level: 'standaard' }
     ];
     var demoIndex = 0;
     var demoCard = document.getElementById('demoCard');
@@ -515,7 +518,11 @@
 
       document.getElementById('resultsTitle').textContent = 'Jouw ' + cat.resultNoun + ' in ' + prov.label;
       setRangeEl(document.getElementById('resultPrice'), r.low, r.high);
-      document.getElementById('resultRange').textContent = 'Richtprijs ' + moneyText(r.price) + '  ·  ca. ' + moneyText(r.perM2) + '/m²';
+      var unit = (pricing.unitRateDisplay && pricing.unitRateDisplay(state.type, r))
+        || r.unitRate
+        || { formatted: moneyText(r.perM2), suffix: '/m²' };
+      document.getElementById('resultRange').textContent =
+        'Richtprijs ' + moneyText(r.price) + '  ·  ca. ' + unit.formatted + unit.suffix;
       document.getElementById('resultDuration').textContent = r.weeksLow + ' – ' + r.weeksHigh + ' weken';
 
       // Update price card label if present

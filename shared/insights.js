@@ -30,7 +30,11 @@
     var redFlags = [];
     var timeline = [];
 
-    assumptions.push('De aangegeven oppervlakte (' + (answers.size || result.size) + ' m²) klopt bij benadering.');
+    if (type === 'zonnepanelen') {
+      assumptions.push('Het opgegeven vermogen/aantal panelen (±' + (answers.size || result.size) + ' kWp na normalisatie) klopt bij benadering.');
+    } else {
+      assumptions.push('De aangegeven oppervlakte (' + (answers.size || result.size) + ' m²) klopt bij benadering.');
+    }
     assumptions.push('Afwerkingsniveau "' + ((pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || 'standaard') + '" is representatief voor jouw materiaalkeuze.');
     assumptions.push('Normale leveromstandigheden en geen uitzonderlijke prijsstijgingen tijdens de werf.');
     assumptions.push('Geen structurele verborgen schade buiten wat je hebt aangegeven.');
@@ -408,6 +412,309 @@
       ];
     }
 
+    if (type === 'ramen') {
+      included.push('Plaatsing kaders en beglazing (' + (answers.frame || 'pvc') + ')');
+      if (answers.removal === 'ja') included.push('Uithalen bestaand schrijnwerk en afvoer');
+      included.push('Afstellen en basisafwerking dagkanten');
+      if (answers.doors === '1' || answers.doors === '2plus') included.push('Buitendeuren zoals aangegeven');
+      if (answers.sliding === 'ja' || answers.sliding === 'groot') included.push('Schuifpartij met toeslagfactor');
+
+      confirmItems.push('Exacte raamstaat (maten per opening)');
+      confirmItems.push('U-waarde / glasspecificatie in offerte');
+      confirmItems.push('Afwerking binnen- en buitenzijde (pleister, dorpels)');
+
+      insights.push('Ramenprijzen hangen sterk af van kadermateriaal, beglazing en schuifpartijen — niet alleen van m².');
+      if (answers.frame === 'aluminium') insights.push('Aluminium ligt typisch boven PVC in materiaalprijs bij vergelijkbare opening.');
+      if (answers.glazing === 'hr+++') insights.push('HR+++ verhoogt comfort en materiaalkost; vraag U-waarde expliciet op de offerte.');
+
+      risks.push('Maatafwijkingen bij opmeting leiden vaak tot meerwerken of herbestelling.');
+      if (answers.access === 'moeilijk') risks.push('Moeilijke geveltoegang verhoogt steiger- en plaatsingstijd.');
+      riskRows.push({ risk: 'Opmeting', impact: 'HOOG', check: 'Laat elke opening opmeten vóór bestelling.' });
+      riskRows.push({ risk: 'Aansluitdetails', impact: 'MIDDEL', check: 'Dorpels, waterkering en luchtdichting expliciet laten opnemen.' });
+
+      timeline.push({ phase: 'Opmeting & bestelling', days: 2, note: 'Staat + productietijd starten' });
+      timeline.push({ phase: 'Productie', days: Math.max(5, Math.round((answers.size || 15) / 3)), note: 'Afhankelijk van leverancier' });
+      timeline.push({ phase: 'Plaatsing', days: Math.max(1, Math.round((result.workDays || 3) * 0.7)), note: 'Uithalen + plaatsen' });
+      timeline.push({ phase: 'Afwerking', days: 1, note: 'Dagkanten & oplevering' });
+
+      quoteChecks = [
+        'Kadermateriaal en merk/type vermeld',
+        'Beglazing (HR/HR++/HR+++) en U-waarde',
+        'Aantal manuren of plaatsingspost apart',
+        'Uithalen en afvoer inbegrepen of apart',
+        'Dagkanten / dorpels gespecificeerd',
+        'Btw-tarief en garanties'
+      ];
+      contractorQuestions = [
+        'Welke U-waarde garanderen jullie per raam?',
+        'Is demontage en afvoer inbegrepen?',
+        'Hoe werken jullie luchtdichting en waterkering uit?',
+        'Wat is de levertijd na opmeting?',
+        'Zijn dorpels en dagkanten inbegrepen?',
+        'Welk btw-tarief past u toe?'
+      ];
+      savings.push({ text: 'Standaardiseer maten en vermijd onnodige speciale vormen.', amount: null });
+      savings.push({ text: 'PVC met HR++ is vaak de beste prijs/prestatie voor renovatie.', amount: null });
+    }
+
+    if (type === 'isolatie') {
+      included.push('Isolatiemateriaal voor ' + (answers.subtype || 'gekozen subtype'));
+      included.push('Plaatsing door isolatiespecialist');
+      if (answers.prep === 'uitgebreid') included.push('Uitgebreide voorbereiding');
+      if (answers.finish && answers.finish !== 'nee') included.push('Afwerking zoals aangegeven');
+
+      confirmItems.push('Exacte Rd-/U-doelwaarde');
+      confirmItems.push('Vocht- en luchtdichtingsdetails');
+      if (answers.subtype === 'dak_binnen') {
+        confirmItems.push('Scope = isolatie only (geen dakbedekking/herbouw)');
+        insights.push('Dit is dakisolatie langs binnen — geen volledige dakrenovatie. Voor bedekking/herbouw gebruik je categorie Dak.');
+      }
+
+      insights.push('Isolatiepremies hangen af van Rd-waarde, inkomen en eigendomstype — check het officiële loket.');
+      if (answers.performance === 'hoog') insights.push('Hoge prestatie verhoogt materiaaldikte en kost, maar verbetert comfort en premiekans.');
+
+      risks.push('Koudebruggen en onzorgvuldige luchtdichting ondermijnen de investering.');
+      if (answers.subtype === 'spouw') risks.push('Niet elke spouw is geschikt — laat vooraf controleren op breedte en vervuiling.');
+      riskRows.push({ risk: 'Uitvoeringskwaliteit', impact: 'HOOG', check: 'Vraag details over overlappingen, tape en doorbrekingen.' });
+      riskRows.push({ risk: 'Scopeverwarring', impact: 'MIDDEL', check: 'Scheid isolatie van afwerking/dakbedekking in de offerte.' });
+
+      timeline.push({ phase: 'Voorbereiding', days: answers.prep === 'uitgebreid' ? 2 : 1, note: 'Beschermen / herstel' });
+      timeline.push({ phase: 'Isoleren', days: Math.max(1, result.workDays || 2), note: 'Plaatsing' });
+      timeline.push({ phase: 'Afwerking', days: (answers.finish && answers.finish !== 'nee') ? 2 : 0, note: 'Indien in scope' });
+
+      quoteChecks = [
+        'Subtype en m² duidelijk',
+        'Rd-waarde / dikte vermeld',
+        'Luchtdichting opgenomen',
+        'Afwerking wel/niet inbegrepen',
+        'Afval en bescherming',
+        'Btw-tarief'
+      ];
+      contractorQuestions = [
+        'Welke Rd-waarde realiseren jullie?',
+        'Hoe behandelen jullie doorbrekingen en aansluitingen?',
+        'Is afwerking inbegrepen?',
+        'Zijn er aandachtspunten voor vocht/condensatie?',
+        'Welke premie-attesten leveren jullie?',
+        'Welk btw-tarief?'
+      ];
+      savings.push({ text: 'Combineer isolatie met geplande gevel- of dakwerken om mobilisatie te delen.', amount: null });
+      if (answers.subtype === 'buitenmuur') {
+        savings.push({ text: 'Vergelijk ETICS all-in met aparte isolatie+crepi posten op dezelfde scope.', amount: null });
+      }
+    }
+
+    if (type === 'verwarming') {
+      included.push('Verwarmingstoestel / systeem volgens keuze (' + (answers.projectType || '') + ')');
+      included.push('Installatie, aansluiting en inregeling');
+      if (answers.dhw === 'nieuw') included.push('Nieuw sanitair warm water');
+
+      confirmItems.push('Vermogen afgestemd op warmteverliesberekening');
+      confirmItems.push('Afgiftesysteem (radiatoren/vloer) compatibel met regime');
+      confirmItems.push('Geluid, opstelling en vergunningen (buitenunit)');
+
+      insights.push('De juiste capaciteit hangt af van isolatie en warmteverlies — niet alleen van woningm².');
+      if (answers.projectType === 'lucht_water' && answers.insulationLevel === 'slecht') {
+        insights.push('Let op: lucht-water warmtepomp bij slechte isolatie is vaak inefficiënt. We ramen wel, maar isoleer bij voorkeur eerst of kies hybride.');
+        risks.push('Warmtepomp in een slecht geïsoleerde woning kan leiden tot hoog verbruik en comfortklachten.');
+        recommendations.push('Laat eerst isolatie en warmteverlies beoordelen vóór je een full WP plaatst.');
+      }
+      if (answers.projectType === 'hybride') insights.push('Hybride kan een tussenstap zijn wanneer volledige elektrificatie nog niet past.');
+
+      risks.push('Onduidelijke afgifte-temperatuur leidt tot verkeerde toestelkeuze.');
+      riskRows.push({ risk: 'Dimensionering', impact: 'HOOG', check: 'Vraag warmteverliesberekening of minstens onderbouwde capaciteit.' });
+      riskRows.push({ risk: 'Afgifte', impact: 'MIDDEL', check: 'Controleer of radiatoren/vloer bij lage temperatuur werken.' });
+
+      timeline.push({ phase: 'Studie & bestelling', days: 3, note: 'Capaciteit & materiaal' });
+      timeline.push({ phase: 'Installatie', days: Math.max(2, result.workDays || 3), note: 'Toestel + leidingen' });
+      timeline.push({ phase: 'Inregeling', days: 1, note: 'Oplevering & uitleg' });
+
+      quoteChecks = [
+        'Toesteltype en vermogen',
+        'SWW wel/niet inbegrepen',
+        'Afgiftesysteem beschreven',
+        'Inregeling en oplevering',
+        'Buitenunit / opstelling indien WP',
+        'Btw en garanties'
+      ];
+      contractorQuestions = [
+        'Op welk warmteverlies baseren jullie het vermogen?',
+        'Is mijn afgiftesysteem geschikt?',
+        'Wat gebeurt er met sanitair warm water?',
+        'Welke geluidsnorm halen jullie bij de buitenunit?',
+        'Welke premiedossiers ondersteunen jullie?',
+        'Welk btw-tarief?'
+      ];
+      savings.push({ text: 'Isoleer kritieke schilvlakken vóór of samen met een warmtepomp.', amount: null });
+      savings.push({ text: 'Vraag een hybride-optie als full WP technisch of budgettair te zwaar is.', amount: null });
+    }
+
+    if (type === 'elektriciteit') {
+      included.push('Bekabeling en punten volgens scope (' + (answers.scope || '') + ')');
+      if (answers.board === 'nieuw') included.push('Nieuw verdeelbord');
+      if (answers.inspection === 'ja') included.push('Keuring / AREI-controle');
+      included.push('Afwerking stopcontacten en schakelaars volgens fit-out');
+
+      confirmItems.push('Aantal circuits en zekeringschema');
+      confirmItems.push('Of sleuven/pleisterwerk inbegrepen zijn');
+      confirmItems.push('Datum en scope van keuring');
+
+      insights.push('Volledige herbekabeling kost per m² duidelijk meer dan een partiële aanpassing — scope is de grootste knop.');
+      if (answers.fitOut === 'uitgebreid') insights.push('Uitgebreide puntbezetting verhoogt zowel materiaal als uren.');
+      if (answers.board === 'nieuw') insights.push('Een nieuw bord is vaak nodig bij volledige renovatie of verouderde installaties.');
+
+      risks.push('Verborgen leidingen en asbest in oude muren kunnen planning verstoren.');
+      riskRows.push({ risk: 'Scope-creep', impact: 'HOOG', check: 'Leg zones en aantal punten schriftelijk vast.' });
+      riskRows.push({ risk: 'Keuring', impact: 'MIDDEL', check: 'Laat non-conformiteiten vóór oplevering oplossen.' });
+
+      timeline.push({ phase: 'Plan & trekkingen', days: Math.max(2, Math.round((result.workDays || 4) * 0.5)), note: 'Sleuven / buizen' });
+      timeline.push({ phase: 'Aansluiten', days: Math.max(1, Math.round((result.workDays || 4) * 0.35)), note: 'Bord & punten' });
+      timeline.push({ phase: 'Keuring', days: 1, note: answers.inspection === 'ja' ? 'AREI' : 'Optioneel later' });
+
+      quoteChecks = [
+        'Scope (partieel/volledig) expliciet',
+        'Bord wel/niet nieuw',
+        'Aantal punten of forfait per ruimte',
+        'Sleuwen/herstellen inbegrepen?',
+        'Keuring inbegrepen?',
+        'Btw-tarief'
+      ];
+      contractorQuestions = [
+        'Hoeveel circuits voorzien jullie?',
+        'Zijn sleuven en herstellingen inbegrepen?',
+        'Vervangen jullie het bord volledig?',
+        'Wanneer plannen jullie de keuring?',
+        'Hoe gaan jullie om met bestaande bekabeling die blijft?',
+        'Welk btw-tarief?'
+      ];
+      savings.push({ text: 'Bundel elektra met andere breekwerken om sleuven te delen.', amount: null });
+      savings.push({ text: 'Kies standaard fit-out i.p.v. overal dubbele punten.', amount: null });
+    }
+
+    if (type === 'gevel') {
+      included.push('Gevelwerken: ' + (answers.intervention || 'zoals gekozen'));
+      if (answers.scaffold === 'middel' || answers.scaffold === 'hoog') included.push('Steiger en werfinrichting (aparte post)');
+      if (answers.finish && answers.finish !== 'nee') included.push('Extra afwerking/kleur');
+
+      confirmItems.push('Oppervlakte per gevelvlak');
+      confirmItems.push('Steigerduur en wie plaatst/haalt af');
+      confirmItems.push('Ondergrondvoorbereiding bij slechte staat');
+
+      insights.push('Steiger is bij middel/hoge toegang een must-post — vergelijk die apart in offertes.');
+      if (answers.intervention === 'isolatie_afwerking') insights.push('Isolatie+afwerking (ETICS) combineert energie en uitzicht; check premievoorwaarden.');
+      if (answers.condition === 'slecht') insights.push('Slechte staat betekent vaak meer herstel vóór de zichtafwerking.');
+
+      risks.push('Weersafhankelijkheid kan de planning rekken bij crepi/bekleding.');
+      riskRows.push({ risk: 'Steiger', impact: 'HOOG', check: 'Vraag huurduur, op-/afbouw en meerwerk bij uitloop.' });
+      riskRows.push({ risk: 'Ondergrond', impact: 'MIDDEL', check: 'Laat hechting/vocht beoordelen voor start.' });
+
+      timeline.push({ phase: 'Steiger & bescherming', days: (answers.scaffold === 'laag' ? 0 : 1), note: 'Werfinrichting' });
+      timeline.push({ phase: 'Gevelwerken', days: Math.max(2, result.workDays || 4), note: answers.intervention || 'uitvoering' });
+      timeline.push({ phase: 'Afwerking', days: 1, note: 'Oplevering / nazicht' });
+
+      quoteChecks = [
+        'Interventie en m² per gevel',
+        'Steiger apart gespecificeerd',
+        'Voorbereiding bij slechte staat',
+        'Materiaaltype (crepi/bekleding/ETICS)',
+        'Weersvoorbehoud',
+        'Btw-tarief'
+      ];
+      contractorQuestions = [
+        'Hoe lang blijft de steiger staan?',
+        'Welke voorbereiding zit in de prijs?',
+        'Welk systeem/merk gebruiken jullie?',
+        'Hoe garanderen jullie waterdichting bij ETICS?',
+        'Wat bij regenvertraging?',
+        'Welk btw-tarief?'
+      ];
+      savings.push({ text: 'Combineer gevelisolatie met schilder- of raamwerken in één steigerfase.', amount: null });
+    }
+
+    if (type === 'zonnepanelen') {
+      included.push('Panelen, omvormer en montage');
+      included.push('AREI-keuring');
+      if (answers.electricalAdapt && answers.electricalAdapt !== 'nee') included.push('Elektrische aanpassing zoals aangegeven');
+      if (answers.battery === 'ja') included.push('Thuisbatterij (optioneel add-on)');
+
+      confirmItems.push('Dakgeschiktheid (oriëntatie, schaduw, structuur)');
+      confirmItems.push('Omvormertype en monitoring');
+      confirmItems.push('Netstudie / aanmelding waar nodig');
+
+      insights.push('ELYAN raamde hardware en montage — geen gegarandeerde besparing of terugverdientijd.');
+      insights.push('Prijs per Wp is de beste vergelijkingsmaat; batterij maakt totalen niet-direct vergelijkbaar.');
+      if (answers.access === 'moeilijk') insights.push('Moeilijke daktoegang verhoogt montageuren met ongeveer 15–25%.');
+      if (answers.battery === 'ja') insights.push('Batterij is een aparte investeringsbeslissing; reken die niet mee in een “pure PV”-vergelijking.');
+
+      risks.push('Schaduw, oriëntatie of zwakke dakstructuur kunnen opbrengst of uitvoerbaarheid beperken.');
+      riskRows.push({ risk: 'Dakstructuur', impact: 'HOOG', check: 'Laat draagkracht en bevestiging controleren.' });
+      riskRows.push({ risk: 'Administratie', impact: 'MIDDEL', check: 'Check aanmelding, keuring en eventuele steun per regio.' });
+
+      timeline.push({ phase: 'Site-check & bestelling', days: 2, note: 'Dak & elektrisch' });
+      timeline.push({ phase: 'Montage', days: Math.max(1, result.workDays || 2), note: 'Panelen + omvormer' });
+      timeline.push({ phase: 'Keuring', days: 1, note: 'AREI' });
+
+      quoteChecks = [
+        '€/Wp of totaal + vermogen (kWp)',
+        'Omvormer inbegrepen',
+        'Montagesysteem per daktype',
+        'AREI-keuring',
+        'Batterij apart of inbegrepen',
+        'Geen misleidende gegarandeerde besparing zonder aannames'
+      ];
+      contractorQuestions = [
+        'Welk vermogen en hoeveel panelen leveren jullie exact?',
+        'Is de omvormer inbegrepen en welk type?',
+        'Hoe bevestigen jullie op mijn daktype?',
+        'Wat kost de batterij apart?',
+        'Wie doet keuring en aanmelding?',
+        'Welke aannames zitten achter eventuele opbrengstcijfers?'
+      ];
+      savings.push({ text: 'Vergelijk offertes op €/Wp excl. batterij, met dezelfde kWp.', amount: null });
+      savings.push({ text: 'Optimaliseer paneelplaatsing i.p.v. blind meer panelen bij te plaatsen in schaduw.', amount: null });
+    }
+
+    if (type === 'ventilatie') {
+      included.push('Ventilatiesysteem (' + (answers.system || '') + ')');
+      included.push('Installatie en inregeling');
+      if (answers.routing === 'renovatie' || answers.routing === 'complex') included.push('Kanaalwerk volgens complexiteit');
+
+      confirmItems.push('Debieten per ruimte');
+      confirmItems.push('Geluidsniveau unit en ventielen');
+      confirmItems.push('Onderhoudsfilter en toegang');
+
+      insights.push('Systeem D is duurder maar recupereert warmte; C is goedkoper maar ventileert anders.');
+      if (answers.routing === 'complex') insights.push('Complex kanaalwerk in renovatie is vaak de grootste urenpost — niet de unit alleen.');
+      if (answers.system === 'decentraal') insights.push('Decentrale units vermijden lange kanalen, maar je hebt meer toestellen en onderhoudspunten.');
+
+      risks.push('Te krappe kanalen of slechte inregeling geven lawaai en tocht.');
+      riskRows.push({ risk: 'Inregeling', impact: 'HOOG', check: 'Vraag meetrapport van debieten bij oplevering.' });
+      riskRows.push({ risk: 'Bouwkundig', impact: 'MIDDEL', check: 'Doorboringen en brandcompartimentering vooraf plannen.' });
+
+      timeline.push({ phase: 'Uitzetten tracés', days: 1, note: 'Routing' });
+      timeline.push({ phase: 'Installatie', days: Math.max(2, result.workDays || 3), note: 'Unit + kanalen' });
+      timeline.push({ phase: 'Inregeling', days: 1, note: 'Debieten & oplevering' });
+
+      quoteChecks = [
+        'Systeemtype (C/D/decentraal)',
+        'Unitmerk en capaciteit',
+        'Kanaalwerk omschreven',
+        'Inregeling inbegrepen',
+        'Onderhoudsvoorschrift',
+        'Btw-tarief'
+      ];
+      contractorQuestions = [
+        'Welke debieten garanderen jullie per natte ruimte?',
+        'Hoe dempen jullie geluid?',
+        'Is inregeling met meetrapport inbegrepen?',
+        'Waar komt de unit en hoe bereikbaar zijn filters?',
+        'Hoe zitten brandkleppen/doorboringen in de prijs?',
+        'Welk btw-tarief?'
+      ];
+      savings.push({ text: 'Plan ventilatie samen met plafond- of chape-werken om kanalen makkelijker te trekken.', amount: null });
+      savings.push({ text: 'Kies systeemniveau op basis van luchtdichtheid van de woning, niet alleen op prijs.', amount: null });
+    }
+
     (result.drivers || []).forEach(function (d) {
       if (!d) return;
       var line = d.text;
@@ -428,7 +735,10 @@
 
     // Top 3 conclusions
     if (!conclusions.length) {
-      conclusions.push('Verwacht budget rond ' + pricing.fmtEUR(result.price) + ' excl. btw (' + pricing.fmtEUR(result.perM2) + '/m²).');
+      var ur = (pricing.unitRateDisplay && pricing.unitRateDisplay(type, result))
+        || result.unitRate
+        || { formatted: pricing.fmtEUR(result.perM2), suffix: '/m²' };
+      conclusions.push('Verwacht budget rond ' + pricing.fmtEUR(result.price) + ' excl. btw (' + ur.formatted + ur.suffix + ').');
     }
     if (result.drivers && result.drivers[0]) {
       var d0 = result.drivers[0];
@@ -530,7 +840,14 @@
     var parts = [];
     var cat = pricing.CATEGORIES[type];
     if (cat) parts.push(cat.label);
-    if (answers.size) parts.push(answers.size + ' m²');
+    if (pricing.sizeDisplay) {
+      var sd = pricing.sizeDisplay(type, answers, {});
+      if (sd && sd.short) parts.push(sd.short);
+    } else if (type !== 'zonnepanelen' && answers.size) {
+      parts.push(answers.size + ' m²');
+    } else if (type === 'zonnepanelen' && answers.size) {
+      parts.push(answers.size + ' kWp');
+    }
     if (answers.level && pricing.LEVEL_LABEL) parts.push(pricing.LEVEL_LABEL[answers.level] || answers.level);
     var extras = [];
     if (type === 'badkamer' && answers.sanitary) extras.push(answers.sanitary);
@@ -538,13 +855,29 @@
     if (type === 'dak' && answers.workType) extras.push(answers.workType);
     if (type === 'vloeren' && answers.floorMaterial) extras.push(answers.floorMaterial);
     if (type === 'schilderwerken' && answers.paintScope) extras.push(answers.paintScope);
+    if (type === 'ramen') {
+      if (answers.frame) extras.push(answers.frame);
+      if (answers.glazing) extras.push(answers.glazing);
+    }
+    if (type === 'isolatie' && answers.subtype) extras.push(answers.subtype);
+    if (type === 'verwarming' && answers.projectType) extras.push(answers.projectType);
+    if (type === 'elektriciteit' && answers.scope) extras.push(answers.scope);
+    if (type === 'gevel' && answers.intervention) extras.push(answers.intervention);
+    if (type === 'zonnepanelen') {
+      if (answers.sizeMode === 'panels' && answers.panelCount) extras.push(answers.panelCount + ' panelen');
+      if (answers.battery === 'ja') extras.push('batterij');
+    }
+    if (type === 'ventilatie' && answers.system) extras.push(answers.system);
     if (extras.length) parts.push(extras.join(' · '));
     return parts.join(' · ');
   }
 
   function buildNextSteps(type, answers, result, pricing) {
+    var scopeCheck = type === 'zonnepanelen'
+      ? 'Controleer vermogen (kWp/panelen) en scope aan de hand van de kostentabel in dit rapport.'
+      : 'Controleer oppervlakte en scope aan de hand van de kostentabel in dit rapport.';
     var steps = [
-      'Controleer oppervlakte en scope aan de hand van de kostentabel in dit rapport.',
+      scopeCheck,
       'Verzamel foto\'s of plannen van de huidige situatie.',
       'Vraag minstens 3 offertes die dezelfde werkpakketten volgen.',
       'Gebruik de ELYAN-kostentabel als referentie bij het vergelijken.',

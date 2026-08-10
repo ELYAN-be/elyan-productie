@@ -585,6 +585,483 @@
         urgencyQuestion(),
         notesQuestion()
       ]);
+    },
+
+    ramen: function () {
+      return sharedStart().concat([
+        numberQuestion([8, 15, 25, 40], 'Hoeveel m² raamoppervlakte ongeveer?', 'Tel zichtbare glas/kaderoppervlakte; een schatting volstaat.'),
+        {
+          id: 'frame',
+          type: 'cards',
+          question: 'Welk kadermateriaal heb je in gedachten?',
+          options: [
+            { value: 'pvc', label: 'PVC', desc: 'Meest gekozen prijs/kwaliteit.' },
+            { value: 'aluminium', label: 'Aluminium', desc: 'Slanker, vaak duurder.' },
+            { value: 'hout', label: 'Hout', desc: 'Warm uitzicht, meer onderhoud.' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'glazing',
+          type: 'cards',
+          question: 'Welke beglazing?',
+          options: [
+            { value: 'hr', label: 'HR', desc: 'Standaard isolerend glas.' },
+            { value: 'hr++', label: 'HR++', desc: 'Gangbare renovatiekeuze.' },
+            { value: 'hr+++', label: 'HR+++', desc: 'Hoogste isolatiewaarde.' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'sliding',
+          type: 'cards',
+          question: 'Zit er een (grote) schuifpartij bij?',
+          options: [
+            { value: 'nee', label: 'Nee' },
+            { value: 'ja', label: 'Ja, standaard schuif' },
+            { value: 'groot', label: 'Ja, grote schuifpartij' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'doors',
+          type: 'cards',
+          question: 'Hoeveel buitendeuren vernieuwen?',
+          options: [
+            { value: '0', label: 'Geen' },
+            { value: '1', label: '1 deur' },
+            { value: '2plus', label: '2 of meer' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'removal',
+          type: 'cards',
+          question: 'Moeten bestaande ramen/deuren uitgebroken worden?',
+          options: [
+            { value: 'ja', label: 'Ja' },
+            { value: 'nee', label: 'Nee (nieuwbouw/openingen klaar)' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'access',
+          type: 'cards',
+          question: 'Hoe is de bereikbaarheid van de gevel?',
+          options: [
+            { value: 'normaal', label: 'Normaal' },
+            { value: 'moeilijk', label: 'Moeilijk', desc: 'Steiger, smalle doorgang, hoogte…' }
+          ],
+          autoAdvance: true
+        },
+        levelQuestion(),
+        urgencyQuestion(),
+        notesQuestion()
+      ]);
+    },
+
+    isolatie: function () {
+      return sharedStart().concat([
+        {
+          id: 'subtype',
+          type: 'cards',
+          question: 'Welk type isolatie?',
+          hint: 'Dakisolatie langs binnen = enkel isolatie, geen volledige dakrenovatie (dat is categorie Dak).',
+          options: [
+            { value: 'spouw', label: 'Spouwmuur', desc: 'Injectie of na-isolatie spouw.' },
+            { value: 'dak_binnen', label: 'Dak (binnen)', desc: 'Isolatie langs binnen — geen dakherbouw.' },
+            { value: 'zoldervloer', label: 'Zoldervloer', desc: 'Isolatie op/onder zoldervloer.' },
+            { value: 'vloer', label: 'Vloer', desc: 'Vloer- of kruipruimte-isolatie.' },
+            { value: 'binnenmuur', label: 'Binnenmuur', desc: 'Voorzetwand / binnenisolatie.' },
+            { value: 'buitenmuur', label: 'Buitenmuur', desc: 'Buitenisolatie + afwerking.' }
+          ],
+          autoAdvance: true
+        },
+        numberQuestion([30, 60, 100, 150], 'Hoeveel m² moet geïsoleerd worden?'),
+        {
+          id: 'performance',
+          type: 'cards',
+          question: 'Welke isolatieprestatie mik je?',
+          options: [
+            { value: 'standaard', label: 'Standaard', desc: 'Gangbare Rd voor renovatie.' },
+            { value: 'hoog', label: 'Hoog', desc: 'Dikker of performanter pakket.' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'access',
+          type: 'cards',
+          question: 'Hoe is de werftoegang?',
+          options: [
+            { value: 'normaal', label: 'Normaal' },
+            { value: 'moeilijk', label: 'Moeilijk' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'prep',
+          type: 'cards',
+          question: 'Hoeveel voorbereiding is nodig?',
+          options: [
+            { value: 'beperkt', label: 'Beperkt', desc: 'Oppervlak grotendeels klaar.' },
+            { value: 'uitgebreid', label: 'Uitgebreid', desc: 'Veel herstel, uitbraak of bescherming.' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'finish',
+          type: 'cards',
+          question: 'Welke afwerking na isolatie?',
+          hint: 'Vooral relevant bij binnen- of buitenmuur.',
+          showIf: when('subtype', ['binnenmuur', 'buitenmuur', 'dak_binnen']),
+          options: [
+            { value: 'nee', label: 'Geen / later', desc: 'Enkel isolatiepakket.' },
+            { value: 'beperkt', label: 'Beperkt', desc: 'Basisdichtingen / platen.' },
+            { value: 'standaard', label: 'Standaard', desc: 'Afwerking klaar voor schilder.' },
+            { value: 'hoog', label: 'Hoogwaardig', desc: 'Zichtafwerking inbegrepen.' }
+          ],
+          autoAdvance: true
+        },
+        levelQuestion(),
+        urgencyQuestion(),
+        notesQuestion()
+      ]);
+    },
+
+    verwarming: function () {
+      return sharedStart().concat([
+        {
+          id: 'projectType',
+          type: 'cards',
+          question: 'Welk type verwarmingsproject?',
+          options: [
+            { value: 'ketel_vervangen', label: 'Ketel vervangen', desc: 'Condensatieketel of gelijkaardig.' },
+            { value: 'lucht_water', label: 'Lucht-water warmtepomp', desc: 'Volledige WP.' },
+            { value: 'hybride', label: 'Hybride', desc: 'WP + ketel.' },
+            { value: 'vloerverwarming', label: 'Vloerverwarming', desc: 'Verdeling / UFH.' },
+            { value: 'radiatoren', label: 'Radiatoren', desc: 'Radiatoren vernieuwen/uitbreiden.' }
+          ],
+          autoAdvance: true
+        },
+        numberQuestion([80, 120, 160, 220], 'Hoeveel m² verwarmde oppervlakte?', 'Gebruik de verwarmde woonoppervlakte als schatting.'),
+        {
+          id: 'insulationLevel',
+          type: 'cards',
+          question: 'Hoe is de isolatie van de woning?',
+          hint: 'Bij slechte isolatie is een warmtepomp vaak minder efficiënt — we waarschuwen daarvoor.',
+          options: [
+            { value: 'slecht', label: 'Slecht', desc: 'Weinig of geen isolatie.' },
+            { value: 'matig', label: 'Matig', desc: 'Deels geïsoleerd.' },
+            { value: 'goed', label: 'Goed', desc: 'Goed geïsoleerde schil.' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'distribution',
+          type: 'cards',
+          question: 'Hoe wordt de warmte verdeeld?',
+          showIf: when('projectType', ['ketel_vervangen', 'lucht_water', 'hybride']),
+          options: [
+            { value: 'radiatoren', label: 'Radiatoren' },
+            { value: 'vloer', label: 'Vloerverwarming' },
+            { value: 'gemengd', label: 'Gemengd' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'dhw',
+          type: 'cards',
+          question: 'Wat met sanitair warm water?',
+          options: [
+            { value: 'behouden', label: 'Bestaand behouden' },
+            { value: 'nieuw', label: 'Nieuw voorzien' },
+            { value: 'nee', label: 'Niet van toepassing' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'replaceVsNew',
+          type: 'cards',
+          question: 'Vervanging of nieuwe installatie?',
+          options: [
+            { value: 'vervangen', label: 'Vervangen bestaand', desc: 'Op bestaande aansluitingen.' },
+            { value: 'nieuw', label: 'Nieuwe opbouw', desc: 'Meer aanpassingen mogelijk.' }
+          ],
+          autoAdvance: true
+        },
+        levelQuestion(),
+        urgencyQuestion(),
+        notesQuestion()
+      ]);
+    },
+
+    elektriciteit: function () {
+      return sharedStart().concat([
+        {
+          id: 'scope',
+          type: 'cards',
+          question: 'Hoe uitgebreid is de elektra-aanpak?',
+          options: [
+            { value: 'partieel', label: 'Partieel', desc: 'Enkele circuits of zones.' },
+            { value: 'volledig', label: 'Volledig', desc: 'Herbekabeling van de woning.' },
+            { value: 'renovatie_volledig', label: 'Renovatie volledig', desc: 'Volledig + zwaardere fit-out in renovatie.' }
+          ],
+          autoAdvance: true
+        },
+        numberQuestion([70, 100, 140, 200], 'Hoe groot is de woning ongeveer (m²)?'),
+        {
+          id: 'floors',
+          type: 'cards',
+          question: 'Over hoeveel bouwlagen?',
+          options: [
+            { value: '1', label: '1 bouwlaag' },
+            { value: '2', label: '2 bouwlagen' },
+            { value: '3plus', label: '3 of meer' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'board',
+          type: 'cards',
+          question: 'Wat met het verdeelbord?',
+          options: [
+            { value: 'behouden', label: 'Behouden / beperkt aanpassen' },
+            { value: 'nieuw', label: 'Nieuw bord' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'fitOut',
+          type: 'cards',
+          question: 'Welke puntbezetting / fit-out?',
+          options: [
+            { value: 'basis', label: 'Basis', desc: 'Essentiële stopcontacten en verlichting.' },
+            { value: 'standaard', label: 'Standaard', desc: 'Comfortabele bezetting.' },
+            { value: 'uitgebreid', label: 'Uitgebreid', desc: 'Veel punten, data, zones…' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'inspection',
+          type: 'cards',
+          question: 'Keuring (AREI) meenemen in de raming?',
+          options: [
+            { value: 'ja', label: 'Ja' },
+            { value: 'nee', label: 'Nee' }
+          ],
+          autoAdvance: true
+        },
+        levelQuestion(),
+        urgencyQuestion(),
+        notesQuestion()
+      ]);
+    },
+
+    gevel: function () {
+      return sharedStart().concat([
+        {
+          id: 'intervention',
+          type: 'cards',
+          question: 'Welke gevelingreep?',
+          options: [
+            { value: 'reinigen', label: 'Reinigen', desc: 'Reinigen / impregneren.' },
+            { value: 'voegen', label: 'Voegen', desc: 'Uit- en hervoegen.' },
+            { value: 'herstel', label: 'Herstel', desc: 'Lokaal metselwerkherstel.' },
+            { value: 'crepi', label: 'Crepi', desc: 'Sierpleister.' },
+            { value: 'bekleding', label: 'Bekleding', desc: 'Gevelbekleding.' },
+            { value: 'isolatie_afwerking', label: 'Isolatie + afwerking', desc: 'ETICS / buitenisolatie.' }
+          ],
+          autoAdvance: true
+        },
+        numberQuestion([40, 80, 120, 180], 'Hoeveel m² geveloppervlakte?'),
+        {
+          id: 'condition',
+          type: 'cards',
+          question: 'In welke staat is de gevel?',
+          options: [
+            { value: 'goed', label: 'Goed' },
+            { value: 'matig', label: 'Matig' },
+            { value: 'slecht', label: 'Slecht' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'elevations',
+          type: 'cards',
+          question: 'Hoeveel gevelvlakken / oriëntaties?',
+          options: [
+            { value: '1', label: '1 gevel' },
+            { value: '2', label: '2 gevels' },
+            { value: '3plus', label: '3 of meer' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'scaffold',
+          type: 'cards',
+          question: 'Welke steiger / toegang nodig?',
+          hint: 'Bij middel of hoog rekenen we steiger expliciet als aparte post.',
+          options: [
+            { value: 'laag', label: 'Laag / begane grond', desc: 'Meestal geen steiger.' },
+            { value: 'middel', label: 'Middel', desc: 'Standaard steiger.' },
+            { value: 'hoog', label: 'Hoog / complex', desc: 'Hoge of complexe steiger.' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'finish',
+          type: 'cards',
+          question: 'Extra afwerking of kleurlaag?',
+          showIf: when('intervention', ['crepi', 'bekleding', 'isolatie_afwerking', 'herstel']),
+          options: [
+            { value: 'nee', label: 'Nee' },
+            { value: 'basis', label: 'Basis' },
+            { value: 'premium', label: 'Premium / speciale kleur' }
+          ],
+          autoAdvance: true
+        },
+        levelQuestion(),
+        urgencyQuestion(),
+        notesQuestion()
+      ]);
+    },
+
+    zonnepanelen: function () {
+      return sharedStart().concat([
+        {
+          id: 'sizeMode',
+          type: 'cards',
+          question: 'Hoe wil je de installatiegrootte opgeven?',
+          options: [
+            { value: 'panels', label: 'Aantal panelen' },
+            { value: 'kwp', label: 'Vermogen (kWp)' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'panelCount',
+          type: 'number',
+          question: 'Hoeveel panelen ongeveer?',
+          hint: 'We rekenen met ±400 Wp per paneel.',
+          showIf: when('sizeMode', ['panels']),
+          presets: [8, 12, 16, 20],
+          defaultPresetIndex: 1,
+          unit: 'panelen',
+          min: 1,
+          max: 999
+        },
+        {
+          id: 'kwp',
+          type: 'number',
+          question: 'Welk vermogen (kWp)?',
+          hint: 'Typisch 3–8 kWp voor een woning.',
+          showIf: when('sizeMode', ['kwp']),
+          presets: [3, 4.5, 6, 8],
+          defaultPresetIndex: 1,
+          unit: 'kWp',
+          min: 1,
+          max: 999
+        },
+        {
+          id: 'roofType',
+          type: 'cards',
+          question: 'Welk daktype?',
+          options: [
+            { value: 'hellend', label: 'Hellend dak' },
+            { value: 'plat', label: 'Plat dak' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'access',
+          type: 'cards',
+          question: 'Hoe is de daktoegang?',
+          options: [
+            { value: 'normaal', label: 'Normaal' },
+            { value: 'moeilijk', label: 'Moeilijk', desc: '+15–25% montage-impact.' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'electricalAdapt',
+          type: 'cards',
+          question: 'Elektrische aanpassing nodig?',
+          options: [
+            { value: 'nee', label: 'Nee' },
+            { value: 'beperkt', label: 'Beperkt' },
+            { value: 'nieuw', label: 'Nieuw / zwaar' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'battery',
+          type: 'cards',
+          question: 'Thuisbatterij meenemen? (optioneel)',
+          hint: 'We geven geen gegarandeerde besparing of terugverdientijd.',
+          optional: true,
+          options: [
+            { value: 'nee', label: 'Nee' },
+            { value: 'ja', label: 'Ja' }
+          ],
+          autoAdvance: true
+        },
+        levelQuestion(),
+        urgencyQuestion(),
+        notesQuestion()
+      ]);
+    },
+
+    ventilatie: function () {
+      return sharedStart().concat([
+        {
+          id: 'system',
+          type: 'cards',
+          question: 'Welk ventilatiesysteem?',
+          options: [
+            { value: 'decentraal', label: 'Decentraal', desc: 'Losse units per ruimte.' },
+            { value: 'systeem_c', label: 'Systeem C', desc: 'Mechanische afvoer.' },
+            { value: 'systeem_d', label: 'Systeem D', desc: 'WTW / balansventilatie.' }
+          ],
+          autoAdvance: true
+        },
+        numberQuestion([80, 120, 160, 200], 'Hoe groot is de woning ongeveer (m²)?'),
+        {
+          id: 'wetRooms',
+          type: 'cards',
+          question: 'Hoeveel natte ruimtes (badkamer, toilet, keuken)?',
+          options: [
+            { value: '1', label: '1' },
+            { value: '2', label: '2' },
+            { value: '3plus', label: '3 of meer' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'floors',
+          type: 'cards',
+          question: 'Over hoeveel bouwlagen?',
+          options: [
+            { value: '1', label: '1 bouwlaag' },
+            { value: '2', label: '2 bouwlagen' },
+            { value: '3plus', label: '3 of meer' }
+          ],
+          autoAdvance: true
+        },
+        {
+          id: 'routing',
+          type: 'cards',
+          question: 'Hoe complex is het kanaalwerk?',
+          options: [
+            { value: 'eenvoudig', label: 'Eenvoudig', desc: 'Korte, rechte tracés.' },
+            { value: 'renovatie', label: 'Renovatie', desc: 'Bestaande woning, gemiddeld.' },
+            { value: 'complex', label: 'Complex', desc: 'Veel bochten, doorboringen, verdiepingen.' }
+          ],
+          autoAdvance: true
+        },
+        levelQuestion(),
+        urgencyQuestion(),
+        notesQuestion()
+      ]);
     }
   };
 
@@ -592,8 +1069,15 @@
     { value: 'badkamer', label: 'Badkamer', icon: 'i-bath' },
     { value: 'keuken', label: 'Keuken', icon: 'i-utensils' },
     { value: 'dak', label: 'Dak', icon: 'i-roof' },
+    { value: 'ramen', label: 'Ramen & deuren', icon: 'i-window' },
+    { value: 'isolatie', label: 'Isolatie', icon: 'i-insulation' },
+    { value: 'verwarming', label: 'Verwarming & warmtepomp', icon: 'i-heat' },
+    { value: 'elektriciteit', label: 'Elektriciteit', icon: 'i-bolt' },
     { value: 'vloeren', label: 'Vloeren', icon: 'i-layers' },
-    { value: 'schilderwerken', label: 'Schilderwerken', icon: 'i-roller' }
+    { value: 'schilderwerken', label: 'Schilderwerken', icon: 'i-roller' },
+    { value: 'gevel', label: 'Gevel', icon: 'i-facade' },
+    { value: 'zonnepanelen', label: 'Zonnepanelen', icon: 'i-solar' },
+    { value: 'ventilatie', label: 'Ventilatie', icon: 'i-vent' }
   ];
 
   function getQuestions(categoryKey) {
