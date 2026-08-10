@@ -636,9 +636,22 @@
   font-size:1.15rem;
   margin:0 0 var(--sp-3);
 }
-.calc2-email-card p{margin:0 0 var(--sp-3);color:var(--ink-soft);font-size:.92rem;}
+.calc2-email-card > p{margin:0 0 var(--sp-4);color:var(--ink-soft);font-size:.92rem;}
+#calc2EmailForm{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:0;
+}
+#calc2EmailForm .calc2-field{
+  margin:0;
+}
+#calc2EmailForm #calc2EmailSubmit{
+  margin-top:20px;
+  align-self:flex-start;
+}
 .calc2-email-error{
-  margin:8px 0 0;
+  margin:12px 0 0;
   font-size:.85rem;
   color:#8a3030;
   display:none;
@@ -648,9 +661,12 @@
   padding:12px 14px;
   background:color-mix(in srgb, var(--brand,#1f4d3a) 8%, transparent);
   border-radius:var(--r-sm);
-  margin-top:12px;
+  margin-top:14px;
 }
 .calc2-email-success p{margin:0;font-size:.92rem;}
+.calc2-email-card > .calc2-review-note{
+  margin:18px 0 0;
+}
 .calc2-analysis-loading{
   display:flex;
   flex-direction:column;

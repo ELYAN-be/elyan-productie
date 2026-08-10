@@ -39,8 +39,12 @@ var PAGE = { width: 595.28, height: 841.89 };
 var MARGIN = 44;
 var CONTENT_W = PAGE.width - MARGIN * 2;
 var FOOTER_Y = PAGE.height - 36;
-var CONTENT_BOTTOM = FOOTER_Y - 14;
-var GAP = 8;
+var CONTENT_BOTTOM = FOOTER_Y - 18;
+/* Consistent spacing scale — professional dossier rhythm */
+var SPACE = { XS: 4, S: 8, M: 12, L: 18, XL: 28, XXL: 36 };
+var GAP = SPACE.M;
+var TABLE_ROW_H = 24;
+var TABLE_HEADER_H = 24;
 
 function fmtEUR(n) {
   if (n == null || !isFinite(Number(n))) return '—';
@@ -105,12 +109,12 @@ function ensureSpace(doc, needed, ctx) {
 function eyebrow(doc, text) {
   doc.font('Helvetica-Bold').fontSize(7.5).fillColor(COLOR.primary)
     .text(String(text).toUpperCase(), MARGIN, doc.y, { characterSpacing: 1.15 });
-  doc.y += 3;
+  doc.y += SPACE.S;
 }
 
 function sectionTitle(doc, iconKey, text, ctx, opts) {
   opts = opts || {};
-  if (!opts.skipEnsure) ensureSpace(doc, 32 + (opts.keepWith || 0), ctx);
+  if (!opts.skipEnsure) ensureSpace(doc, 36 + (opts.keepWith || 0), ctx);
   var size = opts.iconSize || 13;
   var yStart = doc.y;
   safeIcon(doc, iconKey, MARGIN, yStart - 1, size);
@@ -118,51 +122,53 @@ function sectionTitle(doc, iconKey, text, ctx, opts) {
     .text(text, MARGIN + (iconKey ? size + 7 : 0), yStart, {
       width: CONTENT_W - (iconKey ? size + 7 : 0)
     });
-  doc.y = Math.max(doc.y, yStart + size) + (opts.marginBottom !== undefined ? opts.marginBottom : 6);
+  doc.y = Math.max(doc.y, yStart + size) + (opts.marginBottom !== undefined ? opts.marginBottom : SPACE.L);
 }
 
 function startSection(doc, ctx, opts) {
   opts = opts || {};
-  var keepWith = opts.keepWith != null ? opts.keepWith : 56;
-  ensureSpace(doc, 40 + keepWith, ctx);
+  var keepWith = opts.keepWith != null ? opts.keepWith : 72;
+  /* Pre-section gap only when mid-page — keep page tops calm */
+  if (doc.y >= 62) doc.y += SPACE.XL;
+  ensureSpace(doc, SPACE.XXL + keepWith, ctx);
   if (opts.eyebrow) eyebrow(doc, opts.eyebrow);
   sectionTitle(doc, opts.icon || null, opts.title, ctx, Object.assign({ skipEnsure: true }, opts.titleOpts || {}));
 }
 
 function bodyText(doc, text, ctx, opts) {
   opts = opts || {};
-  ensureSpace(doc, 24, ctx);
+  ensureSpace(doc, 28, ctx);
   doc.font('Helvetica').fontSize(opts.size || 9).fillColor(opts.color || COLOR.inkSoft)
-    .text(text, MARGIN, doc.y, { width: CONTENT_W, lineGap: 1.8 });
-  doc.y += opts.after !== undefined ? opts.after : 6;
+    .text(text, MARGIN, doc.y, { width: CONTENT_W, lineGap: 2.4 });
+  doc.y += opts.after !== undefined ? opts.after : SPACE.L;
 }
 
 function sandCard(doc, lines, ctx, minH) {
-  var pad = 12;
+  var pad = 14;
   var textW = CONTENT_W - pad * 2;
   var h = pad;
   lines.forEach(function (line, idx) {
     doc.font(line.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(line.size || 9);
-    h += doc.heightOfString(line.text, { width: textW, lineGap: 1.8 }) + (idx < lines.length - 1 ? 4 : 0);
+    h += doc.heightOfString(line.text, { width: textW, lineGap: 2 }) + (idx < lines.length - 1 ? SPACE.S : 0);
   });
   h += pad;
   if (minH) h = Math.max(h, minH);
-  ensureSpace(doc, h + 6, ctx);
+  ensureSpace(doc, h + SPACE.M, ctx);
   var startY = doc.y;
   doc.roundedRect(MARGIN, startY, CONTENT_W, h, 8).fill(COLOR.sand);
   var y = startY + pad;
   lines.forEach(function (line, idx) {
     doc.font(line.bold ? 'Helvetica-Bold' : 'Helvetica').fontSize(line.size || 9)
       .fillColor(line.color || COLOR.inkSoft)
-      .text(line.text, MARGIN + pad, y, { width: textW, lineGap: 1.8 });
-    y = doc.y + (idx < lines.length - 1 ? 4 : 0);
+      .text(line.text, MARGIN + pad, y, { width: textW, lineGap: 2 });
+    y = doc.y + (idx < lines.length - 1 ? SPACE.S : 0);
   });
-  doc.y = startY + h + GAP;
+  doc.y = startY + h + SPACE.XL;
 }
 
 function mintBudgetCard(doc, budget, statusLabel, confLabel, durationText, ctx) {
-  var h = 118;
-  ensureSpace(doc, h + 8, ctx);
+  var h = 122;
+  ensureSpace(doc, h + SPACE.L, ctx);
   var y = doc.y;
   doc.roundedRect(MARGIN, y, CONTENT_W, h, 10).fill(COLOR.mint);
   doc.roundedRect(MARGIN, y, CONTENT_W, h, 10).lineWidth(0.9).strokeColor(COLOR.primarySoft).stroke();
@@ -173,71 +179,72 @@ function mintBudgetCard(doc, budget, statusLabel, confLabel, durationText, ctx) 
     .text(fmtEUR(budget.low) + '  –  ' + fmtEUR(budget.high), MARGIN + 16, y + 28, { width: CONTENT_W - 32 });
 
   doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
-    .text('AANBEVOLEN PROJECTBUDGET', MARGIN + 16, y + 56, { characterSpacing: 0.8 });
+    .text('AANBEVOLEN PROJECTBUDGET', MARGIN + 16, y + 58, { characterSpacing: 0.8 });
   doc.font('Helvetica-Bold').fontSize(16).fillColor(COLOR.primaryDark)
-    .text(fmtEUR(budget.recommendedExpected), MARGIN + 16, y + 70);
+    .text(fmtEUR(budget.recommendedExpected), MARGIN + 16, y + 72);
 
   doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft)
     .text(statusLabel + '  ·  Betrouwbaarheid: ' + confLabel + (durationText ? '  ·  ' + durationText : ''),
-      MARGIN + 16, y + 96, { width: CONTENT_W - 32 });
-  doc.y = y + h + 12;
+      MARGIN + 16, y + 98, { width: CONTENT_W - 32 });
+  doc.y = y + h + SPACE.XL;
 }
 
 function kpiRow(doc, cells, ctx) {
   var n = cells.length;
-  var gap = 7;
+  var gap = SPACE.S;
   var boxW = (CONTENT_W - gap * (n - 1)) / n;
-  var boxH = 52;
-  ensureSpace(doc, boxH + 6, ctx);
+  var boxH = 54;
+  ensureSpace(doc, boxH + SPACE.M, ctx);
   var rowY = doc.y;
   cells.forEach(function (m, i) {
     var x = MARGIN + i * (boxW + gap);
     doc.roundedRect(x, rowY, boxW, boxH, 7).fill(COLOR.sand);
     doc.font('Helvetica').fontSize(6.4).fillColor(COLOR.inkFaint)
-      .text(String(m.label).toUpperCase(), x + 8, rowY + 9, { width: boxW - 16, characterSpacing: 0.35 });
+      .text(String(m.label).toUpperCase(), x + 8, rowY + 10, { width: boxW - 16, characterSpacing: 0.35 });
     doc.font('Helvetica-Bold').fontSize(m.big ? 12 : 10).fillColor(COLOR.ink)
-      .text(String(m.value), x + 8, rowY + 26, { width: boxW - 16 });
+      .text(String(m.value), x + 8, rowY + 28, { width: boxW - 16 });
   });
-  doc.y = rowY + boxH + 8;
+  doc.y = rowY + boxH + SPACE.XL;
 }
 
 function metaGrid(doc, cells, ctx) {
-  var boxW = (CONTENT_W - 8) / 2;
-  var boxH = 36;
+  var boxW = (CONTENT_W - SPACE.S) / 2;
+  var boxH = 38;
   var i = 0;
   while (i < cells.length) {
-    ensureSpace(doc, boxH + 5, ctx);
+    ensureSpace(doc, boxH + SPACE.S, ctx);
     var rowY = doc.y;
     for (var col = 0; col < 2 && i < cells.length; col++, i++) {
       var m = cells[i];
-      var x = MARGIN + col * (boxW + 8);
+      var x = MARGIN + col * (boxW + SPACE.S);
       doc.roundedRect(x, rowY, boxW, boxH, 6).fill(COLOR.sand);
       doc.font('Helvetica').fontSize(6.2).fillColor(COLOR.inkFaint)
-        .text(String(m.label).toUpperCase(), x + 10, rowY + 7, { characterSpacing: 0.35 });
+        .text(String(m.label).toUpperCase(), x + 10, rowY + 8, { characterSpacing: 0.35 });
       doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
-        .text(String(m.value), x + 10, rowY + 19, { width: boxW - 20 });
+        .text(String(m.value), x + 10, rowY + 20, { width: boxW - 20 });
     }
-    doc.y = rowY + boxH + 5;
+    doc.y = rowY + boxH + SPACE.S;
   }
+  doc.y += SPACE.S;
 }
 
 function tableHeader(doc, cols, y) {
-  doc.roundedRect(MARGIN, y, CONTENT_W, 22, 5).fill(COLOR.sandDeep);
+  doc.roundedRect(MARGIN, y, CONTENT_W, TABLE_HEADER_H, 5).fill(COLOR.sandDeep);
   var x = MARGIN + 10;
   cols.forEach(function (c) {
     doc.font('Helvetica-Bold').fontSize(7).fillColor(COLOR.inkFaint)
-      .text(c.label.toUpperCase(), x, y + 7, { width: c.w, characterSpacing: 0.4 });
+      .text(c.label.toUpperCase(), x, y + 8, { width: c.w, characterSpacing: 0.4 });
     x += c.w;
   });
 }
 
 function tableRow(doc, cols, values, y, zebra) {
-  if (zebra) doc.rect(MARGIN, y, CONTENT_W, 22).fill('#FAF9F4');
+  if (zebra) doc.rect(MARGIN, y, CONTENT_W, TABLE_ROW_H).fill('#FAF9F4');
   var x = MARGIN + 10;
   cols.forEach(function (c, i) {
     doc.font(i === cols.length - 1 ? 'Helvetica-Bold' : 'Helvetica')
       .fontSize(8.5).fillColor(COLOR.ink)
-      .text(String(values[i] == null ? '—' : values[i]), x, y + 6, {
+      .text(String(values[i] == null ? '—' : values[i]), x, y + 7, {
         width: c.w - 4, align: c.align || 'left', lineBreak: false
       });
     x += c.w;
@@ -248,27 +255,36 @@ function bulletList(doc, items, ctx, iconKey) {
   iconKey = iconKey || 'check';
   var iconSize = 9;
   items.forEach(function (item) {
-    ensureSpace(doc, 22, ctx);
+    ensureSpace(doc, 26, ctx);
     var yTop = doc.y;
     safeIcon(doc, iconKey, MARGIN, yTop + 1, iconSize);
     doc.font('Helvetica').fontSize(8.8).fillColor(COLOR.inkSoft)
-      .text(item, MARGIN + iconSize + 7, yTop, { width: CONTENT_W - iconSize - 7, lineGap: 1.2 });
-    doc.y = Math.max(doc.y, yTop + iconSize) + 5;
+      .text(item, MARGIN + iconSize + 7, yTop, { width: CONTENT_W - iconSize - 7, lineGap: 1.6 });
+    doc.y = Math.max(doc.y, yTop + iconSize) + SPACE.S;
   });
+  doc.y += SPACE.XS;
 }
 
 function numberedList(doc, items, ctx) {
   items.forEach(function (item, i) {
-    ensureSpace(doc, 26, ctx);
+    ensureSpace(doc, 30, ctx);
     var yTop = doc.y;
     var bubble = 15;
     doc.circle(MARGIN + bubble / 2, yTop + bubble / 2, bubble / 2).fill(COLOR.primary);
     doc.font('Helvetica-Bold').fontSize(7.5).fillColor(COLOR.white)
       .text(String(i + 1), MARGIN, yTop + bubble / 2 - 3.5, { width: bubble, align: 'center' });
     doc.font('Helvetica').fontSize(8.7).fillColor(COLOR.inkSoft)
-      .text(item, MARGIN + bubble + 9, yTop + 1, { width: CONTENT_W - bubble - 9, lineGap: 1.2 });
-    doc.y = Math.max(doc.y, yTop + bubble) + 5;
+      .text(item, MARGIN + bubble + 9, yTop + 1, { width: CONTENT_W - bubble - 9, lineGap: 1.6 });
+    doc.y = Math.max(doc.y, yTop + bubble) + SPACE.S;
   });
+  doc.y += SPACE.XS;
+}
+
+function subHeading(doc, text, ctx) {
+  ensureSpace(doc, SPACE.XXL, ctx);
+  doc.y += SPACE.M;
+  doc.font('Helvetica-Bold').fontSize(9.2).fillColor(COLOR.primaryDark).text(text, MARGIN, doc.y);
+  doc.y += SPACE.M;
 }
 
 function friendlyRisk(text) {
@@ -417,10 +433,10 @@ function buildProjectReportPdf(data) {
         : '';
 
       /* ---- Executive ---- */
-      startSection(doc, ctx, { eyebrow: 'Samenvatting', icon: 'target', title: 'Executive overview', keepWith: 80 });
+      startSection(doc, ctx, { eyebrow: 'Samenvatting', icon: 'target', title: 'Executive overview', keepWith: 90 });
       bodyText(doc,
         'Indicatieve raming voor jouw woningproject. Bedragen excl. btw tenzij anders vermeld.',
-        ctx, { after: 8 });
+        ctx, { after: SPACE.M });
 
       mintBudgetCard(doc, budget, statusLabel, confLabel,
         durationText ? ('Duur: ' + durationText) : '', ctx);
@@ -450,33 +466,33 @@ function buildProjectReportPdf(data) {
       }).slice(0, 5);
 
       if (drivers.length) {
-        startSection(doc, ctx, { eyebrow: 'Focus', icon: 'euro', title: 'Grootste kostendrijvers', keepWith: 60 });
+        startSection(doc, ctx, { eyebrow: 'Focus', icon: 'euro', title: 'Grootste kostendrijvers', keepWith: 70 });
         drivers.forEach(function (e, i) {
           var amt = (e.adjusted && e.adjusted.expected) || (e.estimate && e.estimate.expected) || 0;
-          ensureSpace(doc, 28, ctx);
+          ensureSpace(doc, 34, ctx);
           var y = doc.y;
-          doc.roundedRect(MARGIN, y, CONTENT_W, 26, 6).fill(i === 0 ? COLOR.mint : COLOR.sand);
+          doc.roundedRect(MARGIN, y, CONTENT_W, 28, 6).fill(i === 0 ? COLOR.mint : COLOR.sand);
           doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
-            .text((i + 1) + '.  ' + packageLabel(e), MARGIN + 12, y + 8, { width: CONTENT_W * 0.62 });
+            .text((i + 1) + '.  ' + packageLabel(e), MARGIN + 12, y + 9, { width: CONTENT_W * 0.62 });
           doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.primaryDark)
-            .text(fmtEUR(amt), MARGIN + CONTENT_W * 0.62, y + 8, { width: CONTENT_W * 0.35, align: 'right' });
-          doc.y = y + 30;
+            .text(fmtEUR(amt), MARGIN + CONTENT_W * 0.62, y + 9, { width: CONTENT_W * 0.35, align: 'right' });
+          doc.y = y + 28 + SPACE.S;
         });
-        doc.y += 4;
+        doc.y += SPACE.S;
       }
 
       /* ---- Budget breakdown ---- */
-      startSection(doc, ctx, { eyebrow: 'Budget', icon: 'euro', title: 'Budgetopbouw', keepWith: 70 });
+      startSection(doc, ctx, { eyebrow: 'Budget', icon: 'euro', title: 'Budgetopbouw', keepWith: 90 });
       var soft = budget.softCostsExpected != null ? budget.softCostsExpected : 0;
       var proc = budget.procurementCostsExpected != null ? budget.procurementCostsExpected : 0;
       var colsBudget = [
         { label: 'Laag', w: CONTENT_W * 0.46 },
         { label: 'Bedrag', w: CONTENT_W * 0.54, align: 'right' }
       ];
-      ensureSpace(doc, 140, ctx);
+      ensureSpace(doc, 160, ctx);
       var ty = doc.y;
       tableHeader(doc, colsBudget, ty);
-      ty += 22;
+      ty += TABLE_HEADER_H;
       [
         ['Renovatiewerken', fmtEUR(budget.worksExpected)],
         ['Projectkosten', fmtEUR(soft)],
@@ -485,45 +501,45 @@ function buildProjectReportPdf(data) {
         ['Aanbevolen projectbudget', fmtEUR(budget.recommendedExpected)]
       ].forEach(function (row, i) {
         tableRow(doc, colsBudget, row, ty, i % 2 === 1);
-        ty += 22;
+        ty += TABLE_ROW_H;
       });
-      doc.y = ty + 10;
+      doc.y = ty + SPACE.XL;
       bodyText(doc, 'Range ' + fmtEUR(budget.low) + ' – ' + fmtEUR(budget.high) +
         '. De reserve dekt typische onvoorziene posten; geen garantie tegen alle meerwerken.', ctx);
 
       /* ---- Work packages ---- */
-      startSection(doc, ctx, { eyebrow: 'Scope', icon: 'info', title: 'Werkpakketten', keepWith: 70 });
+      startSection(doc, ctx, { eyebrow: 'Scope', icon: 'info', title: 'Werkpakketten', keepWith: 90 });
       var colsPkg = [
         { label: 'Onderdeel', w: CONTENT_W * 0.42 },
         { label: 'Status', w: CONTENT_W * 0.28 },
         { label: 'Verwachte kost', w: CONTENT_W * 0.30, align: 'right' }
       ];
-      ensureSpace(doc, 40, ctx);
+      ensureSpace(doc, 48, ctx);
       ty = doc.y;
       tableHeader(doc, colsPkg, ty);
-      ty += 22;
+      ty += TABLE_HEADER_H;
       var pkgRows = pkgs.slice(0, 16);
       if (!pkgRows.length) {
         bodyText(doc, 'Geen actieve werkpakketten in deze raming.', ctx);
       } else {
         pkgRows.forEach(function (e, i) {
-          if (ty + 24 > CONTENT_BOTTOM) {
-            doc.y = ty;
-            ensureSpace(doc, 40, ctx);
+          if (ty + TABLE_ROW_H + SPACE.S > CONTENT_BOTTOM) {
+            doc.y = ty + SPACE.M;
+            ensureSpace(doc, 48, ctx);
             ty = doc.y;
             tableHeader(doc, colsPkg, ty);
-            ty += 22;
+            ty += TABLE_HEADER_H;
           }
           var status = Labels.packageStatusLabel(e.status);
           if (status === 'Nog onvoldoende informatie') status = 'Nog te bepalen';
           tableRow(doc, colsPkg, [packageLabel(e), status, packageAmount(e)], ty, i % 2 === 1);
-          ty += 22;
+          ty += TABLE_ROW_H;
         });
-        doc.y = ty + 10;
+        doc.y = ty + SPACE.XL;
       }
 
       /* ---- Risks ---- */
-      startSection(doc, ctx, { eyebrow: 'Risico’s', icon: 'shield', title: 'Risico’s & open punten', keepWith: 70 });
+      startSection(doc, ctx, { eyebrow: 'Risico’s', icon: 'shield', title: 'Risico’s & open punten', keepWith: 110 });
       var rawRisks = []
         .concat(project.warnings || [])
         .concat(project.risks || [])
@@ -548,37 +564,37 @@ function buildProjectReportPdf(data) {
         var items = grouped[sec.key].slice(0, 5);
         if (!items.length) return;
         anyRisk = true;
-        ensureSpace(doc, 36, ctx);
-        doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.primaryDark).text(sec.title, MARGIN, doc.y);
-        doc.moveDown(0.25);
+        subHeading(doc, sec.title, ctx);
         bulletList(doc, items, ctx, 'info');
+        doc.y += SPACE.M;
       });
       if (!anyRisk) bodyText(doc, 'Geen zware open waarschuwingen in deze raming.', ctx);
 
       /* ---- Sequence ---- */
-      startSection(doc, ctx, { eyebrow: 'Planning', icon: 'clock', title: 'Indicatieve werfvolgorde', keepWith: 60 });
+      startSection(doc, ctx, { eyebrow: 'Planning', icon: 'clock', title: 'Indicatieve werfvolgorde', keepWith: 100 });
       var phases = (project.duration && project.duration.phases) || [];
       if (phases.length) {
         phases.forEach(function (ph, i) {
-          ensureSpace(doc, 28, ctx);
+          ensureSpace(doc, 36, ctx);
           var y = doc.y;
-          doc.roundedRect(MARGIN, y, CONTENT_W, 24, 6).fill(COLOR.sand);
+          doc.roundedRect(MARGIN, y, CONTENT_W, 26, 6).fill(COLOR.sand);
           doc.font('Helvetica-Bold').fontSize(8.5).fillColor(COLOR.ink)
-            .text((i + 1) + '.  ' + ph.label, MARGIN + 12, y + 7, { width: CONTENT_W * 0.7 });
+            .text((i + 1) + '.  ' + ph.label, MARGIN + 12, y + 8, { width: CONTENT_W * 0.7 });
           doc.font('Helvetica').fontSize(8.5).fillColor(COLOR.inkSoft)
-            .text('~' + ph.weeks + ' w.', MARGIN, y + 7, { width: CONTENT_W - 12, align: 'right' });
-          doc.y = y + 28;
+            .text('~' + ph.weeks + ' w.', MARGIN, y + 8, { width: CONTENT_W - 12, align: 'right' });
+          doc.y = y + 26 + SPACE.S;
         });
+        doc.y += SPACE.M;
         bodyText(doc,
           'Totaal indicatief: ' + project.duration.minWeeks + '–' + project.duration.maxWeeks +
           ' weken. Planning kan wijzigen door vergunningen, levertermijnen en beschikbaarheid van aannemers.',
-          ctx, { after: 8 });
+          ctx, { after: SPACE.L });
       } else if (durationText) {
         bodyText(doc, 'Indicatieve uitvoeringsduur: ' + durationText + '.', ctx);
       }
 
       /* ---- VAT ---- */
-      startSection(doc, ctx, { eyebrow: 'BTW', icon: 'info', title: 'BTW-toelichting', keepWith: 50 });
+      startSection(doc, ctx, { eyebrow: 'BTW', icon: 'info', title: 'BTW-toelichting', keepWith: 90 });
       sandCard(doc, [{
         text: (project.vatSummary && project.vatSummary.note) ||
           'Projectbedragen zijn in principe excl. btw. Het toepasselijke tarief (vaak 6% of 21%) hangt af van feiten en moet bevestigd worden met aannemer/boekhouder.',
@@ -586,7 +602,7 @@ function buildProjectReportPdf(data) {
       }], ctx);
 
       /* ---- Quote checklist ---- */
-      startSection(doc, ctx, { eyebrow: 'Offertes', icon: 'check', title: 'Offertechecklist', keepWith: 60 });
+      startSection(doc, ctx, { eyebrow: 'Offertes', icon: 'check', title: 'Offertechecklist', keepWith: 100 });
       bulletList(doc, [
         'Vraag offertes op dezelfde scope en intensiteit.',
         'Laat meenemen: afbraak, afvoer, steigers, keuringen en btw.',
@@ -596,7 +612,7 @@ function buildProjectReportPdf(data) {
       ], ctx, 'check');
 
       /* ---- Contractor questions ---- */
-      startSection(doc, ctx, { eyebrow: 'Gesprek', icon: 'bulb', title: 'Vragen voor aannemers', keepWith: 60 });
+      startSection(doc, ctx, { eyebrow: 'Gesprek', icon: 'bulb', title: 'Vragen voor aannemers', keepWith: 100 });
       numberedList(doc, [
         'Welke posten zitten precies in / buiten deze offerte?',
         'Hoe gaan jullie om met onvoorziene asbest of structurele ontdekkingen?',
@@ -605,7 +621,7 @@ function buildProjectReportPdf(data) {
       ], ctx);
 
       /* ---- Next steps ---- */
-      startSection(doc, ctx, { eyebrow: 'Actie', icon: 'target', title: 'Jouw volgende stappen', keepWith: 60 });
+      startSection(doc, ctx, { eyebrow: 'Actie', icon: 'target', title: 'Jouw volgende stappen', keepWith: 100 });
       numberedList(doc, Labels.nextStepsHomeowner(project, state), ctx);
 
       /* ---- Investor ---- */
@@ -615,10 +631,10 @@ function buildProjectReportPdf(data) {
         ctx.page.n += 1;
         header(doc, ctx.subtitle);
 
-        startSection(doc, ctx, { eyebrow: 'Investering', icon: 'euro', title: 'Investeringsanalyse', keepWith: 90 });
+        startSection(doc, ctx, { eyebrow: 'Investering', icon: 'euro', title: 'Investeringsanalyse', keepWith: 110 });
         bodyText(doc,
           'Gebaseerd op de door jou ingevoerde verkoopwaarde. Potentiële projectwinst is vóór eventuele belasting op gerealiseerde winst/meerwaarde. Geen geautomatiseerde waardering en geen gegarandeerd rendement.',
-          ctx, { after: 8 });
+          ctx, { after: SPACE.M });
 
         kpiRow(doc, [
           { label: 'Totale investering', value: fmtEUR(finance.totalInvestment), big: true },
@@ -631,7 +647,7 @@ function buildProjectReportPdf(data) {
           { label: 'Basisscenario', value: Labels.dealStatusLabel(finance.status) }
         ], ctx);
 
-        startSection(doc, ctx, { eyebrow: 'Geldstroom', icon: 'euro', title: 'Waar gaat het geld naartoe?', keepWith: 70 });
+        startSection(doc, ctx, { eyebrow: 'Geldstroom', icon: 'euro', title: 'Waar gaat het geld naartoe?', keepWith: 90 });
         var mm = finance.moneyMap || {};
         [
           ['Aankoop', fmtEUR(mm.aankoop)],
@@ -642,17 +658,17 @@ function buildProjectReportPdf(data) {
           ['Holding', fmtEUR(mm.holding)],
           ['Verkoopkosten (van opbrengst)', fmtEUR(mm.verkoopkosten)]
         ].forEach(function (row) {
-          ensureSpace(doc, 18, ctx);
+          ensureSpace(doc, 22, ctx);
           var y = doc.y;
           doc.font('Helvetica').fontSize(9).fillColor(COLOR.inkSoft).text(row[0], MARGIN, y, { width: CONTENT_W * 0.62 });
           doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
             .text(row[1], MARGIN + CONTENT_W * 0.62, y, { width: CONTENT_W * 0.38, align: 'right' });
-          doc.y = y + 15;
+          doc.y = y + SPACE.L;
         });
-        doc.y += 6;
+        doc.y += SPACE.M;
 
-        startSection(doc, ctx, { eyebrow: 'Scenario’s', icon: 'target', title: 'Nadeel · Basis · Optimistisch', keepWith: 80 });
-        bodyText(doc, 'Optimistisch combineert gunstige aannames — het is geen waarschijnlijk basisscenario.', ctx, { after: 6 });
+        startSection(doc, ctx, { eyebrow: 'Scenario’s', icon: 'target', title: 'Nadeel · Basis · Optimistisch', keepWith: 100 });
+        bodyText(doc, 'Optimistisch combineert gunstige aannames — het is geen waarschijnlijk basisscenario.', ctx, { after: SPACE.M });
         var scOrder = [
           { key: 'conservative', title: 'Nadeel' },
           { key: 'expected', title: 'Basis' },
@@ -661,46 +677,48 @@ function buildProjectReportPdf(data) {
         scOrder.forEach(function (s) {
           var sc = finance.scenarios && finance.scenarios[s.key];
           if (!sc) return;
-          ensureSpace(doc, 54, ctx);
+          ensureSpace(doc, 64, ctx);
           var y = doc.y;
           var bg = s.key === 'expected' ? COLOR.mint : COLOR.sand;
-          doc.roundedRect(MARGIN, y, CONTENT_W, 48, 8).fill(bg);
+          doc.roundedRect(MARGIN, y, CONTENT_W, 50, 8).fill(bg);
           if (s.key === 'expected') {
-            doc.roundedRect(MARGIN, y, CONTENT_W, 48, 8).lineWidth(1).strokeColor(COLOR.primarySoft).stroke();
+            doc.roundedRect(MARGIN, y, CONTENT_W, 50, 8).lineWidth(1).strokeColor(COLOR.primarySoft).stroke();
           }
           doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
-            .text(s.title, MARGIN + 14, y + 10);
+            .text(s.title, MARGIN + 14, y + 11);
           doc.font('Helvetica-Bold').fontSize(11).fillColor(COLOR.primaryDark)
             .text(fmtEUR(sc.potentialProfit) + '   ·   ROI ' +
               (sc.projectRoiPercent != null ? sc.projectRoiPercent + '%' : '—'),
-              MARGIN + 14, y + 26);
-          doc.y = y + 56;
+              MARGIN + 14, y + 28);
+          doc.y = y + 50 + SPACE.M;
         });
 
-        startSection(doc, ctx, { eyebrow: 'Gevoeligheid', icon: 'info', title: 'Wat als het tegenzit?', keepWith: 60 });
+        startSection(doc, ctx, { eyebrow: 'Gevoeligheid', icon: 'info', title: 'Wat als het tegenzit?', keepWith: 80 });
         (finance.sensitivity || []).forEach(function (s) {
-          ensureSpace(doc, 18, ctx);
+          ensureSpace(doc, 22, ctx);
           var y = doc.y;
           doc.font('Helvetica').fontSize(9).fillColor(COLOR.inkSoft).text(s.label, MARGIN, y, { width: CONTENT_W * 0.62 });
           doc.font('Helvetica-Bold').fontSize(9).fillColor(COLOR.ink)
             .text((s.profitDelta >= 0 ? '+' : '') + fmtEUR(s.profitDelta), MARGIN + CONTENT_W * 0.62, y, {
               width: CONTENT_W * 0.38, align: 'right'
             });
-          doc.y = y + 15;
+          doc.y = y + SPACE.L;
         });
-        doc.y += 6;
+        doc.y += SPACE.M;
 
-        startSection(doc, ctx, { eyebrow: 'Aannames', icon: 'shield', title: 'Aannames & uitsluitingen', keepWith: 50 });
+        startSection(doc, ctx, { eyebrow: 'Aannames', icon: 'shield', title: 'Aannames & uitsluitingen', keepWith: 70 });
         sandCard(doc, [
           { text: 'Verkoopwaarde = door jou ingevoerde aanname (geen geautomatiseerde waardering).', size: 9 },
           { text: 'Eventuele belasting op meerwaarde/winst is niet automatisch opgenomen.', size: 9, color: COLOR.inkFaint },
           { text: finance.disclaimer || 'Indicatieve scenariomodellering — geen beleggingsadvies.', size: 8.5, color: COLOR.inkFaint }
         ], ctx);
+        doc.y += SPACE.S;
         numberedList(doc, Labels.nextStepsInvestor(finance), ctx);
       }
 
       /* ---- Methodology ---- */
-      startSection(doc, ctx, { eyebrow: 'Methode', icon: 'info', title: 'Methodologie & disclaimer', keepWith: 50 });
+      doc.y += SPACE.XL;
+      startSection(doc, ctx, { eyebrow: 'Methode', icon: 'info', title: 'Methodologie & disclaimer', keepWith: 100 });
       sandCard(doc, [
         {
           text: 'ELYAN combineert Belgische marktreferenties met jouw projectantwoorden. Resultaten zijn indicatief en geen offerte, beleggings-, fiscaal of juridisch advies.',
