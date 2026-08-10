@@ -33,6 +33,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/calculator2.css">
 </head>
 <body>
 <a href="#main" class="skip-link">Ga naar inhoud</a>
@@ -158,10 +159,11 @@
       <a href="#waarom">Waarom ELYAN</a>
       <a href="#rapport">Rapport</a>
       <a href="#hoe-het-werkt">Hoe het werkt</a>
+      <a href="#producten">Producten</a>
       <a href="/over-ons.html">Over ELYAN</a>
       <a href="/contact.html">Contact</a>
     </nav>
-    <button type="button" class="btn btn-primary btn-sm" data-action="start-calculator">Start gratis</button>
+    <button type="button" class="btn btn-primary btn-sm" data-action="start-calculator">Start categorie</button>
   </div>
 </header>
 
@@ -176,8 +178,9 @@
       <p class="hero-sub hero-sub--mobile">Een realistische prijsinschatting in ±&nbsp;2&nbsp;minuten.</p>
       <div class="hero-actions">
         <button type="button" class="btn btn-primary btn-lg hero-cta" data-action="start-calculator">
-          Start gratis <svg class="icon"><use href="#i-arrow-right"></use></svg>
+          Bereken één renovatiewerk <svg class="icon"><use href="#i-arrow-right"></use></svg>
         </button>
+        <a class="hero-secondary-link" href="#producten">Of plan een volledige woningrenovatie</a>
         <div class="hero-trust hero-trust--full">
           <span><svg class="icon"><use href="#i-check"></use></svg> Gratis</span>
           <span><svg class="icon"><use href="#i-check"></use></svg> ±&nbsp;2&nbsp;minuten</span>
@@ -385,19 +388,51 @@
   </div>
 </section>
 
+<!-- TWO PRODUCTS -->
+<section class="calc2-products" id="producten" aria-labelledby="productenTitle">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Kies je traject</span>
+      <h2 id="productenTitle">Twee niveaus van analyse.</h2>
+      <p class="lead">Zelfde ELYAN-platform: snel één categorie, of een volledig woningproject. Ook geschikt voor aankoop- en renovatiescenario’s.</p>
+    </div>
+    <div class="calc2-product-grid">
+      <article class="calc2-product-card is-primary reveal">
+        <span class="calc2-product-kicker">Renovatiecalculator</span>
+        <h3>Bereken één renovatiewerk</h3>
+        <p>Voor één categorie — badkamer, dak, keuken en meer. Realistische prijsvork en persoonlijk rapport in ongeveer 2&nbsp;minuten.</p>
+        <button type="button" class="btn btn-primary" data-action="start-calculator">
+          Start categorie <svg class="icon"><use href="#i-arrow-right"></use></svg>
+        </button>
+      </article>
+      <article class="calc2-product-card reveal">
+        <span class="calc2-product-kicker">Volledige woningrenovatie <em class="calc2-badge-subtle">Uitgebreide analyse</em></span>
+        <h3>Plan je volledige renovatie</h3>
+        <p>Voor een compleet woningproject of aankoop- en renovatiescenario. Scope, budgetlagen, planning en — indien relevant — investeringsanalyse.</p>
+        <button type="button" class="btn btn-ghost" data-action="start-calculator-2">
+          Start woningproject <svg class="icon"><use href="#i-arrow-right"></use></svg>
+        </button>
+      </article>
+    </div>
+  </div>
+</section>
+
 <!-- FINAL CTA -->
 <section class="final-cta" id="start">
   <div class="container">
     <h2 class="reveal">Klaar om te weten wat jouw renovatie écht kan kosten?</h2>
-    <p class="lead reveal">Start gratis. Geen verplichtingen. Resultaat in ongeveer 2&nbsp;minuten.</p>
+    <p class="lead reveal">Start gratis. Geen verplichtingen. Kies het traject dat bij jou past.</p>
     <div class="final-cta-actions reveal">
       <button type="button" class="btn btn-primary btn-lg" data-action="start-calculator">
-        Start gratis <svg class="icon"><use href="#i-arrow-right"></use></svg>
+        Start categorie <svg class="icon"><use href="#i-arrow-right"></use></svg>
+      </button>
+      <button type="button" class="btn btn-ghost btn-lg" data-action="start-calculator-2">
+        Volledige woningrenovatie
       </button>
       <div class="hero-trust">
         <span><svg class="icon"><use href="#i-check"></use></svg> Gratis</span>
         <span><svg class="icon"><use href="#i-check"></use></svg> Geen verplichtingen</span>
-        <span><svg class="icon"><use href="#i-check"></use></svg> Resultaat in ±&nbsp;2&nbsp;minuten</span>
+        <span><svg class="icon"><use href="#i-check"></use></svg> Belgische markt</span>
       </div>
     </div>
   </div>
@@ -521,6 +556,31 @@
   </div>
 </div>
 
+<!-- CALCULATOR 2 OVERLAY -->
+<div class="app-overlay" id="calc2Overlay" tabindex="-1" aria-label="Volledige woningrenovatie">
+  <div class="app-bar">
+    <div class="app-bar-inner">
+      <button type="button" class="app-back" id="calc2Back">
+        <svg class="icon"><use href="#i-arrow-left"></use></svg>
+        <span>Terug</span>
+      </button>
+      <div class="calc2-bar-meta">
+        <span class="calc2-progress-label" id="calc2ProgressLabel">Doel</span>
+        <div class="progress-track"><div class="progress-fill" id="calc2ProgressFill"></div></div>
+      </div>
+      <button type="button" class="app-close" data-action="close-calc2" aria-label="Sluiten">
+        <svg class="icon"><use href="#i-x"></use></svg>
+      </button>
+    </div>
+    <div class="container" style="max-width:760px;padding-left:var(--sp-5);padding-right:var(--sp-5);">
+      <ul class="calc2-sections" id="calc2SectionTabs" aria-label="Voortgang secties"></ul>
+    </div>
+  </div>
+  <div class="app-body">
+    <div id="calc2StepHost"></div>
+  </div>
+</div>
+
 <!-- RESULTS OVERLAY -->
 <div class="results-overlay" id="resultsOverlay">
   <div class="results-bar">
@@ -635,6 +695,31 @@
 <script src="/shared/questions.js" defer></script>
 <script src="/shared/insights.js" defer></script>
 <script src="/js/calculator.js" defer></script>
+<script src="/shared/calc2/scope-model.js" defer></script>
+<script src="/shared/calc2/property-profile.js" defer></script>
+<script src="/shared/calc2/state.js" defer></script>
+<script src="/shared/calc2/questions-project.js" defer></script>
+<script src="/shared/calc2/answer-adapters.js" defer></script>
+<script src="/shared/calc2/overlap-flags.js" defer></script>
+<script src="/shared/calc2/package-engine.js" defer></script>
+<script src="/shared/calc2/project-ledger.js" defer></script>
+<script src="/shared/calc2/reconciliation.js" defer></script>
+<script src="/shared/calc2/cost-resolution.js" defer></script>
+<script src="/shared/calc2/all-in-costs.js" defer></script>
+<script src="/shared/calc2/project-costs.js" defer></script>
+<script src="/shared/calc2/uncertainty.js" defer></script>
+<script src="/shared/calc2/sequencing.js" defer></script>
+<script src="/shared/calc2/investor-readiness.js" defer></script>
+<script src="/shared/calc2/project-engine.js" defer></script>
+<script src="/shared/calc2/investor/research-params.js" defer></script>
+<script src="/shared/calc2/investor/acquisition-costs.js" defer></script>
+<script src="/shared/calc2/investor/selling-costs.js" defer></script>
+<script src="/shared/calc2/investor/vat-finance.js" defer></script>
+<script src="/shared/calc2/investor/financing-holding.js" defer></script>
+<script src="/shared/calc2/investor/finance-engine.js" defer></script>
+<script src="/shared/calc2/result-labels.js" defer></script>
+<script src="/js/calc2-ui-results.js" defer></script>
+<script src="/js/calculator2.js" defer></script>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
 </html>

@@ -6,7 +6,19 @@
   "scripts": {
     "validate:pricing": "node scripts/validate-pricing.js",
     "test:parity": "node scripts/test-parity.js",
-    "test:pdfs": "node scripts/generate-test-pdfs.js"
+    "test:pdfs": "node scripts/generate-test-pdfs.js",
+    "validate:calc2-adapters": "node scripts/validate-calc2-adapters.js",
+    "test:calc2-parity": "node scripts/test-calc2-parity.js",
+    "validate:calc2-project": "node scripts/validate-calc2-project.js",
+    "test:calc2-project-parity": "node scripts/test-calc2-project-parity.js",
+    "validate:calc2-allin": "node scripts/validate-calc2-allin.js",
+    "test:calc2-allin-parity": "node scripts/test-calc2-allin-parity.js",
+    "validate:calc2-investor-readiness": "node scripts/validate-calc2-investor-readiness.js",
+    "test:calc2-investor-readiness-parity": "node scripts/test-calc2-investor-readiness-parity.js",
+    "validate:calc2-investor-finance": "node scripts/validate-calc2-investor-finance.js",
+    "test:calc2-investor-finance-parity": "node scripts/test-calc2-investor-finance-parity.js",
+    "validate:calc2-investor-finance-audit": "node scripts/validate-calc2-investor-finance-audit.js",
+    "test:calc2-project-report-parity": "node scripts/test-calc2-project-report-parity.js"
   },
   "dependencies": {
     "pdfkit": "^0.19.1"
