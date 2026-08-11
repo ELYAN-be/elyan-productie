@@ -101,7 +101,7 @@ function buildEmailHtml(payload) {
   '<tr><td style="padding:24px 32px 0;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#3F4A32;border-radius:14px;">' +
       '<tr><td align="center" style="padding:24px 20px;">' +
-        '<p style="margin:0 0 4px;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#E7E3D3;">Aanbevolen projectbudget</p>' +
+        '<p style="margin:0 0 4px;font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:1px;color:#E7E3D3;">Aanbevolen projectbudget (geselecteerde werken)</p>' +
         '<p style="margin:0;font-family:monospace;font-size:22px;font-weight:bold;color:#FFFFFF;">' + escapeHtml(fmtEUR(budget.recommendedExpected)) + '</p>' +
         '<p style="margin:8px 0 0;font-size:13px;color:#EEEADA;">Range ' + escapeHtml(range) + '</p>' +
       '</td></tr>' +

@@ -143,9 +143,9 @@
     if (packageStatus === 'PARTIAL_ESTIMATE') {
       warnings.push({
         code: 'partial_estimate',
-        note: 'Bepaalde renovatieonderdelen konden nog niet betrouwbaar geprijsd worden. Het verwachte bedrag is geen volledig woningrenovatiebudget.'
+        note: 'Gedeeltelijke raming: het getoonde bedrag geldt alleen voor onderdelen met voldoende informatie — geen volledig woningrenovatiebudget.'
       });
-      risks.push('Gedeeltelijke schatting — nog onvoldoende info bij sommige onderdelen');
+      risks.push('Gedeeltelijke raming — nog onvoldoende info bij sommige onderdelen');
     }
 
     if (allIn && allIn.allInStatus === 'ALL_IN_INDICATIVE') {
@@ -154,6 +154,59 @@
         note: 'Projectbudget is indicatief; structurele, vergunnings- of coördinatiekosten zijn nog niet volledig bepaald of berusten op Indicatieve banden.'
       });
     }
+
+    var siteUnresolved = (reconciliation.warnings || []).some(function (w) {
+      return w && (w.code === 'mobilisation_unresolved' || w.code === 'waste_logistics_unresolved');
+    });
+    if (siteUnresolved) {
+      warnings.push({
+        code: 'site_costs_incomplete',
+        note: 'Werfinrichting / containerlogistiek / mobilisatie op projectniveau zijn niet als vaste forfait meegerekend — vraag dit expliciet in offertes. Dit budget is daardoor geen complete werfinrichting.'
+      });
+      if (exclusions && exclusions.body && exclusions.body.indexOf('werfinrichting') === -1) {
+        exclusions = {
+          title: exclusions.title,
+          body: exclusions.body + ' Project-niveau werfinrichting, containerlogistiek en mobilisatie zijn niet als vaste forfait meegerekend.'
+        };
+      }
+    }
+
+    var pricedPackages = [];
+    var unpricedPackages = [];
+    ledger.entries.forEach(function (e) {
+      if (e.status === 'SKIPPED') return;
+      var label = e.instanceLabel || e.key;
+      if (e.status === 'OK' && e.estimate && !(e.adjusted && e.adjusted.suppressed)) {
+        pricedPackages.push({ key: e.key, label: label, expected: e.estimate.expected });
+      } else if (e.status === 'NEEDS_MORE_INFORMATION' || e.status === 'NMI') {
+        unpricedPackages.push({ key: e.key, label: label, reason: 'Nog onvoldoende informatie' });
+      } else if (e.adjusted && e.adjusted.suppressed) {
+        unpricedPackages.push({ key: e.key, label: label, reason: 'Meegenomen elders / onderdrukt' });
+      }
+    });
+
+    var areaM2 = Number((calc2State.propertyProfile || {}).areaM2) || 0;
+    var recForFlag = (packageStatus === 'EMPTY' || (packageStatus === 'PARTIAL_ESTIMATE' && okCount === 0))
+      ? 0
+      : budgetExpected;
+    var eurPerM2 = areaM2 > 0 && recForFlag > 0 ? Math.round(recForFlag / areaM2) : null;
+    var marketPositionNote = null;
+    if (eurPerM2 != null && eurPerM2 >= 2200) {
+      marketPositionNote =
+        'Deze raming ligt aan de bovenkant van de markt door de combinatie van gekozen werken, afwerking en woningkenmerken.';
+      risks.push(marketPositionNote);
+    }
+
+    var LabelsMod = null;
+    try {
+      LabelsMod = typeof require !== 'undefined' ? require('./result-labels') : null;
+    } catch (eLab) { LabelsMod = null; }
+    var exclusions = LabelsMod && LabelsMod.exclusionsCopy
+      ? LabelsMod.exclusionsCopy()
+      : {
+        title: 'Niet automatisch inbegrepen',
+        body: 'Niet automatisch inbegrepen: zonnepanelen, structurele herstelwerken, pleisterwerken, trappen, bepaalde rioleringswerken en buitenaanleg, volledige chape waar niet expliciet gemodelleerd, en bepaalde binnendeuren.'
+      };
 
     if (reconciliation.deductionPctOfRaw > 20) {
       warnings.push({
@@ -235,6 +288,16 @@
       packageBundleMeta: {
         version: packageBundle.version,
         overlapFlagCount: (packageBundle.projectOverlapFlags || []).length
+      },
+      presentation: {
+        exclusions: exclusions,
+        pricedPackages: pricedPackages,
+        unpricedPackages: unpricedPackages,
+        marketPositionNote: marketPositionNote,
+        eurPerM2Budget: eurPerM2,
+        siteCostsUnresolved: siteUnresolved,
+        reserveLabel: 'Projectreserve voor onvoorziene posten',
+        budgetScopeNote: 'Budget voor geselecteerde renovatiewerken + projectkosten — geen turnkey van elke denkbare kost.'
       }
     };
 

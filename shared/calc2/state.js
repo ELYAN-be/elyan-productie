@@ -56,13 +56,13 @@
   var GOALS = {
     homeowner: {
       value: 'homeowner',
-      label: 'Mijn eigen woning volledig renoveren',
-      support: 'Breng de totale renovatiekost, planning en belangrijkste risico’s van je woning in kaart.'
+      label: 'Mijn eigen woning renoveren',
+      support: 'Breng het renovatiebudget voor jouw geselecteerde werken, de planning en de belangrijkste risico’s in kaart.'
     },
     investor: {
       value: 'investor',
       label: 'Een woning kopen, renoveren & doorverkopen',
-      support: 'Analyseer de renovatiekost van een pand en bereid later een volledige investeringsanalyse voor.'
+      support: 'Analyseer het renovatiebudget voor geselecteerde werken en bereid later een investeringsanalyse voor.'
     }
   };
 

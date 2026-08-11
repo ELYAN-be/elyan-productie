@@ -13,13 +13,21 @@
 
   function allInStatusLabel(status) {
     var map = {
-      ALL_IN_COMPLETE: 'Volledig projectbudget',
-      ALL_IN_INDICATIVE: 'Indicatief projectbudget',
-      PARTIAL_ESTIMATE: 'Gedeeltelijke schatting',
+      ALL_IN_COMPLETE: 'Aanbevolen projectbudget (geselecteerde werken)',
+      ALL_IN_INDICATIVE: 'Indicatief projectbudget (geselecteerde werken)',
+      PARTIAL_ESTIMATE: 'Gedeeltelijke raming',
       INSUFFICIENT_INFORMATION: 'Nog onvoldoende informatie',
       EMPTY: 'Nog geen bruikbare schatting'
     };
     return map[status] || 'Indicatieve raming';
+  }
+
+  /** Consumer exclusions — only items NOT modeled in Calc2 */
+  function exclusionsCopy() {
+    return {
+      title: 'Niet automatisch inbegrepen',
+      body: 'Niet automatisch inbegrepen in deze raming: zonnepanelen, structurele herstelwerken, pleisterwerken, trappen, bepaalde rioleringswerken en buitenaanleg, volledige chape waar niet expliciet gemodelleerd, en bepaalde binnendeuren — tenzij je ze elders expliciet hebt opgenomen.'
+    };
   }
 
   function confidenceLabel(c) {
@@ -75,8 +83,8 @@
     if (state && (state.structuralRisk === 'ja' || state.structuralRisk === 'weet_niet')) {
       steps.unshift('Overweeg een technische inspectie of stabiliteitsadvies vóór je vastlegt.');
     }
-    if (project && project.allInStatus === 'PARTIAL_ESTIMATE') {
-      steps.unshift('Vul eerst de open vragen aan — je budget is nog niet volledig.');
+    if (project && project.status === 'PARTIAL_ESTIMATE') {
+      steps.unshift('Vul eerst de open vragen aan — dit is een gedeeltelijke raming voor de onderdelen die we al konden inschatten.');
     }
     if (state && (state.procurementModel === 'weet_niet' || !state.procurementModel)) {
       steps.push('Beslis hoe je wil organiseren: losse vakmannen of hoofdaannemer.');
@@ -106,6 +114,7 @@
     dealStatusLabel: dealStatusLabel,
     softCostFriendly: softCostFriendly,
     nextStepsHomeowner: nextStepsHomeowner,
-    nextStepsInvestor: nextStepsInvestor
+    nextStepsInvestor: nextStepsInvestor,
+    exclusionsCopy: exclusionsCopy
   };
 });

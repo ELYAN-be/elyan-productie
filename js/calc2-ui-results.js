@@ -62,11 +62,11 @@
   function buildStatusBanner(project, Labels, escapeHtml, fmtEUR) {
     if (!project) return '';
     if (project.status === 'PARTIAL_ESTIMATE') {
-      return '<div class="calc2-partial-banner" role="status">' +
-        '<strong>Gedeeltelijke schatting</strong>' +
-        '<p>Bepaalde onderdelen konden nog niet betrouwbaar ingeschat worden. Dit is nog geen volledig renovatiebudget.</p>' +
+      return '<div class="calc2-partial-banner calc2-partial-banner--dominant" role="status">' +
+        '<strong>Gedeeltelijke raming</strong>' +
+        '<p>Dit is <em>geen</em> volledig woningrenovatiebudget. Het bedrag hieronder geldt alleen voor onderdelen met voldoende informatie.</p>' +
         (project.provisionalRiskRange
-          ? '<p>Extra risicoband (indicatief): ' +
+          ? '<p>Extra risicoband (indicatief, niet autoritatief): ' +
             fmtEUR(project.provisionalRiskRange.low) + ' – ' + fmtEUR(project.provisionalRiskRange.high) + '</p>'
           : '') +
       '</div>';
@@ -75,10 +75,71 @@
     if (allInStatus === 'ALL_IN_INDICATIVE') {
       return '<div class="calc2-partial-banner calc2-indicative-banner" role="status">' +
         '<strong>Indicatief projectbudget</strong>' +
-        '<p>Structurele, vergunnings- of coördinatiekosten zijn nog niet volledig bepaald.</p>' +
+        '<p>Budget voor geselecteerde werken + projectlagen. Structurele, vergunnings- of coördinatiekosten zijn nog niet volledig bepaald.</p>' +
       '</div>';
     }
     return '';
+  }
+
+  function buildPartialUnpricedBlock(project, escapeHtml) {
+    if (!project || project.status !== 'PARTIAL_ESTIMATE') return '';
+    var unpriced = ((project.presentation && project.presentation.unpricedPackages) || [])
+      .map(function (u) {
+        return '<li>' + escapeHtml(u.label || u.key) +
+          (u.reason ? ' — ' + escapeHtml(u.reason) : '') + '</li>';
+      }).join('');
+    if (!unpriced) {
+      return '<div class="calc2-partial-unpriced">' +
+        '<p><strong>Nog niet betrouwbaar meegerekend</strong></p>' +
+        '<p class="calc2-review-note">Vul open vragen aan om meer onderdelen te laten meerekenen.</p>' +
+      '</div>';
+    }
+    return '<div class="calc2-partial-unpriced">' +
+      '<p><strong>Nog niet betrouwbaar meegerekend</strong></p>' +
+      '<ul class="calc2-partial-miss">' + unpriced + '</ul>' +
+    '</div>';
+  }
+
+  function buildExclusionsCard(project, Labels, escapeHtml) {
+    var ex = (project && project.presentation && project.presentation.exclusions) ||
+      (Labels.exclusionsCopy && Labels.exclusionsCopy()) || null;
+    if (!ex) return '';
+    return '<div class="calc2-review-card calc2-exclusions">' +
+      '<div class="calc2-review-head"><h3>' + escapeHtml(ex.title) + '</h3></div>' +
+      '<p class="calc2-review-note">' + escapeHtml(ex.body) + '</p>' +
+    '</div>';
+  }
+
+  function buildResultHero(project, statusLabel, confLabel, vatNote, duration, escapeHtml, fmtEUR) {
+    var isPartial = project.status === 'PARTIAL_ESTIMATE';
+    var kicker = isPartial
+      ? 'Gedeeltelijke raming <span>(excl. btw)</span>'
+      : 'Renovatiebudget voor jouw geselecteerde werken <span>(excl. btw)</span>';
+    var recLabel = isPartial
+      ? 'Indicatief bedrag (enkel inschattbare onderdelen)'
+      : 'Aanbevolen projectbudget';
+    var marketNote = project.presentation && project.presentation.marketPositionNote
+      ? '<p class="calc2-review-note calc2-market-flag">' + escapeHtml(project.presentation.marketPositionNote) + '</p>'
+      : '';
+    var scopeNote = project.presentation && project.presentation.budgetScopeNote
+      ? '<p class="calc2-review-note">' + escapeHtml(project.presentation.budgetScopeNote) + '</p>'
+      : '<p class="calc2-review-note">Indicatieve raming op basis van jouw geselecteerde werken. Geen turnkey van elke denkbare kost.</p>';
+
+    return '<section class="calc2-result-hero' + (isPartial ? ' is-partial' : '') + '" aria-label="Renovatiebudget">' +
+      '<p class="calc2-hero-kicker">' + kicker + '</p>' +
+      (isPartial
+        ? '<p class="calc2-hero-partial-label">Voor de onderdelen waarvoor voldoende informatie beschikbaar is:</p>'
+        : '') +
+      '<p class="calc2-hero-range">' + fmtEUR(project.budget.low) + ' – ' + fmtEUR(project.budget.high) + '</p>' +
+      '<p class="calc2-hero-recommended">' + escapeHtml(recLabel) + ': <strong>' +
+        fmtEUR(project.budget.recommendedExpected) + '</strong></p>' +
+      '<p class="calc2-confidence">' + escapeHtml(statusLabel) +
+        ' · Betrouwbaarheid: <strong>' + escapeHtml(confLabel) + '</strong></p>' +
+      '<p class="calc2-vat-note">' + escapeHtml(vatNote) + '</p>' +
+      '<p class="calc2-confidence">Indicatieve uitvoeringsduur: ongeveer ' + escapeHtml(duration) + '</p>' +
+      scopeNote +
+      marketNote +
+    '</section>';
   }
 
   function buildInvestorGate(ctx) {
@@ -254,16 +315,9 @@
     return '<div class="calc2-project-result">' +
       buildStatusBanner(project, Labels, escapeHtml, fmtEUR) +
 
-      '<section class="calc2-result-hero" aria-label="Renovatiebudget">' +
-        '<p class="calc2-hero-kicker">Jouw renovatiebudget <span>(excl. btw)</span></p>' +
-        '<p class="calc2-hero-range">' + fmtEUR(project.budget.low) + ' – ' + fmtEUR(project.budget.high) + '</p>' +
-        '<p class="calc2-hero-recommended">Aanbevolen: <strong>' + fmtEUR(project.budget.recommendedExpected) + '</strong></p>' +
-        '<p class="calc2-confidence">' + escapeHtml(statusLabel) +
-          ' · Betrouwbaarheid: <strong>' + escapeHtml(confLabel) + '</strong></p>' +
-        '<p class="calc2-vat-note">' + escapeHtml(vatNote) + '</p>' +
-        '<p class="calc2-confidence">Indicatieve uitvoeringsduur: ongeveer ' + escapeHtml(duration) + '</p>' +
-        '<p class="calc2-review-note">Indicatieve raming op basis van jouw projectgegevens. Planning kan wijzigen door vergunningen, levertermijnen en beschikbaarheid van aannemers.</p>' +
-      '</section>' +
+      buildResultHero(project, statusLabel, confLabel, vatNote, duration, escapeHtml, fmtEUR) +
+
+      buildPartialUnpricedBlock(project, escapeHtml) +
 
       '<div class="calc2-review-card">' +
         '<div class="calc2-review-head"><h3>Budgetoverzicht</h3></div>' +
@@ -271,10 +325,18 @@
           '<li><span>Renovatiewerken</span><strong>' + fmtEUR(project.budget.worksExpected) + '</strong></li>' +
           '<li><span>Projectkosten</span><strong>' + fmtEUR(softExp) + '</strong></li>' +
           '<li><span>Organisatie / ' + escapeHtml(procLabel) + '</span><strong>' + fmtEUR(procExp) + '</strong></li>' +
-          '<li><span>Reserve</span><strong>' + fmtEUR(project.budget.reserveExpected) + '</strong></li>' +
-          '<li class="is-total"><span>Totaal aanbevolen</span><strong>' + fmtEUR(project.budget.recommendedExpected) + '</strong></li>' +
+          '<li><span>' + escapeHtml((project.presentation && project.presentation.reserveLabel) ||
+            'Projectreserve voor onvoorziene posten') + '</span><strong>' +
+            fmtEUR(project.budget.reserveExpected) + '</strong></li>' +
+          '<li class="is-total"><span>' +
+            (project.status === 'PARTIAL_ESTIMATE'
+              ? 'Indicatief subtotaal (inschattbare onderdelen)'
+              : 'Aanbevolen projectbudget') +
+            '</span><strong>' + fmtEUR(project.budget.recommendedExpected) + '</strong></li>' +
         '</ul>' +
       '</div>' +
+
+      buildExclusionsCard(project, Labels, escapeHtml) +
 
       (pkgDetails
         ? '<details class="calc2-recon" open><summary>Werkpakketten in detail</summary>' +

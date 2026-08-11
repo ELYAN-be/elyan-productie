@@ -180,7 +180,7 @@
         <button type="button" class="btn btn-primary btn-lg hero-cta" data-action="start-calculator">
           Bereken één renovatiewerk <svg class="icon"><use href="#i-arrow-right"></use></svg>
         </button>
-        <a class="hero-secondary-link" href="#producten">Of plan een volledige woningrenovatie</a>
+        <a class="hero-secondary-link" href="#producten">Of plan een woningrenovatieanalyse</a>
         <div class="hero-trust hero-trust--full">
           <span><svg class="icon"><use href="#i-check"></use></svg> Gratis</span>
           <span><svg class="icon"><use href="#i-check"></use></svg> ±&nbsp;2&nbsp;minuten</span>
@@ -192,8 +192,12 @@
     <div class="hero-stage">
       <div class="hero-photo">
         <picture>
+          <source type="image/avif" media="(max-width:720px)" srcset="/assets/photos/hero-sm.avif">
+          <source type="image/webp" media="(max-width:720px)" srcset="/assets/photos/hero-sm.webp">
           <source media="(max-width:720px)" srcset="/assets/photos/hero-sm.jpg">
-          <img src="/assets/photos/hero.jpg" alt="Lichtgevuld modern interieur met grote ramen en verfijnde materialen" width="1536" height="1024" fetchpriority="high" decoding="async">
+          <source type="image/avif" srcset="/assets/photos/hero.avif">
+          <source type="image/webp" srcset="/assets/photos/hero.webp">
+          <img src="/assets/photos/hero.jpg" alt="Premium modern interieur — open woonruimte met keuken, natuurlijk licht en verfijnde materialen" width="1536" height="864" fetchpriority="high" decoding="async">
         </picture>
       </div>
       <div class="demo-card" id="demoCard">
@@ -394,7 +398,7 @@
     <div class="section-head reveal">
       <span class="eyebrow">Kies je traject</span>
       <h2 id="productenTitle">Twee niveaus van analyse.</h2>
-      <p class="lead">Zelfde ELYAN-platform: snel één categorie, of een volledig woningproject. Ook geschikt voor aankoop- en renovatiescenario’s.</p>
+      <p class="lead">Zelfde ELYAN-platform: snel één categorie, of een woningrenovatieanalyse voor geselecteerde werken. Ook geschikt voor aankoop- en renovatiescenario’s.</p>
     </div>
     <div class="calc2-product-grid">
       <article class="calc2-product-card is-primary reveal">
@@ -406,9 +410,9 @@
         </button>
       </article>
       <article class="calc2-product-card reveal">
-        <span class="calc2-product-kicker">Volledige woningrenovatie <em class="calc2-badge-subtle">Uitgebreide analyse</em></span>
-        <h3>Plan je volledige renovatie</h3>
-        <p>Voor een compleet woningproject of aankoop- en renovatiescenario. Scope, budgetlagen, planning en — indien relevant — investeringsanalyse.</p>
+        <span class="calc2-product-kicker">Woningrenovatieanalyse <em class="calc2-badge-subtle">Uitgebreide analyse</em></span>
+        <h3>Plan je woningrenovatie</h3>
+        <p>Voor geselecteerde renovatiewerken op woningniveau of een aankoop- en renovatiescenario. Scope, budgetlagen, planning en — indien relevant — investeringsanalyse.</p>
         <button type="button" class="btn btn-ghost" data-action="start-calculator-2">
           Start woningproject <svg class="icon"><use href="#i-arrow-right"></use></svg>
         </button>
@@ -427,7 +431,7 @@
         Start categorie <svg class="icon"><use href="#i-arrow-right"></use></svg>
       </button>
       <button type="button" class="btn btn-ghost btn-lg" data-action="start-calculator-2">
-        Volledige woningrenovatie
+        Woningrenovatieanalyse
       </button>
       <div class="hero-trust">
         <span><svg class="icon"><use href="#i-check"></use></svg> Gratis</span>
@@ -557,7 +561,7 @@
 </div>
 
 <!-- CALCULATOR 2 OVERLAY -->
-<div class="app-overlay" id="calc2Overlay" tabindex="-1" aria-label="Volledige woningrenovatie">
+<div class="app-overlay" id="calc2Overlay" tabindex="-1" aria-label="Woningrenovatieanalyse">
   <div class="app-bar">
     <div class="app-bar-inner">
       <button type="button" class="app-back" id="calc2Back">
@@ -641,7 +645,7 @@
     </div>
 
     <div class="cta-card">
-      <h3><svg class="icon"><use href="#i-mail"></use></svg> Ontvang je volledige renovatierapport</h3>
+      <h3><svg class="icon"><use href="#i-mail"></use></svg> Ontvang je renovatiebudgetrapport</h3>
       <p>Een premium PDF-rapport op maat van jouw antwoorden: prijsvork, kostenuitsplitsing, inzichten, planning en volgende stappen.</p>
       <ul class="cta-benefits">
         <li class="cta-benefit"><svg class="icon"><use href="#i-check"></use></svg> Gedetailleerde kostenraming per post</li>

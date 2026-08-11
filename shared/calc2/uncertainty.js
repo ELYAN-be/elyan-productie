@@ -30,7 +30,8 @@
     /* MODEL_ASSUMPTION — project interaction reserve, not a market €/m² */
     LOW: { low: 0.04, expected: 0.06, high: 0.08 },
     MEDIUM: { low: 0.07, expected: 0.10, high: 0.14 },
-    HIGH: { low: 0.10, expected: 0.14, high: 0.20 },
+    /* Raised HIGH expected for older/heavy interaction risk (package bands still carry trade uncertainty) */
+    HIGH: { low: 0.12, expected: 0.16, high: 0.22 },
     INSUFFICIENT_INFORMATION: { low: 0, expected: 0, high: 0 }
   };
 
@@ -60,6 +61,14 @@
       score += 1;
       risks.push('Occupied during works');
     }
+    if (calc2State && calc2State.structuralRisk === 'ja') {
+      score += 2;
+      risks.push('Structureel risico aangegeven — hogere projectreserve');
+    }
+    if (profile.yearBuilt === 'voor_1950' && (profile.condition === 'zwaar' || profile.condition === 'verouderd')) {
+      score += 1;
+      risks.push('Oude zware woning — projectreserve verhoogd');
+    }
 
     var unresolvedWarnings = (reconciliation.warnings || []).filter(function (w) {
       return /unresolved|overlap/i.test(w.code || '');
@@ -80,8 +89,10 @@
     var packageConfidence = summarizePackageConfidence(ledger);
 
     var className;
+    /* Incomplete packages raise risk — do NOT zero reserve while priced OK works remain */
     if (nmi > 0 && nmi >= Math.max(1, Math.ceil(ok * 0.35))) {
-      className = 'INSUFFICIENT_INFORMATION';
+      className = ok > 0 ? 'HIGH' : 'INSUFFICIENT_INFORMATION';
+      if (ok > 0) risks.push('Hoge NMI-ratio — reserve verhoogd (HIGH), niet op €0 gezet.');
     } else if (score >= 7) className = 'HIGH';
     else if (score >= 3) className = 'MEDIUM';
     else className = 'LOW';

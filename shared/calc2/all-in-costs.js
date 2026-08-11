@@ -240,7 +240,8 @@
 
   function isActive(scope, id) {
     var v = intensity(scope, id);
-    return v && v !== 'niet' && v !== 'weet_niet';
+    /* Scope uses 'niet_nodig' — do not treat it as an active trade */
+    return !!(v && v !== 'niet' && v !== 'niet_nodig' && v !== 'weet_niet');
   }
 
   function regionOf(profile) {
@@ -324,12 +325,8 @@
     var old = year === 'voor_1950' || year === '1950_1970' || year === '1971_1990';
     var dak = Ledger && Ledger.findEntry ? Ledger.findEntry(ledger, 'dak') : null;
     var details = (state.packageDetails && state.packageDetails.dak) || {};
+    /* Only trust asbestos from user answer — never from silent adapter default mogelijk */
     var roofAsb = details.roofAsbestos === 'ja' || details.roofAsbestos === 'mogelijk';
-    // Only trust resolved asbestos from a priced OK dak package — never from NMI provisional
-    if (dak && dak.status === 'OK' && dak.inputMapping && dak.inputMapping.resolvedAnswers) {
-      var ans = dak.inputMapping.resolvedAnswers;
-      if (ans.asbestos === 'ja' || ans.asbestos === 'mogelijk') roofAsb = true;
-    }
     if (dak && dak.status === 'NEEDS_MORE_INFORMATION') {
       return {
         yes: false,
@@ -337,7 +334,7 @@
         reason: 'Dakstatus onbekend — asbestrisico open tot dakdetails bekend zijn.'
       };
     }
-    if (details.roofAsbestos === 'ja' || roofAsb) {
+    if (roofAsb) {
       return { yes: true, reason: 'Asbest-indicatie bij dak/scope.' };
     }
     if (old && (intensity(state.scope, 'dak') || intensity(state.scope, 'gevel') || profile.condition === 'zwaar')) {
@@ -911,7 +908,7 @@
 
     var reserveObj = {
       id: 'recommended_reserve',
-      label: 'Aanbevolen reserve',
+      label: 'Projectreserve voor onvoorziene posten',
       low: round50(reserveLow),
       expected: round50(reserveExpected),
       high: round50(reserveHigh),

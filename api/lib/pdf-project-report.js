@@ -230,26 +230,43 @@ function sandCard(doc, lines, ctx, minH) {
   doc.y = startY + h + SPACE.L;
 }
 
-function mintBudgetCard(doc, budget, statusLabel, confLabel, durationText, ctx) {
-  var h = 118;
+function mintBudgetCard(doc, budget, statusLabel, confLabel, durationText, ctx, opts) {
+  opts = opts || {};
+  var isPartial = !!opts.isPartial;
+  var h = isPartial ? 138 : 118;
   keepBlock(doc, h + SPACE.M, ctx);
   var y = doc.y;
   doc.roundedRect(MARGIN, y, CONTENT_W, h, 10).fill(COLOR.mint);
   doc.roundedRect(MARGIN, y, CONTENT_W, h, 10).lineWidth(0.9).strokeColor(COLOR.primarySoft).stroke();
 
-  doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
-    .text('REALISTISCHE RANGE', MARGIN + 16, y + 14, { characterSpacing: 0.8 });
-  doc.font('Helvetica-Bold').fontSize(18).fillColor(COLOR.ink)
-    .text(fmtEUR(budget.low) + '  –  ' + fmtEUR(budget.high), MARGIN + 16, y + 28, { width: CONTENT_W - 32 });
+  if (isPartial) {
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('GEDEELTELIJKE RAMING — ENKEL INSCHATTBARE ONDERDELEN', MARGIN + 16, y + 12, { characterSpacing: 0.6 });
+    doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft)
+      .text('Voor de onderdelen waarvoor voldoende informatie beschikbaar is:', MARGIN + 16, y + 28, {
+        width: CONTENT_W - 32
+      });
+    doc.font('Helvetica-Bold').fontSize(16).fillColor(COLOR.ink)
+      .text(fmtEUR(budget.low) + '  –  ' + fmtEUR(budget.high), MARGIN + 16, y + 44, { width: CONTENT_W - 32 });
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('INDICATIEF BEDRAG (NIET COMPLEET)', MARGIN + 16, y + 72, { characterSpacing: 0.6 });
+    doc.font('Helvetica-Bold').fontSize(15).fillColor(COLOR.primaryDark)
+      .text(fmtEUR(budget.recommendedExpected), MARGIN + 16, y + 86);
+  } else {
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('REALISTISCHE RANGE', MARGIN + 16, y + 14, { characterSpacing: 0.8 });
+    doc.font('Helvetica-Bold').fontSize(18).fillColor(COLOR.ink)
+      .text(fmtEUR(budget.low) + '  –  ' + fmtEUR(budget.high), MARGIN + 16, y + 28, { width: CONTENT_W - 32 });
 
-  doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
-    .text('AANBEVOLEN PROJECTBUDGET', MARGIN + 16, y + 56, { characterSpacing: 0.8 });
-  doc.font('Helvetica-Bold').fontSize(16).fillColor(COLOR.primaryDark)
-    .text(fmtEUR(budget.recommendedExpected), MARGIN + 16, y + 70);
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('AANBEVOLEN PROJECTBUDGET (GESELECTEERDE WERKEN)', MARGIN + 16, y + 56, { characterSpacing: 0.55 });
+    doc.font('Helvetica-Bold').fontSize(16).fillColor(COLOR.primaryDark)
+      .text(fmtEUR(budget.recommendedExpected), MARGIN + 16, y + 70);
+  }
 
   doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft)
     .text(statusLabel + '  ·  Betrouwbaarheid: ' + confLabel + (durationText ? '  ·  ' + durationText : ''),
-      MARGIN + 16, y + 96, { width: CONTENT_W - 32 });
+      MARGIN + 16, y + h - 22, { width: CONTENT_W - 32 });
   doc.y = y + h + SPACE.L;
 }
 
@@ -442,29 +459,45 @@ function drawCover(doc, ctx, project, state, profile) {
     .text(ctx.reportDate, MARGIN + 4, doc.y + 10);
 
   var budget = project.budget || {};
+  var isPartial = project.status === 'PARTIAL_ESTIMATE';
   var cardY = 400;
-  var cardH = 150;
+  var cardH = isPartial ? 168 : 150;
   doc.roundedRect(MARGIN, cardY, CONTENT_W, cardH, 12).fill(COLOR.mint);
-  doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
-    .text('REALISTISCHE RANGE', MARGIN + 18, cardY + 18, { characterSpacing: 0.8 });
-  doc.font('Helvetica-Bold').fontSize(20).fillColor(COLOR.ink)
-    .text(fmtEUR(budget.low) + '  –  ' + fmtEUR(budget.high), MARGIN + 18, cardY + 34);
-  doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
-    .text('AANBEVOLEN PROJECTBUDGET', MARGIN + 18, cardY + 68, { characterSpacing: 0.8 });
-  doc.font('Helvetica-Bold').fontSize(18).fillColor(COLOR.primaryDark)
-    .text(fmtEUR(budget.recommendedExpected), MARGIN + 18, cardY + 84);
+  if (isPartial) {
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('GEDEELTELIJKE RAMING', MARGIN + 18, cardY + 16, { characterSpacing: 0.8 });
+    doc.font('Helvetica').fontSize(9).fillColor(COLOR.inkSoft)
+      .text('Voor de onderdelen waarvoor voldoende informatie beschikbaar is:', MARGIN + 18, cardY + 34, {
+        width: CONTENT_W - 36
+      });
+    doc.font('Helvetica-Bold').fontSize(18).fillColor(COLOR.ink)
+      .text(fmtEUR(budget.low) + '  –  ' + fmtEUR(budget.high), MARGIN + 18, cardY + 52);
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('INDICATIEF BEDRAG (NIET COMPLEET)', MARGIN + 18, cardY + 84, { characterSpacing: 0.55 });
+    doc.font('Helvetica-Bold').fontSize(16).fillColor(COLOR.primaryDark)
+      .text(fmtEUR(budget.recommendedExpected), MARGIN + 18, cardY + 100);
+  } else {
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('REALISTISCHE RANGE', MARGIN + 18, cardY + 18, { characterSpacing: 0.8 });
+    doc.font('Helvetica-Bold').fontSize(20).fillColor(COLOR.ink)
+      .text(fmtEUR(budget.low) + '  –  ' + fmtEUR(budget.high), MARGIN + 18, cardY + 34);
+    doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+      .text('AANBEVOLEN PROJECTBUDGET (GESELECTEERDE WERKEN)', MARGIN + 18, cardY + 68, { characterSpacing: 0.45 });
+    doc.font('Helvetica-Bold').fontSize(18).fillColor(COLOR.primaryDark)
+      .text(fmtEUR(budget.recommendedExpected), MARGIN + 18, cardY + 84);
+  }
   var status = Labels.allInStatusLabel(project.allInStatus || project.status);
   var conf = Labels.confidenceLabel(project.confidence);
   var dur = project.duration
     ? ('Indicatief ' + project.duration.minWeeks + '–' + project.duration.maxWeeks + ' weken')
     : '';
   doc.font('Helvetica').fontSize(9).fillColor(COLOR.inkSoft)
-    .text(status + '  ·  ' + conf + (dur ? '  ·  ' + dur : ''), MARGIN + 18, cardY + 118, {
+    .text(status + '  ·  ' + conf + (dur ? '  ·  ' + dur : ''), MARGIN + 18, cardY + cardH - 28, {
       width: CONTENT_W - 36
     });
 
   doc.font('Helvetica').fontSize(9).fillColor(COLOR.sandDeep)
-    .text('Indicatieve raming op basis van jouw projectgegevens. Geen offerte.',
+    .text('Indicatieve raming voor geselecteerde werken. Geen offerte. Geen turnkey van elke denkbare kost.',
       MARGIN + 4, PAGE.height - 70, { width: CONTENT_W });
 }
 
@@ -510,11 +543,29 @@ function buildProjectReportPdf(data) {
       /* ---- Executive ---- */
       startSection(doc, ctx, { eyebrow: 'Samenvatting', icon: 'target', title: 'Executive overview', keepWith: 200 });
       bodyText(doc,
-        'Indicatieve raming voor jouw woningproject. Bedragen excl. btw tenzij anders vermeld.',
+        'Indicatieve raming voor jouw geselecteerde renovatiewerken + projectlagen. Bedragen excl. btw tenzij anders vermeld. Geen turnkey van elke denkbare kost.',
         ctx, { after: SPACE.S });
 
+      if (project.status === 'PARTIAL_ESTIMATE') {
+        var miss = ((project.presentation && project.presentation.unpricedPackages) || [])
+          .map(function (u) { return (u.label || u.key) + (u.reason ? ' (' + u.reason + ')' : ''); });
+        sandCard(doc, [
+          { text: 'Gedeeltelijke raming', bold: true, size: 10, color: COLOR.ink },
+          { text: 'Het bedrag hieronder geldt alleen voor onderdelen met voldoende informatie — geen volledig woningrenovatiebudget.', size: 9 },
+          miss.length
+            ? { text: 'Nog niet betrouwbaar meegerekend: ' + miss.join('; ') + '.', size: 9 }
+            : { text: 'Vul open vragen aan om meer onderdelen te laten meerekenen.', size: 9 }
+        ], ctx);
+      }
+
       mintBudgetCard(doc, budget, statusLabel, confLabel,
-        durationText ? ('Duur: ' + durationText) : '', ctx);
+        durationText ? ('Duur: ' + durationText) : '', ctx, {
+          isPartial: project.status === 'PARTIAL_ESTIMATE'
+        });
+
+      if (project.presentation && project.presentation.marketPositionNote) {
+        bodyText(doc, project.presentation.marketPositionNote, ctx, { after: SPACE.S });
+      }
 
       metaGrid(doc, [
         { label: 'Doel', value: state.goal === 'investor' ? 'Kopen & renoveren' : 'Eigen woning' },
@@ -578,15 +629,28 @@ function buildProjectReportPdf(data) {
         ['Renovatiewerken', fmtEUR(budget.worksExpected)],
         ['Projectkosten', fmtEUR(soft)],
         ['Organisatie / coördinatie', fmtEUR(proc)],
-        ['Projectreserve', fmtEUR(budget.reserveExpected)],
-        ['Aanbevolen projectbudget', fmtEUR(budget.recommendedExpected)]
+        ['Projectreserve voor onvoorziene posten', fmtEUR(budget.reserveExpected)],
+        [project.status === 'PARTIAL_ESTIMATE'
+          ? 'Indicatief subtotaal (inschattbare onderdelen)'
+          : 'Aanbevolen projectbudget (geselecteerde werken)',
+          fmtEUR(budget.recommendedExpected)]
       ].forEach(function (row, i) {
         tableRow(doc, colsBudget, row, ty, i % 2 === 1);
         ty += TABLE_ROW_H;
       });
       doc.y = ty + SPACE.M;
       bodyText(doc, 'Range ' + fmtEUR(budget.low) + ' – ' + fmtEUR(budget.high) +
-        '. De reserve dekt typische onvoorziene posten; geen garantie tegen alle meerwerken.', ctx);
+        '. De projectreserve dekt typische onvoorziene interactierisico’s; geen garantie tegen alle meerwerken. Package-ranges dragen aparte onzekerheid.', ctx);
+
+      var ex = (project.presentation && project.presentation.exclusions) ||
+        (Labels.exclusionsCopy && Labels.exclusionsCopy());
+      if (ex) {
+        startSection(doc, ctx, {
+          eyebrow: 'Scope', icon: 'info', title: ex.title,
+          keepWith: 64
+        });
+        bodyText(doc, ex.body, ctx);
+      }
 
       /* ---- Work packages ---- */
       startSection(doc, ctx, {

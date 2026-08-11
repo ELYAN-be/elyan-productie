@@ -727,7 +727,7 @@
       host.innerHTML =
         '<div class="calc2-screen calc2-review">' +
           '<h2 class="calc2-title">Je renovatieproject</h2>' +
-          '<p class="calc2-hint">All-in projectbudget: renovatiewerken, projectkosten en reserve. Bedragen excl. btw.</p>' +
+          '<p class="calc2-hint">Renovatiebudget voor jouw geselecteerde werken + projectkosten en projectreserve. Bedragen excl. btw. Geen turnkey totaal van elke denkbare kost.</p>' +
           renderProjectResultBlock(project) +
         '</div>';
 
@@ -1011,7 +1011,11 @@
         r.expected = numOrNull(host.querySelector('#finResE'));
         r.strong = numOrNull(host.querySelector('#finResS'));
         if (!(r.expected > 0 || r.conservative > 0 || r.strong > 0)) return;
+        /* Anchor expected from any filled scenario so PDF/UI scenarios never coerce blanks to €0 */
         if (!r.expected && r.conservative) r.expected = r.conservative;
+        if (!r.expected && r.strong) r.expected = r.strong;
+        if (!r.conservative && r.expected) r.conservative = r.expected;
+        if (!r.strong && r.expected) r.strong = r.expected;
         StateApi.touch(state);
         next();
       });

@@ -90,7 +90,10 @@
       // A. Dak insulation vs Isolatie dak_binnen / zoldervloer
       if (hasOk(dak)) {
         var dakAns = answersOf(dak);
-        var dakHasIso = dakAns.insulation === 'ja' || dakAns.workType === 'volledig' || dakAns.workType === 'isolatie';
+        /* Ownership = explicit insulation, isolatie-workType, or volledig only when insulation is not explicitly "nee" */
+        var dakHasIso = dakAns.insulation === 'ja'
+          || dakAns.workType === 'isolatie'
+          || (dakAns.workType === 'volledig' && dakAns.insulation !== 'nee');
         var isoSub = subtypeOf(isolatie);
         if (dakHasIso && (isoSub === 'dak_binnen' || isoSub === 'zoldervloer')) {
           var isoTot = isolatie.estimate;
@@ -153,7 +156,7 @@
     if (hasOk(elek) && hasOk(keuken)) {
       var elekScope = answersOf(elek).scope;
       if (elekScope === 'volledig' || elekScope === 'renovatie_volledig') {
-        var elecConn = sumComp(keuken, ['conn-elec-move']);
+        var elecConn = sumComp(keuken, ['conn-elec-move', 'conn-elec']);
         if (elecConn.expected > 0) {
           adjustments.push(adj({
             type: 'scope_overlap',
@@ -164,7 +167,7 @@
             highAdjustment: -elecConn.high,
             method: 'COMPONENT_DEDUCT',
             confidence: 'high',
-            reason: 'Volledige elektra-renovatie actief: keukencomponent conn-elec-move is identificeerbaar en wordt afgetrokken (niet de volledige keuken).',
+            reason: 'Volledige elektra-renovatie actief: keukencomponenten conn-elec / conn-elec-move zijn identificeerbaar en worden afgetrokken (niet de volledige keuken).',
             sourceComponents: elecConn.ids
           }));
         } else {
@@ -338,12 +341,13 @@
       });
     }
 
-    // Mobilisation / site setup: no invented euros — flag only
+    // Mobilisation / site setup / multi-trade waste: no invented euros — mark unresolved for honesty
     if (ledger.raw.packageCount >= 4) {
       warnings.push({
-        code: 'mobilisation_hook',
+        code: 'mobilisation_unresolved',
         packages: [],
-        note: 'Project-niveau mobilisatie/werfinrichting: geen nieuwe € toegevoegd (onvoldoende BE-benchmark zonder inventie). Hook voor latere research-fase.'
+        unresolvedSiteCost: true,
+        note: 'Project-niveau mobilisatie, containerlogistiek en werfinrichting: geen generieke BE-forfait toegevoegd (zonder inventie). Los op via eigen inschatting of aannemersofferte — dit budget is daardoor geen complete werfinrichting.'
       });
     }
 

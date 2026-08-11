@@ -342,7 +342,8 @@
     if (focus === 'combi') {
       return [
         { instanceId: 'dak', instanceLabel: 'Isolatie dak (combi)', subtype: 'dak_binnen' },
-        { instanceId: 'muren', instanceLabel: 'Isolatie muren (combi)', subtype: 'buitenmuur' },
+        /* BE renovation: "muren" without gevel-ETICS intent = spouw (not buitenmuur/ETICS) */
+        { instanceId: 'muren', instanceLabel: 'Isolatie muren (combi)', subtype: 'spouw' },
         { instanceId: 'vloer', instanceLabel: 'Isolatie vloer (combi)', subtype: 'vloer' }
       ];
     }
@@ -350,7 +351,7 @@
       instanceId: 'main',
       instanceLabel: null,
       subtype: focus === 'dak' ? 'dak_binnen'
-        : focus === 'muren' ? 'buitenmuur'
+        : focus === 'muren' ? 'spouw'
         : focus === 'vloer' ? 'vloer'
         : null
     }];
@@ -409,7 +410,16 @@
     } else {
       mapping.push(meta('workType', 'direct', 'Scope → workType=' + workType, 'high'));
     }
-    if (intensity !== 'weet_niet') {
+
+    var insulation = d.roofInsulation === 'ja' || d.roofInsulation === 'deels' ? 'ja'
+      : d.roofInsulation === 'nee' ? 'nee' : 'onbekend';
+    /* Calc1 forces dakisolatie whenever workType=volledig — honor explicit "nee" by mapping to vernieuwen */
+    if (workType === 'volledig' && insulation === 'nee') {
+      workType = 'vernieuwen';
+      assumptions.push('dak volledig + roofInsulation=nee → workType=vernieuwen (Calc1 volledig forceert isolatie; gebruiker weigerde isolatie).');
+      mapping.push(meta('workType', 'derived',
+        'Volledig dak zonder isolatie → vernieuwen (geen stille Calc1-isolatie).', 'high'));
+    } else if (intensity !== 'weet_niet') {
       mapping.push(meta('workType', 'direct', 'Scope-intensiteit ' + intensity + ' → workType=' + workType, 'high'));
     }
 
@@ -446,8 +456,6 @@
       }
     }
 
-    var insulation = d.roofInsulation === 'ja' || d.roofInsulation === 'deels' ? 'ja'
-      : d.roofInsulation === 'nee' ? 'nee' : 'onbekend';
     if (d.roofInsulation && d.roofInsulation !== 'weet_niet') {
       mapping.push(meta('insulation', 'direct', 'Isolatiekeuze uit details.', 'high'));
     } else {
@@ -490,7 +498,8 @@
     } else {
       asbestos = 'mogelijk';
       unknowns.push('roofAsbestos');
-      mapping.push(meta('asbestos', 'unknown', 'Asbest is inspectie-onzekerheid → buffer mogelijk.', 'low'));
+      mapping.push(meta('asbestos', 'unknown', 'Asbest onbeantwoord — geen autoritatieve asbestlijn zonder antwoord.', 'low'));
+      statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
     }
 
     var level = ctx.level;
@@ -536,7 +545,8 @@
     } else {
       frame = 'pvc';
       unknowns.push('windowFrame');
-      mapping.push(meta('frame', 'assumed', 'Kader onbekend → pvc.', 'low'));
+      mapping.push(meta('frame', 'assumed', 'Kader onbekend → pvc (provisioneel, niet autoritatief).', 'low'));
+      statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
     }
 
     var glazing = ctx.level === 'premium' ? 'hr+++' : ctx.level === 'basis' ? 'hr' : 'hr++';
@@ -598,14 +608,18 @@
       } else if (d.isoFocus && d.isoFocus !== 'weet_niet') {
         mapping.push(meta('subtype', 'direct', 'Isolatiefocus → subtype.', 'high'));
       }
-    } else if (d.isoFocus === 'dak') subtype = 'dak_binnen';
-    else if (d.isoFocus === 'muren') subtype = 'buitenmuur';
+    }     else if (d.isoFocus === 'dak') subtype = 'dak_binnen';
+    else if (d.isoFocus === 'muren') subtype = 'spouw';
     else if (d.isoFocus === 'vloer') subtype = 'vloer';
     else {
       unknowns.push('isoFocus');
       subtype = 'spouw';
       mapping.push(meta('subtype', 'unknown', 'Focus onbekend — geen autoritatieve subtype.', 'low'));
       statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+    }
+    if (d.isoFocus === 'muren' || (instance && instance.instanceId === 'muren')) {
+      assumptions.push('isoFocus=muren → Calc1 spouw (typische BE renovatie). Buitenmuur/ETICS via gevel-pakket, niet via muren.');
+      mapping.push(meta('subtype', 'derived', 'Muren → spouw (niet ETICS).', 'high'));
     }
 
     var size = ctx.areaM2;
@@ -615,6 +629,7 @@
       if (subtype === 'vloer') sizeFactor = 1;
       else if (subtype === 'dak_binnen') sizeFactor = 0.85;
       else if (subtype === 'buitenmuur') sizeFactor = 1;
+      else if (subtype === 'spouw') sizeFactor = 1;
       size = Math.round(size * sizeFactor);
       mapping.push(meta('size', 'derived', 'Isolatie-opp. proxy vanaf woningopp. (instantie ' + (instance.instanceId || 'main') + ').', 'medium'));
     } else {
@@ -685,9 +700,20 @@
     if (d.underfloor === 'ja') distribution = 'vloer';
     else if (d.underfloor === 'deels') distribution = 'gemengd';
     else if (d.underfloor === 'nee') distribution = 'radiatoren';
-    else unknowns.push('underfloor');
-    mapping.push(meta('distribution', d.underfloor && d.underfloor !== 'weet_niet' ? 'direct' : 'assumed',
-      'Verdeling.', 'medium'));
+    else {
+      unknowns.push('underfloor');
+      /* Warmtepomp zonder afgifte-info: geen vals precieze basisinstallatie */
+      if (projectType === 'lucht_water' || projectType === 'hybride') {
+        statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+        mapping.push(meta('distribution', 'unknown',
+          'Warmtepomp zonder vloerverwarmingsantwoord — afgifte/hydrauliek onzeker.', 'low'));
+      }
+    }
+    if (!(projectType === 'lucht_water' || projectType === 'hybride') ||
+        (d.underfloor && d.underfloor !== 'weet_niet')) {
+      mapping.push(meta('distribution', d.underfloor && d.underfloor !== 'weet_niet' ? 'direct' : 'assumed',
+        'Verdeling.', 'medium'));
+    }
 
     var insulationLevel = 'matig';
     if (ctx.epc === 'A' || ctx.epc === 'B') insulationLevel = 'goed';
@@ -707,6 +733,14 @@
       dhw = intensity === 'beperkt' ? 'behouden' : 'nieuw';
       unknowns.push('heatDhw');
       mapping.push(meta('dhw', 'assumed', 'SWW soft: behouden bij beperkt, anders nieuw.', 'low'));
+      if (projectType === 'lucht_water') {
+        statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+      }
+    }
+
+    var assumptions = [];
+    if (projectType === 'lucht_water' && distribution === 'radiatoren') {
+      assumptions.push('Lucht-water WP + radiatoren: raming = toestel + basisplaatsing/SWW — geen volledige LT-afgiftevernieuwing of 3-fasige versterking tenzij elders in scope.');
     }
 
     var answers = {
@@ -722,7 +756,7 @@
       province: ctx.province
     };
     return wrap('verwarming', 'verwarming', ctx.province, answers, mapping, {
-      statusHint: statusHint, unknowns: unknowns, assumptions: []
+      statusHint: statusHint, unknowns: unknowns, assumptions: assumptions
     });
   }
 
@@ -737,11 +771,20 @@
     var scope = 'partieel';
     if (d.elecScope === 'volledig') scope = 'volledig';
     else if (d.elecScope === 'partieel') scope = 'partieel';
-    else if (intensity === 'volledig') scope = 'renovatie_volledig';
+    else if (d.elecScope === 'weet_niet') {
+      unknowns.push('elecScope');
+      statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+      scope = (intensity === 'volledig' || intensity === 'grondig') ? 'volledig' : 'partieel';
+      mapping.push(meta('scope', 'unknown', 'Elektra-omvang weet_niet — provisioneel uit intensiteit, niet autoritatief.', 'low'));
+    }
+    /* Align derived intensity with explicit elecScope answers (no silent renovatie_volledig uplift) */
+    else if (intensity === 'volledig') scope = 'volledig';
     else if (intensity === 'grondig') scope = 'volledig';
     else unknowns.push('elecScope');
-    mapping.push(meta('scope', d.elecScope && d.elecScope !== 'weet_niet' ? 'direct' : 'derived',
-      'Elektra-omvang.', 'medium'));
+    if (!(d.elecScope === 'weet_niet')) {
+      mapping.push(meta('scope', d.elecScope && d.elecScope !== 'weet_niet' ? 'direct' : 'derived',
+        'Elektra-omvang.', 'medium'));
+    }
 
     var fitOut = 'standaard';
     if (d.elecFitOut && d.elecFitOut !== 'weet_niet') fitOut = d.elecFitOut;
@@ -784,24 +827,37 @@
     var intensity = state.scope.ventilatie;
     var mapping = ctx.mapping.slice();
     var unknowns = ctx.unknowns.slice();
+    var assumptions = [];
     var statusHint = intensity === 'weet_niet' ? 'NEEDS_MORE_INFORMATION' : null;
     if (intensity === 'weet_niet') unknowns.push('scope.ventilatie');
 
     var system = null;
-    if (d.ventSystem && d.ventSystem !== 'weet_niet') system = d.ventSystem;
-    else {
+    if (d.ventSystem && d.ventSystem !== 'weet_niet') {
+      /* Normalize shorthand C/D → Calc1 keys (prevents silent fallback to C-band pricing) */
+      if (d.ventSystem === 'C' || d.ventSystem === 'c' || d.ventSystem === 'systeem_c') system = 'systeem_c';
+      else if (d.ventSystem === 'D' || d.ventSystem === 'd' || d.ventSystem === 'systeem_d') system = 'systeem_d';
+      else if (d.ventSystem === 'decentraal') system = 'decentraal';
+      else system = d.ventSystem;
+    } else {
       unknowns.push('ventSystem');
       system = intensity === 'beperkt' ? 'decentraal' : intensity === 'volledig' ? 'systeem_d' : 'systeem_c';
       mapping.push(meta('system', 'assumed', 'Systeem ontbreekt → intensiteit-proxy.', 'low'));
       statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
     }
     if (d.ventSystem && d.ventSystem !== 'weet_niet') {
-      mapping.push(meta('system', 'direct', 'Ventilatiesysteem.', 'high'));
+      mapping.push(meta('system', 'direct', 'Ventilatiesysteem → ' + system + '.', 'high'));
     }
 
     var wetRooms = mapWetRooms(d, system, mapping, unknowns);
     if (unknowns.indexOf('ventBathCount') !== -1 && unknowns.indexOf('ventToiletCount') !== -1) {
       statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+    }
+
+    /* Existing dwellings: kanalen/renovatie-routing, not nieuwbouw eenvoudig */
+    var routing = intensity === 'beperkt' ? 'eenvoudig' : intensity === 'volledig' ? 'complex' : 'renovatie';
+    if (system === 'systeem_d' && (ctx.housingAge === 'oud' || ctx.housingAge === 'middel' || ctx.condition === 'zwaar' || ctx.condition === 'verouderd')) {
+      if (routing === 'eenvoudig') routing = 'renovatie';
+      assumptions.push('Systeem D in bestaande woning → routing minstens renovatie (kanalen/afwerking).');
     }
 
     var answers = {
@@ -810,14 +866,14 @@
       system: system,
       wetRooms: wetRooms,
       floors: ctx.floors || '1',
-      routing: intensity === 'beperkt' ? 'eenvoudig' : intensity === 'volledig' ? 'complex' : 'renovatie',
+      routing: routing,
       housingAge: ctx.housingAge,
       urgency: ctx.urgency,
       province: ctx.province
     };
-    mapping.push(meta('routing', 'derived', 'Routing uit intensiteit.', 'medium'));
+    mapping.push(meta('routing', 'derived', 'Routing uit intensiteit/woningleeftijd.', 'medium'));
     return wrap('ventilatie', 'ventilatie', ctx.province, answers, mapping, {
-      statusHint: statusHint, unknowns: unknowns, assumptions: []
+      statusHint: statusHint, unknowns: unknowns, assumptions: assumptions || []
     });
   }
 
@@ -851,6 +907,10 @@
     mapping.push(meta('worktop', 'derived', 'Werkblad ← finishprofiel.', 'medium'));
     mapping.push(meta('appliances', d.kitchenAppliances && d.kitchenAppliances !== 'weet_niet' ? 'direct' : 'assumed',
       'Toestellen.', 'medium'));
+    if (!d.kitchenAppliances || d.kitchenAppliances === 'weet_niet' || d.kitchenAppliances === 'deels') {
+      unknowns.push('kitchenAppliances');
+      statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+    }
 
     var answers = {
       size: size,
@@ -961,11 +1021,15 @@
       'Vloeropp. uit woning × aandeel.', 'medium'));
 
     var floorMaterial = null;
-    if (d.floorMaterial && d.floorMaterial !== 'weet_niet') floorMaterial = d.floorMaterial;
-    else if (ctx.level === 'premium') floorMaterial = 'parket';
-    else floorMaterial = 'laminaat';
-    mapping.push(meta('floorMaterial', d.floorMaterial && d.floorMaterial !== 'weet_niet' ? 'direct' : 'derived',
-      'Vloermateriaal.', 'medium'));
+    if (d.floorMaterial && d.floorMaterial !== 'weet_niet') {
+      floorMaterial = d.floorMaterial;
+      mapping.push(meta('floorMaterial', 'direct', 'Vloermateriaal.', 'high'));
+    } else {
+      floorMaterial = ctx.level === 'premium' ? 'parket' : 'laminaat';
+      unknowns.push('floorMaterial');
+      mapping.push(meta('floorMaterial', 'assumed', 'Vloermateriaal onbekend → provisioneel ' + floorMaterial + '.', 'low'));
+      statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+    }
 
     var answers = {
       size: Math.max(15, size),
@@ -1077,7 +1141,10 @@
     else intervention = 'crepi';
     mapping.push(meta('intervention', d.facadeWork && d.facadeWork !== 'weet_niet' ? 'direct' : 'derived',
       'Gevelinterventie.', 'medium'));
-    if (!d.facadeWork || d.facadeWork === 'weet_niet') unknowns.push('facadeWork');
+    if (!d.facadeWork || d.facadeWork === 'weet_niet') {
+      unknowns.push('facadeWork');
+      statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
+    }
 
     var scaffold = null;
     if (d.facadeAccess === 'laag' || d.facadeAccess === 'hoog' || d.facadeAccess === 'middel') {

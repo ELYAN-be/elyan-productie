@@ -89,13 +89,15 @@
       return result;
     }
 
-    /* indicative mixed — default conservative 21% on works unless 6% explicitly confirmed */
+    /* indicative mixed — default 21% on works unless 6% explicitly confirmed */
     var useConservative = opts.scenario === 'conservative';
-    var wRate = useConservative
-      ? worksRateConservative
-      : (sixConfirmed && worksRateExpected <= 0.06 ? 0.06 : worksRateExpected);
-    if (!sixConfirmed && !useConservative && wRate < 0.21 && opts.worksVatRate == null) {
-      wRate = 0.21;
+    var requestedWorks = isFinite(worksRateExpected) && worksRateExpected >= 0 ? worksRateExpected : 0.21;
+    /* Flip-safe: never apply <21% without explicit eligibility confirmation (even if worksVatRate=0.06) */
+    var wRate = 0.21;
+    if (!useConservative && sixConfirmed && requestedWorks <= 0.06) {
+      wRate = 0.06;
+    } else if (!useConservative && sixConfirmed && requestedWorks > 0) {
+      wRate = requestedWorks;
     }
     result.vatOnWorks = round50(works * wRate);
     result.vatOnSoft = round50(soft * softRate);

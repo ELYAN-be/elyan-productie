@@ -206,8 +206,9 @@ var C = audit('C DEEP ENERGY', ProjectEngine.calculateProject(base({
   }
 })));
 invariants('C', C);
-assert(C.reconciliation.scopeSuppressions.some(function (s) { return s.packageKey === 'isolatie'; }),
-  'C should suppress isolatie vs gevel ETICS');
+/* Audit Aug 2026: isoFocus=muren maps to spouw (not ETICS). Spouw + gevel ETICS are complementary — no suppression. */
+assert(!C.reconciliation.scopeSuppressions.some(function (s) { return s.packageKey === 'isolatie'; }),
+  'C muren=spouw must NOT suppress vs gevel ETICS');
 assert(C.reconciliation.allAdjustments.some(function (a) { return a.costClass === 'scaffolding'; }),
   'C scaffold MAX');
 

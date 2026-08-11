@@ -105,7 +105,7 @@ function fmtEUR(n) {
     '<h1 style="font-size:20px;color:#14150F;">Je ELYAN renovatieanalyse is klaar</h1>' +
     '<p style="color:#5B5D4F;font-size:14px;">Je volledige projectdossier staat in de bijlage. Het is een indicatieve raming op basis van jouw projectgegevens — geen offerte en geen beleggingsadvies.</p>' +
     '<div style="background:#3F4A32;border-radius:14px;padding:20px;text-align:center;color:#fff;">' +
-    '<p style="margin:0 0 4px;font-size:11px;letter-spacing:1px;">AANBEVOLEN PROJECTBUDGET</p>' +
+    '<p style="margin:0 0 4px;font-size:11px;letter-spacing:1px;">AANBEVOLEN PROJECTBUDGET (GESELECTEERDE WERKEN)</p>' +
     '<p style="margin:0;font-size:22px;font-weight:bold;">' + fmtEUR(budget.recommendedExpected) + '</p>' +
     '<p style="margin:8px 0 0;font-size:13px;color:#EEEADA;">Range ' + range + '</p>' +
     '</div>' +

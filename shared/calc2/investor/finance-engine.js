@@ -119,10 +119,11 @@
     var p = Number(fp.purchasePrice);
     if (!isFinite(p) || p <= 0) errors.push('purchase_price_invalid');
     var r = fp.resale || {};
+    var MIN_RESALE = 1000;
     var hasResale = [r.conservative, r.expected, r.strong].some(function (v) {
-      return isFinite(Number(v)) && Number(v) > 0;
+      return isFinite(Number(v)) && Number(v) >= MIN_RESALE;
     });
-    if (!hasResale && !(isFinite(Number(r.expected)) && Number(r.expected) > 0)) {
+    if (!hasResale) {
       errors.push('resale_missing');
     }
     return errors;
@@ -130,25 +131,44 @@
 
   function normalizeResale(fp) {
     var r = fp.resale || {};
-    var exp = Number(r.expected);
-    var cons = Number(r.conservative);
-    var str = Number(r.strong);
-    if (isFinite(exp) && exp > 0 && (!isFinite(cons) || cons <= 0) && (!isFinite(str) || str <= 0)) {
-      /* Optional model spread — clearly labelled */
+    /* Floor: round50(n)→0 for n<25 would create false ROI −100% */
+    var MIN_RESALE = 1000;
+    function pos(v) {
+      var n = Number(v);
+      return isFinite(n) && n >= MIN_RESALE ? n : null;
+    }
+    var exp = pos(r.expected);
+    var cons = pos(r.conservative);
+    var str = pos(r.strong);
+
+    /* Only expected provided → optional ±5% model spread */
+    if (exp && !cons && !str) {
       return {
-        conservative: round50(exp * 0.95),
+        conservative: Math.max(MIN_RESALE, round50(exp * 0.95)),
         expected: round50(exp),
-        strong: round50(exp * 1.05),
+        strong: Math.max(MIN_RESALE, round50(exp * 1.05)),
         spreadSource: 'ELYAN_MODEL_ASSUMPTION',
         note: 'Enkel verwachte verkoopwaarde opgegeven — ±5% scenario’s zijn ELYAN-modelassumptie, geen waardering.'
       };
     }
+
+    /* Fill missing legs from the best available positive user value — never coerce to €0 */
+    var anchor = exp || cons || str;
+    if (!anchor) {
+      return {
+        conservative: 0,
+        expected: 0,
+        strong: 0,
+        spreadSource: 'MISSING',
+        note: 'Geen positieve verkoopwaarde opgegeven (minimum €' + MIN_RESALE + ').'
+      };
+    }
     return {
-      conservative: isFinite(cons) && cons > 0 ? round50(cons) : round50(exp),
-      expected: isFinite(exp) && exp > 0 ? round50(exp) : round50(cons || str),
-      strong: isFinite(str) && str > 0 ? round50(str) : round50(exp),
+      conservative: round50(cons || exp || str),
+      expected: round50(exp || cons || str),
+      strong: round50(str || exp || cons),
       spreadSource: 'USER_ASSUMPTION',
-      note: 'Verkoopscenario’s door gebruiker aangeleverd — geen geautomatiseerde waardering.'
+      note: 'Verkoopscenario’s door gebruiker aangeleverd — ontbrekende scenario’s overgenomen uit jouw andere waarde(n). Geen geautomatiseerde waardering.'
     };
   }
 
