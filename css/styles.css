@@ -177,7 +177,7 @@ strong{color:var(--ink);font-weight:600;}
   height:100%;
 }
 .hero-photo img{
-  width:100%;height:100%;object-fit:cover;object-position:78% 42%;
+  width:100%;height:100%;object-fit:cover;object-position:82% 45%;
   display:block;
 }
 
@@ -284,7 +284,7 @@ strong{color:var(--ink);font-weight:600;}
     border-radius:14px;
     box-shadow:0 10px 36px rgba(20,21,15,.08);
   }
-  .hero-photo img{object-position:82% 40%;}
+  .hero-photo img{object-position:85% 42%;}
   .hero-stage .demo-card{
     position:relative;
     left:auto;right:auto;bottom:auto;
