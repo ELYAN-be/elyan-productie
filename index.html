@@ -249,8 +249,12 @@
     </div>
     <div class="editorial-photo reveal">
       <picture>
+        <source type="image/avif" media="(max-width:720px)" srcset="/assets/photos/editorial-sm.avif">
+        <source type="image/webp" media="(max-width:720px)" srcset="/assets/photos/editorial-sm.webp">
         <source media="(max-width:720px)" srcset="/assets/photos/editorial-sm.jpg">
-        <img src="/assets/photos/editorial.jpg" alt="Architecturale keuken met warme natuursteen, hout en zacht daglicht" width="1536" height="1024" loading="lazy" decoding="async">
+        <source type="image/avif" srcset="/assets/photos/editorial.avif">
+        <source type="image/webp" srcset="/assets/photos/editorial.webp">
+        <img src="/assets/photos/editorial.jpg" alt="Luxe villa-interieur met marmeren trap, gouden leuning en zicht naar het licht" width="1024" height="575" loading="lazy" decoding="async">
       </picture>
     </div>
   </div>
