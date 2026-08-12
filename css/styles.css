@@ -177,7 +177,7 @@ strong{color:var(--ink);font-weight:600;}
   height:100%;
 }
 .hero-photo img{
-  width:100%;height:100%;object-fit:cover;object-position:48% 36%;
+  width:100%;height:100%;object-fit:cover;object-position:48% 62%;
   display:block;
 }
 
@@ -284,7 +284,7 @@ strong{color:var(--ink);font-weight:600;}
     border-radius:14px;
     box-shadow:0 10px 36px rgba(20,21,15,.08);
   }
-  .hero-photo img{object-position:46% 32%;}
+  .hero-photo img{object-position:46% 58%;}
   .hero-stage .demo-card{
     position:relative;
     left:auto;right:auto;bottom:auto;
@@ -794,7 +794,7 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
   aspect-ratio:4/3;box-shadow:0 12px 40px rgba(20,21,15,.08);
 }
 .editorial-photo picture{position:absolute;inset:0;display:block;width:100%;height:100%;}
-.editorial-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 48%;display:block;}
+.editorial-photo img{width:100%;height:100%;object-fit:cover;object-position:68% 42%;display:block;}
 @media (hover:hover){
   .editorial-photo img{transition:transform 1.1s var(--ease);}
   .editorial-photo:hover img{transform:scale(1.025);}
@@ -807,9 +807,9 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
 }
 .why-photo{position:relative;border-radius:22px;overflow:hidden;background:var(--sand-deep);aspect-ratio:4/5;max-height:560px;box-shadow:0 12px 40px rgba(20,21,15,.08);}
 .why-photo picture{position:absolute;inset:0;display:block;width:100%;height:100%;}
-.why-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 35%;display:block;}
+.why-photo img{width:100%;height:100%;object-fit:cover;object-position:62% 38%;display:block;}
 @media (max-width:959px){.why-photo{aspect-ratio:16/10;max-height:300px;}
-.why-photo img{object-position:50% 30%;}}
+.why-photo img{object-position:58% 40%;}}
 .why-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line);}
 .why-item{
   display:grid;grid-template-columns:auto 1fr;gap:var(--sp-4);
