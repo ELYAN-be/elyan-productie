@@ -316,6 +316,10 @@ strong{color:var(--ink);font-weight:600;}
     z-index:2;
     box-shadow:0 10px 28px rgba(20,21,15,.11);
   }
+  /* ~15% smaller PRIJSBAND amounts on all slides; TOT stays parent-sized */
+  .hero-stage .demo-price .money{
+    font-size:0.85em;
+  }
 }
 
 @media (max-width:520px){
