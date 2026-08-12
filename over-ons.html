@@ -63,8 +63,12 @@
     </div>
     <div class="about-photo">
       <picture>
+        <source type="image/avif" media="(max-width:720px)" srcset="/assets/photos/about-sm.avif">
+        <source type="image/webp" media="(max-width:720px)" srcset="/assets/photos/about-sm.webp">
         <source media="(max-width:720px)" srcset="/assets/photos/about-sm.jpg">
-        <img src="/assets/photos/about.jpg" alt="Moderne minimalistische woninggevel met grote glaspartijen" width="1536" height="1024" loading="lazy" decoding="async">
+        <source type="image/avif" srcset="/assets/photos/about.avif">
+        <source type="image/webp" srcset="/assets/photos/about.webp">
+        <img src="/assets/photos/about.jpg" alt="Vakman met oranje helm boort in bekisting op een zonnige bouwwerf" width="1024" height="682" loading="lazy" decoding="async">
       </picture>
     </div>
   </div>
