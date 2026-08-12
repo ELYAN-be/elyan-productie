@@ -305,6 +305,17 @@ strong{color:var(--ink);font-weight:600;}
   .hero-photo img{
     object-position:72% 38%;
   }
+  /* Subtle card overlap onto hero photo — one coherent component */
+  .hero-stage{
+    gap:0;
+    padding-bottom:0.35rem; /* keep calm space before next section after overlap */
+  }
+  .hero-stage .demo-card{
+    margin-top:-26px;
+    position:relative;
+    z-index:2;
+    box-shadow:0 10px 28px rgba(20,21,15,.11);
+  }
 }
 
 @media (max-width:520px){
@@ -334,7 +345,7 @@ strong{color:var(--ink);font-weight:600;}
     width:calc(100% + 2 * var(--sp-5) - 24px);
     margin-left:calc(12px - var(--sp-5));
     margin-right:calc(12px - var(--sp-5));
-    gap:1.2rem;
+    gap:0;
   }
   .hero-photo{
     aspect-ratio:4/3;
@@ -343,6 +354,7 @@ strong{color:var(--ink);font-weight:600;}
   .hero-stage .demo-card{
     padding:14px 14px 12px;
     border-radius:12px;
+    margin-top:-24px;
   }
   .demo-meta{gap:6px;margin-bottom:10px;}
   .demo-meta-item{padding:7px 8px;}
@@ -826,9 +838,9 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
 }
 .why-photo{position:relative;border-radius:22px;overflow:hidden;background:var(--sand-deep);aspect-ratio:4/5;max-height:560px;box-shadow:0 12px 40px rgba(20,21,15,.08);}
 .why-photo picture{position:absolute;inset:0;display:block;width:100%;height:100%;}
-.why-photo img{width:100%;height:100%;object-fit:cover;object-position:38% 42%;display:block;}
+.why-photo img{width:100%;height:100%;object-fit:cover;object-position:32% 40%;display:block;}
 @media (max-width:959px){.why-photo{aspect-ratio:16/10;max-height:300px;}
-.why-photo img{object-position:42% 45%;}}
+.why-photo img{object-position:38% 42%;}}
 .why-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line);}
 .why-item{
   display:grid;grid-template-columns:auto 1fr;gap:var(--sp-4);
