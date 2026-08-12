@@ -49,12 +49,14 @@
   <div id="vk-app"></div>
 </main>
 
-<div class="lab-lightbox" id="labLightbox" hidden>
+<div class="lab-lightbox" id="labLightbox" hidden aria-hidden="true">
   <div class="lab-lightbox-backdrop" data-close-lightbox></div>
   <button type="button" class="lab-lightbox-close" data-close-lightbox aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
   <button type="button" class="vk-lb-nav vk-lb-prev" id="vkLbPrev" aria-label="Vorige foto" hidden>‹</button>
   <button type="button" class="vk-lb-nav vk-lb-next" id="vkLbNext" aria-label="Volgende foto" hidden>›</button>
-  <img id="labLightboxImg" src="" alt="Projectfoto">
+  <div class="vk-lb-stage" id="vkLbStage">
+    <img id="labLightboxImg" src="" alt="Projectfoto">
+  </div>
   <div class="vk-lb-counter" id="vkLbCounter" hidden></div>
 </div>
 

@@ -22,11 +22,154 @@
     customerTiming: 'alle',
     projectContext: null,
     sort: 'aanbevolen',
-    quote: null
+    quote: null,
+    galleryImages: [],
+    galleryIndex: 0
   };
+
+  var lbScrollY = 0;
+  var lbTouch = { active: false, x: 0, y: 0, moved: false };
+  var lbBound = false;
+  var lbIgnoreClose = false;
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function lockLightboxScroll() {
+    lbScrollY = window.scrollY || window.pageYOffset || 0;
+    document.body.style.top = '-' + lbScrollY + 'px';
+    document.body.classList.add('lock-scroll', 'vk-lb-open');
+  }
+  function unlockLightboxScroll() {
+    var y = lbScrollY || 0;
+    document.body.classList.remove('lock-scroll', 'vk-lb-open');
+    document.body.style.top = '';
+    /* Safari/iOS often resets scroll when leaving position:fixed — restore after layout */
+    window.scrollTo(0, y);
+    requestAnimationFrame(function () {
+      window.scrollTo(0, y);
+    });
+  }
+
+  function paintLightbox() {
+    var imgs = state.galleryImages || [];
+    var img = $('#labLightboxImg');
+    var counter = $('#vkLbCounter');
+    var prev = $('#vkLbPrev');
+    var next = $('#vkLbNext');
+    if (!imgs.length) return;
+    if (img) {
+      img.src = imgs[state.galleryIndex];
+      img.alt = 'Projectfoto ' + (state.galleryIndex + 1) + ' van ' + imgs.length;
+    }
+    if (counter) {
+      counter.hidden = false;
+      counter.textContent = (state.galleryIndex + 1) + ' / ' + imgs.length;
+    }
+    if (prev) prev.hidden = imgs.length < 2;
+    if (next) next.hidden = imgs.length < 2;
+  }
+
+  function openLightbox(images, index) {
+    var box = $('#labLightbox');
+    if (!box || !images || !images.length) return;
+    state.galleryImages = images.slice();
+    state.galleryIndex = Math.max(0, Math.min(index || 0, images.length - 1));
+    paintLightbox();
+    box.hidden = false;
+    box.setAttribute('aria-hidden', 'false');
+    lockLightboxScroll();
+  }
+
+  function closeLightbox() {
+    var box = $('#labLightbox');
+    if (!box || box.hidden) return;
+    box.hidden = true;
+    box.setAttribute('aria-hidden', 'true');
+    unlockLightboxScroll();
+  }
+
+  function stepLightbox(delta) {
+    var imgs = state.galleryImages || [];
+    if (imgs.length < 2) return;
+    state.galleryIndex = (state.galleryIndex + delta + imgs.length) % imgs.length;
+    paintLightbox();
+  }
+
+  function bindLightboxOnce() {
+    if (lbBound) return;
+    lbBound = true;
+    var box = $('#labLightbox');
+    if (!box) return;
+    var stage = $('#vkLbStage') || box;
+
+    var prev = $('#vkLbPrev');
+    var next = $('#vkLbNext');
+    if (prev) {
+      prev.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        stepLightbox(-1);
+      });
+    }
+    if (next) {
+      next.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        stepLightbox(1);
+      });
+    }
+
+    $all('[data-close-lightbox]', box).forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (lbIgnoreClose) return;
+        closeLightbox();
+      });
+    });
+
+    function onSwipeStart(e) {
+      if (box.hidden || !e.touches || !e.touches.length) return;
+      if (e.target.closest && (e.target.closest('.vk-lb-nav') || e.target.closest('[data-close-lightbox]'))) return;
+      lbTouch.active = true;
+      lbTouch.moved = false;
+      lbTouch.x = e.touches[0].clientX;
+      lbTouch.y = e.touches[0].clientY;
+    }
+    function onSwipeMove(e) {
+      if (!lbTouch.active || !e.touches || !e.touches.length) return;
+      var dx = e.touches[0].clientX - lbTouch.x;
+      var dy = e.touches[0].clientY - lbTouch.y;
+      if (Math.abs(dx) > 12 && Math.abs(dx) > Math.abs(dy)) {
+        lbTouch.moved = true;
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+    function onSwipeEnd(e) {
+      if (!lbTouch.active) return;
+      var touch = (e.changedTouches && e.changedTouches[0]) || null;
+      var dx = touch ? touch.clientX - lbTouch.x : 0;
+      var dy = touch ? touch.clientY - lbTouch.y : 0;
+      var didSwipe = lbTouch.moved && Math.abs(dx) >= 40 && Math.abs(dx) > Math.abs(dy);
+      lbTouch.active = false;
+      if (!didSwipe) return;
+      lbIgnoreClose = true;
+      setTimeout(function () { lbIgnoreClose = false; }, 400);
+      stepLightbox(dx < 0 ? 1 : -1);
+    }
+
+    stage.addEventListener('touchstart', onSwipeStart, { passive: true });
+    stage.addEventListener('touchmove', onSwipeMove, { passive: false });
+    stage.addEventListener('touchend', onSwipeEnd, { passive: true });
+
+    document.addEventListener('keydown', function (e) {
+      if (box.hidden) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') stepLightbox(-1);
+      if (e.key === 'ArrowRight') stepLightbox(1);
+    });
+  }
 
   function parseRoute() {
     var path = location.pathname.replace(/\/$/, '');
@@ -53,11 +196,13 @@
   }
   function stars(g) {
     if (!g || !g.show) return '';
-    return '<div class="lab-stars"><svg class="icon"><use href="#i-star"></use></svg> ' +
-      esc(String(g.rating).replace('.', ',')) +
-      ' <span>' + esc(String(g.count)) + ' Google-beoordelingen' +
-      (g.demo ? ' · demo (niet live gekoppeld)' : '') +
-      '</span></div>';
+    if (g.status === 'live' && g.rating != null && g.count != null) {
+      return '<div class="lab-stars"><svg class="icon"><use href="#i-star"></use></svg> ' +
+        esc(String(g.rating).replace('.', ',')) +
+        ' <span>' + esc(String(g.count)) + ' Google-beoordelingen</span></div>';
+    }
+    /* Pending / unavailable — never show fabricated ratings as live Google data */
+    return '<div class="lab-stars lab-stars-pending"><span>Google-beoordelingen binnenkort beschikbaar</span></div>';
   }
 
   function filtered() {
@@ -72,8 +217,8 @@
         return (EV.MONTH_ORDER[a.startMonth] || 99) - (EV.MONTH_ORDER[b.startMonth] || 99);
       }
       if (state.sort === 'google') {
-        var ga = (a.google && a.google.rating) || 0;
-        var gb = (b.google && b.google.rating) || 0;
+        var ga = (a.google && a.google.live === true && a.google.rating) || 0;
+        var gb = (b.google && b.google.live === true && b.google.rating) || 0;
         return gb - ga;
       }
       return 0;
@@ -294,16 +439,23 @@
     }
 
     var googleBlock = '';
-    if (g.show) {
+    if (g.show && g.status === 'live') {
       googleBlock =
         '<section class="lab-section"><h2>Google-beoordelingen</h2><div class="lab-google">' +
           '<div class="lab-google-head"><div><div class="lab-google-score">' + esc(String(g.rating).replace('.', ',')) + ' / 5</div>' +
           '<div class="lab-hint">' + esc(String(g.count)) + ' beoordelingen</div></div>' +
-          '<a class="btn btn-ghost btn-sm" href="' + esc(g.url) + '" target="_blank" rel="noopener noreferrer">Bekijk op Google</a></div>' +
+          (g.url ? '<a class="btn btn-ghost btn-sm" href="' + esc(g.url) + '" target="_blank" rel="noopener noreferrer">Bekijk op Google</a>' : '') +
+          '</div>' +
           (g.reviews || []).map(function (r) {
             return '<div class="lab-review"><strong>' + esc(r.author) + '</strong>' + esc(r.text) + '</div>';
           }).join('') +
-          '<p class="lab-attr">' + esc(g.attribution) + (g.demo ? ' Dit is demo-attributie tot de Google Places-koppeling live is.' : '') + '</p>' +
+          '<p class="lab-attr">' + esc(g.attribution) + '</p>' +
+        '</div></section>';
+    } else if (g.show && g.status === 'pending') {
+      googleBlock =
+        '<section class="lab-section"><h2>Google-beoordelingen</h2><div class="lab-google">' +
+          '<p class="lab-hint" style="margin:0 0 8px;">' + esc(g.message || 'Google-beoordelingen worden getoond zodra de live Google-koppeling actief is.') + '</p>' +
+          '<p class="lab-attr">' + esc(g.attribution) + '</p>' +
         '</div></section>';
     }
 
@@ -322,10 +474,11 @@
         '<a class="lab-link vk-back" href="/vakmannen">← Terug naar vakmannen</a>' +
         '<header class="lab-identity">' +
           '<div class="lab-identity-visual"><img src="' + p.image + '" alt="" style="object-position:' + (p.objectPos || '') + '"></div>' +
-          '<div>' +
+          '<div class="lab-identity-copy">' +
             '<p class="lab-kicker">ELYAN vakman</p>' +
             '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
             '<h1>' + esc(p.name) + '</h1>' +
+            (p.city ? '<p class="lab-identity-place">' + esc(p.city) + '</p>' : '') +
             stars(g) +
           '</div>' +
           '<div class="lab-identity-actions">' +
@@ -602,74 +755,38 @@
       });
     });
 
-    /* Mobile / desktop gallery → lightbox with swipe nav */
-    state.galleryImages = [];
-    state.galleryIndex = 0;
+    /* Profile gallery → lightbox (controller is bound once; only open hooks here) */
     var routeNow = parseRoute();
+    var profileGallery = [];
     if (routeNow.page === 'profile') {
       var partnerNow = EV.partnerBySlug(routeNow.slug);
-      if (partnerNow) state.galleryImages = gallerySources(partnerNow);
+      if (partnerNow) profileGallery = gallerySources(partnerNow);
     }
-    function openLightbox(images, index) {
-      var box = $('#labLightbox');
-      var img = $('#labLightboxImg');
-      if (!box || !img || !images || !images.length) return;
-      state.galleryImages = images;
-      state.galleryIndex = Math.max(0, Math.min(index || 0, images.length - 1));
-      img.src = images[state.galleryIndex];
-      var counter = $('#vkLbCounter');
-      if (counter) {
-        counter.hidden = false;
-        counter.textContent = (state.galleryIndex + 1) + ' / ' + images.length;
-      }
-      var prev = $('#vkLbPrev');
-      var next = $('#vkLbNext');
-      if (prev) prev.hidden = images.length < 2;
-      if (next) next.hidden = images.length < 2;
-      box.hidden = false;
-      document.body.classList.add('lock-scroll');
-    }
-    function stepLightbox(delta) {
-      var imgs = state.galleryImages || [];
-      if (imgs.length < 2) return;
-      state.galleryIndex = (state.galleryIndex + delta + imgs.length) % imgs.length;
-      var img = $('#labLightboxImg');
-      var counter = $('#vkLbCounter');
-      if (img) img.src = imgs[state.galleryIndex];
-      if (counter) counter.textContent = (state.galleryIndex + 1) + ' / ' + imgs.length;
-    }
+    state.galleryImages = profileGallery.slice();
+
     $all('[data-gallery-open]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        openLightbox(state.galleryImages, Number(btn.getAttribute('data-gallery-open')) || 0);
+        openLightbox(profileGallery, Number(btn.getAttribute('data-gallery-open')) || 0);
       });
     });
     var allBtn = $('#vkGalleryAll');
-    if (allBtn) allBtn.addEventListener('click', function () {
-      openLightbox(state.galleryImages, 0);
-    });
-    var lbPrev = $('#vkLbPrev');
-    var lbNext = $('#vkLbNext');
-    if (lbPrev) lbPrev.addEventListener('click', function (e) { e.stopPropagation(); stepLightbox(-1); });
-    if (lbNext) lbNext.addEventListener('click', function (e) { e.stopPropagation(); stepLightbox(1); });
+    if (allBtn) {
+      allBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        openLightbox(profileGallery, 0);
+      });
+    }
     var scroller = $('#vkGalleryScroll');
     var countEl = $('#vkGalleryCount');
-    if (scroller && countEl && state.galleryImages.length) {
+    if (scroller && countEl && profileGallery.length) {
       scroller.addEventListener('scroll', function () {
         var w = scroller.querySelector('button');
         if (!w) return;
         var idx = Math.round(scroller.scrollLeft / Math.max(1, w.offsetWidth + 10));
-        idx = Math.max(0, Math.min(idx, state.galleryImages.length - 1));
-        countEl.textContent = (idx + 1) + ' / ' + state.galleryImages.length;
+        idx = Math.max(0, Math.min(idx, profileGallery.length - 1));
+        countEl.textContent = (idx + 1) + ' / ' + profileGallery.length;
       }, { passive: true });
     }
-
-    $all('[data-close-lightbox]').forEach(function (el) {
-      el.addEventListener('click', function () {
-        var box = $('#labLightbox');
-        if (box) box.hidden = true;
-        document.body.classList.remove('lock-scroll');
-      });
-    });
 
     function startQuote() {
       var route = parseRoute();
@@ -767,9 +884,11 @@
     } else {
       host.innerHTML = state.mode === 'results' ? renderResults() : renderLanding();
     }
+    bindLightboxOnce();
     bindCommon();
     window.scrollTo(0, 0);
   }
 
+  bindLightboxOnce();
   render();
 })();

@@ -131,24 +131,56 @@
         message: 'Google Places API nog niet geconfigureerd.'
       });
     },
-    /** Demo helper: use partner.google when consent + enabled */
-    resolveForPartner: function (partner) {
+    /**
+     * Resolve review presentation for a partner.
+     * opts.allowDemo — internal surfaces only (Partner Lab). Public must omit this
+     * so mock ratings/counts never appear as live Google data.
+     */
+    resolveForPartner: function (partner, opts) {
+      opts = opts || {};
       if (!partner || !partner.google || !partner.google.enabled || !partner.google.consent) {
-        return { show: false, reason: 'no_consent_or_data' };
+        return { show: false, status: 'hidden', reason: 'no_consent_or_data' };
       }
-      if (partner.google.live === false) {
+      var g = partner.google;
+      if (g.live === true && g.rating != null && g.count != null) {
         return {
           show: true,
-          demo: true,
-          rating: partner.google.rating,
-          count: partner.google.count,
-          reviews: partner.google.reviews || [],
-          url: partner.google.url,
-          placeId: partner.google.placeId,
+          status: 'live',
+          demo: false,
+          rating: g.rating,
+          count: g.count,
+          reviews: g.reviews || [],
+          url: g.url || null,
+          placeId: g.placeId || null,
           attribution: 'Beoordelingen via Google. ELYAN verzamelt geen eigen platformreviews.'
         };
       }
-      return { show: false, reason: 'awaiting_api' };
+      if (opts.allowDemo) {
+        return {
+          show: true,
+          status: 'demo',
+          demo: true,
+          rating: g.rating,
+          count: g.count,
+          reviews: g.reviews || [],
+          url: g.url || null,
+          placeId: g.placeId || null,
+          attribution: 'Beoordelingen via Google. ELYAN verzamelt geen eigen platformreviews.'
+        };
+      }
+      /* Production-safe: consent/architecture ready, no fabricated live numbers */
+      return {
+        show: true,
+        status: 'pending',
+        demo: false,
+        rating: null,
+        count: null,
+        reviews: [],
+        url: g.url || null,
+        placeId: g.placeId || null,
+        attribution: 'Beoordelingen via Google. ELYAN verzamelt geen eigen platformreviews.',
+        message: 'Google-beoordelingen worden getoond zodra de live Google-koppeling actief is.'
+      };
     }
   };
 
