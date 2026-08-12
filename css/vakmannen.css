@@ -1,7 +1,369 @@
-/* Public vakmannen surface — extends Partner Lab baseline without lab chrome */
+/* ============================================================
+   ELYAN public /vakmannen — final polish (no redesign)
+   Scoped to .page-vakmannen so Partner Lab stays untouched.
+   ============================================================ */
+
 .page-vakmannen .lab-switcher{display:none !important;}
 .page-vakmannen{padding-bottom:0;}
-.vk-site-main{min-height:60vh;}
+
+/* ---------- 1. Fixed header: solid bar, one stacking layer ---------- */
+.page-vakmannen{
+  --vk-header-h: 64px;
+}
+@media (min-width:860px){
+  .page-vakmannen{ --vk-header-h: 72px; }
+}
+
+.page-vakmannen .site-header{
+  position:fixed;
+  top:0; left:0; right:0;
+  z-index:100;
+  height:var(--vk-header-h);
+  padding:0;
+  display:flex;
+  align-items:center;
+  background:rgba(255,254,250,.97);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  box-shadow:0 1px 0 rgba(63,74,50,.12);
+  /* always solid — never transparent float over content */
+}
+
+.page-vakmannen .site-header.scrolled{
+  background:rgba(255,254,250,.98);
+  box-shadow:0 1px 0 rgba(63,74,50,.14);
+}
+
+.page-vakmannen .site-header .header-inner{
+  width:100%;
+  height:var(--vk-header-h);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  position:relative;
+  z-index:1;
+}
+
+.page-vakmannen .site-header .logo,
+.page-vakmannen .site-header .btn{
+  position:relative;
+  z-index:1;
+  flex-shrink:0;
+}
+
+.page-vakmannen .vk-site-main{
+  min-height:60vh;
+  padding-top:var(--vk-header-h);
+  position:relative;
+  z-index:1;
+}
+
+/* ---------- Landing hero offset (content under header) ---------- */
+.page-vakmannen .lab-disc-hero{
+  padding-top:28px;
+  padding-bottom:28px;
+}
+@media (min-width:860px){
+  .page-vakmannen .lab-disc-hero{ padding-top:36px; padding-bottom:36px; }
+}
+
+/* Search: stack on mobile */
+@media (max-width:719px){
+  .page-vakmannen .lab-search{
+    grid-template-columns:1fr;
+  }
+  .page-vakmannen .lab-search .btn{
+    width:100%;
+  }
+}
+
+/* ---------- Featured companies: full-width rows (fix crushed 2-col cards) ---------- */
+.page-vakmannen .lab-featured{
+  padding:28px 0 36px;
+}
+.page-vakmannen .lab-feature-rail{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+@media (min-width:900px){
+  /* Override partner-lab 2-column crush — rows need full width */
+  .page-vakmannen .lab-feature-rail{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+  }
+}
+
+/* ---------- Result rows: desktop scan layout ---------- */
+@media (min-width:860px){
+  .page-vakmannen .lab-row{
+    grid-template-columns:96px minmax(0,1.45fr) minmax(160px,.9fr) minmax(150px,.75fr) auto;
+    align-items:center;
+    gap:16px;
+    padding:14px 16px;
+    min-width:0;
+  }
+  .page-vakmannen .lab-row-media{
+    width:96px;
+    height:76px;
+  }
+  .page-vakmannen .lab-row > *{
+    min-width:0;
+  }
+  .page-vakmannen .lab-row h3{
+    overflow-wrap:anywhere;
+  }
+  .page-vakmannen .lab-row .tagline{
+    overflow-wrap:break-word;
+  }
+  .page-vakmannen .lab-row-meta{
+    align-self:center;
+  }
+  .page-vakmannen .lab-row-price .val{
+    font-size:1.14rem;
+    white-space:nowrap;
+  }
+  .page-vakmannen .lab-row .btn{
+    white-space:nowrap;
+    justify-self:end;
+  }
+}
+
+/* ---------- Result rows: intentional mobile stack ---------- */
+@media (max-width:859px){
+  .page-vakmannen .lab-row{
+    grid-template-columns:1fr;
+    gap:12px;
+    padding:14px;
+    align-items:stretch;
+  }
+  .page-vakmannen .lab-row-media{
+    width:100%;
+    height:auto;
+    aspect-ratio:16 / 10;
+    border-radius:12px;
+  }
+  .page-vakmannen .lab-row-meta{
+    display:grid;
+    gap:6px;
+    padding-top:2px;
+  }
+  .page-vakmannen .lab-row-price{
+    padding:10px 0 2px;
+    border-top:1px solid var(--e-line-soft, rgba(63,74,50,.1));
+  }
+  .page-vakmannen .lab-row-price .val{
+    font-size:1.2rem;
+    white-space:normal;
+  }
+  .page-vakmannen .lab-row .btn{
+    width:100%;
+    margin-top:2px;
+  }
+}
+
+/* ---------- Categories: compact discovery (not a second search) ---------- */
+.page-vakmannen .vk-discover{
+  padding:28px 0 20px;
+}
+.page-vakmannen .vk-discover h2{
+  font-size:clamp(1.25rem,2.2vw,1.55rem);
+  margin:0 0 6px;
+}
+.page-vakmannen .vk-discover .lab-hint{ margin-bottom:16px; }
+
+.page-vakmannen .lab-cat span{ display:none; } /* no redundant "Ontdekken" */
+
+@media (max-width:639px){
+  .page-vakmannen .lab-cat-mosaic{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+  .page-vakmannen .lab-cat{
+    min-height:0;
+    padding:14px 12px;
+    border-radius:12px;
+  }
+  .page-vakmannen .lab-cat strong{
+    font-size:.9rem;
+  }
+}
+
+/* ---------- Provinces: secondary discovery ---------- */
+.page-vakmannen .vk-regions{
+  padding:8px 0 40px;
+}
+.page-vakmannen .vk-regions h2{
+  font-size:clamp(1.15rem,2vw,1.4rem);
+  margin:0 0 6px;
+}
+.page-vakmannen .vk-regions .lab-hint{ margin-bottom:14px; }
+.page-vakmannen .lab-prov{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.page-vakmannen .lab-prov button{
+  height:36px;
+  padding:0 12px;
+  font-size:.8rem;
+}
+
+/* ---------- Profile: back link below header, never overlapping ---------- */
+.page-vakmannen .lab-profile{
+  padding-top:12px;
+  padding-bottom:56px;
+}
+.page-vakmannen .vk-back{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin:12px 0 20px;
+  position:relative;
+  z-index:1;
+}
+.page-vakmannen .lab-results{
+  padding-top:16px;
+  padding-bottom:48px;
+}
+.page-vakmannen .lab-results .lab-link#backLanding,
+.page-vakmannen .lab-results > .lab-link{
+  display:inline-flex;
+  margin:12px 0 16px;
+}
+
+/* ---------- Desktop gallery: keep approved grid ---------- */
+.page-vakmannen .vk-gallery-desktop{
+  display:grid;
+  grid-template-columns:1.4fr 1fr 1fr;
+  gap:8px;
+  margin-bottom:22px;
+}
+.page-vakmannen .vk-gallery-desktop button{
+  border:1px solid var(--e-line, rgba(63,74,50,.14));
+  border-radius:12px;
+  overflow:hidden;
+  padding:0;
+  background:var(--e-sand-2, #F3EEE4);
+  aspect-ratio:4/3;
+  cursor:pointer;
+}
+.page-vakmannen .vk-gallery-desktop button:first-child{ aspect-ratio:5/3; }
+.page-vakmannen .vk-gallery-desktop img{
+  width:100%; height:100%;
+  object-fit:cover;
+  display:block;
+  transition:transform .4s ease;
+}
+.page-vakmannen .vk-gallery-desktop button:hover img{ transform:scale(1.035); }
+
+.page-vakmannen .vk-gallery-mobile{ display:none; }
+
+/* ---------- Mobile gallery: swipe + peek + counter ---------- */
+@media (max-width:879px){
+  .page-vakmannen .vk-gallery-desktop{ display:none !important; }
+  /* Also hide legacy .lab-gallery if present without wrapper */
+  .page-vakmannen .lab-profile > .lab-gallery{ display:none !important; }
+
+  .page-vakmannen .vk-gallery-mobile{
+    display:block;
+    margin:0 0 22px;
+  }
+  .page-vakmannen .vk-gallery-scroller{
+    display:flex;
+    gap:10px;
+    overflow-x:auto;
+    scroll-snap-type:x mandatory;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:4px;
+    margin:0 -4px;
+    padding-left:4px;
+    padding-right:12%;
+    scrollbar-width:none;
+  }
+  .page-vakmannen .vk-gallery-scroller::-webkit-scrollbar{ display:none; }
+  .page-vakmannen .vk-gallery-scroller button{
+    flex:0 0 86%;
+    max-width:86%;
+    scroll-snap-align:start;
+    border:1px solid var(--e-line, rgba(63,74,50,.14));
+    border-radius:14px;
+    overflow:hidden;
+    padding:0;
+    background:var(--e-sand-2, #F3EEE4);
+    aspect-ratio:4 / 3;
+    cursor:pointer;
+  }
+  .page-vakmannen .vk-gallery-scroller img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
+  }
+  .page-vakmannen .vk-gallery-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-top:10px;
+  }
+  .page-vakmannen .vk-gallery-count{
+    font-size:.8rem;
+    font-weight:700;
+    color:var(--e-ink-soft, #5C6354);
+    font-variant-numeric:tabular-nums;
+  }
+}
+
+@media (min-width:880px){
+  .page-vakmannen .vk-gallery-mobile{ display:none !important; }
+}
+
+/* ---------- Lightbox: calm fullscreen + prev/next ---------- */
+.page-vakmannen .lab-lightbox{
+  z-index:120;
+}
+.page-vakmannen .vk-lb-nav{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  z-index:2;
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  border:none;
+  background:rgba(255,255,255,.94);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(0,0,0,.18);
+}
+.page-vakmannen .vk-lb-prev{ left:12px; }
+.page-vakmannen .vk-lb-next{ right:12px; }
+.page-vakmannen .vk-lb-counter{
+  position:absolute;
+  bottom:18px;
+  left:50%;
+  transform:translateX(-50%);
+  z-index:2;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(20,21,15,.72);
+  color:#fff;
+  font-size:.78rem;
+  font-weight:700;
+  font-variant-numeric:tabular-nums;
+}
+.page-vakmannen .lab-lightbox img{
+  object-fit:contain;
+  max-height:82vh;
+}
+
+/* ---------- Empty / misc ---------- */
 .vk-empty{
   margin:28px 0;padding:28px 22px;border-radius:16px;
   background:var(--e-cream,#FFFEFA);border:1px dashed var(--e-line,rgba(63,74,50,.14));
@@ -10,3 +372,21 @@
 .vk-empty h2{margin:0 0 8px;font-size:1.25rem;}
 .vk-empty p{margin:0 auto 14px;max-width:34em;color:var(--ink-soft);}
 .vk-pill-note{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;background:#E7EBE1;color:#2C3423;margin-bottom:10px;}
+
+/* Quote / profile sticky CTA under header */
+.page-vakmannen .lab-side-sticky{
+  top:calc(var(--vk-header-h) + 16px);
+}
+.page-vakmannen .lab-quote{
+  padding-top:16px;
+}
+
+/* Prevent any horizontal page overflow */
+.page-vakmannen,
+.page-vakmannen .vk-site-main{
+  overflow-x:clip;
+}
+.page-vakmannen .lab-wrap{
+  max-width:1120px;
+  width:100%;
+}

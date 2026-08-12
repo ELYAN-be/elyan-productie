@@ -51,7 +51,9 @@
     if (!g || !g.show) return '';
     return '<div class="lab-stars"><svg class="icon"><use href="#i-star"></use></svg> ' +
       esc(String(g.rating).replace('.', ',')) +
-      ' <span>' + esc(String(g.count)) + ' Google-beoordelingen</span></div>';
+      ' <span>' + esc(String(g.count)) + ' Google-beoordelingen' +
+      (g.demo ? ' · demo (niet live gekoppeld)' : '') +
+      '</span></div>';
   }
 
   function filtered() {
@@ -77,10 +79,11 @@
   function rowHtml(p) {
     var price = EV.formatPrice(EV.serviceForSubtype(p, state.subtype));
     var g = EV.GoogleReviews.resolveForPartner(p);
+    var startShort = String(p.startMonth || '').replace(/^Vanaf\s+/i, '');
     return (
       '<article class="lab-row">' +
         '<div class="lab-row-media"><img src="' + p.image + '" alt="" style="object-position:' + (p.objectPos || '50% 50%') + '" loading="lazy"></div>' +
-        '<div>' +
+        '<div class="lab-row-main">' +
           '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
           '<h3>' + esc(p.name) + '</h3>' +
           '<p class="tagline">' + esc(p.specialtyLine) + '</p>' +
@@ -88,16 +91,50 @@
         '</div>' +
         '<div class="lab-row-meta">' +
           '<div><strong>' + esc(p.radius) + '</strong></div>' +
-          '<div>Vanaf ' + esc(p.startMonth) + '</div>' +
-          '<div>' + esc(capacityLabel(p)) + '</div>' +
+          '<div>Eerste mogelijke start: ' + esc(startShort) + '</div>' +
         '</div>' +
         '<div class="lab-row-price">' +
           '<div class="val">' + esc(price.display) + '</div>' +
-          '<div class="ctx">' + esc(price.context) + '</div>' +
+          '<div class="ctx">' + esc(price.context || 'Prijsindicatie') + '</div>' +
         '</div>' +
         '<a class="btn btn-primary btn-sm" href="/vakmannen/' + encodeURIComponent(p.slug) + '">Bekijk vakman</a>' +
       '</article>'
     );
+  }
+
+  function gallerySources(p) {
+    var base = [p.image, '/assets/photos/why.jpg', '/assets/photos/editorial.jpg', '/assets/photos/about.jpg', '/assets/photos/hero.jpg'];
+    var imgs = (p.gallery && p.gallery.length) ? p.gallery.slice() : base.slice();
+    /* Keep partner order, then fill up to 5 for swipe affordance */
+    var seen = {};
+    var out = [];
+    imgs.concat(base).forEach(function (src) {
+      if (!src || seen[src]) return;
+      seen[src] = true;
+      out.push(src);
+    });
+    return out.slice(0, 5);
+  }
+
+  function galleryHtml(p) {
+    var imgs = gallerySources(p);
+    if (!imgs.length) return '';
+    var desktop = '<div class="lab-gallery vk-gallery-desktop">' +
+      imgs.slice(0, 3).map(function (src, i) {
+        return '<button type="button" data-gallery-open="' + i + '"><img src="' + src + '" alt="Projectfoto ' + (i + 1) + '" loading="lazy" style="object-position:' + (p.objectPos || '50% 40%') + '"></button>';
+      }).join('') +
+      '</div>';
+    var mobile = '<div class="vk-gallery-mobile" data-gallery-root>' +
+      '<div class="vk-gallery-scroller" id="vkGalleryScroll">' +
+        imgs.map(function (src, i) {
+          return '<button type="button" data-gallery-open="' + i + '"><img src="' + src + '" alt="Projectfoto ' + (i + 1) + '" loading="lazy" style="object-position:' + (p.objectPos || '50% 40%') + '"></button>';
+        }).join('') +
+      '</div>' +
+      '<div class="vk-gallery-bar">' +
+        '<span class="vk-gallery-count" id="vkGalleryCount">1 / ' + imgs.length + '</span>' +
+        '<button type="button" class="lab-link" id="vkGalleryAll">Bekijk alle foto’s</button>' +
+      '</div></div>';
+    return desktop + mobile;
   }
 
   function filtersHtml() {
@@ -126,9 +163,10 @@
   function renderLanding() {
     var featured = EV.publishedPartners().filter(function (p) { return p.category === 'dakwerken'; }).slice(0, 4);
     return (
+      /* 1–2 Hero + gericht zoeken */
       '<section class="lab-disc-hero"><div class="lab-wrap">' +
         '<p class="lab-kicker">Vakmannen</p>' +
-        '<h1>Vind de juiste vakman voor je renovatie.</h1>' +
+        '<h1>Vind de juiste vakman<br>voor je renovatie.</h1>' +
         '<p class="lead">Ontdek gecontroleerde vakbedrijven, begrijp prijs en timing, en vraag een offerte aan wanneer het past.</p>' +
         '<form class="lab-search" id="vkSearch" autocomplete="off">' +
           '<label>Wat wil je laten uitvoeren?<select name="category">' +
@@ -136,35 +174,44 @@
               return '<option value="' + c.id + '"' + (c.id === state.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
             }).join('') +
           '</select></label>' +
-          '<label class="lab-loc">Gemeente of postcode' +
-            '<input name="location" id="locInput" value="' + esc(state.locationQuery) + '" placeholder="Typ een gemeente…" aria-autocomplete="list">' +
+          '<label class="lab-loc">Waar?' +
+            '<input name="location" id="locInput" value="' + esc(state.locationQuery) + '" placeholder="Gemeente of postcode" aria-autocomplete="list" autocomplete="off">' +
             '<div class="lab-suggest" id="locSuggest" hidden></div>' +
           '</label>' +
           '<button type="submit" class="btn btn-primary">Vind vakmannen</button>' +
         '</form>' +
       '</div></section>' +
-      '<section class="lab-disc-band"><div class="lab-wrap">' +
-        '<h2>Waarmee kunnen we je helpen?</h2>' +
-        '<p class="lab-hint">Kies een categorie om te browsen. Zoeken is optioneel.</p>' +
+
+      /* 3 Uitgelichte vakbedrijven — browse without searching */
+      '<section class="lab-featured"><div class="lab-wrap">' +
+        '<div class="lab-featured-head">' +
+          '<div><h2>Uitgelichte vakbedrijven</h2><p class="lab-hint">Ontdek gecontroleerde vakbedrijven op ELYAN.</p></div>' +
+          '<button type="button" class="lab-link" id="seeAll">Alle resultaten <svg class="icon"><use href="#i-arrow"></use></svg></button>' +
+        '</div>' +
+        '<div class="lab-feature-rail">' + featured.map(rowHtml).join('') + '</div>' +
+      '</div></section>' +
+
+      /* 4 Ontdek per vakgebied */
+      '<section class="lab-disc-band vk-discover"><div class="lab-wrap">' +
+        '<h2>Ontdek per vakgebied</h2>' +
+        '<p class="lab-hint">Bekijk gecontroleerde vakbedrijven per specialisatie.</p>' +
         '<div class="lab-cat-mosaic">' +
           EV.CATEGORY_LIST.map(function (c) {
             return '<button type="button" class="lab-cat' + (state.category === c.id ? ' is-active' : '') + '" data-browse-cat="' + c.id + '">' +
-              '<strong>' + esc(c.label) + '</strong><span>Ontdekken</span></button>';
+              '<strong>' + esc(c.label) + '</strong></button>';
           }).join('') +
         '</div>' +
-        '<p class="lab-hint" style="margin-top:18px;margin-bottom:8px;">Of bekijk per provincie</p>' +
+      '</div></section>' +
+
+      /* 5 Provincies — secondary discovery */
+      '<section class="vk-regions"><div class="lab-wrap">' +
+        '<h2>Bekijk per provincie</h2>' +
+        '<p class="lab-hint">Browse vakmannen in jouw regio. Voor een gerichte zoekactie gebruik je gemeente of postcode hierboven.</p>' +
         '<div class="lab-prov">' +
           EV.PROVINCES.map(function (p) {
             return '<button type="button" data-browse-prov="' + esc(p) + '">' + esc(p) + '</button>';
           }).join('') +
         '</div>' +
-      '</div></section>' +
-      '<section class="lab-featured"><div class="lab-wrap">' +
-        '<div class="lab-featured-head">' +
-          '<div><h2>Vakbedrijven om te ontdekken</h2><p class="lab-hint">Gecontroleerde partners. Geen zoekopdracht nodig.</p></div>' +
-          '<button type="button" class="lab-link" id="seeAll">Alle resultaten <svg class="icon"><use href="#i-arrow"></use></svg></button>' +
-        '</div>' +
-        '<div class="lab-feature-rail">' + featured.map(rowHtml).join('') + '</div>' +
       '</div></section>'
     );
   }
@@ -178,8 +225,8 @@
         '<button type="button" class="btn btn-ghost" id="backLanding">Andere categorie bekijken</button></div>';
     }
     return (
-      '<div class="lab-wrap lab-results" style="padding-top:28px;padding-bottom:48px;">' +
-        '<button type="button" class="lab-link" id="backLanding" style="margin-bottom:10px;">← Terug naar ontdekken</button>' +
+      '<div class="lab-wrap lab-results">' +
+        '<button type="button" class="lab-link" id="backLanding">← Terug naar ontdekken</button>' +
         '<div class="lab-results-head">' +
           '<h1>' + esc(cat(state.category).plural) + ' rond ' + esc(state.location.name) + '</h1>' +
           '<p class="lab-hint">' + esc(state.location.postcode) + ' · ' + esc(state.location.province) + '</p>' +
@@ -232,7 +279,7 @@
           (g.reviews || []).map(function (r) {
             return '<div class="lab-review"><strong>' + esc(r.author) + '</strong>' + esc(r.text) + '</div>';
           }).join('') +
-          '<p class="lab-attr">' + esc(g.attribution) + (g.demo ? ' Demo-data tot Places API live is.' : '') + '</p>' +
+          '<p class="lab-attr">' + esc(g.attribution) + (g.demo ? ' Dit is demo-attributie tot de Google Places-koppeling live is.' : '') + '</p>' +
         '</div></section>';
     }
 
@@ -247,8 +294,8 @@
     }
 
     return (
-      '<div class="lab-wrap lab-profile" style="padding-top:24px;padding-bottom:56px;">' +
-        '<a class="lab-link" href="/vakmannen" style="margin-bottom:8px;display:inline-flex;">← Terug naar vakmannen</a>' +
+      '<div class="lab-wrap lab-profile">' +
+        '<a class="lab-link vk-back" href="/vakmannen">← Terug naar vakmannen</a>' +
         '<header class="lab-identity">' +
           '<div class="lab-identity-visual"><img src="' + p.image + '" alt="" style="object-position:' + (p.objectPos || '') + '"></div>' +
           '<div>' +
@@ -267,11 +314,7 @@
           '<div class="is-price"><span>Prijsindicatie</span><strong>' + esc(price.display) + '</strong></div>' +
           '<div><span>Plaatsbezoek</span><strong>' + esc(visitLabel(p)) + '</strong></div>' +
         '</div>' +
-        '<div class="lab-gallery">' +
-          (p.gallery || []).slice(0, 3).map(function (src) {
-            return '<button type="button" data-lightbox="' + src + '"><img src="' + src + '" alt="Projectfoto" loading="lazy"></button>';
-          }).join('') +
-        '</div>' +
+        galleryHtml(p) +
         '<div class="lab-profile-grid"><div>' +
           '<section class="lab-section"><h2>Over ' + esc(p.name) + '</h2><p>' + esc(intro) + '</p></section>' +
           '<section class="lab-section"><h2>Waar ze sterk in zijn</h2><div class="lab-strengths">' +
@@ -471,14 +514,71 @@
     });
     $all('[data-lightbox]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var box = $('#labLightbox');
-        var img = $('#labLightboxImg');
-        if (!box || !img) return;
-        img.src = btn.getAttribute('data-lightbox');
-        box.hidden = false;
-        document.body.classList.add('lock-scroll');
+        openLightbox([btn.getAttribute('data-lightbox')], 0);
       });
     });
+
+    /* Mobile / desktop gallery → lightbox with swipe nav */
+    state.galleryImages = [];
+    state.galleryIndex = 0;
+    var routeNow = parseRoute();
+    if (routeNow.page === 'profile') {
+      var partnerNow = EV.partnerBySlug(routeNow.slug);
+      if (partnerNow) state.galleryImages = gallerySources(partnerNow);
+    }
+    function openLightbox(images, index) {
+      var box = $('#labLightbox');
+      var img = $('#labLightboxImg');
+      if (!box || !img || !images || !images.length) return;
+      state.galleryImages = images;
+      state.galleryIndex = Math.max(0, Math.min(index || 0, images.length - 1));
+      img.src = images[state.galleryIndex];
+      var counter = $('#vkLbCounter');
+      if (counter) {
+        counter.hidden = false;
+        counter.textContent = (state.galleryIndex + 1) + ' / ' + images.length;
+      }
+      var prev = $('#vkLbPrev');
+      var next = $('#vkLbNext');
+      if (prev) prev.hidden = images.length < 2;
+      if (next) next.hidden = images.length < 2;
+      box.hidden = false;
+      document.body.classList.add('lock-scroll');
+    }
+    function stepLightbox(delta) {
+      var imgs = state.galleryImages || [];
+      if (imgs.length < 2) return;
+      state.galleryIndex = (state.galleryIndex + delta + imgs.length) % imgs.length;
+      var img = $('#labLightboxImg');
+      var counter = $('#vkLbCounter');
+      if (img) img.src = imgs[state.galleryIndex];
+      if (counter) counter.textContent = (state.galleryIndex + 1) + ' / ' + imgs.length;
+    }
+    $all('[data-gallery-open]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        openLightbox(state.galleryImages, Number(btn.getAttribute('data-gallery-open')) || 0);
+      });
+    });
+    var allBtn = $('#vkGalleryAll');
+    if (allBtn) allBtn.addEventListener('click', function () {
+      openLightbox(state.galleryImages, 0);
+    });
+    var lbPrev = $('#vkLbPrev');
+    var lbNext = $('#vkLbNext');
+    if (lbPrev) lbPrev.addEventListener('click', function (e) { e.stopPropagation(); stepLightbox(-1); });
+    if (lbNext) lbNext.addEventListener('click', function (e) { e.stopPropagation(); stepLightbox(1); });
+    var scroller = $('#vkGalleryScroll');
+    var countEl = $('#vkGalleryCount');
+    if (scroller && countEl && state.galleryImages.length) {
+      scroller.addEventListener('scroll', function () {
+        var w = scroller.querySelector('button');
+        if (!w) return;
+        var idx = Math.round(scroller.scrollLeft / Math.max(1, w.offsetWidth + 10));
+        idx = Math.max(0, Math.min(idx, state.galleryImages.length - 1));
+        countEl.textContent = (idx + 1) + ' / ' + state.galleryImages.length;
+      }, { passive: true });
+    }
+
     $all('[data-close-lightbox]').forEach(function (el) {
       el.addEventListener('click', function () {
         var box = $('#labLightbox');

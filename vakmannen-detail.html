@@ -46,7 +46,10 @@
 <div class="lab-lightbox" id="labLightbox" hidden>
   <div class="lab-lightbox-backdrop" data-close-lightbox></div>
   <button type="button" class="lab-lightbox-close" data-close-lightbox aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
+  <button type="button" class="vk-lb-nav vk-lb-prev" id="vkLbPrev" aria-label="Vorige foto" hidden>‹</button>
+  <button type="button" class="vk-lb-nav vk-lb-next" id="vkLbNext" aria-label="Volgende foto" hidden>›</button>
   <img id="labLightboxImg" src="" alt="Projectfoto">
+  <div class="vk-lb-counter" id="vkLbCounter" hidden></div>
 </div>
 
 <footer class="site-footer">
@@ -75,6 +78,7 @@
 <script src="/shared/vakmannen/locations-be.js"></script>
 <script src="/shared/vakmannen/core.js"></script>
 <script src="/shared/vakmannen/partners-data.js"></script>
+<script src="/js/site.js" defer></script>
 <script src="/js/vakmannen-public.js" defer></script>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
