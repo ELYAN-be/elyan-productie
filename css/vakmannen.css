@@ -1,0 +1,12 @@
+/* Public vakmannen surface — extends Partner Lab baseline without lab chrome */
+.page-vakmannen .lab-switcher{display:none !important;}
+.page-vakmannen{padding-bottom:0;}
+.vk-site-main{min-height:60vh;}
+.vk-empty{
+  margin:28px 0;padding:28px 22px;border-radius:16px;
+  background:var(--e-cream,#FFFEFA);border:1px dashed var(--e-line,rgba(63,74,50,.14));
+  text-align:center;
+}
+.vk-empty h2{margin:0 0 8px;font-size:1.25rem;}
+.vk-empty p{margin:0 auto 14px;max-width:34em;color:var(--ink-soft);}
+.vk-pill-note{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;background:#E7EBE1;color:#2C3423;margin-bottom:10px;}

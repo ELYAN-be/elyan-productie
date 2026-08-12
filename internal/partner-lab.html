@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELYAN Partner Lab V2 (intern)</title>
+<title>ELYAN Partner Lab · Product experience (intern)</title>
 <meta name="description" content="Interne demo van het toekomstige ELYAN-vakmannennetwerk. Fictieve demo-data.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#3F4A32">
@@ -22,6 +22,8 @@
 <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.6 7.2 18.1l.9-5.4L4.2 8.9l5.4-.8L12 3.2z" fill="currentColor"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.75"/><path d="M16.2 16.2L20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
 </defs></svg>
 
 <div class="lab-switcher" role="navigation" aria-label="Partner Lab views">
@@ -29,7 +31,7 @@
     <div class="lab-switcher-brand">
       <span class="lab-switcher-badge">Internal Lab</span>
       <strong>ELYAN Partner Lab</strong>
-      <span class="lab-switcher-note">V2 · fictieve demo-data</span>
+      <span class="lab-switcher-note">Fictieve demo-data · geen productie</span>
     </div>
     <div class="lab-switcher-tabs" role="tablist">
       <button type="button" class="lab-tab is-active" data-lab-view="discover">Vakmannen ontdekken</button>
@@ -43,25 +45,25 @@
 <main id="lab-main">
   <div class="lab-view is-active" id="view-discover" data-view="discover"></div>
   <div class="lab-view" id="view-profile" data-view="profile" hidden></div>
+  <div class="lab-view" id="view-quote" data-view="quote" hidden></div>
   <div class="lab-view" id="view-partner" data-view="partner" hidden></div>
   <div class="lab-view" id="view-admin" data-view="admin" hidden></div>
 </main>
 
-<!-- Contact modal -->
-<div class="lab-modal" id="contactModal" hidden>
-  <div class="lab-modal-backdrop" data-close-modal></div>
-  <div class="lab-modal-panel" role="dialog" aria-modal="true" aria-labelledby="contactModalTitle">
-    <button type="button" class="lab-modal-close" data-close-modal aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
-    <p class="lab-kicker">Contact</p>
-    <h2 id="contactModalTitle">Contact aanvragen</h2>
-    <p class="lab-modal-lead">Demoformulier. Verstuurt niets naar een echt bedrijf.</p>
-    <form id="contactForm" class="lab-modal-form">
-      <label>Naam<input name="name" type="text" value="Demo Klant" required></label>
-      <label>E-mail<input name="email" type="email" value="demo.klant@example.be" required></label>
-      <label>Korte beschrijving<textarea name="message" rows="3">Hellend dak, ca. 110 m², Antwerpen.</textarea></label>
-      <button type="submit" class="btn btn-primary btn-block">Verstuur demo-aanvraag</button>
-      <p class="lab-toast" id="contactToast" hidden>Demo-aanvraag genoteerd. Geen echte verzending.</p>
-    </form>
+<div class="lab-lightbox" id="labLightbox" hidden>
+  <div class="lab-lightbox-backdrop" data-close-lightbox></div>
+  <button type="button" class="lab-lightbox-close" data-close-lightbox aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
+  <img id="labLightboxImg" src="" alt="Projectfoto">
+</div>
+
+<div class="lab-drawer" id="filtersDrawer" hidden>
+  <div class="lab-drawer-backdrop" data-close-drawer></div>
+  <div class="lab-drawer-panel" role="dialog" aria-modal="true" aria-label="Filters">
+    <div class="lab-drawer-head">
+      <strong>Filters</strong>
+      <button type="button" class="lab-modal-close" data-close-drawer aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
+    </div>
+    <div id="filtersDrawerBody"></div>
   </div>
 </div>
 
