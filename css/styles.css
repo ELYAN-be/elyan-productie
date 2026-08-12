@@ -845,15 +845,15 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
 .why-photo img{width:100%;height:100%;object-fit:cover;object-position:32% 40%;display:block;}
 @media (max-width:959px){.why-photo{aspect-ratio:16/10;max-height:300px;}
 .why-photo img{object-position:38% 42%;}}
-/* Phone only — match why-sm crop (full stairs + floor); desktop/tablet unchanged */
+/* Phone only — full why-sm frame (stairs + more floor); desktop/tablet unchanged */
 @media (max-width:720px){
   .why-photo{
-    aspect-ratio:881/768;
-    max-height:320px;
+    aspect-ratio:1024/835;
+    max-height:340px;
   }
   .why-photo img{
     object-fit:cover;
-    object-position:50% 50%;
+    object-position:50% 58%;
   }
 }
 .why-list{display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line);}
