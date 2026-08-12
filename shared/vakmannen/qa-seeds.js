@@ -21,8 +21,11 @@
   }
 
   function partner(cfg) {
+    var slug = cfg.slug || cfg.id;
     return {
       id: cfg.id,
+      slug: slug,
+      status: 'published',
       category: cfg.category,
       subtypes: cfg.subtypes,
       name: cfg.name,
@@ -31,31 +34,40 @@
       province: cfg.province || 'Antwerpen',
       radius: cfg.radius,
       priceLevel: cfg.priceLevel || '€€',
-      capacity: cfg.capacity || 'Beperkt beschikbaar',
+      capacity: cfg.capacityId || 'limited',
       startMonth: cfg.startMonth || 'Oktober 2026',
+      visitSpeed: cfg.visitSpeed || '2w',
       visit: cfg.visit || 'Doorgaans binnen 7–14 dagen',
       years: cfg.years || 8,
       teamSize: cfg.teamSize || '4–6',
       image: cfg.image || IMAGES.editorial,
       objectPos: cfg.objectPos || '50% 40%',
-      gallery: cfg.gallery || [IMAGES.editorial, IMAGES.hero, IMAGES.about],
+      gallery: cfg.gallery || [IMAGES.editorial, IMAGES.hero, IMAGES.about, IMAGES.why],
       about: cfg.about,
+      strength: (cfg.strengths && cfg.strengths[0]) || cfg.strength || '',
       strengths: cfg.strengths || [],
       method: cfg.method || ['Intake', 'Opmeting', 'Uitvoering'],
       prefer: cfg.prefer || '',
       avoid: cfg.avoid || '',
       materials: cfg.materials || '',
       values: cfg.values || '',
+      differ: cfg.differ || '',
       minProject: cfg.minProject || 'Op aanvraag',
       minProjectValue: cfg.minProjectValue || 0,
       google: cfg.google || {
-        rating: 4.4, count: 18, placeId: 'demo_' + cfg.id,
+        enabled: true,
+        consent: true,
+        consentAt: '2026-06-01T10:00:00Z',
+        live: false,
+        rating: 4.4,
+        count: 18,
+        placeId: 'demo_' + cfg.id,
         url: 'https://maps.google.com/?q=' + encodeURIComponent(cfg.name + ' demo'),
-        reviews: [{ author: 'Demo K.', text: 'Fictieve demo-review. Geen echte Google-data.' }],
-        demo: true
+        reviews: [{ author: 'Demo K.', text: 'Fictieve demo-review. Geen echte Google-data.' }]
       },
       services: cfg.services || [],
-      publicFields: cfg.publicFields || { years: true },
+      publicFields: cfg.publicFields || { years: true, teamSize: false },
+      showroom: cfg.showroom || false,
       demo: true,
       demoNote: 'Fictief QA-profiel · prijzen zijn placeholders'
     };
@@ -250,4 +262,14 @@
       ]
     })
   ];
+
+  /* Merge into public PARTNERS so all 12 categories are discoverable */
+  EV.QA_SEED_PARTNERS.forEach(function (p) {
+    if (!EV.PARTNERS) EV.PARTNERS = [];
+    var exists = false;
+    for (var i = 0; i < EV.PARTNERS.length; i++) {
+      if (EV.PARTNERS[i].id === p.id || EV.PARTNERS[i].slug === p.slug) { exists = true; break; }
+    }
+    if (!exists) EV.PARTNERS.push(p);
+  });
 })(typeof window !== 'undefined' ? window : global);

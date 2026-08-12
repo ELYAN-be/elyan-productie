@@ -82,7 +82,7 @@
   var ME = CI ? CI.MatchingEngine : null;
 
   var CAT_META = {
-    dakwerken: { img: IMAGES.hero, pos: '50% 32%', golden: true },
+    dakwerken: { img: IMAGES.hero, pos: '50% 32%' },
     badkamer: { tone: true },
     keuken: { img: IMAGES.why, pos: '50% 60%' },
     'ramen-deuren': { tone: true },
@@ -107,7 +107,6 @@
         img: meta.img,
         pos: meta.pos,
         tone: meta.tone,
-        golden: !!meta.golden,
         subtypes: c.services.map(function (s) {
           return { id: s.id, label: s.label, sharedId: s.sharedId || null };
         })
@@ -574,7 +573,10 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
   }
-  function tax(id) { return TAXONOMY[id] || TAXONOMY.dakwerken; }
+  function tax(id) {
+    if (TAXONOMY[id]) return TAXONOMY[id];
+    return { id: id || '', label: 'Vakgebied', plural: 'Vakmannen', subtypes: [] };
+  }
   function catLabel(id) { return tax(id).label; }
   function pluralLabel(id) { return tax(id).plural; }
   function companyById(id) {
@@ -917,8 +919,7 @@
           '<h1>' + escapeHtml(pluralLabel(state.category)) + ' rond ' + escapeHtml(state.location.name) + '</h1>' +
           '<p class="lab-hint">' + escapeHtml(state.location.postcode) + ' · ' + escapeHtml(state.location.province) +
             (state.subtype !== 'alle' ? ' · ' + escapeHtml(subtypeLabel(state.category, state.subtype)) : '') +
-            ' · Fictieve demoresultaten' +
-            (state.category !== 'dakwerken' ? ' · QA-seedprofiel' : '') + '</p>' +
+            ' · Fictieve demoresultaten</p>' +
         '</div>' +
         '<div class="lab-mobile-filters"><button type="button" class="btn btn-ghost btn-sm" id="toggleFilters">Filters</button></div>' +
         '<div class="lab-results-layout">' +
@@ -1628,14 +1629,12 @@
     $all('[data-browse-prov]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         state.provinceBrowse = btn.getAttribute('data-browse-prov');
-        state.category = 'dakwerken';
         state.showResults = true;
         render();
       });
     });
     var seeAll = $('#seeAllResults');
     if (seeAll) seeAll.addEventListener('click', function () {
-      state.category = 'dakwerken';
       state.showResults = true;
       render();
     });

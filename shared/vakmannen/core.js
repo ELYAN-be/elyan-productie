@@ -15,20 +15,28 @@
   EV.formatPrice = function (service) {
     if (!service) return { display: 'Prijs op aanvraag', context: 'Na beoordeling project', model: 'on_request' };
     if (service.display) {
-      return { display: service.display, context: service.context || service.label || '', model: service.model };
+      return { display: service.display, context: service.context || service.label || '', model: service.model || service.pricing_model };
     }
-    var model = service.model;
+    var model = service.model || service.pricing_model;
+    var from = service.from != null ? service.from : service.min_price;
+    var to = service.to != null ? service.to : service.max_price;
     if (model === 'on_request' || model === 'after_visit') {
       return { display: model === 'after_visit' ? 'Prijs na plaatsbezoek' : 'Prijs op aanvraag', context: service.label || '', model: model };
     }
-    if (model === 'from' || service.from != null && service.to == null) {
-      return { display: 'Vanaf € ' + Number(service.from).toLocaleString('nl-BE'), context: service.unit || service.label || 'Vanafprijs', model: 'from' };
+    if (model === 'from' || model === 'starting_price' || (from != null && to == null)) {
+      return { display: 'Vanaf € ' + Number(from).toLocaleString('nl-BE'), context: service.unit || service.label || 'Vanafprijs', model: model || 'from' };
     }
-    if (service.from != null && service.to != null) {
-      var unit = service.unit ? ' / ' + service.unit.replace(/^€\s*\/\s*/, '') : '';
+    if (from != null && to != null) {
+      var unitSuffix = '';
+      if (model === 'per_m2' || service.unit === 'm2' || service.unit === 'm²') unitSuffix = ' / m²';
+      else if (model === 'per_linear_meter' || service.unit === 'lm') unitSuffix = ' / lm';
+      else if (model === 'per_hour') unitSuffix = ' / uur';
+      else if (model === 'per_wp') unitSuffix = ' / Wp';
+      else if (model === 'per_kwh') unitSuffix = ' / kWh';
+      else if (service.unit) unitSuffix = ' / ' + String(service.unit).replace(/^€\s*\/\s*/, '');
       return {
-        display: '€ ' + Number(service.from).toLocaleString('nl-BE') + ' – € ' + Number(service.to).toLocaleString('nl-BE') + (service.unit ? ' / ' + service.unit : ''),
-        context: service.context || ('Richtprijs' + (service.unit ? ' per ' + service.unit : '')),
+        display: '€ ' + Number(from).toLocaleString('nl-BE') + ' – € ' + Number(to).toLocaleString('nl-BE') + unitSuffix,
+        context: service.context || 'Richtprijs',
         model: model
       };
     }

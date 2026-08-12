@@ -40,7 +40,11 @@
     return { page: 'list', slug: null };
   }
 
-  function cat(id) { return EV.getCategory(id); }
+  function cat(id) {
+    var c = EV.getCategory(id);
+    if (c) return c;
+    return { id: id || '', label: 'Vakgebied', plural: 'Vakmannen', subtypes: [] };
+  }
   function capacityLabel(p) {
     return EV.capacityPublicLabel(p.capacity) || 'Beschikbaarheid op aanvraag';
   }
@@ -161,7 +165,23 @@
   }
 
   function renderLanding() {
-    var featured = EV.publishedPartners().filter(function (p) { return p.category === 'dakwerken'; }).slice(0, 4);
+    var all = EV.publishedPartners();
+    /* Diverse featured set: prefer one per category when available */
+    var featured = [];
+    var seenCat = {};
+    all.forEach(function (p) {
+      if (featured.length >= 6) return;
+      if (!seenCat[p.category]) {
+        seenCat[p.category] = true;
+        featured.push(p);
+      }
+    });
+    if (featured.length < 4) {
+      all.forEach(function (p) {
+        if (featured.length >= 4) return;
+        if (featured.indexOf(p) < 0) featured.push(p);
+      });
+    }
     return (
       /* 1–2 Hero + gericht zoeken */
       '<section class="lab-disc-hero"><div class="lab-wrap">' +
@@ -220,8 +240,12 @@
     var list = filtered();
     var empty = '';
     if (!list.length) {
-      empty = '<div class="vk-empty"><h2>Nog geen vakbedrijven hier</h2>' +
-        '<p>Op dit moment hebben we in deze categorie of regio nog geen geselecteerde vakbedrijven.</p>' +
+      empty = '<div class="vk-empty">' +
+        '<p class="vk-pill-note">' + esc(cat(state.category).label) + '</p>' +
+        '<h2>Nog geen vakbedrijven in deze selectie</h2>' +
+        '<p>We selecteren gecontroleerde partners per vakgebied. Voor ' + esc(cat(state.category).label.toLowerCase()) +
+        (state.provinceBrowse ? ' in ' + esc(state.provinceBrowse) : '') +
+        ' hebben we momenteel nog geen gepubliceerd profiel dat aan je filters voldoet.</p>' +
         '<button type="button" class="btn btn-ghost" id="backLanding">Andere categorie bekijken</button></div>';
     }
     return (
@@ -346,9 +370,58 @@
     );
   }
 
+  function renderDetailQuestions(questions, answers) {
+    answers = answers || {};
+    return (questions || []).map(function (qq) {
+      if (qq.type === 'info') {
+        return '<p class="lab-hint" style="margin:10px 0;">' + esc(qq.label) + '</p>';
+      }
+      if (qq.type === 'multi') {
+        var selected = answers[qq.key] || [];
+        if (!Array.isArray(selected)) selected = [];
+        return '<p class="lab-hint" style="margin:14px 0 8px;">' + esc(qq.label) + '</p><div class="lab-choice-grid is-2">' +
+          (qq.options || []).map(function (opt) {
+            var oid = typeof opt === 'string' ? opt : opt.id;
+            var olab = typeof opt === 'string' ? opt : opt.label;
+            return '<button type="button" class="lab-choice' + (selected.indexOf(oid) >= 0 ? ' is-selected' : '') + '" data-q-answer-multi="' + esc(qq.key) + '" data-val="' + esc(oid) + '">' + esc(olab) + '</button>';
+          }).join('') + '</div>';
+      }
+      if (qq.type === 'single' || qq.type === 'select') {
+        var cur = answers[qq.key] || '';
+        return '<p class="lab-hint" style="margin:14px 0 8px;">' + esc(qq.label) + '</p><div class="lab-choice-grid is-2">' +
+          (qq.options || []).map(function (opt) {
+            var oid = typeof opt === 'string' ? opt : opt.id;
+            var olab = typeof opt === 'string' ? opt : opt.label;
+            return '<button type="button" class="lab-choice' + (cur === oid ? ' is-selected' : '') + '" data-q-answer-single="' + esc(qq.key) + '" data-val="' + esc(oid) + '">' + esc(olab) + '</button>';
+          }).join('') + '</div>';
+      }
+      return '<label class="lab-field">' + esc(qq.label) +
+        '<input data-q-answer-field="' + esc(qq.key) + '" type="text" value="' + esc(answers[qq.key] == null ? '' : answers[qq.key]) + '"' +
+        (qq.placeholder ? ' placeholder="' + esc(qq.placeholder) + '"' : '') + '></label>' +
+        (qq.allowUnknown
+          ? '<button type="button" class="lab-choice' + (answers[qq.key + 'Unknown'] ? ' is-selected' : '') + '" data-q-answer-single="' + esc(qq.key + 'Unknown') + '" data-val="1">Ik weet het niet</button>'
+          : '');
+    }).join('');
+  }
+
   function renderQuote(p) {
     var q = state.quote;
-    if (!q) return '';
+    if (!q || !p) return '';
+    var catMeta = cat(p.category);
+    var RE = EV.Intelligence && EV.Intelligence.CustomerRequestEngine;
+    var detailQs = RE ? RE.getDetailQuestions(p.category) : (catMeta.customerQuestions || []);
+    var stepDefs = RE ? RE.getSteps(p.category) : [
+      { id: 'service', label: 'Type werk' },
+      { id: 'details', label: 'Projectdetails' },
+      { id: 'timing', label: 'Timing' },
+      { id: 'contact', label: 'Contact' },
+      { id: 'review', label: 'Overzicht' }
+    ];
+    /* Public quote uses compact flow without separate photos/budget steps */
+    stepDefs = stepDefs.filter(function (s) {
+      return s.id === 'service' || s.id === 'details' || s.id === 'timing' || s.id === 'contact' || s.id === 'review';
+    });
+
     if (q.sent) {
       return '<div class="lab-quote"><div class="lab-quote-shell"><div class="lab-success">' +
         '<div class="mark"><svg class="icon"><use href="#i-check"></use></svg></div>' +
@@ -360,27 +433,28 @@
           '<a class="btn btn-primary" href="/vakmannen/' + encodeURIComponent(p.slug) + '">Terug naar profiel</a>' +
         '</div></div></div></div>';
     }
-    var steps = ['Type werk', 'Over je project', 'Timing', 'Contact', 'Overzicht'];
-    var progress = steps.map(function (_, i) {
+
+    var progress = stepDefs.map(function (_, i) {
       return '<span class="' + (i < q.step ? 'is-done' : (i === q.step ? 'is-current' : '')) + '"></span>';
     }).join('');
+    var stepId = (stepDefs[q.step] && stepDefs[q.step].id) || 'service';
+    var subtypes = catMeta.subtypes || [];
     var body = '';
-    var subtypes = cat(p.category).subtypes;
-    if (q.step === 0) {
-      body = '<h1>Wat wil je laten uitvoeren?</h1><p class="step-lead">Kies wat het best past.</p><div class="lab-choice-grid is-2">' +
+
+    if (stepId === 'service') {
+      body = '<h1>Wat wil je laten uitvoeren?</h1><p class="step-lead">Kies wat het best past bij ' + esc(catMeta.label) + '.</p><div class="lab-choice-grid is-2">' +
         subtypes.map(function (s) {
           return '<button type="button" class="lab-choice' + (q.workType === s.id ? ' is-selected' : '') + '" data-q-set="workType" data-val="' + s.id + '">' + esc(s.label) + '</button>';
         }).join('') + '</div>';
-    } else if (q.step === 1) {
-      body = '<h1>Vertel kort over je project</h1><p class="step-lead">Weet je iets niet? Kies “Ik weet het niet”.</p>' +
-        '<label class="lab-field">Korte omschrijving<textarea data-q-field="notes" rows="3" placeholder="Bijvoorbeeld: hellend dak vernieuwen, ca. 100 m²">' + esc(q.notes || '') + '</textarea></label>' +
-        '<label class="lab-field">Geschatte omvang<input data-q-field="size" value="' + esc(q.size || '') + '" placeholder="bv. 100 m² of Ik weet het niet"></label>';
-    } else if (q.step === 2) {
+    } else if (stepId === 'details') {
+      body = '<h1>Projectdetails</h1><p class="step-lead">Alleen relevante vragen voor ' + esc(catMeta.label.toLowerCase()) + '. Weet je iets niet? Kies “Ik weet het niet”.</p>' +
+        renderDetailQuestions(detailQs, q.answers || {});
+    } else if (stepId === 'timing') {
       body = '<h1>Wanneer wil je starten?</h1><div class="lab-choice-grid is-2">' +
         EV.CUSTOMER_TIMING.filter(function (t) { return t.id !== 'alle'; }).map(function (t) {
           return '<button type="button" class="lab-choice' + (q.timing === t.id ? ' is-selected' : '') + '" data-q-set="timing" data-val="' + t.id + '">' + esc(t.label) + '</button>';
         }).join('') + '</div>';
-    } else if (q.step === 3) {
+    } else if (stepId === 'contact') {
       body = '<h1>Jouw gegevens</h1><p class="step-lead">Voor opvolging. Contactgegevens worden gericht gedeeld.</p>' +
         '<label class="lab-field">Naam<input data-q-field="name" value="' + esc(q.name || '') + '" required></label>' +
         '<label class="lab-field">E-mail<input data-q-field="email" type="email" value="' + esc(q.email || '') + '" required></label>' +
@@ -388,22 +462,32 @@
         '<label class="lab-field">Projectlocatie<input data-q-field="address" value="' + esc(q.address || state.location.name) + '"></label>';
     } else {
       var subLabel = subtypes.filter(function (s) { return s.id === q.workType; })[0];
+      var answerRows = Object.keys(q.answers || {}).map(function (k) {
+        var v = q.answers[k];
+        if (Array.isArray(v)) v = v.join(', ');
+        if (v === true) v = 'Ik weet het niet';
+        return '<div class="lab-summary-row"><span>' + esc(k) + '</span><strong>' + esc(String(v || '—')) + '</strong></div>';
+      }).join('');
       body = '<h1>Jouw aanvraag</h1><div class="lab-summary">' +
+        '<div class="lab-summary-row"><span>Categorie</span><strong>' + esc(catMeta.label) + '</strong></div>' +
         '<div class="lab-summary-row"><span>Werk</span><strong>' + esc(subLabel ? subLabel.label : q.workType) + '</strong></div>' +
+        answerRows +
         '<div class="lab-summary-row"><span>Locatie</span><strong>' + esc(q.address || '') + '</strong></div>' +
         '<div class="lab-summary-row"><span>Timing</span><strong>' + esc(q.timing || '') + '</strong></div>' +
         '<div class="lab-summary-row"><span>Naar</span><strong>' + esc(p.name) + '</strong></div>' +
       '</div><p class="lab-hint">Je kunt later tot 3 zelfgekozen vakmannen kiezen. Nu: één partner.</p>';
     }
+
+    state._quoteStepCount = stepDefs.length;
     return (
       '<div class="lab-quote"><div class="lab-quote-shell">' +
         '<button type="button" class="lab-link" id="cancelQuote" style="margin-bottom:12px;">← Terug naar profiel</button>' +
         '<div class="lab-quote-progress">' + progress + '</div>' +
-        '<p class="lab-kicker">Offerteaanvraag · ' + esc(p.name) + '</p>' +
+        '<p class="lab-kicker">Offerteaanvraag · ' + esc(p.name) + ' · ' + esc(catMeta.label) + '</p>' +
         '<div class="lab-quote-card">' + body +
           '<div class="lab-quote-actions">' +
             (q.step > 0 ? '<button type="button" class="btn btn-ghost" id="quoteBack">Terug</button>' : '') +
-            '<button type="button" class="btn btn-primary" id="quoteNext">' + (q.step >= steps.length - 1 ? 'Aanvraag versturen' : 'Verder') + '</button>' +
+            '<button type="button" class="btn btn-primary" id="quoteNext">' + (q.step >= stepDefs.length - 1 ? 'Aanvraag versturen' : 'Verder') + '</button>' +
           '</div></div></div></div>'
     );
   }
@@ -592,8 +676,9 @@
       var p = EV.partnerBySlug(route.slug);
       if (!p) return;
       state.quote = {
-        step: 0, sent: false, partnerId: p.id,
-        workType: (p.subtypes && p.subtypes[0]) || 'volledig',
+        step: 0, sent: false, partnerId: p.id, category: p.category,
+        workType: (p.subtypes && p.subtypes[0]) || '',
+        answers: {},
         notes: '', size: '', timing: '3m',
         name: '', email: '', phone: '', address: state.location.name
       };
@@ -612,12 +697,38 @@
         render();
       });
     });
+    $all('[data-q-answer-single]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!state.quote.answers) state.quote.answers = {};
+        var key = btn.getAttribute('data-q-answer-single');
+        var val = btn.getAttribute('data-val');
+        state.quote.answers[key] = val === '1' ? true : val;
+        render();
+      });
+    });
+    $all('[data-q-answer-multi]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!state.quote.answers) state.quote.answers = {};
+        var key = btn.getAttribute('data-q-answer-multi');
+        if (!Array.isArray(state.quote.answers[key])) state.quote.answers[key] = [];
+        var val = btn.getAttribute('data-val');
+        var ix = state.quote.answers[key].indexOf(val);
+        if (ix >= 0) state.quote.answers[key].splice(ix, 1);
+        else state.quote.answers[key].push(val);
+        render();
+      });
+    });
     var qNext = $('#quoteNext');
     if (qNext) qNext.addEventListener('click', function () {
       $all('[data-q-field]').forEach(function (input) {
         state.quote[input.getAttribute('data-q-field')] = input.value;
       });
-      if (state.quote.step >= 4) {
+      if (!state.quote.answers) state.quote.answers = {};
+      $all('[data-q-answer-field]').forEach(function (input) {
+        state.quote.answers[input.getAttribute('data-q-answer-field')] = input.value;
+      });
+      var last = (state._quoteStepCount || 5) - 1;
+      if (state.quote.step >= last) {
         state.quote.sent = true;
         state.projectContext = { timing: state.quote.timing, month: null };
         try {
@@ -625,10 +736,11 @@
           store.unshift({
             id: 'req_' + Date.now(),
             partnerId: state.quote.partnerId,
+            category: state.quote.category,
             status: EV.REQUEST_STATUS.NEW,
             createdAt: new Date().toISOString(),
             workType: state.quote.workType,
-            notes: state.quote.notes,
+            answers: state.quote.answers,
             timing: state.quote.timing,
             contact: { name: state.quote.name, email: state.quote.email, phone: state.quote.phone, address: state.quote.address },
             recipients: [state.quote.partnerId]

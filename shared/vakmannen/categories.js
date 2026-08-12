@@ -31,8 +31,7 @@
       id: 'dakwerken',
       label: 'Dakwerken',
       plural: 'Dakwerkers',
-      golden: true,
-      researchNote: 'Golden standard. €/m² for renovatie/isolatie; vanaf for herstelling; lm for goten.',
+      researchNote: '€/m² for renovatie/isolatie; vanaf for herstelling; lm for goten.',
       subtypes: [
         { id: 'volledig', label: 'Volledige dakrenovatie', unitHint: 'm2' },
         { id: 'hellend', label: 'Hellend dak', unitHint: 'm2' },
@@ -385,6 +384,29 @@
   global.ElyanVakmannen.REQUEST_STATUS = REQUEST_STATUS;
   global.ElyanVakmannen.PROVINCES = PROVINCES;
   global.ElyanVakmannen.getCategory = function (id) {
-    return CATEGORIES[id] || CATEGORIES.dakwerken;
+    var CI = global.ElyanVakmannen.Intelligence;
+    if (CI && CI.CATEGORIES && CI.CATEGORIES[id]) {
+      var intel = CI.CATEGORIES[id];
+      var base = CATEGORIES[id] || {};
+      return {
+        id: intel.id,
+        label: intel.label,
+        plural: intel.plural,
+        subtypes: intel.services.map(function (s) {
+          return { id: s.id, label: s.label, sharedId: s.sharedId || null, unitHint: s.unitHint || null, pricingModels: s.pricingModels || [] };
+        }),
+        customerQuestions: intel.customerQuestions || [],
+        onboardQuestions: intel.onboardQuestions || [],
+        projectTypes: intel.projectTypes || [],
+        publicFields: intel.publicFields || [],
+        matchingFields: intel.matchingFields || [],
+        priceModels: base.priceModels || [],
+        filters: base.filters || ['subtype', 'timing', 'region'],
+        materials: base.materials || [],
+        researchNote: base.researchNote || null
+      };
+    }
+    if (CATEGORIES[id]) return CATEGORIES[id];
+    return null;
   };
 })(typeof window !== 'undefined' ? window : global);

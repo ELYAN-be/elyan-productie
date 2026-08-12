@@ -547,7 +547,14 @@
   /* ---------- Profile mapper ---------- */
   var ProfileMapper = {
     mapPublic: function (partner, categoryId) {
-      var cat = CI[categoryId || partner.category] || CI.dakwerken;
+      var cat = CI[categoryId || partner.category] || null;
+      if (!cat) {
+        return {
+          identity: { name: partner && partner.name, specialtyLine: partner && partner.specialtyLine, image: partner && partner.image },
+          trust: { controlled: true, google: null },
+          core: {}, gallery: [], about: null, strengths: [], services: [], prices: [], availability: false, google: false, extras: {}
+        };
+      }
       var publicSet = {};
       (cat.publicFields || []).forEach(function (f) { publicSet[f] = true; });
       var pf = partner.publicFields || {};
@@ -659,7 +666,7 @@
     },
     emptyRequest: function (categoryId, partnerId) {
       return {
-        category: categoryId || 'dakwerken',
+        category: categoryId || '',
         partnerIds: partnerId ? [partnerId] : [],
         service: '',
         answers: {},
