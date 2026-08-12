@@ -280,11 +280,11 @@ strong{color:var(--ink);font-weight:600;}
     margin-right:calc(14px - var(--sp-5));
   }
   .hero-photo{
-    aspect-ratio:4/3;
+    aspect-ratio:6/5;
     border-radius:14px;
     box-shadow:0 10px 36px rgba(20,21,15,.08);
   }
-  .hero-photo img{object-position:52% 46%;}
+  .hero-photo img{object-position:52% 44%;}
   .hero-stage .demo-card{
     position:relative;
     left:auto;right:auto;bottom:auto;
@@ -327,7 +327,7 @@ strong{color:var(--ink);font-weight:600;}
     gap:1.2rem;
   }
   .hero-photo{
-    aspect-ratio:5/4;
+    aspect-ratio:6/5;
     border-radius:12px;
   }
   .hero-stage .demo-card{
