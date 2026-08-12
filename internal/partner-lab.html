@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELYAN Partner Lab (intern)</title>
+<meta name="description" content="Interne demo van het toekomstige ELYAN-vakmannennetwerk. Fictieve demo-data.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#3F4A32">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/partner-lab.css">
+</head>
+<body class="page-partner-lab">
+<a href="#lab-main" class="skip-link">Ga naar inhoud</a>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="i-logo" viewBox="0 0 32 32"><rect x="4" y="14" width="6" height="14" rx="2" fill="currentColor"/><rect x="13" y="8" width="6" height="20" rx="2" fill="currentColor"/><rect x="22" y="2" width="6" height="26" rx="2" fill="currentColor"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l5 5L19 7" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</defs></svg>
+
+<!-- INTERNAL LAB SWITCHER (remove later) -->
+<div class="lab-switcher" role="navigation" aria-label="Partner Lab views">
+  <div class="lab-switcher-inner">
+    <div class="lab-switcher-brand">
+      <span class="lab-switcher-badge">Internal Lab</span>
+      <strong>ELYAN Partner Lab</strong>
+      <span class="lab-switcher-note">Demo-data · niet publiek</span>
+    </div>
+    <div class="lab-switcher-tabs" role="tablist">
+      <button type="button" class="lab-tab is-active" role="tab" aria-selected="true" data-lab-view="klant">Klantweergave</button>
+      <button type="button" class="lab-tab" role="tab" aria-selected="false" data-lab-view="partner">Partnerdashboard</button>
+      <button type="button" class="lab-tab" role="tab" aria-selected="false" data-lab-view="admin">ELYAN Admin</button>
+    </div>
+  </div>
+</div>
+
+<main id="lab-main">
+
+<!-- ========== 1. KLANTWEERGAVE ========== -->
+<section class="lab-view is-active" id="view-klant" data-view="klant" aria-label="Klantweergave">
+  <div class="lab-demo-banner">
+    <span>DEMO</span>
+    Fictief bedrijf voor interne producttests. Geen echt vakbedrijf.
+  </div>
+
+  <div class="container lab-klant">
+    <header class="lab-klant-hero">
+      <div class="lab-klant-identity">
+        <div class="lab-avatar" aria-hidden="true">ED</div>
+        <div>
+          <p class="lab-kicker">Founding Partner · Demo</p>
+          <h1>ELYAN Demo Dakwerken</h1>
+          <p class="lab-meta-line">Antwerpen · Werkgebied Antwerpen + 35 km</p>
+        </div>
+      </div>
+      <a href="#lab-contact" class="btn btn-primary">Contact aanvragen <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
+    </header>
+
+    <div class="lab-klant-grid">
+      <div class="lab-klant-main">
+        <section class="lab-card">
+          <h2>Over het bedrijf</h2>
+          <p>ELYAN Demo Dakwerken is een fictief dakbedrijf voor producttests. In een echte situatie zou hier een korte, betrouwbare bedrijfsbeschrijving staan over aanpak, ervaring en werkwijze.</p>
+          <p>Deze demo toont hoe klanten later een vakbedrijf ontdekken nadat ze hun renovatie via ELYAN beter begrijpen.</p>
+        </section>
+
+        <section class="lab-card">
+          <h2>Specialisaties</h2>
+          <ul class="lab-tags">
+            <li>Dakrenovatie</li>
+            <li>Platte daken</li>
+            <li>Hellende daken</li>
+            <li>Dakisolatie</li>
+          </ul>
+        </section>
+
+        <section class="lab-card">
+          <h2>Werkgebied</h2>
+          <p><strong>Antwerpen + 35 km</strong></p>
+          <p>Projecten buiten dit gebied worden in deze demo niet standaard aangenomen.</p>
+        </section>
+
+        <section class="lab-card">
+          <h2>Projectfoto’s</h2>
+          <p class="lab-hint">Demo-placeholders. Later echte projectfoto’s of een neutrale ELYAN-categorieafbeelding.</p>
+          <div class="lab-photo-grid">
+            <figure class="lab-photo is-demo"><span>Hellend dak · demo</span></figure>
+            <figure class="lab-photo is-demo"><span>Plat dak · demo</span></figure>
+            <figure class="lab-photo is-demo"><span>Isolatie · demo</span></figure>
+            <figure class="lab-photo is-neutral"><span>Neutrale ELYAN-categorieafbeelding</span></figure>
+          </div>
+        </section>
+
+        <section class="lab-card lab-price-section">
+          <h2>Prijsinformatie</h2>
+          <p class="lab-hint">Twee gescheiden bronnen. Nooit door elkaar lezen als één offerte.</p>
+
+          <div class="lab-price-pair">
+            <article class="lab-price-block lab-price-elyan">
+              <header>
+                <p class="lab-price-source">ELYAN marktindicatie</p>
+                <p class="lab-price-badge">Onafhankelijke richting</p>
+              </header>
+              <p class="lab-price-value">€ 145 – € 210 / m²</p>
+              <p>Indicatie voor hellende dakrenovatie in Antwerpen, op basis van typische Belgische marktbanden in ELYAN.</p>
+              <ul class="lab-price-meta">
+                <li>Excl. btw-indicatie in ELYAN-modellen</li>
+                <li>Geen offerte</li>
+                <li>Demo-data</li>
+              </ul>
+            </article>
+
+            <article class="lab-price-block lab-price-partner">
+              <header>
+                <p class="lab-price-source">Prijsindicatie van het vakbedrijf</p>
+                <p class="lab-price-badge">Door partner aangeleverd</p>
+              </header>
+              <div class="lab-partner-price-rows">
+                <div>
+                  <span>Dakrenovatie</span>
+                  <strong>€ 160 – € 230 / m²</strong>
+                </div>
+                <div>
+                  <span>Vanaf-prijs kleiner dak</span>
+                  <strong>vanaf € 8.500</strong>
+                </div>
+                <div>
+                  <span>Minimum projectbedrag</span>
+                  <strong>€ 6.000</strong>
+                </div>
+                <div>
+                  <span>Uurprijs (meerwerk)</span>
+                  <strong>€ 62 / uur</strong>
+                </div>
+                <div>
+                  <span>Verplaatsingskosten</span>
+                  <strong>€ 45 (binnen werkgebied vaak inbegrepen)</strong>
+                </div>
+                <div>
+                  <span>Materiaal</span>
+                  <strong>Meestal inbegrepen in €/m²</strong>
+                </div>
+                <div>
+                  <span>Btw</span>
+                  <strong>Indicaties excl. btw · 6% of 21% afhankelijk van situatie</strong>
+                </div>
+              </div>
+            </article>
+          </div>
+          <p class="lab-price-disclaimer"><strong>Definitieve prijs na beoordeling van het project.</strong> Geen van beide blokken is een bindende offerte.</p>
+        </section>
+
+        <section class="lab-card">
+          <h2>Beschikbaarheid</h2>
+          <div class="lab-avail-grid">
+            <div>
+              <p class="lab-label">Eerst mogelijke projectstart</p>
+              <p class="lab-avail-value">Oktober 2026</p>
+            </div>
+            <div>
+              <p class="lab-label">Capaciteit</p>
+              <p class="lab-avail-value lab-avail-limited">Beperkt beschikbaar</p>
+            </div>
+          </div>
+          <div class="lab-avail-visit">
+            <p class="lab-label">Plaatsbezoeken / opmetingen</p>
+            <p>Aparte planning later. In deze demo: plaatsbezoeken op afspraak binnen 7 tot 14 dagen.</p>
+          </div>
+        </section>
+
+        <section class="lab-card">
+          <h2>Wat is inbegrepen</h2>
+          <ul class="lab-checklist">
+            <li><svg class="icon"><use href="#i-check"></use></svg> Opmeting en technische beoordeling van het dak</li>
+            <li><svg class="icon"><use href="#i-check"></use></svg> Materiaallevering binnen de gekozen scope</li>
+            <li><svg class="icon"><use href="#i-check"></use></svg> Plaatsing en afwerking volgens afgesproken specificatie</li>
+            <li><svg class="icon"><use href="#i-check"></use></svg> Opruimen van de werf na oplevering</li>
+          </ul>
+          <p class="lab-hint">Niet automatisch inbegrepen: structurele herstellingen, asbestsanering, of werken buiten de overeengekomen scope.</p>
+        </section>
+      </div>
+
+      <aside class="lab-klant-side">
+        <div class="lab-side-card" id="lab-contact">
+          <h2>Contact aanvragen</h2>
+          <p>Demoformulier. Verstuurt niets naar een echt bedrijf.</p>
+          <form class="lab-contact-form" id="labContactForm">
+            <label>Naam<input type="text" name="name" value="Demo Klant" required></label>
+            <label>E-mail<input type="email" name="email" value="demo.klant@example.be" required></label>
+            <label>Projecttype
+              <select name="type">
+                <option>Dakrenovatie</option>
+                <option>Plat dak</option>
+                <option>Dakisolatie</option>
+              </select>
+            </label>
+            <label>Korte beschrijving<textarea name="message" rows="4">Hellend dak, ca. 110 m², Antwerpen. Op zoek naar planning najaar 2026.</textarea></label>
+            <button type="submit" class="btn btn-primary btn-block">Contact aanvragen</button>
+            <p class="lab-form-note" id="labContactNote" hidden>Demo-aanvraag genoteerd in Partner Lab. Geen echte verzending.</p>
+          </form>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 2. PARTNERDASHBOARD ========== -->
+<section class="lab-view" id="view-partner" data-view="partner" aria-label="Partnerdashboard" hidden>
+  <div class="lab-demo-banner">
+    <span>DEMO</span>
+    Partnerdashboard voor ELYAN Demo Dakwerken. Lokale demo-status, geen productiedatabase.
+  </div>
+
+  <div class="container lab-dash">
+    <header class="lab-dash-head">
+      <div>
+        <p class="lab-kicker">Partneraccount · Demo</p>
+        <h1>ELYAN Demo Dakwerken</h1>
+      </div>
+      <p class="lab-status-pill" id="partnerProfileStatus">Profiel: Te beoordelen</p>
+    </header>
+
+    <nav class="lab-dash-nav" aria-label="Partnersecties">
+      <button type="button" class="lab-dash-link is-active" data-partner-panel="overzicht">Overzicht</button>
+      <button type="button" class="lab-dash-link" data-partner-panel="profiel">Profiel</button>
+      <button type="button" class="lab-dash-link" data-partner-panel="prijzen">Prijzen</button>
+      <button type="button" class="lab-dash-link" data-partner-panel="beschikbaarheid">Beschikbaarheid</button>
+      <button type="button" class="lab-dash-link" data-partner-panel="projecten">Projecten &amp; foto’s</button>
+      <button type="button" class="lab-dash-link" data-partner-panel="aanvragen">Aanvragen</button>
+    </nav>
+
+    <!-- Overzicht -->
+    <div class="lab-panel is-active" id="panel-overzicht" data-partner-panel-view="overzicht">
+      <div class="lab-stat-grid">
+        <article class="lab-stat">
+          <p class="lab-label">Profielstatus</p>
+          <p class="lab-stat-value" data-bind="status">Te beoordelen</p>
+        </article>
+        <article class="lab-stat">
+          <p class="lab-label">Volledigheid</p>
+          <p class="lab-stat-value">82%</p>
+          <div class="lab-progress"><span style="width:82%"></span></div>
+        </article>
+        <article class="lab-stat">
+          <p class="lab-label">Beschikbaarheid</p>
+          <p class="lab-stat-value">Beperkt · okt. 2026</p>
+        </article>
+        <article class="lab-stat">
+          <p class="lab-label">Open aanvragen</p>
+          <p class="lab-stat-value">3</p>
+        </article>
+      </div>
+
+      <div class="lab-card">
+        <h2>Acties die nog nodig zijn</h2>
+        <ul class="lab-action-list">
+          <li>Upload minstens één goedgekeurde projectfoto</li>
+          <li>Bevestig btw-basis bij dakisolatie</li>
+          <li>Beantwoord de openstaande aanvraag uit Berchem</li>
+        </ul>
+      </div>
+
+      <div class="lab-card">
+        <h2>Recente aanvragen</h2>
+        <ul class="lab-simple-list" id="overviewRequests"></ul>
+      </div>
+    </div>
+
+    <!-- Profiel -->
+    <div class="lab-panel" id="panel-profiel" data-partner-panel-view="profiel" hidden>
+      <form class="lab-card lab-form-grid" id="partnerProfileForm">
+        <h2 class="lab-span-2">Profiel beheren</h2>
+        <label>Bedrijfsnaam<input type="text" name="companyName" value="ELYAN Demo Dakwerken"></label>
+        <label>Ondernemingsnummer<input type="text" name="vat" value="BE 0123.456.789 (demo)"></label>
+        <label>Website<input type="url" name="website" value="https://demo.elyan.be/dakwerken"></label>
+        <label>Telefoon<input type="tel" name="phone" value="+32 3 000 00 00"></label>
+        <label>E-mail<input type="email" name="email" value="demo.dakwerken@elyan.demo"></label>
+        <label>Minimum projectgrootte<input type="text" name="minProject" value="€ 6.000"></label>
+        <label class="lab-span-2">Beschrijving<textarea name="description" rows="4">Fictief dakbedrijf voor ELYAN Partner Lab. Gespecialiseerd in renovatie van hellende en platte daken in de regio Antwerpen.</textarea></label>
+        <label class="lab-span-2">Specialisaties (komma-gescheiden)<input type="text" name="specialties" value="Dakrenovatie, Platte daken, Hellende daken, Dakisolatie"></label>
+        <label class="lab-span-2">Werkgebied<input type="text" name="area" value="Antwerpen + 35 km"></label>
+        <div class="lab-span-2">
+          <button type="submit" class="btn btn-primary">Demo-profiel opslaan</button>
+          <p class="lab-form-note" id="profileSaved" hidden>Opgeslagen in deze labsessie.</p>
+        </div>
+      </form>
+    </div>
+
+    <!-- Prijzen -->
+    <div class="lab-panel" id="panel-prijzen" data-partner-panel-view="prijzen" hidden>
+      <div class="lab-card">
+        <h2>Prijsinformatie per specialisatie</h2>
+        <p class="lab-hint">Geen vrij tekstvak. Gestructureerde demo-invoer. Dit is geen publieke offerte.</p>
+        <div class="lab-price-editor" id="priceEditor"></div>
+        <button type="button" class="btn btn-primary" id="savePricesBtn">Demo-prijzen opslaan</button>
+        <p class="lab-form-note" id="pricesSaved" hidden>Prijzen bijgewerkt in deze labsessie.</p>
+      </div>
+    </div>
+
+    <!-- Beschikbaarheid -->
+    <div class="lab-panel" id="panel-beschikbaarheid" data-partner-panel-view="beschikbaarheid" hidden>
+      <div class="lab-card lab-form-grid" id="availabilityForm">
+        <h2 class="lab-span-2">Projectbeschikbaarheid</h2>
+        <label>Eerst mogelijke startmaand
+          <select id="availStart">
+            <option>September 2026</option>
+            <option selected>Oktober 2026</option>
+            <option>November 2026</option>
+            <option>December 2026</option>
+            <option>Januari 2027</option>
+          </select>
+        </label>
+        <label>Capaciteit
+          <select id="availCapacity">
+            <option>Beschikbaar</option>
+            <option selected>Beperkt beschikbaar</option>
+            <option>Volzet</option>
+          </select>
+        </label>
+        <label class="lab-span-2">Periodes zonder nieuwe projecten<textarea id="availBlocked" rows="3">15 dec 2026 – 5 jan 2027: geen nieuwe projectstarts (demo)</textarea></label>
+
+        <div class="lab-span-2 lab-split-box">
+          <h3>Beschikbaarheid voor plaatsbezoeken</h3>
+          <p>Visueel onderscheid voor later. Geen agenda-integratie in deze demo.</p>
+          <label>Plaatsbezoeken
+            <select id="visitAvail">
+              <option selected>Op afspraak · 7–14 dagen</option>
+              <option>Beperkt · enkel ochtenden</option>
+              <option>Tijdelijk gepauzeerd</option>
+            </select>
+          </label>
+        </div>
+        <div class="lab-span-2">
+          <button type="button" class="btn btn-primary" id="saveAvailBtn">Beschikbaarheid opslaan</button>
+          <p class="lab-form-note" id="availSaved" hidden>Beschikbaarheid bijgewerkt in deze labsessie.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Projecten -->
+    <div class="lab-panel" id="panel-projecten" data-partner-panel-view="projecten" hidden>
+      <div class="lab-card">
+        <h2>Projectfoto’s</h2>
+        <p class="lab-hint">Status per foto: concept, ter beoordeling, goedgekeurd.</p>
+        <div class="lab-photo-manage" id="photoManager"></div>
+        <div class="lab-neutral-tip">
+          <strong>Toekomstig concept:</strong> Gebruik tijdelijk een neutrale ELYAN-categorieafbeelding als er nog geen sterke projectfoto is.
+        </div>
+      </div>
+    </div>
+
+    <!-- Aanvragen -->
+    <div class="lab-panel" id="panel-aanvragen" data-partner-panel-view="aanvragen" hidden>
+      <div class="lab-card">
+        <h2>Aanvragen</h2>
+        <p class="lab-hint">Fictieve demo-aanvragen. Geen echte berichtenfunctionaliteit.</p>
+        <div class="lab-request-list" id="requestList"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========== 3. ELYAN ADMIN ========== -->
+<section class="lab-view" id="view-admin" data-view="admin" aria-label="ELYAN Admin" hidden>
+  <div class="lab-demo-banner lab-demo-banner-admin">
+    <span>ADMIN DEMO</span>
+    Interne beoordeling. Wijzigt geen productiedatabase.
+  </div>
+
+  <div class="container lab-admin">
+    <header class="lab-dash-head">
+      <div>
+        <p class="lab-kicker">ELYAN Admin · Partner Lab</p>
+        <h1>Partnerbeoordeling</h1>
+      </div>
+      <p class="lab-status-pill" id="adminStatusPill">Te beoordelen</p>
+    </header>
+
+    <div class="lab-admin-grid">
+      <div class="lab-card">
+        <h2>Partnergegevens</h2>
+        <dl class="lab-dl">
+          <div><dt>Bedrijf</dt><dd>ELYAN Demo Dakwerken</dd></div>
+          <div><dt>Locatie</dt><dd>Antwerpen</dd></div>
+          <div><dt>Ondernemingsnr.</dt><dd>BE 0123.456.789 (demo)</dd></div>
+          <div><dt>Contact</dt><dd>demo.dakwerken@elyan.demo</dd></div>
+          <div><dt>Specialisaties</dt><dd>Dakrenovatie, platte/hellende daken, dakisolatie</dd></div>
+        </dl>
+      </div>
+
+      <div class="lab-card">
+        <h2>Status &amp; zichtbaarheid</h2>
+        <div class="lab-visibility">
+          <div>
+            <p class="lab-label">Door partner aangeleverd</p>
+            <p class="lab-vis-value" id="adminSubmittedStatus">Te beoordelen</p>
+          </div>
+          <div>
+            <p class="lab-label">Publiek zichtbaar</p>
+            <p class="lab-vis-value" id="adminPublicStatus">Nee</p>
+          </div>
+        </div>
+        <div class="lab-status-steps" aria-label="Statusflow">
+          <span data-step="Concept">Concept</span>
+          <span data-step="Te beoordelen" class="is-current">Te beoordelen</span>
+          <span data-step="Goedgekeurd">Goedgekeurd</span>
+          <span data-step="Gepubliceerd">Gepubliceerd</span>
+        </div>
+        <div class="lab-admin-actions">
+          <button type="button" class="btn btn-primary btn-sm" data-admin-action="approve">Goedkeuren</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-admin-action="request-changes">Aanpassing vragen</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-admin-action="publish">Publiceren</button>
+          <button type="button" class="btn btn-ghost btn-sm" data-admin-action="pause">Profiel pauzeren</button>
+        </div>
+        <p class="lab-form-note" id="adminActionNote" hidden></p>
+      </div>
+
+      <div class="lab-card">
+        <h2>Prijzen (aangeleverd)</h2>
+        <ul class="lab-simple-list" id="adminPrices"></ul>
+      </div>
+
+      <div class="lab-card">
+        <h2>Beschikbaarheid</h2>
+        <p id="adminAvailability">Oktober 2026 · Beperkt beschikbaar</p>
+      </div>
+
+      <div class="lab-card">
+        <h2>Foto’s</h2>
+        <ul class="lab-simple-list" id="adminPhotos"></ul>
+      </div>
+
+      <div class="lab-card">
+        <h2>Recente wijzigingen</h2>
+        <ul class="lab-simple-list" id="adminChanges">
+          <li>12 aug 2026 · Partner werkte prijsrange dakrenovatie bij</li>
+          <li>11 aug 2026 · Nieuwe foto geüpload (ter beoordeling)</li>
+          <li>10 aug 2026 · Beschikbaarheid gezet op beperkt / oktober 2026</li>
+        </ul>
+      </div>
+
+      <div class="lab-card lab-span-2">
+        <h2>Aanvragen (overzicht)</h2>
+        <div class="lab-request-list" id="adminRequests"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script src="/js/partner-lab.js" defer></script>
+</body>
+</html>
