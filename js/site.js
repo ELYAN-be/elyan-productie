@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — Shared site behaviour (every page)
+   ELYAN. Shared site behaviour (every page)
    Header scroll state + scroll-reveal animations.
    ============================================================ */
 (function(){

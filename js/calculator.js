@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — Calculator engine (dynamische vragen + resultaten)
+   ELYAN. Calculator engine (dynamische vragen + resultaten)
    Vereist: /shared/pricing.js, /shared/questions.js, /shared/insights.js
    ============================================================ */
 (function () {

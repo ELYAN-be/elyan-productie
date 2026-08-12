@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — Componentprijsengine België 2026
+   ELYAN. Componentprijsengine België 2026
    Single source of truth voor client + server.
    Werkpakketten → materiaal / manuren / overige → low/base/high
    ============================================================ */
@@ -38,7 +38,7 @@
       resultNoun: 'dakrenovatie',
       icon: 'i-roof',
       split: { materiaal: 0.45, arbeid: 0.45, overige: 0.10 },
-      premieNote: 'Dakisolatie kan relevant zijn voor Mijn VerbouwPremie (Vlaanderen), Primes Habitation of Renolution — afhankelijk van regio, inkomen en eigendomstype. Sinds 1 maart 2026 gelden strengere MVP-regels voor hogere inkomens.'
+      premieNote: 'Dakisolatie kan relevant zijn voor Mijn VerbouwPremie (Vlaanderen), Primes Habitation of Renolution, afhankelijk van regio, inkomen en eigendomstype. Sinds 1 maart 2026 gelden strengere MVP-regels voor hogere inkomens.'
     },
     vloeren: {
       label: 'Vloeren',
@@ -66,14 +66,14 @@
       resultNoun: 'isolatiewerken',
       icon: 'i-insulation',
       split: { materiaal: 0.45, arbeid: 0.45, overige: 0.10 },
-      premieNote: 'Muur-, dak-, zolder- of vloerisolatie kan in aanmerking komen voor Mijn VerbouwPremie of regionale premies — check technische eisen (Rd) en inkomenscategorie sinds 1 maart 2026.'
+      premieNote: 'Muur-, dak-, zolder- of vloerisolatie kan in aanmerking komen voor Mijn VerbouwPremie of regionale premies. Check technische eisen (Rd) en inkomenscategorie sinds 1 maart 2026.'
     },
     verwarming: {
       label: 'Verwarming & warmtepomp',
       resultNoun: 'verwarmingsrenovatie',
       icon: 'i-heat',
       split: { materiaal: 0.55, arbeid: 0.35, overige: 0.10 },
-      premieNote: 'Warmtepompen en bepaalde verwarmingsrenovaties kunnen premie-gevoelig zijn. Isolatiegraad van de woning bepaalt of een warmtepomp zinvol is — laat dit technisch bevestigen.'
+      premieNote: 'Warmtepompen en bepaalde verwarmingsrenovaties kunnen premie-gevoelig zijn. Isolatiegraad van de woning bepaalt of een warmtepomp zinvol is, laat dit technisch bevestigen.'
     },
     elektriciteit: {
       label: 'Elektriciteit',
@@ -94,7 +94,7 @@
       resultNoun: 'zonnepaneleninstallatie',
       icon: 'i-solar',
       split: { materiaal: 0.60, arbeid: 0.30, overige: 0.10 },
-      premieNote: 'Premies en nettarieven voor PV wijzigen regelmatig per regio. ELYAN geeft geen gegarandeerde besparing of terugverdientijd — vraag actuele steun na bij het officiële loket.'
+      premieNote: 'Premies en nettarieven voor PV wijzigen regelmatig per regio. ELYAN geeft geen gegarandeerde besparing of terugverdientijd, vraag actuele steun na bij het officiële loket.'
     },
     ventilatie: {
       label: 'Ventilatie',
@@ -194,8 +194,8 @@
     return {
       kind: 'm2',
       fieldLabel: 'Oppervlakte',
-      text: (size != null ? size : '—') + ' m²',
-      short: (size != null ? size : '—') + ' m²'
+      text: (size != null ? size : '-') + ' m²',
+      short: (size != null ? size : '-') + ' m²'
     };
   }
 
@@ -361,7 +361,7 @@
     if (region === 'vlaanderen') {
       if (type === 'dak' && (answers.insulation === 'ja' || answers.workType === 'isolatie' || answers.workType === 'volledig')) {
         items.push({
-          scheme: 'Mijn VerbouwPremie — dakisolatie',
+          scheme: 'Mijn VerbouwPremie: dakisolatie',
           relevance: 'mogelijk',
           reason: 'Dakisolatie kan premie-gevoelig zijn, maar sinds 1 maart 2026 komen eigenaar-bewoners uit inkomenscategorie 1 en 2 hiervoor niet meer in aanmerking. Categorie 3 en 4 behouden mogelijkheden.',
           conditions: [
@@ -376,9 +376,9 @@
         });
       } else if (type === 'vloeren' && answers.ufh === 'nieuw') {
         items.push({
-          scheme: 'Mijn VerbouwPremie — vloerisolatie / energie',
+          scheme: 'Mijn VerbouwPremie: vloerisolatie / energie',
           relevance: 'mogelijk',
-          reason: 'Alleen relevant als er effectief vloerisolatie of een premiewaardige energie-ingreep gebeurt — niet voor enkel een afwerkingsvloer.',
+          reason: 'Alleen relevant als er effectief vloerisolatie of een premiewaardige energie-ingreep gebeurt, niet voor enkel een afwerkingsvloer.',
           conditions: ['Inkomenscategorie 3 of 4 (of specifieke uitzonderingen)', 'Technische eisen'],
           missing: ['Of isolatie deel uitmaakt van de werken', 'Inkomen'],
           officialUrl: link.url,
@@ -508,7 +508,7 @@
       if (answers.scope === 'fronten') {
         return enrichBm(
           { low: 3500, high: 9000, vatStatus: 'unclear→soft', kind: 'modelAssumption',
-            scope: 'Facelift/fronten — geen harde BE €/project-publicatie', reason: 'Soft derived from Alkeba lower band' },
+            scope: 'Facelift/fronten, geen harde BE €/project-publicatie', reason: 'Soft derived from Alkeba lower band' },
           1,
           { scopeMatch: 'not-direct', label: 'Fronten (soft)', unit: 'EUR/project' }
         );
@@ -572,7 +572,7 @@
           low: fLow, high: fHigh, unit: 'EUR/project', vatStatus: 'excl',
           kind: f.kind, sources: f.sources, softSources: f.softSources,
           scope: scopeParts.join(' + '),
-          reason: f.reason + ' — prep-adders apart van base-install waar van toepassing'
+          reason: f.reason + ', prep-adders apart van base-install waar van toepassing'
         },
         1,
         { scopeMatch: match, label: 'Vloer ' + key + (match === 'not-direct' ? ' (UFH niet-direct)' : '') }
@@ -932,7 +932,7 @@
         labourHours: { low: 0, base: 0, high: 0 },
         labourRate: rate,
         other: scaleBand(R.stripAndDispose, size),
-        reason: 'Vyverman demontage+afvoer all-in als overige — geen aparte uren (voorkomt dubbeltelling)'
+        reason: 'Vyverman demontage+afvoer all-in als overige, geen aparte uren (voorkomt dubbeltelling)'
       }));
     } else {
       packages.push(createPackage('repair-local', 'Lokale herstelling dak', {
@@ -988,7 +988,7 @@
         material: scaleBand(coverMat, size * mf * waste),
         labourHours: { low: 0, base: 0, high: 0 },
         labourRate: rate,
-        reason: 'Materiaal-only unitprijs × m² × snijverlies — geen % van all-in faseprijs'
+        reason: 'Materiaal-only unitprijs × m² × snijverlies, geen % van all-in faseprijs'
       }));
       packages.push(createPackage('fasteners', 'Bevestiging & hulpstukken', {
         material: scaleBand(R.fastenersAccessories || { low: 8, base: 11, high: 16 }, size * mf),
@@ -1028,7 +1028,7 @@
         labourHours: { low: 0, base: 0, high: 0 },
         labourRate: rate,
         other: scaleBand(R.guttersPerLm, gutterFactor),
-        reason: 'All-in €/lm incl. plaatsing (BE) × typische lm — geen mat/arb-split van all-in'
+        reason: 'All-in €/lm incl. plaatsing (BE) × typische lm, geen mat/arb-split van all-in'
       }));
     }
 
@@ -1041,7 +1041,7 @@
       packages.push(createPackage('asbestos', 'Asbestverwijdering (indicatief)', {
         other: scaleBand(R.asbestosPerM2, size),
         labourHours: { low: 0, base: 0, high: 0 },
-        reason: 'Gespecialiseerde verwijdering — aparte aannemer'
+        reason: 'Gespecialiseerde verwijdering, aparte aannemer'
       }));
     }
 
@@ -1236,7 +1236,7 @@
         labourRate: rateFit
       }));
     } else {
-      // Single cabinets package — no separate "basispakket" (avoid double count)
+      // Single cabinets package, no separate "basispakket" (avoid double count)
       packages.push(createPackage('cabinets', 'Keukenkasten & korpus', {
         material: scaleBand(K.cabinetsPerM2[cabKey] || K.cabinetsPerM2.midden, size * mf),
         labourHours: { low: 0, base: 0, high: 0 },
@@ -1591,7 +1591,7 @@
       }));
     }
 
-    packages.push(createPackage('frames', 'Ramen — kader & beglazing (materiaal)', {
+    packages.push(createPackage('frames', 'Ramen: kader & beglazing (materiaal)', {
       material: scaleBand(matM2, size * mf * glaze.base * slideMult * accessF),
       reason: 'Frame+glas unitprijs × m² × beglazing/schuiftoeslag'
     }));
@@ -1642,7 +1642,7 @@
 
     packages.push(createPackage('iso-mat', 'Isolatiemateriaal', {
       material: scaleBand(matM2, size * mf * perf),
-      reason: 'Subtype ' + subtype + ' — isolatie-only (geen dakherbouw)'
+      reason: 'Subtype ' + subtype + ', isolatie-only (geen dakherbouw)'
     }));
 
     packages.push(createPackage('iso-labour', 'Plaatsing isolatie', {
@@ -1697,7 +1697,7 @@
     var replF = a.replaceVsNew === 'vervangen' ? H.replaceUplift.base : 1;
 
     if (pt === 'vloerverwarming') {
-      packages.push(createPackage('ufh-mat', 'Vloerverwarming — materiaal', {
+      packages.push(createPackage('ufh-mat', 'Vloerverwarming: materiaal', {
         material: scaleBand(H.ufhPerM2.material, size * mf * insF),
         reason: 'UFH €/m² componenten'
       }));
@@ -1706,7 +1706,7 @@
         labourRate: rate
       }));
     } else if (pt === 'radiatoren') {
-      packages.push(createPackage('rad-mat', 'Radiatoren — materiaal', {
+      packages.push(createPackage('rad-mat', 'Radiatoren: materiaal', {
         material: scaleBand(H.radiatorPerM2.material, size * mf * insF * distF),
         reason: 'Radiatorenpakket geschaald op verwarmde m²'
       }));
@@ -1905,7 +1905,7 @@
         labourHours: { low: 6, base: 10, high: 16 },
         labourRate: rate,
         other: scaleBand(S.battery, 0.08),
-        reason: 'Add-on batterij — geen payback-claim'
+        reason: 'Add-on batterij, geen payback-claim'
       }));
     }
 

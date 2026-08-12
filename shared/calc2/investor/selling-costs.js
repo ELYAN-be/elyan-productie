@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 Investor — Selling costs (Phase 5)
+   ELYAN Calc2 Investor. Selling costs (Phase 5)
    Convention: selling costs deducted from gross resale (not in TI).
    ============================================================ */
 (function (root, factory) {
@@ -49,11 +49,11 @@
       confidence = opts.agentRateExVat != null ? 'medium' : 'low';
       explanation = AGENT_BENCHMARK.note + ' Toegepast: ' + (rateUsed * 100).toFixed(1) + '% excl. btw + 21% btw.';
     } else if (mode === 'self') {
-      explanation = 'Zelf verkopen — geen makelaarscommissie. Eventuele marketing/attesten apart.';
+      explanation = 'Zelf verkopen, geen makelaarscommissie. Eventuele marketing/attesten apart.';
       sourceType = 'USER_ASSUMPTION';
       confidence = 'medium';
     } else {
-      explanation = 'Verkoopkanaal onbekend — makelaarskosten niet meegenomen; confidence verlaagd.';
+      explanation = 'Verkoopkanaal onbekend, makelaarskosten niet meegenomen; confidence verlaagd.';
       sourceType = 'UNRESOLVED';
       confidence = 'low';
     }

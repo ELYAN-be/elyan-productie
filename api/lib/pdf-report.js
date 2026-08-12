@@ -1,6 +1,6 @@
 /* ============================================================
-   ELYAN — Premium PDF renovatierapport (pdfkit)
-   Presentation layer ONLY — pricing engine is single source of truth.
+   ELYAN. Premium PDF renovatierapport (pdfkit)
+   Presentation layer ONLY, pricing engine is single source of truth.
    Dense layout, dynamic pagination, category-personalised content.
    ============================================================ */
 
@@ -59,7 +59,7 @@ function housingAgeLabel(v) {
   if (v === 'jong') return 'Jonger dan 10 jaar';
   if (v === 'middel') return '10–30 jaar';
   if (v === 'oud') return 'Ouder dan 30 jaar';
-  return v || '—';
+  return v || '-';
 }
 
 function safeIcon(doc, key, x, y, size) {
@@ -90,7 +90,7 @@ function footer(doc, pageNum, reportDate, totalHint) {
   doc.moveTo(MARGIN, y).lineTo(PAGE.width - MARGIN, y)
     .lineWidth(0.7).strokeColor(COLOR.line).stroke();
   doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
-    .text('Indicatieve renovatieraming — ELYAN' + (reportDate ? '  ·  ' + reportDate : ''), MARGIN, y + 6, {
+    .text('Indicatieve renovatieraming. ELYAN' + (reportDate ? '  ·  ' + reportDate : ''), MARGIN, y + 6, {
       width: CONTENT_W - 70, lineBreak: false
     });
   doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
@@ -362,7 +362,7 @@ function marketBar(doc, r, ctx) {
   if (scopeMatch === 'not-direct' || pos === 'niet-direct-vergelijkbaar') {
     sandCard(doc, [
       { text: 'Niet direct vergelijkbaar', bold: true, color: COLOR.ink, size: 10 },
-      { text: 'De marktbande en jouw project hebben een andere scope. Gebruik de kostentabel — niet alleen het totaal — om offertes te beoordelen.' },
+      { text: 'De marktbande en jouw project hebben een andere scope. Gebruik de kostentabel, niet alleen het totaal, om offertes te beoordelen.' },
       { text: bm.label ? ('Benchmark-label: ' + bm.label) : (r.comparableNote || 'Scope-match: niet-direct.') }
     ], ctx);
     return;
@@ -528,7 +528,7 @@ function drawTimeline(doc, timeline, ctx) {
     var broke = ensureSpace(doc, stepH + 2, ctx);
     if (broke && idx > 0) {
       doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
-        .text('Projectplanning — vervolg', MARGIN, doc.y);
+        .text('Projectplanning, vervolg', MARGIN, doc.y);
       doc.y += 10;
     }
     var y = doc.y;
@@ -587,7 +587,7 @@ function drawCover(doc, cat, prov, answers, r, pack, reportId, reportDate, type)
   doc.font('Helvetica').fontSize(10).fillColor(COLOR.sandDeep)
     .text('Persoonlijk opgesteld voor jou', MARGIN + 4, PAGE.height - 100);
   doc.font('Helvetica').fontSize(8.5).fillColor(COLOR.primarySoft)
-    .text('Belgische marktprijzen ' + (r.asOf || '2026') + '  ·  Indicatief — geen bindende offerte',
+    .text('Belgische marktprijzen ' + (r.asOf || '2026') + '  ·  Indicatief, geen bindende offerte',
       MARGIN + 4, PAGE.height - 78);
 }
 
@@ -619,7 +619,7 @@ function buildReportPdf(data) {
         size: 'A4',
         margins: { top: MARGIN, bottom: 48, left: MARGIN, right: MARGIN },
         info: {
-          Title: 'ELYAN Renovatierapport — ' + cat.label,
+          Title: 'ELYAN Renovatierapport. ' + cat.label,
           Author: 'ELYAN',
           Subject: 'Persoonlijke renovatie-inschatting'
         }
@@ -651,7 +651,7 @@ function buildReportPdf(data) {
         { label: 'Project', value: cat.label },
         { label: 'Locatie', value: prov.label },
         { label: sizeMeta.fieldLabel || 'Oppervlakte', value: sizeMeta.text },
-        { label: 'Afwerking', value: (pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || '—' },
+        { label: 'Afwerking', value: (pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level || '-' },
         { label: 'Woningouderdom', value: housingAgeLabel(answers.housingAge) },
         { label: 'Confidence', value: r.confidence || 'indicatief' }
       ], ctx);
@@ -667,9 +667,9 @@ function buildReportPdf(data) {
 
       kpiRow(doc, [
         { label: unitMeta.label || '€ / m²', value: unitMeta.formatted || pricing.fmtEUR(r.perM2), big: true },
-        { label: 'Arbeidsuren', value: String(r.labourHours || lp.labourHours || '—') + ' u' },
-        { label: 'Ploeg', value: String(r.crewSize || lp.crewSize || '—') },
-        { label: 'Werkdagen', value: '±' + String(r.workDays || lp.workDays || '—') },
+        { label: 'Arbeidsuren', value: String(r.labourHours || lp.labourHours || '-') + ' u' },
+        { label: 'Ploeg', value: String(r.crewSize || lp.crewSize || '-') },
+        { label: 'Werkdagen', value: '±' + String(r.workDays || lp.workDays || '-') },
         { label: 'Kalender', value: r.weeksLow + '–' + r.weeksHigh + ' w' },
         { label: 'Dataset', value: (r.marketDataVersion || '2026').replace('audit', '').trim() || '2026' }
       ].slice(0, 5), ctx);
@@ -703,7 +703,7 @@ function buildReportPdf(data) {
         title: 'Waar gaat jouw budget naartoe?',
         keepWith: 72
       });
-      bodyText(doc, 'Alle bedragen excl. btw. Opgebouwd uit werkpakketten van de ELYAN pricing engine — geen vaste percentages.', ctx);
+      bodyText(doc, 'Alle bedragen excl. btw. Opgebouwd uit werkpakketten van de ELYAN pricing engine, geen vaste percentages.', ctx);
       costTable(doc, r, ctx);
 
       /* ===== 3. LABOUR ===== */
@@ -838,7 +838,7 @@ function buildReportPdf(data) {
           title: 'Gebruik dit wanneer je aannemersoffertes vergelijkt',
           keepWith: 48
         });
-        bodyText(doc, 'Checklist — categorie-specifiek voor jouw ' + cat.resultNoun + ':', ctx);
+        bodyText(doc, 'Checklist, categorie-specifiek voor jouw ' + cat.resultNoun + ':', ctx);
         checklistTwoCol(doc, pack.quoteChecks, ctx);
       }
 
@@ -860,7 +860,7 @@ function buildReportPdf(data) {
         title: 'Rode vlaggen',
         keepWith: 48
       });
-      bodyText(doc, 'Geen juridisch advies — wel signalen om offertes kritisch te lezen:', ctx);
+      bodyText(doc, 'Geen juridisch advies, wel signalen om offertes kritisch te lezen:', ctx);
       bulletList(doc, pack.redFlags.slice(0, 8), ctx, 'shield');
 
       /* ===== 13. SAVINGS ===== */
@@ -899,7 +899,7 @@ function buildReportPdf(data) {
       (r.premies || []).forEach(function (pr) {
         sandCard(doc, [
           {
-            text: pr.scheme + ' — ' + (pr.relevance === 'mogelijk' ? 'mogelijk relevant' : 'beperkt relevant'),
+            text: pr.scheme + '. ' + (pr.relevance === 'mogelijk' ? 'mogelijk relevant' : 'beperkt relevant'),
             bold: true, color: COLOR.ink, size: 9.5
           },
           { text: pr.reason },
@@ -965,7 +965,7 @@ function buildReportPdf(data) {
       var contactY = Math.min(doc.y, CONTENT_BOTTOM - contactH);
       doc.roundedRect(MARGIN, contactY, CONTENT_W, contactH, 6).fill(COLOR.primary);
       doc.font('Helvetica-Bold').fontSize(9.5).fillColor(COLOR.white)
-        .text('ELYAN — Jouw renovatie. Duidelijker.', MARGIN + 12, contactY + 7);
+        .text('ELYAN. Jouw renovatie. Duidelijker.', MARGIN + 12, contactY + 7);
       doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.sandDeep)
         .text('Vragen over dit rapport?  elyan.info@gmail.com', MARGIN + 12, contactY + 22);
       doc.y = contactY + contactH + 2;

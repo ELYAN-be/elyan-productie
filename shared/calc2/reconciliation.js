@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — Scope collision + shared-cost reconciliation
+   ELYAN Calc2. Scope collision + shared-cost reconciliation
    Conservative: only deduct identifiable Calc1 components.
    ============================================================ */
 (function (root, factory) {
@@ -174,7 +174,7 @@
           warnings.push({
             code: 'elec_kitchen_unresolved',
             packages: ['elektriciteit', 'keuken'],
-            note: 'Mogelijke elektra-overlap keuken, maar geen identificeerbare conn-elec-component — geen aftrek.'
+            note: 'Mogelijke elektra-overlap keuken, maar geen identificeerbare conn-elec-component, geen aftrek.'
           });
         }
       }
@@ -208,7 +208,7 @@
       warnings.push({
         code: 'plumbing_overlap_unresolved',
         packages: ['badkamer', 'keuken'],
-        note: 'Mogelijke gedeelde sanitair/leidingwerken: geen betrouwbare component-aftrek — kost behouden.'
+        note: 'Mogelijke gedeelde sanitair/leidingwerken: geen betrouwbare component-aftrek, kost behouden.'
       });
     }
 
@@ -332,12 +332,12 @@
       warnings.push({
         code: 'demolition_kept',
         packages: [],
-        note: 'Afbraak/strip-arbeid per trade behouden (KEEP). Enkel gedeelde logistiek kan overlappen — geen veilige waste-only component → UNRESOLVED voor container-logistiek.'
+        note: 'Afbraak/strip-arbeid per trade behouden (KEEP). Enkel gedeelde logistiek kan overlappen, geen veilige waste-only component → UNRESOLVED voor container-logistiek.'
       });
       warnings.push({
         code: 'waste_logistics_unresolved',
         packages: [],
-        note: 'Afvoer/container-logistiek mogelijk deels deelbaar, maar Calc1 koppelt waste vaak aan demo/strip — geen aftrek zonder inventie.'
+        note: 'Afvoer/container-logistiek mogelijk deels deelbaar, maar Calc1 koppelt waste vaak aan demo/strip, geen aftrek zonder inventie.'
       });
     }
 
@@ -347,7 +347,7 @@
         code: 'mobilisation_unresolved',
         packages: [],
         unresolvedSiteCost: true,
-        note: 'Project-niveau mobilisatie, containerlogistiek en werfinrichting: geen generieke BE-forfait toegevoegd (zonder inventie). Los op via eigen inschatting of aannemersofferte — dit budget is daardoor geen complete werfinrichting.'
+        note: 'Project-niveau mobilisatie, containerlogistiek en werfinrichting: geen generieke BE-forfait toegevoegd (zonder inventie). Los op via eigen inschatting of aannemersofferte, dit budget is daardoor geen complete werfinrichting.'
       });
     }
 
@@ -429,7 +429,7 @@
       warnings.push({
         code: 'aggressive_reconciliation',
         packages: [],
-        note: 'Reconciliatie trekt ' + Math.round(pct * 100) + '% van raw af — controleer of model te agressief is.'
+        note: 'Reconciliatie trekt ' + Math.round(pct * 100) + '% van raw af, controleer of model te agressief is.'
       });
     }
 

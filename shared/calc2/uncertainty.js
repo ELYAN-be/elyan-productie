@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — Project uncertainty & recommended reserve
+   ELYAN Calc2. Project uncertainty & recommended reserve
    Does NOT stack Calc1 package contingency advisories.
    ============================================================ */
 (function (root, factory) {
@@ -63,11 +63,11 @@
     }
     if (calc2State && calc2State.structuralRisk === 'ja') {
       score += 2;
-      risks.push('Structureel risico aangegeven — hogere projectreserve');
+      risks.push('Structureel risico aangegeven, hogere projectreserve');
     }
     if (profile.yearBuilt === 'voor_1950' && (profile.condition === 'zwaar' || profile.condition === 'verouderd')) {
       score += 1;
-      risks.push('Oude zware woning — projectreserve verhoogd');
+      risks.push('Oude zware woning, projectreserve verhoogd');
     }
 
     var unresolvedWarnings = (reconciliation.warnings || []).filter(function (w) {
@@ -92,7 +92,7 @@
     /* Incomplete packages raise risk — do NOT zero reserve while priced OK works remain */
     if (nmi > 0 && nmi >= Math.max(1, Math.ceil(ok * 0.35))) {
       className = ok > 0 ? 'HIGH' : 'INSUFFICIENT_INFORMATION';
-      if (ok > 0) risks.push('Hoge NMI-ratio — reserve verhoogd (HIGH), niet op €0 gezet.');
+      if (ok > 0) risks.push('Hoge NMI-ratio, reserve verhoogd (HIGH), niet op €0 gezet.');
     } else if (score >= 7) className = 'HIGH';
     else if (score >= 3) className = 'MEDIUM';
     else className = 'LOW';
@@ -154,7 +154,7 @@
       reserveBands: band,
       reserveKind: 'MODEL_ASSUMPTION',
       reserveReason: 'Project interaction / incomplete-info reserve. Calc1 package contingency advisories are NOT summed. Package low/high trade bands remain in works range.',
-      calc1ContingencyPolicy: 'IGNORED_FOR_STACKING — Calc1 contingency is advisory and excluded from Calc1 price; Calc2 does not add those advisories into works or reserve.',
+      calc1ContingencyPolicy: 'IGNORED_FOR_STACKING. Calc1 contingency is advisory and excluded from Calc1 price; Calc2 does not add those advisories into works or reserve.',
       documentation: {
         calc1PriceIncludesContingency: false,
         calc1PriceIncludesVat: false,

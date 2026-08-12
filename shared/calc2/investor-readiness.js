@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — Investor readiness gate (Phase 4.7)
+   ELYAN Calc2. Investor readiness gate (Phase 4.7)
    Does NOT compute ROI / profit / max purchase.
    ============================================================ */
 (function (root, factory) {
@@ -88,7 +88,7 @@
       blocking.push({
         id: 'partial_estimate',
         label: 'Gedeeltelijke schatting',
-        reason: 'Nog onvoldoende informatie bij onderdelen — renovatiekost is niet volledig.',
+        reason: 'Nog onvoldoende informatie bij onderdelen, renovatiekost is niet volledig.',
         materiality: 'CRITICAL'
       });
     }
@@ -120,14 +120,14 @@
     }
 
     if (project.confidence === 'LOW' || project.confidence === 'PARTIAL') {
-      warnings.push('Lage projectconfidence — investeringsanalyse voorzichtig interpreteren.');
+      warnings.push('Lage projectconfidence, investeringsanalyse voorzichtig interpreteren.');
     }
 
     var heavy = assessHeavyGuard(calc2State, ledger);
     if (heavy.heavy && (calc2State.structuralRisk === 'weet_niet' || !calc2State.structuralRisk)) {
       blocking.push({
         id: 'heavy_structural_unknown',
-        label: 'Zware renovatie — structureel onbekend',
+        label: 'Zware renovatie, structureel onbekend',
         reason: 'Technische inspectie aanbevolen vóór financiële analyse. ' + heavy.reasons.join('; '),
         materiality: 'CRITICAL'
       });

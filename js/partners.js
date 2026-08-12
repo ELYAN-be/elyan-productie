@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — Partners interest form (/partners)
+   ELYAN. Partners interest form (/partners)
    Client-side validation + optional API notify; always confirms.
    ============================================================ */
 

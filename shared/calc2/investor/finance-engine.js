@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 Investor — Finance engine (Phase 5)
+   ELYAN Calc2 Investor. Finance engine (Phase 5)
    Hard gate: investorReadiness.allowed === true
    Consumes ONLY renovationInput. No AVM. No profit tax auto.
    ============================================================ */
@@ -148,7 +148,7 @@
         expected: round50(exp),
         strong: Math.max(MIN_RESALE, round50(exp * 1.05)),
         spreadSource: 'ELYAN_MODEL_ASSUMPTION',
-        note: 'Enkel verwachte verkoopwaarde opgegeven — ±5% scenario’s zijn ELYAN-modelassumptie, geen waardering.'
+        note: 'Enkel verwachte verkoopwaarde opgegeven. ±5% scenario’s zijn ELYAN-modelassumptie, geen waardering.'
       };
     }
 
@@ -168,7 +168,7 @@
       expected: round50(exp || cons || str),
       strong: round50(str || exp || cons),
       spreadSource: 'USER_ASSUMPTION',
-      note: 'Verkoopscenario’s door gebruiker aangeleverd — ontbrekende scenario’s overgenomen uit jouw andere waarde(n). Geen geautomatiseerde waardering.'
+      note: 'Verkoopscenario’s door gebruiker aangeleverd, ontbrekende scenario’s overgenomen uit jouw andere waarde(n). Geen geautomatiseerde waardering.'
     };
   }
 
@@ -372,7 +372,7 @@
       costBits.push('LOW');
     }
     if ((fp.vat || {}).mode === 'indicative_mixed' && !(fp.vat || {}).worksSixPercentConfirmed) {
-      costBits.push('MEDIUM'); /* conservative 21% default — not HIGH */
+      costBits.push('MEDIUM'); /* conservative 21% default, not HIGH */
     }
 
     function rank(list) {
@@ -391,7 +391,7 @@
       FINANCIAL_CONFIDENCE: overall,
       COST_MODEL_CONFIDENCE: costConf,
       RESALE_ASSUMPTION_CONFIDENCE: resaleConf,
-      note: 'Resale values are user assumptions — overall confidence never certifies exit price.'
+      note: 'Resale values are user assumptions, overall confidence never certifies exit price.'
     };
   }
 
@@ -694,7 +694,7 @@
       status: status,
       statusLabel: decisionLabel(status),
       disclaimer:
-        'Indicatieve scenariomodellering volgens jouw aannames — geen gegarandeerde winst, ROI of verkoopwaarde. ' +
+        'Indicatieve scenariomodellering volgens jouw aannames, geen gegarandeerde winst, ROI of verkoopwaarde. ' +
         'Geen beleggingsadvies. Potentiële projectwinst is vóór eventuele belasting op de gerealiseerde winst/meerwaarde. ' +
         'Door jou verwachte verkoopwaarde = jouw aanname (geen geautomatiseerde waardering).',
       accountingConvention: stackExpected.accountingConvention,
@@ -742,7 +742,7 @@
         strong: {
           id: 'upside',
           label: 'Optimistisch (upside)',
-          changes: 'OPTIMISTISCHE COMBINATIE: lagere renovatieband + kortere holding + sterke verkoop — geen “waarschijnlijk” scenario',
+          changes: 'OPTIMISTISCHE COMBINATIE: lagere renovatieband + kortere holding + sterke verkoop, geen “waarschijnlijk” scenario',
           optimisticCombo: true,
           totalInvestment: stackStrong.totalInvestment,
           grossResale: mStrong.grossResale,

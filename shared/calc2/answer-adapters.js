@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — Answer adapters → Calc1 calcEstimate
+   ELYAN Calculator 2. Answer adapters → Calc1 calcEstimate
    Phase 3.5: higher-accuracy inputs, multi-bathroom instances
    ============================================================ */
 (function (root, factory) {
@@ -85,7 +85,7 @@
         unknowns.push('roofMaterial');
         return { material: 'epdm', uncertain: true };
       }
-      mapping.push(meta('material', 'unknown', 'Dakmateriaal onbekend — niet stilzwijgend op pannen gezet.', 'low'));
+      mapping.push(meta('material', 'unknown', 'Dakmateriaal onbekend, niet stilzwijgend op pannen gezet.', 'low'));
       unknowns.push('roofMaterial');
       return { material: 'onbekend', uncertain: true };
     }
@@ -146,7 +146,7 @@
     }
     // weet_niet or missing method
     unknowns.push('windowQtyMethod');
-    mapping.push(meta('size', 'unknown', 'Raamomvang onbekend — geen stille %-proxy meer als autoritatief.', 'low'));
+    mapping.push(meta('size', 'unknown', 'Raamomvang onbekend, geen stille %-proxy meer als autoritatief.', 'low'));
     var soft = numOrNull(areaM2);
     if (soft) {
       return { size: Math.max(6, Math.round(soft * 0.12)), ok: false, provisional: true, sliding: 'nee' };
@@ -196,7 +196,7 @@
     else if (surfaces === 'walls_ceilings') interior = a * 3.5;
     else if (surfaces === 'whole_interior') interior = a * 3.8;
     else if (surfaces === 'selected_rooms') interior = a * 1.4;
-    else interior = a * 2.8; // unknown surfaces — soft
+    else interior = a * 2.8; // unknown surfaces, soft
     if (paintScope === 'beide') interior += a * 1.1;
     return Math.round(interior);
   }
@@ -413,7 +413,7 @@
 
     var insulation = d.roofInsulation === 'ja' || d.roofInsulation === 'deels' ? 'ja'
       : d.roofInsulation === 'nee' ? 'nee' : 'onbekend';
-    /* Calc1 forces dakisolatie whenever workType=volledig — honor explicit "nee" by mapping to vernieuwen */
+    /* Calc1 forces dakisolatie whenever workType=volledig, honor explicit "nee" by mapping to vernieuwen */
     if (workType === 'volledig' && insulation === 'nee') {
       workType = 'vernieuwen';
       assumptions.push('dak volledig + roofInsulation=nee → workType=vernieuwen (Calc1 volledig forceert isolatie; gebruiker weigerde isolatie).');
@@ -498,14 +498,14 @@
     } else {
       asbestos = 'mogelijk';
       unknowns.push('roofAsbestos');
-      mapping.push(meta('asbestos', 'unknown', 'Asbest onbeantwoord — geen autoritatieve asbestlijn zonder antwoord.', 'low'));
+      mapping.push(meta('asbestos', 'unknown', 'Asbest onbeantwoord, geen autoritatieve asbestlijn zonder antwoord.', 'low'));
       statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
     }
 
     var level = ctx.level;
     if (mat.preferCeramic && level !== 'premium') {
       mapping.push(meta('level', 'derived',
-        'Keramische pannen gevraagd; Calc1 ceramic band actief enkel bij premium — level blijft finishprofiel.', 'medium'));
+        'Keramische pannen gevraagd; Calc1 ceramic band actief enkel bij premium, level blijft finishprofiel.', 'medium'));
     }
 
     var answers = {
@@ -603,7 +603,7 @@
     if (instance && instance.subtype) {
       subtype = instance.subtype;
       if (d.isoFocus === 'combi') {
-        assumptions.push('isoFocus=combi → separate Calc1 isolatie instance ' + instance.instanceId + ' (' + subtype + ') — no fake multiplier.');
+        assumptions.push('isoFocus=combi → separate Calc1 isolatie instance ' + instance.instanceId + ' (' + subtype + '), no fake multiplier.');
         mapping.push(meta('subtype', 'direct', 'Combi-instantie → ' + subtype + '.', 'high'));
       } else if (d.isoFocus && d.isoFocus !== 'weet_niet') {
         mapping.push(meta('subtype', 'direct', 'Isolatiefocus → subtype.', 'high'));
@@ -614,7 +614,7 @@
     else {
       unknowns.push('isoFocus');
       subtype = 'spouw';
-      mapping.push(meta('subtype', 'unknown', 'Focus onbekend — geen autoritatieve subtype.', 'low'));
+      mapping.push(meta('subtype', 'unknown', 'Focus onbekend, geen autoritatieve subtype.', 'low'));
       statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
     }
     if (d.isoFocus === 'muren' || (instance && instance.instanceId === 'muren')) {
@@ -706,7 +706,7 @@
       if (projectType === 'lucht_water' || projectType === 'hybride') {
         statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
         mapping.push(meta('distribution', 'unknown',
-          'Warmtepomp zonder vloerverwarmingsantwoord — afgifte/hydrauliek onzeker.', 'low'));
+          'Warmtepomp zonder vloerverwarmingsantwoord, afgifte/hydrauliek onzeker.', 'low'));
       }
     }
     if (!(projectType === 'lucht_water' || projectType === 'hybride') ||
@@ -740,7 +740,7 @@
 
     var assumptions = [];
     if (projectType === 'lucht_water' && distribution === 'radiatoren') {
-      assumptions.push('Lucht-water WP + radiatoren: raming = toestel + basisplaatsing/SWW — geen volledige LT-afgiftevernieuwing of 3-fasige versterking tenzij elders in scope.');
+      assumptions.push('Lucht-water WP + radiatoren: raming = toestel + basisplaatsing/SWW, geen volledige LT-afgiftevernieuwing of 3-fasige versterking tenzij elders in scope.');
     }
 
     var answers = {
@@ -775,7 +775,7 @@
       unknowns.push('elecScope');
       statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
       scope = (intensity === 'volledig' || intensity === 'grondig') ? 'volledig' : 'partieel';
-      mapping.push(meta('scope', 'unknown', 'Elektra-omvang weet_niet — provisioneel uit intensiteit, niet autoritatief.', 'low'));
+      mapping.push(meta('scope', 'unknown', 'Elektra-omvang weet_niet, provisioneel uit intensiteit, niet autoritatief.', 'low'));
     }
     /* Align derived intensity with explicit elecScope answers (no silent renovatie_volledig uplift) */
     else if (intensity === 'volledig') scope = 'volledig';
@@ -895,7 +895,7 @@
     else {
       size = intensity === 'beperkt' ? 8 : 12;
       unknowns.push('kitchenSize');
-      mapping.push(meta('size', 'assumed', 'Keukenopp. fallback — niet autoritatief zonder input.', 'low'));
+      mapping.push(meta('size', 'assumed', 'Keukenopp. fallback, niet autoritatief zonder input.', 'low'));
       statusHint = statusHint || 'NEEDS_MORE_INFORMATION';
     }
 
@@ -1252,7 +1252,7 @@
         type: PACKAGE_TO_TYPE[baseType],
         province: null,
         answers: null,
-        mappingMetadata: [meta('scope', 'direct', 'Niet nodig — geen pricing.', 'high')],
+        mappingMetadata: [meta('scope', 'direct', 'Niet nodig, geen pricing.', 'high')],
         statusHint: 'SKIPPED',
         unknowns: [],
         assumptions: []

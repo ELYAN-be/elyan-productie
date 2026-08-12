@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — All-in project cost layer (Phase 4.6)
+   ELYAN Calc2. All-in project cost layer (Phase 4.6)
    Soft costs + procurement + VAT presentation on audited works.
    No invented euros without documented sourceType.
    ============================================================ */
@@ -53,7 +53,7 @@
     weet_niet: {
       value: 'weet_niet',
       label: 'Weet ik nog niet',
-      desc: 'Organisatie nog niet beslist — coördinatiekosten blijven open.'
+      desc: 'Organisatie nog niet beslist, coördinatiekosten blijven open.'
     }
   };
 
@@ -94,7 +94,7 @@
         'https://renovatiekampioen.be/totaalrenovatie/aannemer/',
         'https://www.heylenvastgoed.be/kennis-van-wonen/renovatiekosten-2026-overzicht-per-verbouwing-vlaanderen'
       ],
-      note: 'Design&build overhead not auto-applied — user € or % required.'
+      note: 'Design&build overhead not auto-applied, user € or % required.'
     },
     safety: {
       sourceType: 'MARKET_BENCHMARK',
@@ -240,7 +240,7 @@
 
   function isActive(scope, id) {
     var v = intensity(scope, id);
-    /* Scope uses 'niet_nodig' — do not treat it as an active trade */
+    /* Scope uses 'niet_nodig', do not treat it as an active trade */
     return !!(v && v !== 'niet' && v !== 'niet_nodig' && v !== 'weet_niet');
   }
 
@@ -258,13 +258,13 @@
     var scope = state.scope || {};
     var profile = state.propertyProfile || {};
     if (state.structuralRisk === 'ja') return { yes: true, reason: 'Gebruiker geeft structurele ingreep aan.' };
-    if (profile.condition === 'zwaar') return { yes: true, reason: 'Zware staat — ontwerp/vergunning vaak nodig.' };
+    if (profile.condition === 'zwaar') return { yes: true, reason: 'Zware staat, ontwerp/vergunning vaak nodig.' };
     if (intensity(scope, 'dak') === 'volledig') return { yes: true, reason: 'Volledige dakrenovatie kan vergunning/architect triggeren.' };
     if (intensity(scope, 'gevel') === 'grondig' || intensity(scope, 'gevel') === 'volledig') {
-      return { yes: true, reason: 'Ingrijpende gevelwerken — vaak architect/vergunning.' };
+      return { yes: true, reason: 'Ingrijpende gevelwerken, vaak architect/vergunning.' };
     }
     if (trades >= 8 && profile.condition === 'verouderd') {
-      return { yes: true, reason: 'Bijna volledige renovatie van oudere woning — architect vaak aangewezen.' };
+      return { yes: true, reason: 'Bijna volledige renovatie van oudere woning, architect vaak aangewezen.' };
     }
     return { yes: false, reason: 'Geen duidelijke architect-trigger in scope/profiel.' };
   }
@@ -275,10 +275,10 @@
     if (state.structuralRisk === 'ja') return { yes: true, reason: 'Structureel risico bevestigd door gebruiker.' };
     if (state.structuralRisk === 'nee') return { yes: false, reason: 'Gebruiker geeft geen structurele ingreep aan.' };
     if (profile.condition === 'zwaar' && (intensity(scope, 'dak') === 'volledig' || intensity(scope, 'gevel') === 'volledig')) {
-      return { yes: true, reason: 'Zware staat + zware schilwerken — stabiliteit waarschijnlijk te toetsen.' };
+      return { yes: true, reason: 'Zware staat + zware schilwerken, stabiliteit waarschijnlijk te toetsen.' };
     }
     if (profile.yearBuilt === 'voor_1950' && intensity(scope, 'dak') === 'volledig') {
-      return { yes: true, reason: 'Pre-1950 + volledige dakwerken — structurele check vaak aangewezen.' };
+      return { yes: true, reason: 'Pre-1950 + volledige dakwerken, structurele check vaak aangewezen.' };
     }
     return { yes: false, reason: 'Geen betrouwbare structurele trigger zonder gebruikersinput.' };
   }
@@ -295,7 +295,7 @@
       return {
         yes: false,
         unresolved: true,
-        reason: 'EPB/energieverslaggeving is gewestelijk — buiten Vlaanderen nog niet automatisch geprijsd.',
+        reason: 'EPB/energieverslaggeving is gewestelijk, buiten Vlaanderen nog niet automatisch geprijsd.',
         region: region
       };
     }
@@ -303,7 +303,7 @@
       return {
         yes: false,
         unresolved: true,
-        reason: 'Regio onbekend — EPB-plicht niet automatisch bepaald.',
+        reason: 'Regio onbekend. EPB-plicht niet automatisch bepaald.',
         region: region
       };
     }
@@ -313,8 +313,8 @@
       yes: true,
       ierLike: ierLike,
       reason: ierLike
-        ? 'Vlaamse diepe energie-ingrepen — EPB-verslaggever vaak relevant bij vergunning/IER-achtige scope.'
-        : 'Vlaamse energie-ingrepen — EPB mogelijk relevant bij vergunningsplichtige werken.',
+        ? 'Vlaamse diepe energie-ingrepen. EPB-verslaggever vaak relevant bij vergunning/IER-achtige scope.'
+        : 'Vlaamse energie-ingrepen. EPB mogelijk relevant bij vergunningsplichtige werken.',
       region: region
     };
   }
@@ -331,17 +331,17 @@
       return {
         yes: false,
         unresolved: true,
-        reason: 'Dakstatus onbekend — asbestrisico open tot dakdetails bekend zijn.'
+        reason: 'Dakstatus onbekend, asbestrisico open tot dakdetails bekend zijn.'
       };
     }
     if (roofAsb) {
       return { yes: true, reason: 'Asbest-indicatie bij dak/scope.' };
     }
     if (old && (intensity(state.scope, 'dak') || intensity(state.scope, 'gevel') || profile.condition === 'zwaar')) {
-      return { yes: true, reason: 'Oudere woning + schil/afbraakrisico — asbestonderzoek vaak aangewezen.' };
+      return { yes: true, reason: 'Oudere woning + schil/afbraakrisico, asbestonderzoek vaak aangewezen.' };
     }
     if (year === 'weet_niet' && profile.condition === 'zwaar') {
-      return { yes: false, unresolved: true, reason: 'Bouwjaar onbekend + zware staat — asbestrisico onopgelost.' };
+      return { yes: false, unresolved: true, reason: 'Bouwjaar onbekend + zware staat, asbestrisico onopgelost.' };
     }
     return { yes: false, reason: 'Geen sterke asbest-trigger.' };
   }
@@ -352,7 +352,7 @@
       intensity(scope, 'gevel') === 'volledig' || state.structuralRisk === 'ja') {
       return {
         yes: true,
-        reason: 'Schil-/structurele werken kunnen gemeentelijke melding of vergunning vereisen — tarieven lokaal.'
+        reason: 'Schil-/structurele werken kunnen gemeentelijke melding of vergunning vereisen, tarieven lokaal.'
       };
     }
     return { yes: false, reason: 'Geen duidelijke vergunningstrigger in huidige scope.' };
@@ -361,7 +361,7 @@
   function safetyApplicable(state, trades) {
     var proc = state.procurementModel;
     if (trades < 2) {
-      return { yes: false, reason: 'Minder dan 2 trades — wettelijke drempel waarschijnlijk niet bereikt.' };
+      return { yes: false, reason: 'Minder dan 2 trades, wettelijke drempel waarschijnlijk niet bereikt.' };
     }
     if (proc === 'separate') {
       return {
@@ -372,7 +372,7 @@
     if (proc === 'general_contractor' || proc === 'design_build') {
       return {
         yes: true,
-        reason: 'Hoofdaannemer/design-build werkt vaak met onderaannemers; coördinatie vaak alsnog relevant — indicatief.',
+        reason: 'Hoofdaannemer/design-build werkt vaak met onderaannemers; coördinatie vaak alsnog relevant, indicatief.',
         confidence: 'low'
       };
     }
@@ -380,13 +380,13 @@
       return {
         yes: false,
         unresolved: true,
-        reason: 'Procurement onbekend + meerdere trades — veiligheidscoördinatie mogelijk verplicht, kost open.'
+        reason: 'Procurement onbekend + meerdere trades, veiligheidscoördinatie mogelijk verplicht, kost open.'
       };
     }
     return {
       yes: false,
       unresolved: true,
-      reason: 'Geen procurementModel gekozen — veiligheidscoördinatie niet automatisch opgenomen.'
+      reason: 'Geen procurementModel gekozen, veiligheidscoördinatie niet automatisch opgenomen.'
     };
   }
 
@@ -465,7 +465,7 @@
         mixed_depends: procurement.filter(function (l) { return l.included; }).map(function (l) { return l.id; }),
         unknown: ['reserve']
       },
-      disclaimer: 'Geen enkele project-btw% toegepast — geen valse zekerheid.'
+      disclaimer: 'Geen enkele project-btw% toegepast, geen valse zekerheid.'
     };
   }
 
@@ -765,8 +765,8 @@
       label: 'Project-werfinrichting (tijdelijke nuts/sanitair/cleanup)',
       category: 'soft',
       applicability: lightSite
-        ? 'Lichte scope — Calc1 protect/scaffold meestal voldoende → NVT.'
-        : 'Multi-trade/zware renovatie — project-level sitekosten mogelijk boven Calc1 protect.',
+        ? 'Lichte scope. Calc1 protect/scaffold meestal voldoende → NVT.'
+        : 'Multi-trade/zware renovatie, project-level sitekosten mogelijk boven Calc1 protect.',
       included: false,
       worksExpected: worksExpected,
       possibleImpact: heavySite ? 3500 : 1000,
@@ -821,7 +821,7 @@
         id: 'gc_coordination',
         label: 'Coördinatie hoofdaannemer',
         category: 'procurement',
-        applicability: 'Losse vakmannen — geen GC-markup.',
+        applicability: 'Losse vakmannen, geen GC-markup.',
         included: false,
         worksExpected: worksExpected,
         sourceType: 'MODEL_ASSUMPTION',
@@ -848,7 +848,7 @@
         confidence: 'low',
         vatTreatment: 'mixed_depends',
         researchUrls: RESEARCH.gc.urls,
-        explanation: 'Phase 4.7: geen automatische % — te zwakke BE-evidence. Vul € of % van works in.',
+        explanation: 'Phase 4.7: geen automatische %, te zwakke BE-evidence. Vul € of % van works in.',
         status: 'UNRESOLVED',
         resolution: RESOLUTION.UNRESOLVED_MATERIAL,
         forceCritical: false,
@@ -914,7 +914,7 @@
       high: round50(reserveHigh),
       sourceType: 'MODEL_ASSUMPTION',
       vatTreatment: 'unknown',
-      explanation: 'Project interaction reserve — not stacked with Calc1 package contingency advisories.'
+      explanation: 'Project interaction reserve, not stacked with Calc1 package contingency advisories.'
     };
 
     var nmi = (ledger.nmiKeys || []).length;
@@ -929,7 +929,7 @@
         unresolved.push({
           id: l.id,
           label: l.label,
-          reason: 'Geen geprijsde werken — soft cost niet in all-in opgenomen.',
+          reason: 'Geen geprijsde werken, soft cost niet in all-in opgenomen.',
           impact: 'Eerst scope/details vervolledigen.',
           userOverrideAllowed: true
         });

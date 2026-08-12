@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — Question graph (UI only, no pricing)
+   ELYAN Calculator 2. Question graph (UI only, no pricing)
    Phase 3.5: higher-accuracy conditional details
    ============================================================ */
 (function (root, factory) {

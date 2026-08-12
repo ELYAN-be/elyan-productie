@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — Project engine orchestrator
+   ELYAN Calc2. Project engine orchestrator
    Phase 4.6: works → reconcile → reserve → all-in soft/procurement
    ============================================================ */
 (function (root, factory) {
@@ -143,9 +143,9 @@
     if (packageStatus === 'PARTIAL_ESTIMATE') {
       warnings.push({
         code: 'partial_estimate',
-        note: 'Gedeeltelijke raming: het getoonde bedrag geldt alleen voor onderdelen met voldoende informatie — geen volledig woningrenovatiebudget.'
+        note: 'Gedeeltelijke raming: het getoonde bedrag geldt alleen voor onderdelen met voldoende informatie, geen volledig woningrenovatiebudget.'
       });
-      risks.push('Gedeeltelijke raming — nog onvoldoende info bij sommige onderdelen');
+      risks.push('Gedeeltelijke raming, nog onvoldoende info bij sommige onderdelen');
     }
 
     if (allIn && allIn.allInStatus === 'ALL_IN_INDICATIVE') {
@@ -161,7 +161,7 @@
     if (siteUnresolved) {
       warnings.push({
         code: 'site_costs_incomplete',
-        note: 'Werfinrichting / containerlogistiek / mobilisatie op projectniveau zijn niet als vaste forfait meegerekend — vraag dit expliciet in offertes. Dit budget is daardoor geen complete werfinrichting.'
+        note: 'Werfinrichting / containerlogistiek / mobilisatie op projectniveau zijn niet als vaste forfait meegerekend, vraag dit expliciet in offertes. Dit budget is daardoor geen complete werfinrichting.'
       });
       if (exclusions && exclusions.body && exclusions.body.indexOf('werfinrichting') === -1) {
         exclusions = {
@@ -211,7 +211,7 @@
     if (reconciliation.deductionPctOfRaw > 20) {
       warnings.push({
         code: 'high_reconciliation_pct',
-        note: 'Grote overlapaftrek (' + reconciliation.deductionPctOfRaw + '% van de ruwe som) — controleer of de scope niet dubbel telt.'
+        note: 'Grote overlapaftrek (' + reconciliation.deductionPctOfRaw + '% van de ruwe som), controleer of de scope niet dubbel telt.'
       });
     }
 
@@ -297,7 +297,7 @@
         eurPerM2Budget: eurPerM2,
         siteCostsUnresolved: siteUnresolved,
         reserveLabel: 'Projectreserve voor onvoorziene posten',
-        budgetScopeNote: 'Budget voor geselecteerde renovatiewerken + projectkosten — geen turnkey van elke denkbare kost.'
+        budgetScopeNote: 'Budget voor geselecteerde renovatiewerken + projectkosten, geen turnkey van elke denkbare kost.'
       }
     };
 

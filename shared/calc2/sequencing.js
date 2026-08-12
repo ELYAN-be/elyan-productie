@@ -1,6 +1,6 @@
 /* ============================================================
-   ELYAN Calc2 — High-level project duration / sequencing
-   Indicative ranges only — not sum(workDays).
+   ELYAN Calc2. High-level project duration / sequencing
+   Indicative ranges only, not sum(workDays).
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -82,7 +82,7 @@
     if (ownedIso > 0) {
       usedPhases.push({
         id: 'insulation_owned',
-        label: 'Isolatie (meegenomen in dak/gevel — duur behouden)',
+        label: 'Isolatie (meegenomen in dak/gevel, duur behouden)',
         weeks: ownedIso
       });
       base += ownedIso;
@@ -113,7 +113,7 @@
       minWeeks: minW,
       expectedWeeks: expected,
       maxWeeks: maxW,
-      explanation: 'Indicatieve uitvoeringsvenster (incl. beperkte prep/droogtijden) — geen som van Calc1 workDays; vergunning/lange lead times kunnen langer lopen.',
+      explanation: 'Indicatieve uitvoeringsvenster (incl. beperkte prep/droogtijden), geen som van Calc1 workDays; vergunning/lange lead times kunnen langer lopen.',
       phases: usedPhases,
       activePackageTypes: Object.keys(active)
     };

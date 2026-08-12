@@ -1,6 +1,6 @@
 /* ============================================================
-   ELYAN Calc2 — Premium results HTML (Phase 6)
-   Presentation only — attaches window.ElyanCalc2UiResults
+   ELYAN Calc2. Premium results HTML (Phase 6)
+   Presentation only, attaches window.ElyanCalc2UiResults
    ============================================================ */
 (function () {
   'use strict';
@@ -8,7 +8,7 @@
   function packageLabelFromEntry(entry, Scope) {
     var pkg = Scope.packageById(entry.packageType);
     var base = pkg ? pkg.label : entry.packageType;
-    if (entry.instanceLabel) return base + ' — ' + entry.instanceLabel;
+    if (entry.instanceLabel) return base + ': ' + entry.instanceLabel;
     return base;
   }
 
@@ -19,14 +19,14 @@
     if (entry.provisionalEstimate && entry.provisionalEstimate.expected != null) {
       return 'Nog te bepalen · indicatie ' + fmtEUR(entry.provisionalEstimate.expected);
     }
-    return '—';
+    return '-';
   }
 
   function friendlyRisk(text) {
     var s = String(text || '');
     var map = [
       [/NMI packages?:/i, 'Nog onvoldoende info bij:'],
-      [/Partial estimate/i, 'Gedeeltelijke schatting — niet elk onderdeel is ingeschat'],
+      [/Partial estimate/i, 'Gedeeltelijke schatting, niet elk onderdeel is ingeschat'],
       [/Property condition:/i, 'Staat van de woning:'],
       [/Building age uncertainty/i, 'Onzekerheid over bouwleeftijd'],
       [/Occupied during works/i, 'Bewoning tijdens werken'],
@@ -86,7 +86,7 @@
     var unpriced = ((project.presentation && project.presentation.unpricedPackages) || [])
       .map(function (u) {
         return '<li>' + escapeHtml(u.label || u.key) +
-          (u.reason ? ' — ' + escapeHtml(u.reason) : '') + '</li>';
+          (u.reason ? ': ' + escapeHtml(u.reason) : '') + '</li>';
       }).join('');
     if (!unpriced) {
       return '<div class="calc2-partial-unpriced">' +
@@ -150,7 +150,7 @@
 
     var escapeHtml = ctx.escapeHtml;
     var blockRows = (ir.blockingItems || []).map(function (b) {
-      return '<li><strong>' + escapeHtml(b.label) + '</strong> — ' + escapeHtml(b.reason) + '</li>';
+      return '<li><strong>' + escapeHtml(b.label) + '</strong>: ' + escapeHtml(b.reason) + '</li>';
     }).join('');
 
     var html = '<div class="calc2-review-card calc2-investor-gate" data-ready="' + (ir.allowed ? '1' : '0') + '">' +
@@ -259,12 +259,12 @@
       : (ai && ai.procurementTotals ? ai.procurementTotals.expected : 0);
     var procLabel = StateApi.procurementLabel
       ? StateApi.procurementLabel(state.procurementModel)
-      : (state.procurementModel || '—');
+      : (state.procurementModel || '-');
     var vatNote = (project.vatSummary && project.vatSummary.note) || project.vatNote ||
       'Projectbedragen zijn excl. btw. Het uiteindelijke btw-tarief kan per post verschillen.';
     var duration = project.duration
       ? project.duration.minWeeks + '–' + project.duration.maxWeeks + ' weken'
-      : '—';
+      : '-';
     var durationNote = (project.duration && project.duration.explanation) || '';
 
     var pkgDetails = (project.rawPackages || []).filter(function (e) {
@@ -409,7 +409,7 @@
       '<h4>' + escapeHtml(title) + '</h4>' +
       '<p class="calc2-scenario-profit">' + fmtEUR(sc.potentialProfit) + '</p>' +
       '<p class="calc2-scenario-meta">ROI ' +
-        (sc.projectRoiPercent != null ? sc.projectRoiPercent + '%' : '—') +
+        (sc.projectRoiPercent != null ? sc.projectRoiPercent + '%' : '-') +
         ' · TI ' + fmtEUR(sc.totalInvestment) + '</p>' +
       (sc.grossResale != null
         ? '<p class="calc2-scenario-meta">Verkoop (jouw aanname): ' + fmtEUR(sc.grossResale) + '</p>'
@@ -428,14 +428,14 @@
     if (!analysis || analysis.blocked) {
       var ir = ctx.ir || (project && project.investorReadiness);
       var blocks = (ir && ir.blockingItems || []).map(function (b) {
-        return '<li><strong>' + escapeHtml(b.label) + '</strong> — ' + escapeHtml(b.reason) + '</li>';
+        return '<li><strong>' + escapeHtml(b.label) + '</strong>: ' + escapeHtml(b.reason) + '</li>';
       }).join('');
       var reasons = ((analysis && analysis.reasons) || []).map(function (r) {
         return '<li>' + escapeHtml(String(r)) + '</li>';
       }).join('');
       return '<div class="calc2-screen calc2-review calc2-finance-result">' +
         '<h2 class="calc2-title">Investeringsanalyse niet beschikbaar</h2>' +
-        '<p class="calc2-hint">Los eerst de open punten in je renovatiebudget op. Daarna kunnen we scenario\'s doorrekenen — zonder garantie op winst.</p>' +
+        '<p class="calc2-hint">Los eerst de open punten in je renovatiebudget op. Daarna kunnen we scenario\'s doorrekenen, zonder garantie op winst.</p>' +
         (blocks ? '<ul class="calc2-risk-list">' + blocks + '</ul>' : '') +
         (reasons ? '<ul class="calc2-risk-list">' + reasons + '</ul>' : '') +
         '<div class="calc2-nav">' +
@@ -454,7 +454,7 @@
     }).join('');
     var ledger = (analysis.assumptionLedger || []).slice(0, 14).map(function (a) {
       return '<li><span>' + escapeHtml(a.label) + '</span><strong>' +
-        (a.value == null ? '—' : fmtEUR(a.value)) + '</strong></li>';
+        (a.value == null ? '-' : fmtEUR(a.value)) + '</strong></li>';
     }).join('');
 
     var nextSteps = Labels.nextStepsInvestor(analysis).map(function (step) {
@@ -463,7 +463,7 @@
 
     var renoSummary = project && project.budget
       ? fmtEUR(project.budget.recommendedExpected)
-      : '—';
+      : '-';
 
     return '<div class="calc2-screen calc2-review calc2-finance-result">' +
       '<div class="calc2-renovation-strip">' +
@@ -480,9 +480,9 @@
         '<div class="calc2-kpi-grid">' +
           '<div class="calc2-kpi"><span>Potentiële projectwinst</span><strong>' + fmtEUR(analysis.potentialProfit) + '</strong></div>' +
           '<div class="calc2-kpi"><span>Project-ROI</span><strong>' +
-            (analysis.projectRoiPercent != null ? analysis.projectRoiPercent + '%' : '—') + '</strong></div>' +
+            (analysis.projectRoiPercent != null ? analysis.projectRoiPercent + '%' : '-') + '</strong></div>' +
           '<div class="calc2-kpi"><span>Projectmarge</span><strong>' +
-            (analysis.profitMarginPercent != null ? analysis.profitMarginPercent + '%' : '—') + '</strong></div>' +
+            (analysis.profitMarginPercent != null ? analysis.profitMarginPercent + '%' : '-') + '</strong></div>' +
           '<div class="calc2-kpi"><span>Break-even verkoop</span><strong>' + fmtEUR(analysis.breakEvenResalePrice) + '</strong></div>' +
           '<div class="calc2-kpi"><span>Max. aankoopprijs</span><strong>' +
             (analysis.maxPurchasePrice != null ? fmtEUR(analysis.maxPurchasePrice) : 'Niet haalbaar') + '</strong></div>' +
@@ -515,7 +515,7 @@
           scenarioCard('expected', sc.expected, fmtEUR, escapeHtml, true) +
           scenarioCard('strong', sc.strong, fmtEUR, escapeHtml, false) +
         '</div>' +
-        '<p class="calc2-review-note calc2-qualification">Optimistisch combineert gunstige aannames — geen waarschijnlijk scenario.</p>' +
+        '<p class="calc2-review-note calc2-qualification">Optimistisch combineert gunstige aannames, geen waarschijnlijk scenario.</p>' +
       '</div>' +
 
       '<div class="calc2-review-card"><div class="calc2-review-head"><h3>Waar gaat het geld naartoe?</h3></div>' +
@@ -563,7 +563,7 @@
       ? 'Ontvang je renovatie- & investeringsrapport'
       : 'Ontvang je renovatierapport';
     var desc = isInvestor
-      ? 'Een PDF met budget, scenario\'s en aannames — indicatief, geen garantie.'
+      ? 'Een PDF met budget, scenario\'s en aannames, indicatief, geen garantie.'
       : 'Een PDF met budget, werkpakketten en vervolgstappen op maat van jouw antwoorden.';
 
     return '<div class="calc2-email-card">' +

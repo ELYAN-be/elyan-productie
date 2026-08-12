@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 Investor — VAT cash layer (Phase 5)
+   ELYAN Calc2 Investor. VAT cash layer (Phase 5)
    Does not invent a single national VAT rate.
    ============================================================ */
 (function (root, factory) {
@@ -66,7 +66,7 @@
       result.renovationCashInclVat = round50(works + soft + proc + reserve);
       result.totalVat = 0;
       result.confidence = 'medium';
-      result.explanation = 'Cash model excl. btw — alleen bruikbaar als btw volledig terugvorderbaar of buiten scope. Niet default voor private flip.';
+      result.explanation = 'Cash model excl. btw, alleen bruikbaar als btw volledig terugvorderbaar of buiten scope. Niet default voor private flip.';
       result.sourceType = 'USER_ASSUMPTION';
       return result;
     }

@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — Project ledger from package results
+   ELYAN Calc2. Project ledger from package results
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -82,7 +82,7 @@
       },
       nmiKeys: nmiKeys,
       provisionalRisk: provisional.count ? {
-        label: 'PROVISIONAL RISK RANGE — NOT AUTHORITATIVE',
+        label: 'PROVISIONAL RISK RANGE. NOT AUTHORITATIVE',
         low: round50(provisional.low),
         expected: round50(provisional.expected),
         high: round50(provisional.high),

@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — Isolated session state (UI only)
+   ELYAN Calculator 2. Isolated session state (UI only)
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -50,7 +50,7 @@
   var STRUCTURAL_RISK = [
     { value: 'ja', label: 'Ja, waarschijnlijk', desc: 'Dragende muren, grote openingen of structureel risico.' },
     { value: 'nee', label: 'Nee', desc: 'Geen structurele ingrepen gepland.' },
-    { value: 'weet_niet', label: 'Weet ik niet', desc: 'Nog onduidelijk — houden we open.' }
+    { value: 'weet_niet', label: 'Weet ik niet', desc: 'Nog onduidelijk, houden we open.' }
   ];
 
   var GOALS = {
@@ -190,18 +190,18 @@
     for (var i = 0; i < FINISH.length; i++) {
       if (FINISH[i].value === value) return FINISH[i].label;
     }
-    return value || '—';
+    return value || '-';
   }
 
   function goalLabel(value) {
-    return (GOALS[value] && GOALS[value].label) || value || '—';
+    return (GOALS[value] && GOALS[value].label) || value || '-';
   }
 
   function procurementLabel(value) {
     for (var i = 0; i < PROCUREMENT.length; i++) {
       if (PROCUREMENT[i].value === value) return PROCUREMENT[i].label;
     }
-    return value || '—';
+    return value || '-';
   }
 
   function setSoftCostOverride(state, id, value) {

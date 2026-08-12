@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — /api/send-report
+   ELYAN. /api/send-report
    Ontvangt calculator-antwoorden, herberekent server-side,
    genereert premium PDF en verstuurt via Resend.
    ============================================================ */

@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — Property profile helpers (UI/state only)
+   ELYAN Calculator 2. Property profile helpers (UI/state only)
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -73,7 +73,7 @@
     for (var i = 0; i < PROVINCES.length; i++) {
       if (PROVINCES[i].value === value) return PROVINCES[i].label;
     }
-    return value || '—';
+    return value || '-';
   }
 
   /**
@@ -121,7 +121,7 @@
     for (var i = 0; i < list.length; i++) {
       if (list[i].value === value) return list[i].label;
     }
-    return value || '—';
+    return value || '-';
   }
 
   return {

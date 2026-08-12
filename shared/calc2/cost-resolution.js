@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — Cost resolution + materiality (Phase 4.7)
+   ELYAN Calc2. Cost resolution + materiality (Phase 4.7)
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {

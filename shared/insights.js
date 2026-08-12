@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — Antwoord-specifieke inzichten (price-aware, risk-aware)
+   ELYAN. Antwoord-specifieke inzichten (price-aware, risk-aware)
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -41,12 +41,12 @@
     if (answers.access === 'moeilijk') {
       assumptions.push('Moeilijke toegang zoals aangegeven is meegenomen in steiger/veiligheid.');
     } else if (answers.access === 'vlot') {
-      assumptions.push('Vlotte toegang zoals aangegeven — geen uitzonderlijke steigercomplexiteit.');
+      assumptions.push('Vlotte toegang zoals aangegeven, geen uitzonderlijke steigercomplexiteit.');
     } else if (answers.access) {
       assumptions.push('Werftoegang is normaal zoals aangegeven.');
     }
     if (answers.asbestos === 'nee') assumptions.push('Geen asbestproblematiek verwacht op basis van jouw antwoord.');
-    if (answers.asbestos === 'mogelijk') assumptions.push('Asbest is als mogelijk risico meegenomen via een onderzoeksbuffer — geen volledige sanering.');
+    if (answers.asbestos === 'mogelijk') assumptions.push('Asbest is als mogelijk risico meegenomen via een onderzoeksbuffer, geen volledige sanering.');
     if (answers.gutters === 'nee') assumptions.push('Goten blijven buiten scope (niet vernieuwen volgens jouw antwoord).');
     if (answers.connections === 'nee') assumptions.push('Keukenaansluitingen blijven op bestaande plaatsen.');
     if (answers.plumbingMove === 'nee') assumptions.push('Badkamerleidingen blijven op bestaande plaatsen.');
@@ -116,7 +116,7 @@
         riskRows.push({ risk: 'Waterdichting', impact: 'HOOG', check: 'Vraag welk waterdichtingssysteem wordt gebruikt.' });
       }
       if (answers.ufh === 'ja') {
-        planning.push('Vloerverwarming vraagt droogtijd vóór betegeling — bouw dit in de planning in.');
+        planning.push('Vloerverwarming vraagt droogtijd vóór betegeling, bouw dit in de planning in.');
         riskRows.push({ risk: 'Droogtijd vloerverwarming', impact: 'MIDDEL', check: 'Laat opstartprotocol en droogtijd schriftelijk vastleggen.' });
       }
       if (answers.ventilation !== 'goed') {
@@ -182,7 +182,7 @@
       confirmItems.push('Of bestaande toestellen hergebruikt worden');
 
       if (answers.appliances && answers.appliances !== 'nee') {
-        insights.push('Toestellen zitten in jouw raming — vergelijk energielabels én inbouwmaten vóór bestelling.');
+        insights.push('Toestellen zitten in jouw raming, vergelijk energielabels én inbouwmaten vóór bestelling.');
       } else {
         insights.push('Toestellen zitten niet in deze raming. Houd apart budget vrij als je ze toch vernieuwt.');
       }
@@ -191,13 +191,13 @@
         riskRows.push({ risk: 'Technische verplaatsingen', impact: 'HOOG', check: 'Technisch plan vóór kastbestelling.' });
         savings.push({ text: 'Zelfde hoofdlayout behouden vermijdt dure leiding- en elektrawerken.', amount: null });
       } else {
-        savings.push({ text: 'Behoud bestaande aansluitpunten — dat beperkt loodgieter- en elektrakosten.', amount: null });
+        savings.push({ text: 'Behoud bestaande aansluitpunten, dat beperkt loodgieter- en elektrakosten.', amount: null });
       }
       if (answers.appliances === 'basis') {
         savings.push({ text: 'Kies middenklasse apparatuur waar prestaties vergelijkbaar zijn met premium.', amount: null });
       }
       if (answers.scope === 'fronten') {
-        recommendations.push('Een facelift werkt alleen als de kaststructuur nog stevig is — laat dat eerst nakijken.');
+        recommendations.push('Een facelift werkt alleen als de kaststructuur nog stevig is, laat dat eerst nakijken.');
         savings.push({ text: 'Fronten i.p.v. volledige vervanging bespaart fors als de korpus nog goed is.', amount: null });
       }
       if (answers.worktop === 'natuursteen') {
@@ -249,22 +249,22 @@
       confirmItems.push('Parkeervergunning / werfinrichting');
 
       if (answers.workType === 'isolatie' || answers.insulation === 'ja' || answers.workType === 'volledig') {
-        insights.push('Dakisolatie zit in jouw scope — check premievoorwaarden sinds 1 maart 2026 (inkomenscategorie telt zwaar).');
+        insights.push('Dakisolatie zit in jouw scope, check premievoorwaarden sinds 1 maart 2026 (inkomenscategorie telt zwaar).');
         recommendations.push('Vraag R-/U-waarde en premieconforme documentatie aan je aannemer.');
         conclusions.push('Isolatie combineert energievoordeel met werfefficiëntie als bedekking sowieso openligt.');
-        savings.push({ text: 'Combineer isolatie en dakbedekking in één werffase — vermijd dubbele steiger- en mobilisatiekosten.', amount: null });
+        savings.push({ text: 'Combineer isolatie en dakbedekking in één werffase, vermijd dubbele steiger- en mobilisatiekosten.', amount: null });
       }
       if (answers.asbestos === 'ja' || answers.asbestos === 'mogelijk') {
         risks.push('Asbestverdachte materialen vragen diagnose en gespecialiseerde verwijdering vóór verdere werken.');
         riskRows.push({ risk: 'Asbest', impact: answers.asbestos === 'ja' ? 'HOOG' : 'MIDDEL', check: 'Laat een asbestinventaris maken vóór start.' });
-        planning.push('Plan asbestonderzoek vroeg — dit kan de startdatum verschuiven.');
+        planning.push('Plan asbestonderzoek vroeg, dit kan de startdatum verschuiven.');
       }
       if (answers.access === 'moeilijk') {
         insights.push('Moeilijke toegang verhoogt steiger- en veiligheidskosten; vraag dit apart te specificeren.');
         riskRows.push({ risk: 'Bereikbaarheid', impact: 'MIDDEL', check: 'Steigerplan en valbeveiliging in offerte.' });
       }
       planning.push('Dakwerken zijn weersafhankelijk: voorjaar en nazomer zijn meestal het meest betrouwbaar.');
-      recommendations.push('Laat goten, nokdetails en muuraansluitingen expliciet opnemen — daar ontstaan vaak lekken.');
+      recommendations.push('Laat goten, nokdetails en muuraansluitingen expliciet opnemen, daar ontstaan vaak lekken.');
       riskRows.push({ risk: 'Verborgen houtrot / constructie', impact: 'MIDDEL', check: 'Laat onderliggende constructie inspecteren tijdens afbraak.' });
       riskRows.push({ risk: 'Aansluitdetails', impact: 'MIDDEL', check: 'Controleer nok, dakramen en muurplaten in de offerte.' });
       riskRows.push({ risk: 'Weersomstandigheden', impact: 'MIDDEL', check: 'Vraag hoe weerverlet en planning worden geregeld.' });
@@ -312,7 +312,7 @@
         'Wat is het betalingsschema gekoppeld aan mijlpalen?'
       ];
       if (answers.gutters !== 'ja') {
-        savings.push({ text: 'Behoud goede bestaande goten wanneer technisch verantwoord — dat vermijdt een aparte gootpost.', amount: null });
+        savings.push({ text: 'Behoud goede bestaande goten wanneer technisch verantwoord, dat vermijdt een aparte gootpost.', amount: null });
       }
       savings.push({ text: 'Standaardiseer dakpan en hulpstukken i.p.v. mix van speciale stukken.', amount: null });
     }
@@ -331,7 +331,7 @@
       confirmItems.push('Overgangsprofielen tussen ruimtes');
 
       if (answers.substrate === 'slecht' || answers.leveling === 'volledig') {
-        insights.push('De ondergrond vraagt voorbereiding — egalisatie is vaak belangrijker voor het eindresultaat dan de topvloer.');
+        insights.push('De ondergrond vraagt voorbereiding, egalisatie is vaak belangrijker voor het eindresultaat dan de topvloer.');
         riskRows.push({ risk: 'Ondergrond', impact: 'HOOG', check: 'Laat vlakheid en vocht meten vóór plaatsing.' });
       }
       if (answers.ufh === 'nieuw' || answers.ufh === 'bestaand') {
@@ -378,7 +378,7 @@
       confirmItems.push('Of radiatoren/deuren volledig meegenomen worden');
 
       if (answers.surface === 'slecht') {
-        insights.push('Een slechte ondergrond betekent dat een groot deel van het budget naar herstel gaat — noodzakelijk voor een duurzaam resultaat.');
+        insights.push('Een slechte ondergrond betekent dat een groot deel van het budget naar herstel gaat, noodzakelijk voor een duurzaam resultaat.');
         riskRows.push({ risk: 'Ondergrondherstel', impact: 'HOOG', check: 'Laat hersteluren apart begroten.' });
         conclusions.push('Voorbereiding is hier geen “extra”, maar de kern van de kwaliteit.');
       }
@@ -423,7 +423,7 @@
       confirmItems.push('U-waarde / glasspecificatie in offerte');
       confirmItems.push('Afwerking binnen- en buitenzijde (pleister, dorpels)');
 
-      insights.push('Ramenprijzen hangen sterk af van kadermateriaal, beglazing en schuifpartijen — niet alleen van m².');
+      insights.push('Ramenprijzen hangen sterk af van kadermateriaal, beglazing en schuifpartijen, niet alleen van m².');
       if (answers.frame === 'aluminium') insights.push('Aluminium ligt typisch boven PVC in materiaalprijs bij vergelijkbare opening.');
       if (answers.glazing === 'hr+++') insights.push('HR+++ verhoogt comfort en materiaalkost; vraag U-waarde expliciet op de offerte.');
 
@@ -467,14 +467,14 @@
       confirmItems.push('Vocht- en luchtdichtingsdetails');
       if (answers.subtype === 'dak_binnen') {
         confirmItems.push('Scope = isolatie only (geen dakbedekking/herbouw)');
-        insights.push('Dit is dakisolatie langs binnen — geen volledige dakrenovatie. Voor bedekking/herbouw gebruik je categorie Dak.');
+        insights.push('Dit is dakisolatie langs binnen, geen volledige dakrenovatie. Voor bedekking/herbouw gebruik je categorie Dak.');
       }
 
-      insights.push('Isolatiepremies hangen af van Rd-waarde, inkomen en eigendomstype — check het officiële loket.');
+      insights.push('Isolatiepremies hangen af van Rd-waarde, inkomen en eigendomstype, check het officiële loket.');
       if (answers.performance === 'hoog') insights.push('Hoge prestatie verhoogt materiaaldikte en kost, maar verbetert comfort en premiekans.');
 
       risks.push('Koudebruggen en onzorgvuldige luchtdichting ondermijnen de investering.');
-      if (answers.subtype === 'spouw') risks.push('Niet elke spouw is geschikt — laat vooraf controleren op breedte en vervuiling.');
+      if (answers.subtype === 'spouw') risks.push('Niet elke spouw is geschikt, laat vooraf controleren op breedte en vervuiling.');
       riskRows.push({ risk: 'Uitvoeringskwaliteit', impact: 'HOOG', check: 'Vraag details over overlappingen, tape en doorbrekingen.' });
       riskRows.push({ risk: 'Scopeverwarring', impact: 'MIDDEL', check: 'Scheid isolatie van afwerking/dakbedekking in de offerte.' });
 
@@ -513,7 +513,7 @@
       confirmItems.push('Afgiftesysteem (radiatoren/vloer) compatibel met regime');
       confirmItems.push('Geluid, opstelling en vergunningen (buitenunit)');
 
-      insights.push('De juiste capaciteit hangt af van isolatie en warmteverlies — niet alleen van woningm².');
+      insights.push('De juiste capaciteit hangt af van isolatie en warmteverlies, niet alleen van woningm².');
       if (answers.projectType === 'lucht_water' && answers.insulationLevel === 'slecht') {
         insights.push('Let op: lucht-water warmtepomp bij slechte isolatie is vaak inefficiënt. We ramen wel, maar isoleer bij voorkeur eerst of kies hybride.');
         risks.push('Warmtepomp in een slecht geïsoleerde woning kan leiden tot hoog verbruik en comfortklachten.');
@@ -559,7 +559,7 @@
       confirmItems.push('Of sleuven/pleisterwerk inbegrepen zijn');
       confirmItems.push('Datum en scope van keuring');
 
-      insights.push('Volledige herbekabeling kost per m² duidelijk meer dan een partiële aanpassing — scope is de grootste knop.');
+      insights.push('Volledige herbekabeling kost per m² duidelijk meer dan een partiële aanpassing, scope is de grootste knop.');
       if (answers.fitOut === 'uitgebreid') insights.push('Uitgebreide puntbezetting verhoogt zowel materiaal als uren.');
       if (answers.board === 'nieuw') insights.push('Een nieuw bord is vaak nodig bij volledige renovatie of verouderde installaties.');
 
@@ -600,7 +600,7 @@
       confirmItems.push('Steigerduur en wie plaatst/haalt af');
       confirmItems.push('Ondergrondvoorbereiding bij slechte staat');
 
-      insights.push('Steiger is bij middel/hoge toegang een must-post — vergelijk die apart in offertes.');
+      insights.push('Steiger is bij middel/hoge toegang een must-post, vergelijk die apart in offertes.');
       if (answers.intervention === 'isolatie_afwerking') insights.push('Isolatie+afwerking (ETICS) combineert energie en uitzicht; check premievoorwaarden.');
       if (answers.condition === 'slecht') insights.push('Slechte staat betekent vaak meer herstel vóór de zichtafwerking.');
 
@@ -641,7 +641,7 @@
       confirmItems.push('Omvormertype en monitoring');
       confirmItems.push('Netstudie / aanmelding waar nodig');
 
-      insights.push('ELYAN raamde hardware en montage — geen gegarandeerde besparing of terugverdientijd.');
+      insights.push('ELYAN raamde hardware en montage, geen gegarandeerde besparing of terugverdientijd.');
       insights.push('Prijs per Wp is de beste vergelijkingsmaat; batterij maakt totalen niet-direct vergelijkbaar.');
       if (answers.access === 'moeilijk') insights.push('Moeilijke daktoegang verhoogt montageuren met ongeveer 15–25%.');
       if (answers.battery === 'ja') insights.push('Batterij is een aparte investeringsbeslissing; reken die niet mee in een “pure PV”-vergelijking.');
@@ -684,7 +684,7 @@
       confirmItems.push('Onderhoudsfilter en toegang');
 
       insights.push('Systeem D is duurder maar recupereert warmte; C is goedkoper maar ventileert anders.');
-      if (answers.routing === 'complex') insights.push('Complex kanaalwerk in renovatie is vaak de grootste urenpost — niet de unit alleen.');
+      if (answers.routing === 'complex') insights.push('Complex kanaalwerk in renovatie is vaak de grootste urenpost, niet de unit alleen.');
       if (answers.system === 'decentraal') insights.push('Decentrale units vermijden lange kanalen, maar je hebt meer toestellen en onderhoudspunten.');
 
       risks.push('Te krappe kanalen of slechte inregeling geven lawaai en tocht.');
@@ -726,9 +726,9 @@
     });
 
     if (result.marketPosition === 'hoger') {
-      insights.push('Jouw raming ligt boven de typische marktband — meestal door scope, bereikbaarheid of materiaalniveau, niet automatisch “te duur”.');
+      insights.push('Jouw raming ligt boven de typische marktband, meestal door scope, bereikbaarheid of materiaalniveau, niet automatisch “te duur”.');
     } else if (result.marketPosition === 'lager') {
-      insights.push('Jouw raming ligt onder de typische marktband — vaak door beperkte scope of efficiënte keuzes (zelfde layout, basisafwerking).');
+      insights.push('Jouw raming ligt onder de typische marktband, vaak door beperkte scope of efficiënte keuzes (zelfde layout, basisafwerking).');
     } else {
       insights.push('Jouw verwachte budget ligt binnen de Belgische marktband 2026 voor vergelijkbare projecten.');
     }
@@ -754,7 +754,7 @@
     recommendations.push('Vergelijk offertes niet alleen op totaalprijs, maar op scope: afbraak, afvoer, bescherming, oplevering en garanties.');
 
     if (type === 'vloeren') {
-      savings.push({ text: 'Controleer de ondergrond vooraf — onverwachte egalisatie is een klassieke meerpost.', amount: null });
+      savings.push({ text: 'Controleer de ondergrond vooraf, onverwachte egalisatie is een klassieke meerpost.', amount: null });
       if (answers.floorMaterial !== 'tegel') {
         savings.push({ text: 'Vermijd complexe legpatronen als budget belangrijk is.', amount: null });
       }
@@ -770,9 +770,9 @@
     if (result.confidence === 'indicatief' || pctHigh >= 18) {
       bufferReason += ' omdat er meerdere onzekerheden in jouw antwoorden zitten.';
     } else if (pctHigh <= 10) {
-      bufferReason += ' — jouw antwoorden zijn relatief duidelijk, dus een lagere buffer volstaat.';
+      bufferReason += ', jouw antwoorden zijn relatief duidelijk, dus een lagere buffer volstaat.';
     } else {
-      bufferReason += ' — typisch voor een standaard renovatie met normale onzekerheid.';
+      bufferReason += ', typisch voor een standaard renovatie met normale onzekerheid.';
     }
 
     var executiveConclusion = buildExecutiveConclusion(type, answers, result, pricing, conclusions);
@@ -814,11 +814,11 @@
     var pos = result.marketPosition;
     var parts = [];
     if (pos === 'niet-direct-vergelijkbaar') {
-      parts.push('Jouw ' + noun + ' bevat scope-elementen die niet 1-op-1 met de marktband te vergelijken zijn — gebruik de kostentabel als basis, niet alleen het totaal.');
+      parts.push('Jouw ' + noun + ' bevat scope-elementen die niet 1-op-1 met de marktband te vergelijken zijn, gebruik de kostentabel als basis, niet alleen het totaal.');
     } else if (pos === 'hoger') {
-      parts.push('Jouw project ligt boven de typische Belgische marktband voor vergelijkbare scope — vaak door materiaalniveau, bereikbaarheid of extra posten.');
+      parts.push('Jouw project ligt boven de typische Belgische marktband voor vergelijkbare scope, vaak door materiaalniveau, bereikbaarheid of extra posten.');
     } else if (pos === 'lager') {
-      parts.push('Jouw project ligt onder de typische Belgische marktband — meestal door efficiënte scopekeuzes, niet automatisch “te goedkoop”.');
+      parts.push('Jouw project ligt onder de typische Belgische marktband, meestal door efficiënte scopekeuzes, niet automatisch “te goedkoop”.');
     } else {
       parts.push('Jouw project bevindt zich binnen de normale Belgische marktband voor deze ' + noun + '.');
     }

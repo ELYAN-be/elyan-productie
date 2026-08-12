@@ -1,6 +1,6 @@
 /* ============================================================
-   ELYAN Calc2 Investor — Financing + holding costs (Phase 5)
-   Simple transparent holding model — no opaque amortisation.
+   ELYAN Calc2 Investor. Financing + holding costs (Phase 5)
+   Simple transparent holding model, no opaque amortisation.
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -30,17 +30,17 @@
     var sourceType = 'USER_ASSUMPTION';
 
     if (mode === 'cash' || mode === 'own_funds') {
-      explanation = 'Enkel eigen middelen — geen rente gemodelleerd.';
+      explanation = 'Enkel eigen middelen, geen rente gemodelleerd.';
       confidence = 'high';
       sourceType = 'USER_ASSUMPTION';
       loan = 0;
     } else if (mode === 'unknown') {
-      explanation = 'Financiering nog onbekend — rente/setup niet meegenomen; financial confidence verlaagd.';
+      explanation = 'Financiering nog onbekend, rente/setup niet meegenomen; financial confidence verlaagd.';
       confidence = 'low';
       sourceType = 'UNRESOLVED';
     } else if ((mode === 'mortgage' || mode === 'mixed') && loan > 0) {
       if (rate == null || months <= 0) {
-        explanation = 'Lening bekend maar rente en/of holdingperiode ontbreekt — rente = €0 tot aangevuld.';
+        explanation = 'Lening bekend maar rente en/of holdingperiode ontbreekt, rente = €0 tot aangevuld.';
         confidence = 'low';
         sourceType = 'UNRESOLVED';
       } else {
@@ -114,10 +114,10 @@
 
     if (months <= 0) {
       confidence = 'low';
-      explanation = 'Holdingperiode ontbreekt — holdingkosten = €0.';
+      explanation = 'Holdingperiode ontbreekt, holdingkosten = €0.';
     } else if (!complete && monthly === 0) {
       confidence = 'low';
-      explanation = 'Geen holdingkosten ingevoerd — €0 gemodelleerd (kan onderschatten).';
+      explanation = 'Geen holdingkosten ingevoerd. €0 gemodelleerd (kan onderschatten).';
     } else {
       explanation = 'Holding = maandelijks × maanden. Geen universeel Belgisch forfait.';
       confidence = opts.monthlyTotal != null ? 'medium' : 'low';

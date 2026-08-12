@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — UI controller
+   ELYAN Calculator 2. UI controller
    Phase 3: raw per-package pricing review (no project total)
    Isolated from js/calculator.js
    ============================================================ */
@@ -22,7 +22,7 @@
     var UiResults = window.ElyanCalc2UiResults;
     var Labels = window.ElyanCalc2ResultLabels;
     if (!Scope || !Property || !StateApi || !Questions) {
-      console.warn('[ELYAN Calc2] modules missing — UI not started');
+      console.warn('[ELYAN Calc2] modules missing. UI not started');
       return;
     }
 
@@ -232,7 +232,7 @@
     function renderLocation() {
       var p = state.propertyProfile;
       var derivedNote = p.provinceDerived && p.province
-        ? 'Provincie automatisch afgeleid uit postcode — je kan dit corrigeren.'
+        ? 'Provincie automatisch afgeleid uit postcode, je kan dit corrigeren.'
         : 'Vul postcode in; provincie wordt waar mogelijk voorgesteld.';
       host.innerHTML = screenShell(
         'Waar ligt de woning?',
@@ -500,7 +500,7 @@
     }
 
     function fmtEUR(n) {
-      if (!Number.isFinite(n)) return '—';
+      if (!Number.isFinite(n)) return '-';
       return '€' + Math.round(n).toLocaleString('nl-BE');
     }
 
@@ -758,7 +758,7 @@
           '<input type="number" id="finPurchase" min="1" step="1000" value="' +
             (f.purchasePrice != null ? escapeHtml(f.purchasePrice) : '') + '"></label>' +
         '<p class="calc2-hint">Provincie: <strong>' + escapeHtml(Property.provinceLabel(state.propertyProfile.province)) +
-          '</strong> — registratie volgens regio (niet één nationaal %). Eigendom: ' +
+          '</strong>, registratie volgens regio (niet één nationaal %). Eigendom: ' +
           escapeHtml(state.propertyProfile.ownershipStatus === 'owned' ? 'reeds gekocht' : 'nog niet / in overweging') + '.</p>',
         { showNext: true, nextDisabled: false }
       );
@@ -879,7 +879,7 @@
           '<input type="number" id="finHoldM" min="0" step="10" placeholder="bv. 250" value="' +
             (h.monthlyTotal != null ? escapeHtml(h.monthlyTotal) : '') + '"></label>' +
         '<button type="button" class="btn btn-ghost" id="finHoldZero">Ik reken €0 holding (bewust)</button>' +
-        '<p class="calc2-hint">Leeg laten zonder “€0” verlaagt confidence — we modelleren dan €0 zonder claim dat het klopt.</p>',
+        '<p class="calc2-hint">Leeg laten zonder “€0” verlaagt confidence, we modelleren dan €0 zonder claim dat het klopt.</p>',
         { showNext: true, nextDisabled: false }
       );
       host.querySelector('#finHoldZero').addEventListener('click', function () {
@@ -950,7 +950,7 @@
         '<div class="calc2-choice-grid">' +
           [
             { v: 'indicative_mixed', l: 'Indicatief mixed (default)', d: 'Werken 21% tot bevestiging; soft/proc 21%' },
-            { v: 'six_confirmed', l: 'Ik bevestig 6% op werken', d: 'Woning ≥10j + privé-eindgebruik — jouw verantwoordelijkheid' },
+            { v: 'six_confirmed', l: 'Ik bevestig 6% op werken', d: 'Woning ≥10j + privé-eindgebruik, jouw verantwoordelijkheid' },
             { v: 'user_confirmed', l: 'Ik ken het btw-bedrag', d: 'Eigen totaal btw-cashout' },
             { v: 'excl_cash', l: 'Rekenen excl. btw', d: 'Alleen als btw buiten scope / terugvorderbaar' }
           ].map(function (o) {
@@ -994,7 +994,7 @@
       var r = f.resale;
       host.innerHTML = screenShell(
         'Wat denk je dat de woning na renovatie kan verkopen?',
-        'Alleen jouw aannames — ELYAN doet geen geautomatiseerde waardebepaling (geen AVM, geen €/m²-scrape).',
+        'Alleen jouw aannames. ELYAN doet geen geautomatiseerde waardebepaling (geen AVM, geen €/m²-scrape).',
         '<div class="calc2-field-grid">' +
           '<label class="calc2-field"><span>Conservatief (€)</span><input type="number" id="finResC" min="1" step="1000" value="' +
             (r.conservative != null ? escapeHtml(r.conservative) : '') + '"></label>' +
@@ -1003,7 +1003,7 @@
           '<label class="calc2-field"><span>Sterk (€)</span><input type="number" id="finResS" min="1" step="1000" value="' +
             (r.strong != null ? escapeHtml(r.strong) : '') + '"></label>' +
         '</div>' +
-        '<p class="calc2-hint">Eén waarde volstaat (vul “Verwacht”). Ontbrekende scenario’s vullen we optioneel aan met ±5% rond jouw verwachte waarde — duidelijk als modelaanname.</p>',
+        '<p class="calc2-hint">Eén waarde volstaat (vul “Verwacht”). Ontbrekende scenario’s vullen we optioneel aan met ±5% rond jouw verwachte waarde, duidelijk als modelaanname.</p>',
         { showNext: true, nextDisabled: false }
       );
       bindNext(function () {
@@ -1091,7 +1091,7 @@
       var p = state.propertyProfile;
       host.innerHTML = screenShell(
         'Beoogde aankoopprijs (optioneel)',
-        'Nog geen financiering, ROI of winstberekening — enkel context voor later.',
+        'Nog geen financiering, ROI of winstberekening, enkel context voor later.',
         '<label class="calc2-field"><span>Indicatieve aankoopprijs (€)</span>' +
           '<input type="number" id="calc2Offer" min="0" step="1000" inputmode="numeric" placeholder="bv. 285000" value="' +
             (p.intendedPurchasePrice != null ? escapeHtml(p.intendedPurchasePrice) : '') + '">' +
@@ -1144,7 +1144,7 @@
       if (id === 'yearBuilt') {
         return renderSimpleChoice(
           'Wanneer is de woning ongeveer gebouwd?',
-          'Een periode volstaat — exact bouwjaar is niet nodig.',
+          'Een periode volstaat, exact bouwjaar is niet nodig.',
           Property.YEAR_BUCKETS,
           function () { return state.propertyProfile.yearBuilt; },
           function (v) { state.propertyProfile.yearBuilt = v; }
@@ -1154,7 +1154,7 @@
       if (id === 'condition') {
         return renderSimpleChoice(
           'Hoe is de algemene staat van de woning?',
-          'Geen technische diagnose — jouw inschatting als eigenaar of koper.',
+          'Geen technische diagnose, jouw inschatting als eigenaar of koper.',
           Property.CONDITIONS,
           function () { return state.propertyProfile.condition; },
           function (v) { state.propertyProfile.condition = v; }
@@ -1181,7 +1181,7 @@
       if (id === 'occupied') {
         return renderSimpleChoice(
           'Blijft de woning bewoond tijdens de renovatie?',
-          'Dit beïnvloedt later planning en werforganisatie — nog geen prijs.',
+          'Dit beïnvloedt later planning en werforganisatie, nog geen prijs.',
           [
             { value: 'ja', label: 'Ja, bewoond', desc: 'Werken met bewoners aanwezig.' },
             { value: 'nee', label: 'Nee, leeg', desc: 'Woning is of wordt leeggezet.' },
@@ -1214,7 +1214,7 @@
       if (id === 'procurement') {
         return renderSimpleChoice(
           'Hoe wil je de renovatie organiseren?',
-          'Dit bepaalt coördinatiekosten — we kiezen niets standaard voor jou.',
+          'Dit bepaalt coördinatiekosten, we kiezen niets standaard voor jou.',
           StateApi.PROCUREMENT,
           function () { return state.procurementModel; },
           function (v) { state.procurementModel = v; }
@@ -1223,7 +1223,7 @@
       if (id === 'structuralRisk') {
         return renderSimpleChoice(
           'Verwacht je structurele ingrepen?',
-          'Denk aan dragende muren, grote openingen of structureel risico. Beïnvloedt architect/ingenieur — nog geen ROI.',
+          'Denk aan dragende muren, grote openingen of structureel risico. Beïnvloedt architect/ingenieur, nog geen ROI.',
           StateApi.STRUCTURAL_RISK,
           function () { return state.structuralRisk; },
           function (v) { state.structuralRisk = v; }

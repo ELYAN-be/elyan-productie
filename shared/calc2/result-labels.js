@@ -1,6 +1,6 @@
 /* ============================================================
-   ELYAN Calc2 — Consumer-facing Dutch labels (Phase 6)
-   Presentation only — does not change calculation engines.
+   ELYAN Calc2. Consumer-facing Dutch labels (Phase 6)
+   Presentation only, does not change calculation engines.
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -26,7 +26,7 @@
   function exclusionsCopy() {
     return {
       title: 'Niet automatisch inbegrepen',
-      body: 'Niet automatisch inbegrepen in deze raming: zonnepanelen, structurele herstelwerken, pleisterwerken, trappen, bepaalde rioleringswerken en buitenaanleg, volledige chape waar niet expliciet gemodelleerd, en bepaalde binnendeuren — tenzij je ze elders expliciet hebt opgenomen.'
+      body: 'Niet automatisch inbegrepen in deze raming: zonnepanelen, structurele herstelwerken, pleisterwerken, trappen, bepaalde rioleringswerken en buitenaanleg, volledige chape waar niet expliciet gemodelleerd, en bepaalde binnendeuren, tenzij je ze elders expliciet hebt opgenomen.'
     };
   }
 
@@ -37,14 +37,14 @@
       LOW: 'Voorzichtig',
       PARTIAL: 'Gedeeltelijk'
     };
-    return map[c] || (c || '—');
+    return map[c] || (c || '-');
   }
 
   function packageStatusLabel(status) {
     if (status === 'OK') return 'Ingeschat';
     if (status === 'NEEDS_MORE_INFORMATION' || status === 'NMI') return 'Nog onvoldoende informatie';
     if (status === 'SUPPRESSED') return 'Meegenomen elders';
-    return status || '—';
+    return status || '-';
   }
 
   function dealStatusLabel(status) {
@@ -56,7 +56,7 @@
       NEGATIVE: 'Negatief basisscenario',
       INSUFFICIENT_INFORMATION: 'Onvoldoende informatie'
     };
-    return map[status] || status || '—';
+    return map[status] || status || '-';
   }
 
   function softCostFriendly(id, label) {
@@ -84,7 +84,7 @@
       steps.unshift('Overweeg een technische inspectie of stabiliteitsadvies vóór je vastlegt.');
     }
     if (project && project.status === 'PARTIAL_ESTIMATE') {
-      steps.unshift('Vul eerst de open vragen aan — dit is een gedeeltelijke raming voor de onderdelen die we al konden inschatten.');
+      steps.unshift('Vul eerst de open vragen aan, dit is een gedeeltelijke raming voor de onderdelen die we al konden inschatten.');
     }
     if (state && (state.procurementModel === 'weet_niet' || !state.procurementModel)) {
       steps.push('Beslis hoe je wil organiseren: losse vakmannen of hoofdaannemer.');
@@ -94,12 +94,12 @@
 
   function nextStepsInvestor(analysis) {
     var steps = [
-      'Behandel verkoopwaarde als jouw aanname — geen geautomatiseerde waardering.',
+      'Behandel verkoopwaarde als jouw aanname, geen geautomatiseerde waardering.',
       'Toets het nadeelscenario en de gecombineerde stress vóór je verder gaat.',
       'Bevestig btw-behandeling en aankoopkosten met aannemer/notaris/boekhouder.'
     ];
     if (analysis && analysis.status === 'NEGATIVE') {
-      steps.unshift('Het basisscenario toont potentieel verlies — herbekijk aankoopprijs, scope of exit.');
+      steps.unshift('Het basisscenario toont potentieel verlies, herbekijk aankoopprijs, scope of exit.');
     }
     if (analysis && analysis.offerHeadroom && analysis.offerHeadroom.difference > 0) {
       steps.push('Vergelijk jouw aankoopprijs met de berekende maximale aankoopprijs voor jouw doelrendement (scenario, geen aankoopadvies).');

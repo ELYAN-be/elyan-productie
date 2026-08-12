@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — Overlap flag detection (metadata only)
+   ELYAN Calculator 2. Overlap flag detection (metadata only)
    Does NOT deduct costs. Phase 4 reconciles.
    ============================================================ */
 (function (root, factory) {
@@ -42,7 +42,7 @@
 
     if (active.dak && active.gevel) {
       add('scaffolding', ['dak', 'gevel'],
-        'Dak en gevel kunnen dezelfde steigercampagne delen — niet optellen als twee volle steigers.', 'high');
+        'Dak en gevel kunnen dezelfde steigercampagne delen, niet optellen als twee volle steigers.', 'high');
       add('access_equipment', ['dak', 'gevel'],
         'Gemeenschappelijke toegang/werfinrichting mogelijk.', 'medium');
     }
@@ -63,11 +63,11 @@
     var isoSubtype = isoDetails && isoDetails.resolvedAnswers && isoDetails.resolvedAnswers.subtype;
     if (active.isolatie && active.dak && (isoSubtype === 'dak_binnen' || isoSubtype === 'zoldervloer' || !isoSubtype)) {
       add('insulation_roof_overlap', ['isolatie', 'dak'],
-        'Dakisolatie in Isolatie-categorie kan overlappen met isolatie in Dak-pakket — scope controleren.', 'high');
+        'Dakisolatie in Isolatie-categorie kan overlappen met isolatie in Dak-pakket, scope controleren.', 'high');
     }
     if (active.isolatie && active.gevel && (isoSubtype === 'buitenmuur' || !isoSubtype)) {
       add('insulation_facade_overlap', ['isolatie', 'gevel'],
-        'Buitenmuurisolatie vs gevel ETICS/isolatie+afwerking — risico op dubbele scope.', 'high');
+        'Buitenmuurisolatie vs gevel ETICS/isolatie+afwerking, risico op dubbele scope.', 'high');
     }
 
     if (active.elektriciteit && active.keuken) {
@@ -99,7 +99,7 @@
       });
       if (demoPkgs.length >= 2) {
         add('demolition', demoPkgs,
-          'Meerdere pakketten bevatten afbraak — projectniveau mag niet alles stapelen.', 'medium');
+          'Meerdere pakketten bevatten afbraak, projectniveau mag niet alles stapelen.', 'medium');
         add('waste', demoPkgs,
           'Afvoer/containerkosten kunnen gedeeld worden over pakketten.', 'medium');
       }
@@ -114,7 +114,7 @@
 
     if (active.vloeren && active.schilderwerken) {
       add('finishing', ['vloeren', 'schilderwerken'],
-        'Afwerkingsvolgorde beïnvloedt bescherming/herstel — geen prijs-aftrek hier.', 'low');
+        'Afwerkingsvolgorde beïnvloedt bescherming/herstel, geen prijs-aftrek hier.', 'low');
     }
 
     // Deduplicate by code+packages signature

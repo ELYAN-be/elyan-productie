@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 Investor — Documented financial parameters (2026)
+   ELYAN Calc2 Investor. Documented financial parameters (2026)
    sourceType: OFFICIAL_REGULATION | MARKET_BENCHMARK | MODEL_ASSUMPTION | USER_ASSUMPTION
    ============================================================ */
 (function (root, factory) {
@@ -23,7 +23,7 @@
       vatTaxStatus: 'Registratiebelasting (geen btw)',
       confidence: 'high',
       sourceType: 'OFFICIAL_REGULATION',
-      source: 'Vlaanderen.be — verkooprecht',
+      source: 'Vlaanderen.be, verkooprecht',
       url: 'https://www.vlaanderen.be/belastingen-en-begroting/vlaamse-belastingen/registratiebelasting/verkooprecht',
       date: AUDIT_DATE
     },
@@ -32,7 +32,7 @@
       jurisdiction: 'Vlaanderen',
       label: 'Verkooprecht enige eigen woning',
       formula: '2% × aankoopprijs (strikte voorwaarden; aangescherpt 2026)',
-      applicability: 'Natuurlijk persoon, volle eigendom, enige woning, domiciliëring — NIET default investor flip',
+      applicability: 'Natuurlijk persoon, volle eigendom, enige woning, domiciliëring. NIET default investor flip',
       vatTaxStatus: 'Registratiebelasting',
       confidence: 'high',
       sourceType: 'OFFICIAL_REGULATION',
@@ -45,7 +45,7 @@
       jurisdiction: 'Brussel',
       label: 'Registratierecht',
       formula: '12,5% × aankoopprijs',
-      applicability: 'Standaard; abattement €200k vooral eerste eigen woning — niet auto voor investor',
+      applicability: 'Standaard; abattement €200k vooral eerste eigen woning, niet auto voor investor',
       vatTaxStatus: 'Registratierecht',
       confidence: 'high',
       sourceType: 'OFFICIAL_REGULATION',
@@ -62,7 +62,7 @@
       vatTaxStatus: 'Registratierecht',
       confidence: 'high',
       sourceType: 'OFFICIAL_REGULATION',
-      source: 'Waalse hervorming 2025 — 3% enkel eigen+enige; anders 12,5%',
+      source: 'Waalse hervorming 2025. 3% enkel eigen+enige; anders 12,5%',
       url: 'https://www.grantthornton.be/en/the-field/articles-and-publications/Direct-tax/real-estate-taxes-in-belgium-in-2026-what-property-ownership-really-costs/',
       date: AUDIT_DATE
     },
@@ -71,7 +71,7 @@
       jurisdiction: 'Wallonië',
       label: 'Droits d\'enregistrement enige eigen woning',
       formula: '3% (voorwaarden)',
-      applicability: 'Enige eigen woning — niet default flip',
+      applicability: 'Enige eigen woning, niet default flip',
       vatTaxStatus: 'Registratierecht',
       confidence: 'high',
       sourceType: 'OFFICIAL_REGULATION',
@@ -96,7 +96,7 @@
       id: 'mortgage_deed',
       jurisdiction: 'België',
       label: 'Hypotheekakte / registratie',
-      formula: '~1% op leenbedrag + deel notaris — model',
+      formula: '~1% op leenbedrag + deel notaris, model',
       applicability: 'Alleen bij financiering',
       vatTaxStatus: 'Gemengd',
       confidence: 'low',
@@ -110,7 +110,7 @@
       jurisdiction: 'België',
       label: 'BTW renovatiewerken',
       formula: 'Vaak 6% onder voorwaarden (woning >10j, privé); anders 21%',
-      applicability: 'Feitenafhankelijk — finance layer: expected 6% / conservative 21%',
+      applicability: 'Feitenafhankelijk, finance layer: expected 6% / conservative 21%',
       vatTaxStatus: 'BTW',
       confidence: 'medium',
       sourceType: 'MODEL_ASSUMPTION',
@@ -137,10 +137,10 @@
       label: 'Belasting op meerwaarde / beroepsinkomen',
       formula: 'NIET automatisch berekend',
       applicability: 'Hangt af van privé/vennootschap, timing, speculatief karakter',
-      vatTaxStatus: 'Inkomstenbelasting / vennootschapsbelasting — UNRESOLVED',
+      vatTaxStatus: 'Inkomstenbelasting / vennootschapsbelasting. UNRESOLVED',
       confidence: 'low',
       sourceType: 'UNRESOLVED',
-      source: 'Te complex zonder feiten — disclosure only',
+      source: 'Te complex zonder feiten, disclosure only',
       url: null,
       date: AUDIT_DATE
     }

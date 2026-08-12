@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — Work-package scope model (UI/state only)
+   ELYAN Calculator 2. Work-package scope model (UI/state only)
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -42,7 +42,7 @@
     for (var i = 0; i < INTENSITY.length; i++) {
       if (INTENSITY[i].value === value) return INTENSITY[i].label;
     }
-    return value || '—';
+    return value || '-';
   }
 
   function packageById(id) {

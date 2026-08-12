@@ -1,7 +1,7 @@
 /* ============================================================
-   ELYAN Calc2 Investor — Regional acquisition costs (Phase 5.5 audit)
+   ELYAN Calc2 Investor. Regional acquisition costs (Phase 5.5 audit)
    Investor / flip defaults: NOT owner-occupier reduced rates.
-   Notary ereloon: KB 16/12/1950 barema (updated) — OFFICIAL_REGULATION.
+   Notary ereloon: KB 16/12/1950 barema (updated). OFFICIAL_REGULATION.
    ============================================================ */
 (function (root, factory) {
   if (typeof module === 'object' && module.exports) {
@@ -31,7 +31,7 @@
       registrationRate: 0.125,
       label: 'Brussel registratierecht (ordinair)',
       source: 'https://fin.belgium.be/nl/particulieren/woning/kopen-verkopen/registratierecht',
-      note: '12,5%. Abattement tot €200.000 (max. €25.000) is voor eigen+enige hoofdverblijfplaats onder voorwaarden — niet auto voor investor flip.'
+      note: '12,5%. Abattement tot €200.000 (max. €25.000) is voor eigen+enige hoofdverblijfplaats onder voorwaarden, niet auto voor investor flip.'
     },
     wallonie: {
       registrationRate: 0.125,

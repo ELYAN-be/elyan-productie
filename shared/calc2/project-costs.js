@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calc2 — Project-level costs (Phase 4.6)
+   ELYAN Calc2. Project-level costs (Phase 4.6)
    Thin wrapper: scaffold note + delegates all-in soft/procurement.
    ============================================================ */
 (function (root, factory) {
@@ -108,7 +108,7 @@
     if (occupied) {
       warnings.push({
         code: 'occupied_renovation',
-        note: 'Bewoonde renovatie kan planning/bescherming verhogen — geen aparte €-post toegevoegd zonder bron.'
+        note: 'Bewoonde renovatie kan planning/bescherming verhogen, geen aparte €-post toegevoegd zonder bron.'
       });
     }
 

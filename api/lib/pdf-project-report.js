@@ -1,6 +1,6 @@
 /* ============================================================
-   ELYAN — Calculator 2 project dossier PDF (pdfkit)
-   Presentation only — design family aligned with pdf-report.js
+   ELYAN. Calculator 2 project dossier PDF (pdfkit)
+   Presentation only, design family aligned with pdf-report.js
    Does NOT modify Calculator 1. Does NOT change calculation values.
    ============================================================ */
 'use strict';
@@ -48,7 +48,7 @@ var TABLE_HEADER_H = 22;
 var HEADER_AFTER = 50; /* approx doc.y just under page header */
 
 function fmtEUR(n) {
-  if (n == null || !isFinite(Number(n))) return '—';
+  if (n == null || !isFinite(Number(n))) return '-';
   var v = Math.round(Number(n));
   var neg = v < 0;
   var s = String(Math.abs(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -88,7 +88,7 @@ function footer(doc, pageNum, reportDate) {
   doc.moveTo(MARGIN, y).lineTo(PAGE.width - MARGIN, y)
     .lineWidth(0.7).strokeColor(COLOR.line).stroke();
   doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
-    .text('Indicatieve projectraming — ELYAN' + (reportDate ? '  ·  ' + reportDate : ''), MARGIN, y + 6, {
+    .text('Indicatieve projectraming · ELYAN' + (reportDate ? '  ·  ' + reportDate : ''), MARGIN, y + 6, {
       width: CONTENT_W - 70, lineBreak: false
     });
   doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
@@ -241,7 +241,7 @@ function mintBudgetCard(doc, budget, statusLabel, confLabel, durationText, ctx, 
 
   if (isPartial) {
     doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
-      .text('GEDEELTELIJKE RAMING — ENKEL INSCHATTBARE ONDERDELEN', MARGIN + 16, y + 12, { characterSpacing: 0.6 });
+      .text('GEDEELTELIJKE RAMING: ENKEL INSCHATTBARE ONDERDELEN', MARGIN + 16, y + 12, { characterSpacing: 0.6 });
     doc.font('Helvetica').fontSize(8).fillColor(COLOR.inkSoft)
       .text('Voor de onderdelen waarvoor voldoende informatie beschikbaar is:', MARGIN + 16, y + 28, {
         width: CONTENT_W - 32
@@ -325,7 +325,7 @@ function tableRow(doc, cols, values, y, zebra) {
   cols.forEach(function (c, i) {
     doc.font(i === cols.length - 1 ? 'Helvetica-Bold' : 'Helvetica')
       .fontSize(8.5).fillColor(COLOR.ink)
-      .text(String(values[i] == null ? '—' : values[i]), x, y + 6, {
+      .text(String(values[i] == null ? '-' : values[i]), x, y + 6, {
         width: c.w - 4, align: c.align || 'left', lineBreak: false
       });
     x += c.w;
@@ -383,9 +383,9 @@ function friendlyRisk(text) {
   var s = String(text || '');
   var map = [
     [/NMI packages?:/i, 'Nog onvoldoende info bij:'],
-    [/Partial estimate[^\n]*/i, 'Gedeeltelijke schatting — niet elk onderdeel is volledig ingeschat.'],
-    [/Building age uncertainty[^\n]*/i, 'Oudere woning — grotere kans op verborgen gebreken.'],
-    [/Occupied during works/i, 'Woning blijft bewoond tijdens de werken — dit kan planning en uitvoering beïnvloeden.'],
+    [/Partial estimate[^\n]*/i, 'Gedeeltelijke schatting, niet elk onderdeel is volledig ingeschat.'],
+    [/Building age uncertainty[^\n]*/i, 'Oudere woning, grotere kans op verborgen gebreken.'],
+    [/Occupied during works/i, 'Woning blijft bewoond tijdens de werken, dit kan planning en uitvoering beïnvloeden.'],
     [/Property condition:\s*/i, 'Staat van de woning: '],
     [/Deep energy \/ envelope interaction/i, 'Combinatie van energie- en schilwerken verhoogt de complexiteit.'],
     [/unresolved/i, 'Nog niet bevestigd'],
@@ -413,13 +413,13 @@ function packageAmount(entry) {
   if (entry.provisionalEstimate && entry.provisionalEstimate.expected != null) {
     return 'Indicatie ' + fmtEUR(entry.provisionalEstimate.expected);
   }
-  return '—';
+  return '-';
 }
 
 function packageLabel(entry) {
   return entry.instanceLabel
-    ? ((entry.label || entry.packageType || entry.key) + ' — ' + entry.instanceLabel)
-    : (entry.label || entry.packageType || entry.key || '—');
+    ? ((entry.label || entry.packageType || entry.key) + ': ' + entry.instanceLabel)
+    : (entry.label || entry.packageType || entry.key || '-');
 }
 
 function drawCover(doc, ctx, project, state, profile) {
@@ -448,9 +448,9 @@ function drawCover(doc, ctx, project, state, profile) {
 
   var goal = state.goal === 'investor' ? 'Kopen, renoveren & doorverkopen' : 'Eigen woning renoveren';
   var meta = [
-    (profile.province || '—'),
-    (profile.propertyType || '—'),
-    profile.areaM2 === 'weet_niet' ? 'Oppervlakte onbekend' : ((profile.areaM2 || '—') + ' m²'),
+    (profile.province || '-'),
+    (profile.propertyType || '-'),
+    profile.areaM2 === 'weet_niet' ? 'Oppervlakte onbekend' : ((profile.areaM2 || '-') + ' m²'),
     goal
   ].join('  ·  ');
   doc.font('Helvetica').fontSize(11).fillColor(COLOR.sand)
@@ -551,7 +551,7 @@ function buildProjectReportPdf(data) {
           .map(function (u) { return (u.label || u.key) + (u.reason ? ' (' + u.reason + ')' : ''); });
         sandCard(doc, [
           { text: 'Gedeeltelijke raming', bold: true, size: 10, color: COLOR.ink },
-          { text: 'Het bedrag hieronder geldt alleen voor onderdelen met voldoende informatie — geen volledig woningrenovatiebudget.', size: 9 },
+          { text: 'Het bedrag hieronder geldt alleen voor onderdelen met voldoende informatie, geen volledig woningrenovatiebudget.', size: 9 },
           miss.length
             ? { text: 'Nog niet betrouwbaar meegerekend: ' + miss.join('; ') + '.', size: 9 }
             : { text: 'Vul open vragen aan om meer onderdelen te laten meerekenen.', size: 9 }
@@ -569,14 +569,14 @@ function buildProjectReportPdf(data) {
 
       metaGrid(doc, [
         { label: 'Doel', value: state.goal === 'investor' ? 'Kopen & renoveren' : 'Eigen woning' },
-        { label: 'Provincie', value: profile.province || '—' },
-        { label: 'Type', value: profile.propertyType || '—' },
+        { label: 'Provincie', value: profile.province || '-' },
+        { label: 'Type', value: profile.propertyType || '-' },
         {
           label: 'Oppervlakte',
-          value: profile.areaM2 === 'weet_niet' ? 'Weet ik niet' : ((profile.areaM2 || '—') + (profile.areaM2 && profile.areaM2 !== 'weet_niet' ? ' m²' : ''))
+          value: profile.areaM2 === 'weet_niet' ? 'Weet ik niet' : ((profile.areaM2 || '-') + (profile.areaM2 && profile.areaM2 !== 'weet_niet' ? ' m²' : ''))
         },
-        { label: 'Afwerking', value: state.finishProfile || '—' },
-        { label: 'Organisatie', value: state.procurementModel || '—' }
+        { label: 'Afwerking', value: state.finishProfile || '-' },
+        { label: 'Organisatie', value: state.procurementModel || '-' }
       ], ctx);
 
       /* Drivers teaser */
@@ -694,7 +694,7 @@ function buildProjectReportPdf(data) {
         .concat(project.warnings || [])
         .concat(project.risks || [])
         .concat(((project.allInCosts && project.allInCosts.unresolvedCosts) || []).map(function (u) {
-          return Labels.softCostFriendly(u.id, u.label) + (u.reason ? ' — ' + u.reason : '');
+          return Labels.softCostFriendly(u.id, u.label) + (u.reason ? ': ' + u.reason : '');
         }));
       var grouped = { technisch: [], project: [], budget: [], open: [] };
       rawRisks.forEach(function (r) {
@@ -814,7 +814,7 @@ function buildProjectReportPdf(data) {
         kpiRow(doc, [
           { label: 'Totale investering', value: fmtEUR(finance.totalInvestment), big: true },
           { label: 'Potentiële winst', value: fmtEUR(finance.potentialProfit), big: true },
-          { label: 'Project-ROI', value: finance.projectRoiPercent != null ? finance.projectRoiPercent + '%' : '—' }
+          { label: 'Project-ROI', value: finance.projectRoiPercent != null ? finance.projectRoiPercent + '%' : '-' }
         ], ctx);
         kpiRow(doc, [
           { label: 'Break-even verkoop', value: fmtEUR(finance.breakEvenResalePrice) },
@@ -843,7 +843,7 @@ function buildProjectReportPdf(data) {
         doc.y += SPACE.S;
 
         startSection(doc, ctx, { eyebrow: 'Scenario’s', icon: 'target', title: 'Nadeel · Basis · Optimistisch', keepWith: 3 * 58 + 28 });
-        bodyText(doc, 'Optimistisch combineert gunstige aannames — het is geen waarschijnlijk basisscenario.', ctx, { after: SPACE.S });
+        bodyText(doc, 'Optimistisch combineert gunstige aannames, het is geen waarschijnlijk basisscenario.', ctx, { after: SPACE.S });
         var scOrder = [
           { key: 'conservative', title: 'Nadeel' },
           { key: 'expected', title: 'Basis' },
@@ -863,7 +863,7 @@ function buildProjectReportPdf(data) {
             .text(s.title, MARGIN + 14, y + 10);
           doc.font('Helvetica-Bold').fontSize(11).fillColor(COLOR.primaryDark)
             .text(fmtEUR(sc.potentialProfit) + '   ·   ROI ' +
-              (sc.projectRoiPercent != null ? sc.projectRoiPercent + '%' : '—'),
+              (sc.projectRoiPercent != null ? sc.projectRoiPercent + '%' : '-'),
               MARGIN + 14, y + 26);
           doc.y = y + 48 + SPACE.M;
         });
@@ -888,7 +888,7 @@ function buildProjectReportPdf(data) {
         var assumeLines = [
           { text: 'Verkoopwaarde = door jou ingevoerde aanname (geen geautomatiseerde waardering).', size: 9 },
           { text: 'Eventuele belasting op meerwaarde/winst is niet automatisch opgenomen.', size: 9, color: COLOR.inkFaint },
-          { text: finance.disclaimer || 'Indicatieve scenariomodellering — geen beleggingsadvies.', size: 8.5, color: COLOR.inkFaint }
+          { text: finance.disclaimer || 'Indicatieve scenariomodellering, geen beleggingsadvies.', size: 8.5, color: COLOR.inkFaint }
         ];
         var invNext = Labels.nextStepsInvestor(finance);
         startSection(doc, ctx, {

@@ -1,6 +1,6 @@
 /* ============================================================
-   ELYAN — /api/send-project-report
-   Calculator 2 project dossier — separate from /api/send-report
+   ELYAN. /api/send-project-report
+   Calculator 2 project dossier, separate from /api/send-report
    Client sends state only; server recomputes all totals.
    ============================================================ */
 'use strict';
@@ -24,7 +24,7 @@ function isValidEmail(email) {
 }
 
 function fmtEUR(n) {
-  if (n == null || !isFinite(Number(n))) return '—';
+  if (n == null || !isFinite(Number(n))) return '-';
   var v = Math.round(Number(n));
   var neg = v < 0;
   var s = String(Math.abs(v)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
@@ -96,7 +96,7 @@ function buildEmailHtml(payload) {
   '<tr><td style="padding:32px 32px 0;"><span style="font-weight:bold;font-size:20px;color:#14150F;">ELYAN</span></td></tr>' +
   '<tr><td style="padding:20px 32px 0;">' +
     '<h1 style="margin:0;font-size:20px;line-height:1.3;color:#14150F;">' + escapeHtml(title) + '</h1>' +
-    '<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#5B5D4F;">Je volledige projectdossier staat in de bijlage. Het is een indicatieve raming op basis van jouw projectgegevens — geen offerte en geen beleggingsadvies.</p>' +
+    '<p style="margin:12px 0 0;font-size:14px;line-height:1.6;color:#5B5D4F;">Je volledige projectdossier staat in de bijlage. Het is een indicatieve raming op basis van jouw projectgegevens, geen offerte en geen beleggingsadvies.</p>' +
   '</td></tr>' +
   '<tr><td style="padding:24px 32px 0;">' +
     '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#3F4A32;border-radius:14px;">' +

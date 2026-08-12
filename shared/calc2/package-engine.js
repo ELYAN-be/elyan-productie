@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN Calculator 2 — Package pricing engine
+   ELYAN Calculator 2. Package pricing engine
    Phase 3.5: multi-bathroom instances + accurate quantity inputs
    ============================================================ */
 (function (root, factory) {
@@ -255,7 +255,7 @@
       packages: results,
       projectOverlapFlags: projectFlags,
       rawPackageSum: options.includeRawSum ? computeRawPackageSum(results) : null,
-      disclaimer: 'RAW PACKAGE SUM — NOT A PROJECT ESTIMATE',
+      disclaimer: 'RAW PACKAGE SUM. NOT A PROJECT ESTIMATE',
       version: 'calc2-phase3.5-package-engine'
     };
   }
@@ -274,7 +274,7 @@
       counted++;
     });
     return {
-      label: 'RAW PACKAGE SUM — NOT A PROJECT ESTIMATE',
+      label: 'RAW PACKAGE SUM. NOT A PROJECT ESTIMATE',
       packageCount: counted,
       low: low,
       expected: expected,

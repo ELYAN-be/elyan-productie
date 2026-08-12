@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — /api/partner-interest
+   ELYAN. /api/partner-interest
    Ontvangt Founding Partner-interesse en mailt intern via Resend.
    Geen account, geen login, geen betaling.
    ============================================================ */
@@ -52,7 +52,7 @@ module.exports = async function handler(req, res) {
 
   var apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error('RESEND_API_KEY ontbreekt — partner interest gelogd');
+    console.error('RESEND_API_KEY ontbreekt, partner interest gelogd');
     console.log('[partner-interest]', JSON.stringify({
       companyName: companyName,
       contactName: contactName,
@@ -74,8 +74,8 @@ module.exports = async function handler(req, res) {
     '<tr><td style="padding:6px 0;color:#6E7062;">Bedrijf</td><td style="padding:6px 0;"><strong>' + escapeHtml(companyName) + '</strong></td></tr>' +
     '<tr><td style="padding:6px 0;color:#6E7062;">Contact</td><td style="padding:6px 0;">' + escapeHtml(contactName) + '</td></tr>' +
     '<tr><td style="padding:6px 0;color:#6E7062;">E-mail</td><td style="padding:6px 0;"><a href="mailto:' + escapeHtml(email) + '">' + escapeHtml(email) + '</a></td></tr>' +
-    '<tr><td style="padding:6px 0;color:#6E7062;">Telefoon</td><td style="padding:6px 0;">' + escapeHtml(phone || '—') + '</td></tr>' +
-    '<tr><td style="padding:6px 0;color:#6E7062;">Website</td><td style="padding:6px 0;">' + escapeHtml(website || '—') + '</td></tr>' +
+    '<tr><td style="padding:6px 0;color:#6E7062;">Telefoon</td><td style="padding:6px 0;">' + escapeHtml(phone || '-') + '</td></tr>' +
+    '<tr><td style="padding:6px 0;color:#6E7062;">Website</td><td style="padding:6px 0;">' + escapeHtml(website || '-') + '</td></tr>' +
     '<tr><td style="padding:6px 0;color:#6E7062;">Specialisatie</td><td style="padding:6px 0;">' + escapeHtml(specialty) + '</td></tr>' +
     '<tr><td style="padding:6px 0;color:#6E7062;">Werkgebied</td><td style="padding:6px 0;">' + escapeHtml(region) + '</td></tr>' +
     '</table>' +

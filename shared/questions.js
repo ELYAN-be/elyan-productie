@@ -1,5 +1,5 @@
 /* ============================================================
-   ELYAN — Vragenlijst per renovatiecategorie (12–15 vragen)
+   ELYAN. Vragenlijst per renovatiecategorie (12–15 vragen)
    Gedeeld door client (browser) en server (validatie).
    ============================================================ */
 (function (root, factory) {
@@ -669,7 +669,7 @@
           hint: 'Dakisolatie langs binnen = enkel isolatie, geen volledige dakrenovatie (dat is categorie Dak).',
           options: [
             { value: 'spouw', label: 'Spouwmuur', desc: 'Injectie of na-isolatie spouw.' },
-            { value: 'dak_binnen', label: 'Dak (binnen)', desc: 'Isolatie langs binnen — geen dakherbouw.' },
+            { value: 'dak_binnen', label: 'Dak (binnen)', desc: 'Isolatie langs binnen, geen dakherbouw.' },
             { value: 'zoldervloer', label: 'Zoldervloer', desc: 'Isolatie op/onder zoldervloer.' },
             { value: 'vloer', label: 'Vloer', desc: 'Vloer- of kruipruimte-isolatie.' },
             { value: 'binnenmuur', label: 'Binnenmuur', desc: 'Voorzetwand / binnenisolatie.' },
@@ -748,7 +748,7 @@
           id: 'insulationLevel',
           type: 'cards',
           question: 'Hoe is de isolatie van de woning?',
-          hint: 'Bij slechte isolatie is een warmtepomp vaak minder efficiënt — we waarschuwen daarvoor.',
+          hint: 'Bij slechte isolatie is een warmtepomp vaak minder efficiënt, we waarschuwen daarvoor.',
           options: [
             { value: 'slecht', label: 'Slecht', desc: 'Weinig of geen isolatie.' },
             { value: 'matig', label: 'Matig', desc: 'Deels geïsoleerd.' },
