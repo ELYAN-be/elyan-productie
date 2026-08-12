@@ -74,130 +74,46 @@
     'Februari 2027': 6, 'Maart 2027': 7
   };
 
-  var TAXONOMY = {
-    dakwerken: {
-      label: 'Dakwerken',
-      plural: 'Dakwerkers',
-      img: IMAGES.hero,
-      pos: '50% 32%',
-      golden: true,
-      subtypes: [
-        { id: 'volledig', label: 'Volledige dakrenovatie' },
-        { id: 'hellend', label: 'Hellend dak' },
-        { id: 'plat', label: 'Plat dak' },
-        { id: 'bedekking', label: 'Dakbedekking' },
-        { id: 'isolatie', label: 'Dakisolatie' },
-        { id: 'herstelling', label: 'Dakherstelling / lekkage' },
-        { id: 'constructie', label: 'Dakconstructie / timmerwerk' },
-        { id: 'goten', label: 'Goten / afvoer' },
-        { id: 'dakvenster', label: 'Dakvensters' },
-        { id: 'schoorsteen', label: 'Schoorsteenwerken' }
-      ]
-    },
-    badkamer: {
-      label: 'Badkamer', plural: 'Badkamerspecialisten', tone: true,
-      subtypes: [
-        { id: 'volledig', label: 'Volledige badkamerrenovatie' },
-        { id: 'douche', label: 'Douche' },
-        { id: 'bad', label: 'Bad' },
-        { id: 'sanitair', label: 'Sanitair' },
-        { id: 'tegelwerken', label: 'Tegelwerken' },
-        { id: 'meubel', label: 'Badkamermeubel' },
-        { id: 'leidingen', label: 'Leidingwerken' }
-      ]
-    },
-    keuken: {
-      label: 'Keuken', plural: 'Keukenspecialisten', img: IMAGES.why, pos: '50% 60%',
-      subtypes: [
-        { id: 'volledig', label: 'Volledige keukenrenovatie' },
-        { id: 'plaatsing', label: 'Keukenplaatsing' },
-        { id: 'werkblad', label: 'Werkblad' },
-        { id: 'toestellen', label: 'Toestellen' },
-        { id: 'tegelwerk', label: 'Spatwand / tegelwerk' }
-      ]
-    },
-    'ramen-deuren': {
-      label: 'Ramen & deuren', plural: 'Ramen- & deurenspecialisten', tone: true,
-      subtypes: [
-        { id: 'ramen', label: 'Ramen vervangen' },
-        { id: 'deuren', label: 'Buitendeuren' },
-        { id: 'schuif', label: 'Schuiframen' },
-        { id: 'voordeur', label: 'Voordeur' },
-        { id: 'binnendeuren', label: 'Binnendeuren' }
-      ]
-    },
-    isolatie: {
-      label: 'Isolatie', plural: 'Isolatiespecialisten', tone: true,
-      subtypes: [
-        { id: 'dak', label: 'Dakisolatie' },
-        { id: 'zolder', label: 'Zoldervloerisolatie' },
-        { id: 'muur', label: 'Muurisolatie' },
-        { id: 'vloer', label: 'Vloerisolatie' },
-        { id: 'spouw', label: 'Spouwmuurisolatie' }
-      ]
-    },
-    verwarming: {
-      label: 'Verwarming', plural: 'Verwarmingsspecialisten', tone: true,
-      subtypes: [
-        { id: 'warmtepomp', label: 'Warmtepomp' },
-        { id: 'cv', label: 'CV-ketel' },
-        { id: 'vloerverwarming', label: 'Vloerverwarming' },
-        { id: 'radiatoren', label: 'Radiatoren' }
-      ]
-    },
-    elektriciteit: {
-      label: 'Elektriciteit', plural: 'Elektriciens', tone: true,
-      subtypes: [
-        { id: 'volledig', label: 'Volledige herbekabeling' },
-        { id: 'bord', label: 'Elektrisch bord' },
-        { id: 'stopcontacten', label: 'Stopcontacten & schakelaars' },
-        { id: 'laden', label: 'Laadpunt wagen' }
-      ]
-    },
-    gevel: {
-      label: 'Gevel', plural: 'Gevelspecialisten', img: IMAGES.about, pos: '50% 40%',
-      subtypes: [
-        { id: 'gevelrenovatie', label: 'Gevelrenovatie' },
-        { id: 'crepi', label: 'Crepi / sierpleister' },
-        { id: 'steenstrips', label: 'Steenstrips' },
-        { id: 'isolatie', label: 'Gevelisolatie' }
-      ]
-    },
-    vloeren: {
-      label: 'Vloeren', plural: 'Vloerspecialisten', img: IMAGES.editorial, pos: '40% 50%',
-      subtypes: [
-        { id: 'tegel', label: 'Tegelvloer' },
-        { id: 'parket', label: 'Parket' },
-        { id: 'laminaat', label: 'Laminaat / vinyl' },
-        { id: 'chape', label: 'Chape' }
-      ]
-    },
-    schilderwerken: {
-      label: 'Schilderwerken', plural: 'Schilders', tone: true,
-      subtypes: [
-        { id: 'binnen', label: 'Binnenschilderwerk' },
-        { id: 'buiten', label: 'Buitenschilderwerk' },
-        { id: 'lakwerk', label: 'Lakwerk' },
-        { id: 'behang', label: 'Behang' }
-      ]
-    },
-    ventilatie: {
-      label: 'Ventilatie', plural: 'Ventilatiespecialisten', tone: true,
-      subtypes: [
-        { id: 'd', label: 'Systeem D' },
-        { id: 'c', label: 'Systeem C' },
-        { id: 'renovatie', label: 'Renovatieventilatie' }
-      ]
-    },
-    zonnepanelen: {
-      label: 'Zonnepanelen', plural: 'Zonnepanelenpartners', tone: true,
-      subtypes: [
-        { id: 'installatie', label: 'Nieuwe installatie' },
-        { id: 'thuisbatterij', label: 'Thuisbatterij' },
-        { id: 'omvormer', label: 'Omvormer' }
-      ]
-    }
+  /* Category Intelligence v1 — schema-driven taxonomy */
+  var CI = (window.ElyanVakmannen && ElyanVakmannen.Intelligence) || null;
+  var OE = CI ? CI.PartnerOnboardingEngine : null;
+  var RE = CI ? CI.CustomerRequestEngine : null;
+  var PE = CI ? CI.PriceEngine : null;
+  var ME = CI ? CI.MatchingEngine : null;
+
+  var CAT_META = {
+    dakwerken: { img: IMAGES.hero, pos: '50% 32%', golden: true },
+    badkamer: { tone: true },
+    keuken: { img: IMAGES.why, pos: '50% 60%' },
+    'ramen-deuren': { tone: true },
+    isolatie: { tone: true },
+    verwarming: { tone: true },
+    elektriciteit: { tone: true },
+    gevel: { img: IMAGES.about, pos: '50% 40%' },
+    vloeren: { img: IMAGES.editorial, pos: '40% 50%' },
+    schilderwerken: { tone: true },
+    ventilatie: { tone: true },
+    zonnepanelen: { tone: true }
   };
+
+  var TAXONOMY = {};
+  if (CI && CI.CATEGORIES) {
+    Object.keys(CI.CATEGORIES).forEach(function (id) {
+      var c = CI.CATEGORIES[id];
+      var meta = CAT_META[id] || { tone: true };
+      TAXONOMY[id] = {
+        label: c.label,
+        plural: c.plural,
+        img: meta.img,
+        pos: meta.pos,
+        tone: meta.tone,
+        golden: !!meta.golden,
+        subtypes: c.services.map(function (s) {
+          return { id: s.id, label: s.label, sharedId: s.sharedId || null };
+        })
+      };
+    });
+  }
 
   var CATEGORIES = Object.keys(TAXONOMY).map(function (id) {
     var t = TAXONOMY[id];
@@ -440,14 +356,50 @@
     }
   ];
 
-  var ONBOARD_STEPS = [
-    'Bedrijf', 'Categorie', 'Specialisaties', 'Werkgebied',
-    'Prijzen', 'Beschikbaarheid', 'Google', 'Eigenheid', 'Foto’s', 'Controle'
+  /* Merge Category Intelligence QA seeds (fictional, non-dak) */
+  if (window.ElyanVakmannen && ElyanVakmannen.QA_SEED_PARTNERS) {
+    COMPANIES = COMPANIES.concat(ElyanVakmannen.QA_SEED_PARTNERS);
+  }
+
+  var ONBOARD_STEPS = (OE && OE.steps)
+    ? OE.steps.map(function (s) { return s.label; })
+    : ['Bedrijf', 'Werkgebied', 'Hoofdcategorie', 'Diensten', 'Projectvoorkeuren', 'Prijzen', 'Beschikbaarheid', 'Bedrijfseigenheid', 'Projectfoto’s', 'Google Reviews', 'Controle'];
+
+  function quoteStepsFor(categoryId) {
+    if (RE) return RE.getSteps(categoryId).map(function (s) { return s.label; });
+    return ['Type werk', 'Projectdetails', 'Timing', 'Foto’s', 'Budget', 'Contact', 'Overzicht'];
+  }
+
+  var START_MONTH_OPTIONS = [
+    'September 2026', 'Oktober 2026', 'November 2026', 'December 2026',
+    'Januari 2027', 'Februari 2027', 'Maart 2027', 'April 2027'
   ];
 
-  var QUOTE_STEPS_DAK = [
-    'Type werk', 'Over je dak', 'Uitvoering', 'Timing', 'Foto’s', 'Budget', 'Contact', 'Overzicht'
+  var AREA_MODES = [
+    { id: 'radius', label: 'Radius rond vestiging' },
+    { id: 'municipalities', label: 'Specifieke gemeenten' },
+    { id: 'provinces', label: 'Specifieke provincies' },
+    { id: 'flanders', label: 'Heel Vlaanderen' }
   ];
+
+  var VISIT_OPTS = (OE && OE.visitOptions) ? OE.visitOptions : [
+    { id: '2w', label: 'Binnen 2 weken', public: 'meestal binnen 7 tot 14 dagen' }
+  ];
+  var CAPACITY_OPTS = (OE && OE.capacityOptions) ? OE.capacityOptions : [
+    { id: 'available', label: 'Nieuwe projecten mogelijk' },
+    { id: 'limited', label: 'Beperkt beschikbaar' },
+    { id: 'full', label: 'Momenteel volzet' }
+  ];
+  var DECLINE_OPTS = (RE && RE.declineReasons) ? RE.declineReasons : [
+    { id: 'planning', label: 'Planning' },
+    { id: 'outside_area', label: 'Buiten werkgebied' },
+    { id: 'project_type', label: 'Type project' },
+    { id: 'project_size', label: 'Projectomvang' },
+    { id: 'budget', label: 'Budget' },
+    { id: 'capacity', label: 'Capaciteit' },
+    { id: 'other', label: 'Andere reden' }
+  ];
+  var IDENTITY_QS = (OE && OE.identityQuestions) ? OE.identityQuestions : [];
 
   var state = {
     view: 'discover',
@@ -466,69 +418,94 @@
     activeCompanyId: 'atelier-dak',
     quote: {
       step: 0,
+      category: 'dakwerken',
       partnerIds: ['atelier-dak'],
+      service: 'volledig',
       workType: 'volledig',
-      roofType: 'hellend',
-      area: '120',
+      answers: {},
+      roofType: '',
+      area: '',
       areaUnknown: false,
-      covering: 'pannen',
+      covering: '',
       coveringUnknown: false,
-      insulation: 'weet-niet',
-      condition: 'verouderd',
-      wants: ['bedekking', 'isolatie'],
+      insulation: '',
+      condition: '',
+      wants: [],
       timing: '3m',
-      timingMonth: 'November 2026',
+      timingMonth: '',
       photos: 0,
       hasBudget: 'nee',
       budgetFrom: '',
       budgetTo: '',
-      name: 'Demo Klant',
-      email: 'demo.klant@example.be',
-      phone: '+32 470 00 00 00',
-      address: 'Antwerpen',
-      sent: false
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      sent: false,
+      customerInterestNote: null
     },
     partnerMode: 'onboarding',
     partnerPanel: 'overzicht',
     onboardStep: 0,
     onboard: {
-      companyName: 'Atelier Dak Antwerpen',
-      vat: 'BE 0999.000.111 (demo)',
-      contact: 'Jan Peeters',
-      website: 'https://demo.elyan.be/atelier-dak',
-      phone: '+32 3 111 22 33',
-      email: 'atelier.demo@elyan.demo',
-      address: 'Antwerpen',
-      primaryCategory: 'dakwerken',
-      subtypes: ['volledig', 'hellend', 'isolatie'],
-      area: 'Antwerpen + 25 km',
-      years: '12',
-      teamSize: '6–10',
-      priceModel: 'm2-range',
-      priceFrom: '160',
-      priceTo: '230',
-      isolFrom: '45',
-      isolTo: '75',
-      repairFrom: '350',
-      material: 'Meestal inbegrepen',
+      companyName: '',
+      tradeName: '',
+      vat: '',
+      btw: '',
+      contact: '',
+      contactRole: '',
+      website: '',
+      phone: '',
+      email: '',
+      address: '',
+      areaMode: 'radius',
+      area: '',
+      areaExclude: '',
+      primaryCategory: '',
+      subtypes: [],
+      conditionalAnswers: {},
+      projectTypes: [],
+      coordination: '',
+      businessType: '',
+      design: [],
+      materials: [],
+      glazing: [],
+      systems: [],
+      floors: [],
+      finishes: [],
+      scope: [],
+      roofTypes: [],
+      showroom: '',
+      yearsActive: '',
+      strength: '',
+      prefer: '',
+      avoid: '',
+      care: '',
+      whyChoose: '',
+      materialsText: '',
+      mustKnow: '',
+      prices: {},
+      priceModel: 'price_range',
+      priceFrom: '',
+      priceTo: '',
+      isolFrom: '',
+      isolTo: '',
+      repairFrom: '',
+      material: '',
       vatBasis: 'Exclusief',
-      minProject: '8500',
+      minProject: '',
       capacity: 'Beperkt beschikbaar',
-      startMonth: 'Oktober 2026',
-      visitSpeed: '7 tot 14 dagen',
-      hasGoogle: 'Ja',
-      googleQuery: 'Atelier Dak Antwerpen',
-      googleConsent: true,
-      strength: 'Hellende daken met nette afwerking',
-      prefer: 'Gezinswoningen en kwaliteitsrenovaties',
-      avoid: 'Spoedwerken zonder opmeting',
-      materials: 'Keramische pannen, isolatiepakketten',
-      values: 'Duidelijke planning en nette werf',
-      differ: 'Aandacht voor details en oplevering',
-      guarantees: 'Uitvoeringsgarantie volgens offerte',
-      certificates: 'Geen aparte demo-certificaten'
+      capacityId: 'limited',
+      startMonth: '',
+      visitSpeed: '2w',
+      visitExtra: [],
+      hasGoogle: '',
+      googleQuery: '',
+      googleConsent: false,
+      googlePlaceId: ''
     },
-    partnerStatus: 'Wordt bekeken',
+    partnerStatus: 'Ingediend',
+    customerNotices: [],
     photos: [
       { id: 1, title: 'Hellend dak Berchem', partner: 'Ingediend', elyan: 'Ter controle', img: IMAGES.hero },
       { id: 2, title: 'Detail nokafwerking', partner: 'Concept', elyan: '-', img: IMAGES.editorial },
@@ -537,6 +514,7 @@
     requests: [
       {
         id: 'a1',
+        category: 'dakwerken',
         title: 'Volledige dakrenovatie',
         location: 'Antwerpen',
         size: '±120 m²',
@@ -546,10 +524,12 @@
         budget: '€ 18.000 – € 24.000',
         wishes: 'Nieuwe dakbedekking + isolatie',
         photos: 3,
-        status: 'nieuw'
+        status: 'new',
+        customerVisible: false
       },
       {
         id: 'a2',
+        category: 'dakwerken',
         title: 'Plat dak',
         location: 'Berchem',
         size: '65 m²',
@@ -559,10 +539,12 @@
         budget: 'niet opgegeven',
         wishes: 'EPDM vervangen',
         photos: 1,
-        status: 'nieuw'
+        status: 'new',
+        customerVisible: false
       },
       {
         id: 'a3',
+        category: 'dakwerken',
         title: 'Dakisolatie',
         location: 'Schoten',
         size: 'zoldervloer',
@@ -572,7 +554,10 @@
         budget: '€ 4.500 – € 7.000',
         wishes: 'Comfort verbeteren',
         photos: 0,
-        status: 'interessant'
+        status: 'interested',
+        interestedAt: '2026-08-10T10:00:00.000Z',
+        customerVisible: true,
+        customerMessage: 'Deze vakman heeft interesse.'
       }
     ],
     priceChange: {
@@ -663,9 +648,62 @@
     });
     return starts.concat(posts).slice(0, 7);
   }
-  function field(label, key, value, type) {
+  function field(label, key, value, type, placeholder) {
     return '<label class="lab-field">' + escapeHtml(label) +
-      '<input data-onboard-field="' + key + '" type="' + (type || 'text') + '" value="' + escapeHtml(value == null ? '' : value) + '"></label>';
+      '<input data-onboard-field="' + key + '" type="' + (type || 'text') + '" value="' + escapeHtml(value == null ? '' : value) + '"' +
+      (placeholder ? ' placeholder="' + escapeHtml(placeholder) + '"' : '') + '></label>';
+  }
+  function selectField(label, key, value, options) {
+    return '<label class="lab-field">' + escapeHtml(label) +
+      '<select data-onboard-field="' + key + '">' +
+      options.map(function (opt) {
+        var id = typeof opt === 'string' ? opt : opt.id;
+        var lab = typeof opt === 'string' ? opt : opt.label;
+        return '<option value="' + escapeHtml(id) + '"' + (value === id ? ' selected' : '') + '>' + escapeHtml(lab) + '</option>';
+      }).join('') +
+      '</select></label>';
+  }
+  function choiceMulti(arr, id, label, attr) {
+    attr = attr || 'data-toggle-subtype';
+    return '<button type="button" class="lab-choice' + ((arr || []).indexOf(id) >= 0 ? ' is-selected' : '') + '" ' + attr + '="' + escapeHtml(id) + '">' + escapeHtml(label) + '</button>';
+  }
+  function renderQuestionBlock(questions, answers, mode) {
+    answers = answers || {};
+    mode = mode || 'onboard';
+    var singleAttr = mode === 'quote' ? 'data-quote-answer-single' : 'data-answer-single';
+    var multiAttr = mode === 'quote' ? 'data-quote-answer-multi' : 'data-answer-multi';
+    var fieldAttr = mode === 'quote' ? 'data-quote-answer-field' : 'data-onboard-field';
+    return (questions || []).map(function (qq) {
+      if (qq.type === 'info') {
+        return '<p class="lab-hint" style="margin:10px 0;">' + escapeHtml(qq.label) + '</p>';
+      }
+      if (qq.type === 'multi') {
+        var selected = answers[qq.key] || [];
+        if (!Array.isArray(selected)) selected = [];
+        return '<p class="lab-hint" style="margin:14px 0 8px;">' + escapeHtml(qq.label) + '</p><div class="lab-choice-grid is-2">' +
+          (qq.options || []).map(function (opt) {
+            var oid = typeof opt === 'string' ? opt : opt.id;
+            var olab = typeof opt === 'string' ? opt : opt.label;
+            return '<button type="button" class="lab-choice' + (selected.indexOf(oid) >= 0 ? ' is-selected' : '') + '" ' + multiAttr + '="' + escapeHtml(qq.key) + '" data-val="' + escapeHtml(oid) + '">' + escapeHtml(olab) + '</button>';
+          }).join('') + '</div>';
+      }
+      if (qq.type === 'single' || qq.type === 'select') {
+        var cur = answers[qq.key] || '';
+        return '<p class="lab-hint" style="margin:14px 0 8px;">' + escapeHtml(qq.label) + '</p><div class="lab-choice-grid is-2">' +
+          (qq.options || []).map(function (opt) {
+            var oid = typeof opt === 'string' ? opt : opt.id;
+            var olab = typeof opt === 'string' ? opt : opt.label;
+            return '<button type="button" class="lab-choice' + (cur === oid ? ' is-selected' : '') + '" ' + singleAttr + '="' + escapeHtml(qq.key) + '" data-val="' + escapeHtml(oid) + '">' + escapeHtml(olab) + '</button>';
+          }).join('') + '</div>';
+      }
+      if (qq.type === 'number' || qq.type === 'text') {
+        return '<label class="lab-field">' + escapeHtml(qq.label) +
+          '<input ' + fieldAttr + '="' + escapeHtml(qq.key) + '" type="' + (qq.type === 'number' ? 'number' : 'text') + '" value="' + escapeHtml(answers[qq.key] == null ? '' : answers[qq.key]) + '"' +
+          (qq.placeholder ? ' placeholder="' + escapeHtml(qq.placeholder) + '"' : '') + '></label>' +
+          (qq.allowUnknown ? '<button type="button" class="lab-choice' + (answers[qq.key + 'Unknown'] ? ' is-selected' : '') + '" ' + singleAttr + '="' + escapeHtml(qq.key + 'Unknown') + '" data-val="1">Ik weet het niet</button>' : '');
+      }
+      return '';
+    }).join('');
   }
   function fact(label, value) {
     return '<div class="lab-fact"><span>' + escapeHtml(label) + '</span><strong>' + escapeHtml(value) + '</strong></div>';
@@ -694,10 +732,16 @@
     setView('profile');
   }
   function openQuote(partnerId) {
+    var partner = companyById(partnerId || state.activeCompanyId);
     state.quote.sent = false;
     state.quote.step = 0;
-    state.quote.partnerIds = [partnerId || state.activeCompanyId];
-    state.activeCompanyId = state.quote.partnerIds[0];
+    state.quote.partnerIds = [partner.id];
+    state.quote.category = partner.category || state.category;
+    state.quote.service = (partner.subtypes && partner.subtypes[0]) || '';
+    state.quote.workType = state.quote.service;
+    state.quote.answers = {};
+    state.quote.wants = [];
+    state.activeCompanyId = partner.id;
     setView('quote');
   }
   function openLightbox(src) {
@@ -862,10 +906,8 @@
   function renderDiscoverResults() {
     var list = filteredCompanies();
     var empty = '';
-    if (state.category !== 'dakwerken') {
-      empty = '<div class="lab-empty">Demo toont momenteel dakbedrijven als golden standard. Filters voor <strong>' + escapeHtml(catLabel(state.category)) + '</strong> werken al categorie-afhankelijk. Kies Dakwerken om resultaten te vergelijken.</div>';
-    } else if (!list.length) {
-      empty = '<div class="lab-empty">Geen resultaten voor deze filters. Pas timing of type werk aan.</div>';
+    if (!list.length) {
+      empty = '<div class="lab-empty">Geen resultaten voor deze filters. Pas timing, type werk of regio aan.</div>';
     }
 
     return (
@@ -875,7 +917,8 @@
           '<h1>' + escapeHtml(pluralLabel(state.category)) + ' rond ' + escapeHtml(state.location.name) + '</h1>' +
           '<p class="lab-hint">' + escapeHtml(state.location.postcode) + ' · ' + escapeHtml(state.location.province) +
             (state.subtype !== 'alle' ? ' · ' + escapeHtml(subtypeLabel(state.category, state.subtype)) : '') +
-            ' · Fictieve demoresultaten</p>' +
+            ' · Fictieve demoresultaten' +
+            (state.category !== 'dakwerken' ? ' · QA-seedprofiel' : '') + '</p>' +
         '</div>' +
         '<div class="lab-mobile-filters"><button type="button" class="btn btn-ghost btn-sm" id="toggleFilters">Filters</button></div>' +
         '<div class="lab-results-layout">' +
@@ -920,9 +963,14 @@
           '<div class="lab-identity-visual"><img src="' + c.image + '" alt="" style="object-position:' + c.objectPos + '"></div>' +
           '<div>' +
             '<p class="lab-kicker">ELYAN vakman</p>' +
-            '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
+            '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span>' +
+              (c.demo ? '<span class="lab-chip is-warm">Demo QA</span>' : '') +
+            '</div>' +
             '<h1>' + escapeHtml(c.name) + '</h1>' +
             starsHtml(c.google.rating, c.google.count) +
+            (state.customerNotices.length
+              ? '<p class="lab-toast" style="display:block;margin-top:10px;">' + escapeHtml(state.customerNotices[state.customerNotices.length - 1]) + '</p>'
+              : '') +
           '</div>' +
           '<div class="lab-identity-actions">' +
             '<button type="button" class="btn btn-primary" data-open-quote="' + c.id + '">Offerte aanvragen</button>' +
@@ -1008,16 +1056,25 @@
       '</div>';
   }
 
-  /* ========== QUOTE FLOW ========== */
+  /* ========== QUOTE FLOW (CustomerRequestEngine) ========== */
   function renderQuote() {
     var host = $('#view-quote');
     if (!host) return;
     var q = state.quote;
     var partner = companyById(q.partnerIds[0]);
-    var steps = QUOTE_STEPS_DAK;
+    var catId = q.category || partner.category || 'dakwerken';
+    var steps = quoteStepsFor(catId);
     var progress = steps.map(function (_, i) {
       return '<span class="' + (i < q.step ? 'is-done' : (i === q.step ? 'is-current' : '')) + '"></span>';
     }).join('');
+    var services = RE ? RE.getServiceOptions(catId) : tax(catId).subtypes;
+    var detailQs = RE ? RE.getDetailQuestions(catId) : [];
+    var match = ME ? ME.evaluate(partner, {
+      category: catId,
+      service: q.service || q.workType,
+      timing: q.timing,
+      budgetMax: q.hasBudget === 'ja' ? Number(q.budgetTo || 0) : null
+    }) : null;
 
     if (q.sent) {
       host.innerHTML =
@@ -1026,7 +1083,8 @@
           '<p class="lab-kicker">Aanvraag verzonden</p>' +
           '<h1>Je aanvraag is doorgestuurd.</h1>' +
           '<p class="lab-hint">' + escapeHtml(partner.name) + ' heeft je projectgegevens ontvangen. Je krijgt bericht zodra er een reactie is.</p>' +
-          '<p class="lab-hint" style="margin-top:10px;">Demo: er werd niets echt verzonden. Later: opvolging via beveiligde link.</p>' +
+          (match ? '<p class="lab-hint" style="margin-top:8px;">Matching: ' + escapeHtml(match.label) + '</p>' : '') +
+          '<p class="lab-hint" style="margin-top:10px;">Demo: er werd niets echt verzonden.</p>' +
           '<div class="lab-quote-actions" style="justify-content:center;">' +
             '<button type="button" class="btn btn-primary" data-open-profile="' + partner.id + '">Terug naar profiel</button>' +
             '<button type="button" class="btn btn-ghost" data-lab-view-jump="discover">Verder ontdekken</button>' +
@@ -1036,44 +1094,29 @@
     }
 
     var body = '';
-    if (q.step === 0) {
-      body = '<h1>Wat wil je laten uitvoeren?</h1><p class="step-lead">Kies het type dakwerk dat het best past.</p><div class="lab-choice-grid is-2">' +
-        tax('dakwerken').subtypes.map(function (s) {
-          return '<button type="button" class="lab-choice' + (q.workType === s.id ? ' is-selected' : '') + '" data-quote-set="workType" data-val="' + s.id + '">' + escapeHtml(s.label) + '</button>';
+    var stepId = (RE && RE.getSteps(catId)[q.step]) ? RE.getSteps(catId)[q.step].id : String(q.step);
+
+    if (stepId === 'service' || q.step === 0) {
+      body = '<h1>Wat wil je laten uitvoeren?</h1><p class="step-lead">Kies het type werk dat het best past bij ' + escapeHtml(catLabel(catId)) + '.</p><div class="lab-choice-grid is-2">' +
+        services.map(function (s) {
+          var sid = s.id;
+          return '<button type="button" class="lab-choice' + ((q.service || q.workType) === sid ? ' is-selected' : '') + '" data-quote-set="service" data-val="' + sid + '">' + escapeHtml(s.label) + '</button>';
         }).join('') + '</div>';
-    } else if (q.step === 1) {
-      body = '<h1>Vertel ons iets over je dak.</h1><p class="step-lead">Weet je iets niet zeker? Dat is geen probleem.</p>' +
-        '<p class="lab-hint" style="margin-bottom:8px;">Type dak</p><div class="lab-choice-grid is-3">' +
-        [['hellend', 'Hellend'], ['plat', 'Plat'], ['weet-niet', 'Ik weet het niet']].map(function (o) {
-          return '<button type="button" class="lab-choice' + (q.roofType === o[0] ? ' is-selected' : '') + '" data-quote-set="roofType" data-val="' + o[0] + '">' + o[1] + '</button>';
-        }).join('') + '</div>' +
-        '<label class="lab-field">Geschatte oppervlakte (m²)<input data-quote-field="area" type="text" value="' + escapeHtml(q.area) + '" ' + (q.areaUnknown ? 'disabled' : '') + '></label>' +
-        '<button type="button" class="lab-choice' + (q.areaUnknown ? ' is-selected' : '') + '" data-quote-toggle="areaUnknown">Ik weet het niet</button>' +
-        '<p class="lab-hint" style="margin:14px 0 8px;">Huidige bedekking</p><div class="lab-choice-grid is-2">' +
-        [['pannen', 'Pannen'], ['leien', 'Leien'], ['epdm', 'EPDM / plat'], ['weet-niet', 'Ik weet het niet']].map(function (o) {
-          return '<button type="button" class="lab-choice' + (q.covering === o[0] ? ' is-selected' : '') + '" data-quote-set="covering" data-val="' + o[0] + '">' + o[1] + '</button>';
-        }).join('') + '</div>' +
-        '<p class="lab-hint" style="margin:14px 0 8px;">Isolatie aanwezig?</p><div class="lab-choice-grid is-3">' +
-        [['ja', 'Ja'], ['nee', 'Nee'], ['weet-niet', 'Ik weet het niet']].map(function (o) {
-          return '<button type="button" class="lab-choice' + (q.insulation === o[0] ? ' is-selected' : '') + '" data-quote-set="insulation" data-val="' + o[0] + '">' + o[1] + '</button>';
-        }).join('') + '</div>';
-    } else if (q.step === 2) {
-      body = '<h1>Wat wil je precies laten uitvoeren?</h1><p class="step-lead">Meerdere opties mogelijk.</p><div class="lab-choice-grid is-2">' +
-        [['bedekking', 'Nieuwe dakbedekking'], ['isolatie', 'Isolatie verbeteren'], ['constructie', 'Constructie / timmerwerk'], ['goten', 'Goten / afvoer'], ['dakvenster', 'Dakvenster'], ['herstelling', 'Herstelling / lekkage']].map(function (o) {
-          return '<button type="button" class="lab-choice' + (q.wants.indexOf(o[0]) >= 0 ? ' is-selected' : '') + '" data-quote-want="' + o[0] + '">' + o[1] + '</button>';
-        }).join('') + '</div>';
-    } else if (q.step === 3) {
+    } else if (stepId === 'details') {
+      body = '<h1>Projectdetails</h1><p class="step-lead">Weet je iets niet zeker? Kies “Ik weet het niet”.</p>' +
+        renderQuestionBlock(detailQs, q.answers, 'quote');
+    } else if (stepId === 'timing') {
       body = '<h1>Wanneer wil je starten?</h1><p class="step-lead">Zo kunnen we timing afstemmen op de vakman.</p><div class="lab-choice-grid is-2">' +
         [['asap', 'Zo snel mogelijk'], ['1m', 'Binnen 1 maand'], ['3m', 'Binnen 3 maanden'], ['6m', 'Binnen 6 maanden'], ['flex', 'Flexibel']].map(function (o) {
           return '<button type="button" class="lab-choice' + (q.timing === o[0] ? ' is-selected' : '') + '" data-quote-set="timing" data-val="' + o[0] + '">' + o[1] + '</button>';
         }).join('') + '</div>' +
-        field('Gewenste periode (optioneel)', 'timingMonth', q.timingMonth).replace('data-onboard-field', 'data-quote-field');
-    } else if (q.step === 4) {
-      body = '<h1>Projectfoto’s</h1><p class="step-lead">Optioneel, maar helpt de vakman. Demo: kies hoeveel foto’s je zou toevoegen.</p><div class="lab-choice-grid is-3">' +
+        selectField('Gewenste periode (optioneel)', 'timingMonth', q.timingMonth, [''].concat(START_MONTH_OPTIONS)).replace('data-onboard-field', 'data-quote-field');
+    } else if (stepId === 'photos') {
+      body = '<h1>Projectfoto’s</h1><p class="step-lead">Optioneel. Demo: kies hoeveel foto’s je zou toevoegen.</p><div class="lab-choice-grid is-3">' +
         [0, 1, 2, 3].map(function (n) {
           return '<button type="button" class="lab-choice' + (q.photos === n ? ' is-selected' : '') + '" data-quote-set="photos" data-val="' + n + '">' + (n === 0 ? 'Geen foto’s' : n + ' foto’s') + '</button>';
         }).join('') + '</div>';
-    } else if (q.step === 5) {
+    } else if (stepId === 'budget') {
       body = '<h1>Heb je al een budget in gedachten?</h1><p class="step-lead">Optioneel. Geen druk, wel nuttig voor matching.</p><div class="lab-choice-grid is-2">' +
         [['nee', 'Nee'], ['ja', 'Ja']].map(function (o) {
           return '<button type="button" class="lab-choice' + (q.hasBudget === o[0] ? ' is-selected' : '') + '" data-quote-set="hasBudget" data-val="' + o[0] + '">' + o[1] + '</button>';
@@ -1083,30 +1126,36 @@
             '<label class="lab-field">Van (€)<input data-quote-field="budgetFrom" type="number" value="' + escapeHtml(q.budgetFrom) + '"></label>' +
             '<label class="lab-field">Tot (€)<input data-quote-field="budgetTo" type="number" value="' + escapeHtml(q.budgetTo) + '"></label></div>'
           : '');
-    } else if (q.step === 6) {
+    } else if (stepId === 'contact') {
       body = '<h1>Jouw gegevens</h1><p class="step-lead">Zodat de vakman je kan bereiken.</p>' +
-        '<label class="lab-field">Naam<input data-quote-field="name" value="' + escapeHtml(q.name) + '"></label>' +
-        '<label class="lab-field">E-mail<input data-quote-field="email" type="email" value="' + escapeHtml(q.email) + '"></label>' +
-        '<label class="lab-field">Telefoon<input data-quote-field="phone" value="' + escapeHtml(q.phone) + '"></label>' +
-        '<label class="lab-field">Projectlocatie<input data-quote-field="address" value="' + escapeHtml(q.address) + '"></label>';
+        '<label class="lab-field">Naam<input data-quote-field="name" value="' + escapeHtml(q.name) + '" placeholder="Voor- en achternaam"></label>' +
+        '<label class="lab-field">E-mail<input data-quote-field="email" type="email" value="' + escapeHtml(q.email) + '" placeholder="naam@email.be"></label>' +
+        '<label class="lab-field">Telefoon<input data-quote-field="phone" value="' + escapeHtml(q.phone) + '" placeholder="+32 …"></label>' +
+        '<label class="lab-field">Projectlocatie<input data-quote-field="address" value="' + escapeHtml(q.address) + '" placeholder="Gemeente"></label>';
     } else {
+      var answerSummary = Object.keys(q.answers || {}).map(function (k) {
+        var v = q.answers[k];
+        if (Array.isArray(v)) v = v.join(', ');
+        return '<div class="lab-summary-row"><span>' + escapeHtml(k) + '</span><strong>' + escapeHtml(String(v || '—')) + '</strong></div>';
+      }).join('');
       body = '<h1>Jouw aanvraag</h1><p class="step-lead">Controleer kort vóór verzenden.</p>' +
         '<div class="lab-summary">' +
-          '<div class="lab-summary-row"><span>Werk</span><strong>' + escapeHtml(subtypeLabel('dakwerken', q.workType)) + '</strong></div>' +
-          '<div class="lab-summary-row"><span>Dak</span><strong>' + escapeHtml(q.roofType) + (q.areaUnknown ? '' : ' · ±' + escapeHtml(q.area) + ' m²') + '</strong></div>' +
-          '<div class="lab-summary-row"><span>Locatie</span><strong>' + escapeHtml(q.address) + '</strong></div>' +
+          '<div class="lab-summary-row"><span>Categorie</span><strong>' + escapeHtml(catLabel(catId)) + '</strong></div>' +
+          '<div class="lab-summary-row"><span>Werk</span><strong>' + escapeHtml(subtypeLabel(catId, q.service || q.workType)) + '</strong></div>' +
+          answerSummary +
+          '<div class="lab-summary-row"><span>Locatie</span><strong>' + escapeHtml(q.address || '—') + '</strong></div>' +
           '<div class="lab-summary-row"><span>Start</span><strong>' + escapeHtml(q.timingMonth || customerTimingWishLabel()) + '</strong></div>' +
           '<div class="lab-summary-row"><span>Foto’s</span><strong>' + q.photos + '</strong></div>' +
           '<div class="lab-summary-row"><span>Naar</span><strong>' + escapeHtml(partner.name) + '</strong></div>' +
-        '</div>' +
-        '<p class="lab-hint">Architectuur ondersteunt later tot 3 zelfgekozen vakmannen. Demo: één partner.</p>';
+          (match ? '<div class="lab-summary-row"><span>Matching</span><strong>' + escapeHtml(match.label) + '</strong></div>' : '') +
+        '</div>';
     }
 
     host.innerHTML =
       '<div class="lab-quote"><div class="lab-quote-shell">' +
         '<button type="button" class="lab-link" data-open-profile="' + partner.id + '" style="margin-bottom:12px;">← Terug naar profiel</button>' +
         '<div class="lab-quote-progress">' + progress + '</div>' +
-        '<p class="lab-kicker">Offerteaanvraag · ' + escapeHtml(partner.name) + '</p>' +
+        '<p class="lab-kicker">Offerteaanvraag · ' + escapeHtml(partner.name) + ' · ' + escapeHtml(catLabel(catId)) + '</p>' +
         '<div class="lab-quote-card">' + body +
           '<div class="lab-quote-actions">' +
             (q.step > 0 ? '<button type="button" class="btn btn-ghost" id="quoteBack">Terug</button>' : '') +
@@ -1118,106 +1167,137 @@
       '</div></div>';
   }
 
-  /* ========== PARTNER ========== */
+  /* ========== PARTNER ONBOARDING (PartnerOnboardingEngine) ========== */
   function renderOnboarding() {
     var step = state.onboardStep;
     var o = state.onboard;
-    var cat = o.primaryCategory || 'dakwerken';
-    var t = tax(cat);
+    var cat = o.primaryCategory || '';
+    var t = cat ? tax(cat) : null;
     var progress = ONBOARD_STEPS.map(function (_, i) {
       return '<span class="' + (i < step ? 'is-done' : (i === step ? 'is-current' : '')) + '"></span>';
     }).join('');
+    var stepId = (OE && OE.steps[step]) ? OE.steps[step].id : String(step);
     var body = '';
+    var conditionals = (OE && cat) ? OE.getConditionalsForSelected(cat, o.subtypes || []) : [];
+    var extras = (OE && cat) ? OE.getOnboardExtras(cat) : [];
 
-    if (step === 0) {
-      body = '<h1>Bedrijfsgegevens</h1><p class="step-lead">Basisinfo. ELYAN bouwt hier later je presentatie mee.</p>' +
-        field('Bedrijfsnaam', 'companyName', o.companyName) +
-        field('Ondernemingsnummer', 'vat', o.vat) +
-        field('Contactpersoon', 'contact', o.contact) +
-        field('E-mail', 'email', o.email) +
-        field('Telefoon', 'phone', o.phone) +
-        field('Website', 'website', o.website) +
-        field('Vestigingsadres', 'address', o.address);
-    } else if (step === 1) {
-      body = '<h1>Hoofdcategorie</h1><p class="step-lead">Eén primaire categorie. Vragen volgen hieruit.</p><div class="lab-choice-grid is-3">' +
+    if (stepId === 'bedrijf') {
+      body = '<h1>Bedrijfsgegevens</h1><p class="step-lead">Basisinfo. Geen vrij tekstveld “beschrijf je bedrijf”.</p>' +
+        field('Officiële bedrijfsnaam', 'companyName', o.companyName, 'text', 'Bv. BV Dakwerken Voorbeeld') +
+        field('Handelsnaam (indien anders)', 'tradeName', o.tradeName, 'text', 'Optioneel') +
+        field('Ondernemingsnummer', 'vat', o.vat, 'text', 'BE 0XXX.XXX.XXX') +
+        field('Btw-nummer (indien afwijkend)', 'btw', o.btw, 'text', 'Optioneel') +
+        field('Website', 'website', o.website, 'url', 'https://') +
+        field('Zakelijk e-mailadres', 'email', o.email, 'email', 'info@bedrijf.be') +
+        field('Telefoon', 'phone', o.phone, 'tel', '+32 …') +
+        field('Contactpersoon', 'contact', o.contact, 'text', 'Voornaam Achternaam') +
+        field('Rol / functie contactpersoon', 'contactRole', o.contactRole, 'text', 'Zaakvoerder, projectleider…');
+    } else if (stepId === 'werkgebied') {
+      body = '<h1>Werkgebied</h1><p class="step-lead">Structuur voor matching. Publiek tonen we een eenvoudige tekst.</p>' +
+        field('Vestigingsgemeente / postcode', 'address', o.address, 'text', 'Typ een gemeente…') +
+        '<p class="lab-hint" style="margin:12px 0 8px;">Hoe werken jullie het werkgebied?</p><div class="lab-choice-grid is-2">' +
+        AREA_MODES.map(function (m) {
+          return '<button type="button" class="lab-choice' + (o.areaMode === m.id ? ' is-selected' : '') + '" data-set-extra="areaMode" data-extra-val="' + m.id + '">' + escapeHtml(m.label) + '</button>';
+        }).join('') + '</div>' +
+        field(o.areaMode === 'radius' ? 'Radius (publieke tekst)' : 'Werkgebied (publieke tekst)', 'area', o.area, 'text',
+          o.areaMode === 'flanders' ? 'Heel Vlaanderen' : 'Bv. Antwerpen + 25 km') +
+        field('Uitsluitingsgebieden (optioneel)', 'areaExclude', o.areaExclude, 'text', 'Bv. kustgemeenten');
+    } else if (stepId === 'categorie') {
+      body = '<h1>Hoofdcategorie</h1><p class="step-lead">Eén primaire categorie. Alle vervolgvragen volgen hieruit.</p><div class="lab-choice-grid is-3">' +
         CATEGORIES.map(function (c) {
           return '<button type="button" class="lab-choice' + (cat === c.id ? ' is-selected' : '') + '" data-primary-cat="' + c.id + '">' + escapeHtml(c.label) + '</button>';
-        }).join('') + '</div>' +
-        (!t.golden ? '<p class="lab-hint">Dakwerken is de volledig uitgewerkte golden standard. Andere categorieën hebben architectuur, zonder ongevalideerde detaillering.</p>' : '');
-    } else if (step === 2) {
-      body = '<h1>Welke werken voeren jullie uit?</h1><p class="step-lead">' + escapeHtml(t.label) + ': selecteer wat jullie effectief doen.</p><div class="lab-choice-grid is-2">' +
-        t.subtypes.map(function (s) {
-          return '<button type="button" class="lab-choice' + (o.subtypes.indexOf(s.id) >= 0 ? ' is-selected' : '') + '" data-toggle-subtype="' + s.id + '">' + escapeHtml(s.label) + '</button>';
         }).join('') + '</div>';
-    } else if (step === 3) {
-      body = '<h1>Werkgebied</h1><p class="step-lead">Kernregio zodat klanten relevante partners zien.</p>' +
-        field('Werkgebied', 'area', o.area) +
-        field('Jaren actief', 'years', o.years) +
-        field('Teamgrootte', 'teamSize', o.teamSize);
-    } else if (step === 4) {
-      if (cat === 'dakwerken') {
-        body = '<h1>Prijzen · Dakwerken</h1><p class="step-lead">Alleen relevante diensten. Geen geforceerd universeel model.</p>' +
-          '<p class="lab-hint">Volledige dakrenovatie (€/m²)</p>' +
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
-          field('Van', 'priceFrom', o.priceFrom, 'number') + field('Tot', 'priceTo', o.priceTo, 'number') + '</div>' +
-          '<p class="lab-hint">Dakisolatie (€/m²)</p>' +
-          '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
-          field('Van', 'isolFrom', o.isolFrom, 'number') + field('Tot', 'isolTo', o.isolTo, 'number') + '</div>' +
-          field('Kleine herstelling vanaf (€)', 'repairFrom', o.repairFrom, 'number') +
-          field('Projectminimum (€)', 'minProject', o.minProject, 'number') +
-          field('Materiaal / scope-nota', 'material', o.material) +
-          field('Btw-basis', 'vatBasis', o.vatBasis);
+    } else if (stepId === 'diensten') {
+      if (!cat) {
+        body = '<h1>Diensten</h1><p class="lab-hint">Kies eerst een hoofdcategorie.</p>';
       } else {
-        body = '<h1>Prijzen</h1><p class="lab-hint">Voor deze categorie volgt een gevalideerd prijsmodel later. Demo-placeholder.</p>' +
-          field('Richtprijs van (€)', 'priceFrom', o.priceFrom, 'number') +
-          field('Richtprijs tot (€)', 'priceTo', o.priceTo, 'number');
+        body = '<h1>Welke werken voeren jullie uit?</h1><p class="step-lead">' + escapeHtml(t.label) + ': selecteer wat jullie effectief doen.</p><div class="lab-choice-grid is-2">' +
+          t.subtypes.map(function (s) {
+            return choiceMulti(o.subtypes, s.id, s.label + (s.sharedId ? ' · shared' : ''), 'data-toggle-subtype');
+          }).join('') + '</div>' +
+          (conditionals.length ? '<h2 style="font-size:1rem;margin:18px 0 8px;">Verfijning</h2>' + renderQuestionBlock(conditionals, o.conditionalAnswers, 'onboard') : '');
       }
-    } else if (step === 5) {
-      body = '<h1>Beschikbaarheid</h1><p class="step-lead">Wanneer kunnen jullie starten? Klanten zien eerste mogelijkheid, geen “volzet”-filter.</p><div class="lab-seg">' +
-        ['Nieuwe projecten mogelijk', 'Beperkt beschikbaar', 'Momenteel volzet'].map(function (m) {
-          return '<button type="button" class="' + (o.capacity === m ? 'is-active' : '') + '" data-capacity="' + escapeHtml(m) + '">' + escapeHtml(m) + '</button>';
+    } else if (stepId === 'voorkeuren') {
+      if (!cat) {
+        body = '<h1>Projectvoorkeuren</h1><p class="lab-hint">Kies eerst een hoofdcategorie.</p>';
+      } else {
+        body = '<h1>Projectvoorkeuren</h1><p class="step-lead">Categorie-specifieke vragen. Geen generiek “type werk” voor alles.</p>' +
+          renderQuestionBlock(extras, o, 'onboard');
+      }
+    } else if (stepId === 'prijzen') {
+      var priceServices = (OE && cat) ? OE.getServices(cat).filter(function (s) { return (o.subtypes || []).indexOf(s.id) >= 0; }) : [];
+      if (!priceServices.length && t) priceServices = t.subtypes.slice(0, 3).map(function (s) { return { id: s.id, label: s.label, pricingModels: ['price_range', 'on_request'] }; });
+      body = '<h1>Prijzen</h1><p class="step-lead">Model per dienst. Lege velden = later of op aanvraag.</p>' +
+        priceServices.map(function (s) {
+          var models = (PE ? PE.modelsForService(cat, s.id) : (s.pricingModels || ['on_request']));
+          return '<div class="lab-price-card" style="margin-bottom:10px;">' +
+            '<h3 style="margin:0 0 8px;font-size:.95rem;">' + escapeHtml(s.label) + '</h3>' +
+            '<p class="lab-hint">Modellen: ' + escapeHtml(models.map(function (m) { return PE ? PE.labelFor(m) : m; }).join(' · ')) + '</p>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">' +
+            field('Min (€)', 'price_' + s.id + '_min', (o.prices && o.prices[s.id] && o.prices[s.id].min) || '', 'number', 'optioneel') +
+            field('Max (€)', 'price_' + s.id + '_max', (o.prices && o.prices[s.id] && o.prices[s.id].max) || '', 'number', 'optioneel') +
+            '</div></div>';
+        }).join('') +
+        field('Projectminimum (€)', 'minProject', o.minProject, 'number', 'Optioneel') +
+        field('Btw-basis', 'vatBasis', o.vatBasis, 'text', 'Exclusief / Inclusief');
+    } else if (stepId === 'beschikbaarheid') {
+      body = '<h1>Beschikbaarheid</h1><p class="step-lead">Gestructureerd. Klanten zien geen “volzet”-filter.</p><div class="lab-seg">' +
+        CAPACITY_OPTS.map(function (m) {
+          return '<button type="button" class="' + (o.capacity === m.label ? 'is-active' : '') + '" data-capacity="' + escapeHtml(m.label) + '">' + escapeHtml(m.label) + '</button>';
         }).join('') + '</div>' +
-        field('Eerst mogelijke startmaand', 'startMonth', o.startMonth) +
-        field('Plaatsbezoek meestal binnen', 'visitSpeed', o.visitSpeed);
-    } else if (step === 6) {
-      body = '<h1>Jullie Google-bedrijfsprofiel</h1><p class="step-lead">Reviews op ELYAN komen uitsluitend via Google.</p>' +
-        '<p class="lab-hint">Heeft jullie bedrijf een Google-bedrijfsprofiel?</p><div class="lab-seg">' +
-        ['Ja', 'Nee'].map(function (m) {
+        selectField('Eerste mogelijke start', 'startMonth', o.startMonth, [{ id: '', label: 'Kies maand…' }].concat(START_MONTH_OPTIONS.map(function (m) { return { id: m, label: m }; }))) +
+        '<p class="lab-hint" style="margin:12px 0 8px;">Plaatsbezoek</p><div class="lab-choice-grid is-2">' +
+        VISIT_OPTS.map(function (v) {
+          return '<button type="button" class="lab-choice' + (o.visitSpeed === v.id ? ' is-selected' : '') + '" data-set-extra="visitSpeed" data-extra-val="' + v.id + '">' + escapeHtml(v.label) + '</button>';
+        }).join('') + '</div>' +
+        (cat === 'keuken' || cat === 'ramen-deuren' || cat === 'badkamer' || cat === 'dakwerken'
+          ? '<p class="lab-hint" style="margin:12px 0 8px;">Extra afspraken indien relevant</p><div class="lab-choice-grid is-2">' +
+            ['Technisch bezoek', 'Opmeting', 'Ontwerpgesprek', 'Onderhoudsafspraak'].map(function (x) {
+              return choiceMulti(o.visitExtra || [], x, x, 'data-toggle-visit-extra');
+            }).join('') + '</div>'
+          : '');
+    } else if (stepId === 'eigenheid') {
+      body = '<h1>Bedrijfseigenheid</h1><p class="step-lead">Velden starten leeg. Alleen placeholders. ELYAN maakt hier later profielcopy van.</p>' +
+        IDENTITY_QS.map(function (qq) {
+          if (qq.type === 'select') {
+            return selectField(qq.label, qq.key, o[qq.key] || '', [{ id: '', label: 'Kies…' }].concat((qq.options || []).map(function (x) { return { id: x, label: x }; })));
+          }
+          return field(qq.label, qq.key, o[qq.key] || '', 'text', qq.placeholder || '');
+        }).join('');
+    } else if (stepId === 'fotos') {
+      body = '<h1>Projectfoto’s</h1><p class="step-lead">Eigen realisaties. ELYAN controleert beelden vóór publicatie.</p>' +
+        '<div class="lab-photo-sm"><img src="' + IMAGES.hero + '" alt=""><div><strong>Voorbeeldslot</strong><br><span class="lab-chip">Nog geen foto’s geüpload</span></div></div>' +
+        '<p class="lab-hint">Demo: upload volgt later. Statussen: concept → ingediend → ter controle → goedgekeurd.</p>';
+    } else if (stepId === 'google') {
+      body = '<h1>Google Reviews</h1><p class="step-lead">Centrale module. Geen eigen ELYAN-sterren.</p>' +
+        '<p class="lab-hint">Heeft jullie bedrijf een Google Bedrijfsprofiel?</p><div class="lab-seg">' +
+        ['Ja', 'Nee', 'Niet zeker'].map(function (m) {
           return '<button type="button" class="' + (o.hasGoogle === m ? 'is-active' : '') + '" data-set-extra="hasGoogle" data-extra-val="' + m + '">' + m + '</button>';
         }).join('') + '</div>' +
         (o.hasGoogle === 'Ja'
-          ? field('Zoek / selecteer bedrijf (demo)', 'googleQuery', o.googleQuery) +
+          ? field('Google bedrijfsvermelding (zoek / koppel)', 'googleQuery', o.googleQuery, 'text', 'Bedrijfsnaam op Google') +
+            field('Google Place ID (klaarzetten)', 'googlePlaceId', o.googlePlaceId, 'text', 'demo_place_…') +
             '<label class="lab-field" style="flex-direction:row;align-items:center;gap:10px;">' +
             '<input type="checkbox" id="googleConsent"' + (o.googleConsent ? ' checked' : '') + '>' +
             '<span style="font-weight:500;">Ik geef toestemming om Google-beoordelingen bij ons openbare ELYAN-profiel weer te geven.</span></label>'
           : '<p class="lab-hint">Geen probleem. Je profiel kan zonder Google-reviews live.</p>');
-    } else if (step === 7) {
-      body = '<h1>Wat maakt jullie uniek?</h1><p class="step-lead">Korte antwoorden. Geen marketingessay. ELYAN vertaalt dit naar je profiel.</p>' +
-        field('Waar zijn jullie bijzonder sterk in?', 'strength', o.strength) +
-        field('Welke projecten doen jullie het liefst?', 'prefer', o.prefer) +
-        field('Welke projecten nemen jullie bewust niet aan?', 'avoid', o.avoid) +
-        field('Materialen / systemen', 'materials', o.materials) +
-        field('Wat vinden jullie belangrijk tijdens een project?', 'values', o.values) +
-        field('Wat onderscheidt jullie?', 'differ', o.differ) +
-        field('Garanties (indien relevant)', 'guarantees', o.guarantees) +
-        field('Certificaten / erkenningen', 'certificates', o.certificates);
-    } else if (step === 8) {
-      body = '<h1>Projectfoto’s</h1><p class="step-lead">Eigen realisaties. ELYAN controleert beelden vóór publicatie.</p>' +
-        '<div class="lab-photo-sm"><img src="' + IMAGES.hero + '" alt=""><div><strong>Hellend dak Berchem</strong><br><span class="lab-chip">Concept</span></div></div>' +
-        '<div class="lab-photo-sm"><img src="' + IMAGES.editorial + '" alt=""><div><strong>Werfdetail</strong><br><span class="lab-chip">Concept</span></div></div>';
     } else {
+      var visitPub = '';
+      VISIT_OPTS.forEach(function (v) { if (v.id === o.visitSpeed) visitPub = v.public; });
       body = '<h1>Controle vóór indiening</h1><p class="step-lead">Gestructureerde data. ELYAN maakt hier je presentatie van.</p><div class="lab-facts">' +
-        fact('Bedrijf', o.companyName) +
-        fact('Categorie', catLabel(cat)) +
-        fact('Specialisaties', (o.subtypes || []).map(function (id) { return subtypeLabel(cat, id); }).join(', ') || 'Nog niet gekozen') +
-        fact('Werkgebied', o.area) +
-        fact('Start', o.capacity + ' · ' + o.startMonth) +
-        fact('Google', o.hasGoogle === 'Ja' ? (o.googleQuery + (o.googleConsent ? ' · toestemming' : ' · geen toestemming')) : 'Geen') +
-        '</div>';
+        fact('Bedrijf', o.companyName || '—') +
+        fact('Categorie', cat ? catLabel(cat) : '—') +
+        fact('Diensten', (o.subtypes || []).map(function (id) { return subtypeLabel(cat, id); }).join(', ') || 'Nog niet gekozen') +
+        fact('Werkgebied', o.area || o.address || '—') +
+        fact('Start', (o.capacity || '—') + ' · ' + (o.startMonth || '—')) +
+        fact('Plaatsbezoek', visitPub || o.visitSpeed || '—') +
+        fact('Google', o.hasGoogle === 'Ja' ? ((o.googleQuery || 'gekoppeld') + (o.googleConsent ? ' · toestemming' : ' · geen toestemming')) : (o.hasGoogle || '—')) +
+        '</div>' +
+        '<p class="lab-hint" style="margin-top:12px;">Na indienen: Bedankt · ELYAN bereidt je profiel voor.</p>';
     }
 
     return '<div class="lab-onboard"><div class="lab-onboard-progress">' + progress + '</div>' +
-      '<p class="lab-kicker">Stap ' + String(step + 1).padStart(2, '0') + ' · ' + escapeHtml(ONBOARD_STEPS[step]) + '</p>' + body +
+      '<p class="lab-kicker">Stap ' + String(step + 1).padStart(2, '0') + ' · ' + escapeHtml(ONBOARD_STEPS[step] || '') + '</p>' + body +
       '<div class="lab-onboard-actions">' +
       (step > 0 ? '<button type="button" class="btn btn-ghost" id="onboardBack">Terug</button>' : '') +
       '<button type="button" class="btn btn-primary" id="onboardNext">' + (step === ONBOARD_STEPS.length - 1 ? 'Indienen bij ELYAN' : 'Verder') + '</button>' +
@@ -1256,13 +1336,16 @@
             '<button type="button" class="btn btn-ghost btn-sm" data-toggle-req="' + r.id + '">Bekijk</button>' +
             '<div class="lab-request-detail" id="req-' + r.id + '" hidden style="grid-column:1/-1;">' +
               '<p class="lab-hint" style="margin-bottom:8px;">Klant vraagt: ' + escapeHtml(r.wishes) + (r.photos ? ' · ' + r.photos + ' projectfoto’s' : '') + '</p>' +
+              (r.status === 'interested' ? '<p class="lab-toast" style="display:block;margin-bottom:10px;">Interesse vastgelegd. Klant ziet: “Deze vakman heeft interesse.”</p>' : '') +
+              (r.status === 'declined' ? '<p class="lab-hint" style="margin-bottom:10px;">Afgewezen · ' + escapeHtml(r.declineReason || '') + '</p>' : '') +
               '<div style="display:flex;flex-wrap:wrap;gap:8px;">' +
                 '<button type="button" class="btn btn-primary btn-sm" data-req-interest="' + r.id + '">Ik heb interesse</button>' +
                 '<button type="button" class="btn btn-ghost btn-sm" data-req-decline="' + r.id + '">Past niet bij ons</button>' +
               '</div>' +
-              '<div class="lab-decline-options" id="decline-' + r.id + '" hidden>' +
-                ['Planning', 'Buiten werkgebied', 'Type project', 'Projectomvang', 'Budget', 'Andere reden'].map(function (x) {
-                  return '<button type="button" class="lab-chip" data-decline-reason="' + r.id + '">' + x + '</button>';
+              '<div class="lab-decline-options" id="decline-' + r.id + '" hidden style="margin-top:10px;">' +
+                '<p class="lab-hint" style="margin-bottom:8px;">Reden van afwijzing</p>' +
+                DECLINE_OPTS.map(function (x) {
+                  return '<button type="button" class="lab-chip" data-decline-reason="' + r.id + '" data-reason-id="' + x.id + '">' + escapeHtml(x.label) + '</button>';
                 }).join('') +
               '</div>' +
             '</div>' +
@@ -1330,7 +1413,7 @@
     return (
       '<div class="lab-partner lab-wrap">' +
         '<div class="lab-partner-head">' +
-          '<div><p class="lab-kicker">Partneromgeving</p><h1>' + escapeHtml(state.onboard.companyName) + '</h1></div>' +
+          '<div><p class="lab-kicker">Partneromgeving</p><h1>' + escapeHtml(state.onboard.companyName || 'Atelier Dak Antwerpen') + '</h1></div>' +
           '<button type="button" class="btn btn-ghost btn-sm" id="resetOnboarding">Onboarding bekijken</button>' +
         '</div>' +
         '<div class="lab-partner-layout">' +
@@ -1346,12 +1429,11 @@
     if (!host) return;
     if (state.partnerMode === 'submitted') {
       host.innerHTML = '<div class="lab-wrap"><div class="lab-submitted">' +
-        '<p class="lab-kicker" style="font-size:.85rem;">Bedankt</p>' +
-        '<h1>Gegevens ontvangen</h1>' +
-        '<p class="lab-hint" style="font-size:1.05rem;margin:10px 0;">ELYAN bereidt je profiel voor.</p>' +
-        '<p class="lab-hint">We structureren je antwoorden tot een consistente presentatie. Daarna kun je een preview bekijken en eventuele aanpassingen doorgeven.</p>' +
+        '<p class="lab-kicker" style="font-size:1rem;letter-spacing:.08em;font-weight:700;">BEDANKT</p>' +
+        '<h1 style="font-size:clamp(1.45rem,3vw,1.9rem);">ELYAN bereidt je profiel voor.</h1>' +
+        '<p class="lab-hint" style="font-size:1.02rem;margin:12px 0;">We structureren je antwoorden tot een consistente presentatie. Daarna kun je een preview bekijken.</p>' +
         '<div class="lab-status-flow">' +
-          ['Ingediend', 'Wordt bekeken', 'Profiel in voorbereiding', 'Klaar voor controle', 'Gepubliceerd'].map(function (s) {
+          ['Ingediend', 'Wordt gecontroleerd', 'Profiel wordt voorbereid', 'Klaar voor publicatie', 'Gepubliceerd'].map(function (s) {
             return '<span class="' + (s === state.partnerStatus ? 'is-current' : '') + '">' + s + '</span>';
           }).join('') +
         '</div><button type="button" class="btn btn-primary" id="goPartnerDash">Naar overzicht</button></div></div>';
@@ -1403,17 +1485,48 @@
           '<p class="lab-admin-note" id="adminToast"' + (state.adminNote ? '' : ' hidden') + '>' + escapeHtml(state.adminNote || '') + '</p>' +
         '</div>' +
         '<div class="lab-admin-arch">Architectuurvoorbereiding: <strong>Admin Partners</strong> (bedrijf, prijzen, historiek, notities) en <strong>Admin Klanten</strong> (aanvragen, status) blijven gescheiden van deze decision queue.</div>' +
+        '<div class="lab-admin-arch" id="ciQaPanel" style="margin-top:14px;">' +
+          '<strong>Category Intelligence QA</strong><br>' +
+          (CI ? (
+            'Versie ' + escapeHtml(CI.version) + ' · ' +
+            Object.keys(CI.CATEGORIES).length + ' categorieën · ' +
+            Object.keys(CI.SHARED_SERVICES).length + ' shared services<br>' +
+            '<span class="lab-hint">' +
+            CI.qaChecklist().map(function (row) {
+              return row.id + ': ' + row.services + ' svc / ' + row.customerQ + ' klantvragen / shared[' + (row.shared.join(',') || '—') + ']';
+            }).join(' · ') +
+            '</span>'
+          ) : 'Intelligence niet geladen') +
+        '</div>' +
       '</div>';
   }
 
   function readOnboardFields(root) {
+    if (!state.onboard.prices) state.onboard.prices = {};
     $all('[data-onboard-field]', root || document).forEach(function (input) {
-      state.onboard[input.getAttribute('data-onboard-field')] = input.value;
+      var key = input.getAttribute('data-onboard-field');
+      var val = input.value;
+      var priceMatch = key && key.match(/^price_(.+)_((min)|(max))$/);
+      if (priceMatch) {
+        var sid = priceMatch[1];
+        if (!state.onboard.prices[sid]) state.onboard.prices[sid] = {};
+        state.onboard.prices[sid][priceMatch[2]] = val;
+        return;
+      }
+      if (state.onboard.conditionalAnswers && (key === 'hellendCovering' || key === 'platSystems')) {
+        state.onboard.conditionalAnswers[key] = val;
+        return;
+      }
+      state.onboard[key] = val;
     });
   }
   function readQuoteFields(root) {
     $all('[data-quote-field]', root || document).forEach(function (input) {
       state.quote[input.getAttribute('data-quote-field')] = input.value;
+    });
+    if (!state.quote.answers) state.quote.answers = {};
+    $all('[data-quote-answer-field]', root || document).forEach(function (input) {
+      state.quote.answers[input.getAttribute('data-quote-answer-field')] = input.value;
     });
   }
 
@@ -1556,9 +1669,30 @@
         var key = btn.getAttribute('data-quote-set');
         var val = btn.getAttribute('data-val');
         if (key === 'photos') state.quote.photos = Number(val);
-        else state.quote[key] = val;
+        else if (key === 'service') {
+          state.quote.service = val;
+          state.quote.workType = val;
+        } else state.quote[key] = val;
         if (key === 'timing' && val === '3m') state.quote.timingMonth = 'November 2026';
         if (key === 'timing' && val === 'asap') state.quote.timingMonth = 'Zo snel mogelijk';
+        render();
+      });
+    });
+    $all('[data-quote-answer-single]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!state.quote.answers) state.quote.answers = {};
+        var key = btn.getAttribute('data-quote-answer-single');
+        var val = btn.getAttribute('data-val');
+        state.quote.answers[key] = val === '1' ? true : val;
+        render();
+      });
+    });
+    $all('[data-quote-answer-multi]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!state.quote.answers) state.quote.answers = {};
+        var key = btn.getAttribute('data-quote-answer-multi');
+        if (!Array.isArray(state.quote.answers[key])) state.quote.answers[key] = [];
+        toggleArray(state.quote.answers[key], btn.getAttribute('data-val'));
         render();
       });
     });
@@ -1578,21 +1712,34 @@
     var quoteNext = $('#quoteNext');
     if (quoteNext) quoteNext.addEventListener('click', function () {
       readQuoteFields();
-      if (state.quote.step >= QUOTE_STEPS_DAK.length - 1) {
+      var catId = state.quote.category || companyById(state.quote.partnerIds[0]).category || 'dakwerken';
+      var steps = quoteStepsFor(catId);
+      if (state.quote.step >= steps.length - 1) {
         state.quote.sent = true;
         state.customerTiming = state.quote.timing;
+        var match = ME ? ME.evaluate(companyById(state.quote.partnerIds[0]), {
+          category: catId,
+          service: state.quote.service || state.quote.workType,
+          timing: state.quote.timing,
+          budgetMax: state.quote.hasBudget === 'ja' ? Number(state.quote.budgetTo || 0) : null
+        }) : null;
         state.requests.unshift({
           id: 'a' + Date.now(),
-          title: subtypeLabel('dakwerken', state.quote.workType),
-          location: state.quote.address,
-          size: state.quote.areaUnknown ? 'onbekend' : '±' + state.quote.area + ' m²',
-          roof: state.quote.roofType,
-          customerWish: state.quote.timingMonth,
-          timingFit: 'Past bij jouw beschikbaarheid',
+          category: catId,
+          title: subtypeLabel(catId, state.quote.service || state.quote.workType),
+          location: state.quote.address || state.location.name,
+          size: (state.quote.answers && state.quote.answers.area) ? ('±' + state.quote.answers.area + ' m²') : '—',
+          roof: (state.quote.answers && (state.quote.answers.roofType || state.quote.answers.type || state.quote.answers.floorType)) || '—',
+          customerWish: state.quote.timingMonth || customerTimingWishLabel(),
+          timingFit: match ? match.label : 'Relevant voor dit project',
           budget: state.quote.hasBudget === 'ja' ? ('€ ' + state.quote.budgetFrom + ' – € ' + state.quote.budgetTo) : 'niet opgegeven',
-          wishes: state.quote.wants.join(', '),
+          wishes: Object.keys(state.quote.answers || {}).map(function (k) {
+            var v = state.quote.answers[k];
+            return k + ': ' + (Array.isArray(v) ? v.join(', ') : v);
+          }).join(' · ') || '—',
           photos: state.quote.photos,
-          status: 'nieuw'
+          status: 'new',
+          customerVisible: false
         });
       } else state.quote.step += 1;
       render();
@@ -1609,12 +1756,49 @@
       btn.addEventListener('click', function () {
         state.onboard.primaryCategory = btn.getAttribute('data-primary-cat');
         state.onboard.subtypes = [];
+        state.onboard.conditionalAnswers = {};
         render();
       });
     });
     $all('[data-toggle-subtype]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         toggleArray(state.onboard.subtypes, btn.getAttribute('data-toggle-subtype'));
+        render();
+      });
+    });
+    $all('[data-toggle-visit-extra]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!state.onboard.visitExtra) state.onboard.visitExtra = [];
+        toggleArray(state.onboard.visitExtra, btn.getAttribute('data-toggle-visit-extra'));
+        render();
+      });
+    });
+    $all('[data-answer-single]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-answer-single');
+        var val = btn.getAttribute('data-val');
+        var stepId = (OE && OE.steps[state.onboardStep]) ? OE.steps[state.onboardStep].id : '';
+        if (stepId === 'diensten') {
+          if (!state.onboard.conditionalAnswers) state.onboard.conditionalAnswers = {};
+          state.onboard.conditionalAnswers[key] = val;
+        } else {
+          state.onboard[key] = val;
+        }
+        render();
+      });
+    });
+    $all('[data-answer-multi]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-answer-multi');
+        var val = btn.getAttribute('data-val');
+        var stepId = (OE && OE.steps[state.onboardStep]) ? OE.steps[state.onboardStep].id : '';
+        var target = state.onboard;
+        if (stepId === 'diensten') {
+          if (!state.onboard.conditionalAnswers) state.onboard.conditionalAnswers = {};
+          target = state.onboard.conditionalAnswers;
+        }
+        if (!Array.isArray(target[key])) target[key] = [];
+        toggleArray(target[key], val);
         render();
       });
     });
@@ -1639,7 +1823,7 @@
       readOnboardFields();
       if (state.onboardStep >= ONBOARD_STEPS.length - 1) {
         state.partnerMode = 'submitted';
-        state.partnerStatus = 'Wordt bekeken';
+        state.partnerStatus = 'Wordt gecontroleerd';
       } else state.onboardStep += 1;
       render();
     });
@@ -1680,7 +1864,9 @@
           if (r.id === id) {
             r.status = 'interested';
             r.interestedAt = new Date().toISOString();
-            r.partnerNote = r.partnerNote || '';
+            r.customerVisible = true;
+            r.customerMessage = 'Deze vakman heeft interesse.';
+            state.customerNotices.push('Deze vakman heeft interesse.');
           }
         });
         render();
@@ -1695,11 +1881,15 @@
     $all('[data-decline-reason]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         var id = btn.getAttribute('data-decline-reason');
+        var reasonId = btn.getAttribute('data-reason-id');
         state.requests.forEach(function (r) {
           if (r.id === id) {
             r.status = 'declined';
+            r.declineReasonId = reasonId;
             r.declineReason = btn.textContent;
             r.declinedAt = new Date().toISOString();
+            r.customerVisible = true;
+            r.customerMessage = 'Deze vakman past momenteel niet bij dit project.';
           }
         });
         render();
