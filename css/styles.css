@@ -177,7 +177,7 @@ strong{color:var(--ink);font-weight:600;}
   height:100%;
 }
 .hero-photo img{
-  width:100%;height:100%;object-fit:cover;object-position:55% 48%;
+  width:100%;height:100%;object-fit:cover;object-position:62% 55%;
   display:block;
 }
 
@@ -284,7 +284,7 @@ strong{color:var(--ink);font-weight:600;}
     border-radius:14px;
     box-shadow:0 10px 36px rgba(20,21,15,.08);
   }
-  .hero-photo img{object-position:52% 46%;}
+  .hero-photo img{object-position:68% 50%;}
   .hero-stage .demo-card{
     position:relative;
     left:auto;right:auto;bottom:auto;
@@ -641,6 +641,15 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
 .legal-content li{position:relative;padding-left:22px;margin-bottom:10px;color:var(--ink-soft);}
 .legal-content li::before{content:'';position:absolute;left:4px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--primary-soft);}
 .legal-content a{color:var(--primary);font-weight:600;text-decoration:underline;text-underline-offset:2px;}
+.legal-content a.btn.btn-primary{
+  color:var(--white);
+  text-decoration:none;
+}
+.legal-content a.btn.btn-primary:hover,
+.legal-content a.btn.btn-primary:focus-visible{
+  color:var(--white);
+}
+.legal-content a.btn.btn-primary .icon{color:var(--white);}
 .legal-content .callout{background:var(--sand);border-radius:var(--r-md);padding:var(--sp-5);margin:var(--sp-6) 0;font-size:.9rem;}
 .legal-content .callout p{margin-bottom:0;}
 .legal-content .callout p+p{margin-top:var(--sp-3);}
