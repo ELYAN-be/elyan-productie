@@ -4,7 +4,7 @@
   "rewrites": [
     {
       "source": "/vakmannen/:slug",
-      "destination": "/vakmannen-detail.html"
+      "destination": "/vakmannen-detail"
     }
   ]
 }
