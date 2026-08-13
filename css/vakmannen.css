@@ -396,51 +396,57 @@
   }
 }
 
-/* ---------- ≤768px: identity copy hierarchy only (photo position unchanged) ---------- */
+/* ---------- ≤768px: compact trust row beside photo (photo CSS untouched) ---------- */
 @media (max-width:768px){
+  .page-vakmannen .lab-identity{
+    padding-top:4px;
+  }
   .page-vakmannen .lab-identity-copy{
     display:flex;
     flex-direction:column;
     align-items:flex-start;
+    align-self:end;
     text-align:left;
     width:100%;
     min-width:0;
   }
-  /* Mobile stack: badge, kicker, title, place, reviews (DOM order kept for desktop) */
-  .page-vakmannen .lab-identity-copy .lab-row-badges{
-    order:1;
+  .page-vakmannen .lab-identity-trust{
     display:flex;
-    justify-content:flex-start;
+    flex-wrap:wrap;
     align-items:center;
+    justify-content:flex-start;
+    gap:6px 10px;
     margin:0 0 6px;
-    width:auto;
-    max-width:100%;
+    width:100%;
   }
-  .page-vakmannen .lab-identity-copy .lab-kicker{
-    order:2;
-    margin:0 0 8px;
+  .page-vakmannen .lab-identity-trust .lab-kicker{
+    margin:0;
     width:auto;
     max-width:100%;
     text-align:left;
-    align-self:flex-start;
   }
-  .page-vakmannen .lab-identity-copy .lab-chip{
+  .page-vakmannen .lab-identity-trust .lab-row-badges{
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    margin:0;
+    width:auto;
+    max-width:100%;
+  }
+  .page-vakmannen .lab-identity-trust .lab-chip{
     margin:0;
   }
   .page-vakmannen .lab-identity-copy h1{
-    order:3;
-    margin:0 0 6px;
+    margin:0 0 4px;
     width:100%;
     text-align:left;
   }
   .page-vakmannen .lab-identity-place{
-    order:4;
-    margin:0 0 6px;
+    margin:0 0 4px;
     width:100%;
     text-align:left;
   }
   .page-vakmannen .lab-identity-copy .lab-stars{
-    order:5;
     display:inline-flex;
     align-items:center;
     justify-content:flex-start;
@@ -532,6 +538,14 @@
   margin:12px 0 20px;
   position:relative;
   z-index:1;
+}
+@media (max-width:768px){
+  .page-vakmannen .lab-profile{
+    padding-top:8px;
+  }
+  .page-vakmannen .vk-back{
+    margin:6px 0 8px;
+  }
 }
 .page-vakmannen .lab-results{
   padding-top:16px;

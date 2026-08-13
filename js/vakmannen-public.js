@@ -500,8 +500,10 @@
         '<header class="lab-identity">' +
           '<div class="lab-identity-visual"><img src="' + p.image + '" alt="" style="object-position:' + (p.objectPos || '') + '"></div>' +
           '<div class="lab-identity-copy">' +
-            '<p class="lab-kicker">ELYAN vakman</p>' +
-            '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
+            '<div class="lab-identity-trust">' +
+              '<p class="lab-kicker">ELYAN vakman</p>' +
+              '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
+            '</div>' +
             '<h1>' + esc(p.name) + '</h1>' +
             (p.city ? '<p class="lab-identity-place">' + esc(p.city) + '</p>' : '') +
             stars(g, { partner: p }) +
