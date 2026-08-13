@@ -2,6 +2,9 @@
   "cleanUrls": true,
   "trailingSlash": false,
   "rewrites": [
-    { "source": "/vakmannen/:slug", "destination": "/vakmannen-detail.html" }
+    {
+      "source": "/vakmannen/:slug",
+      "destination": "/vakmannen-detail.html"
+    }
   ]
 }

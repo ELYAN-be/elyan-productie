@@ -179,7 +179,7 @@
     if (m && m[1] && m[1] !== 'vakmannen-detail') {
       return { page: 'profile', slug: decodeURIComponent(m[1]) };
     }
-    if (path.indexOf('/vakmannen') === 0) return { page: 'list', slug: null };
+    if (path === '/vakmannen' || path.indexOf('/vakmannen') === 0) return { page: 'list', slug: null };
     return { page: 'list', slug: null };
   }
 
@@ -194,15 +194,21 @@
   function visitLabel(p) {
     return EV.visitPublicLabel(p.visitSpeed) || 'op afspraak';
   }
-  function stars(g) {
+  function stars(g, opts) {
+    opts = opts || {};
     if (!g || !g.show) return '';
     if (g.status === 'live' && g.rating != null && g.count != null) {
-      return '<div class="lab-stars"><svg class="icon"><use href="#i-star"></use></svg> ' +
+      return '<div class="lab-stars lab-stars-live" data-review-state="live">' +
+        '<svg class="icon" aria-hidden="true"><use href="#i-star"></use></svg> ' +
         esc(String(g.rating).replace('.', ',')) +
-        ' <span>' + esc(String(g.count)) + ' Google-beoordelingen</span></div>';
+        ' <span>· ' + esc(String(g.count)) + ' Google-beoordelingen</span></div>';
     }
     /* Pending / unavailable — never show fabricated ratings as live Google data */
-    return '<div class="lab-stars lab-stars-pending"><span>Google-beoordelingen binnenkort beschikbaar</span></div>';
+    var pendingLabel = opts.compact
+      ? 'Google-beoordelingen binnenkort'
+      : 'Google-beoordelingen binnenkort beschikbaar';
+    return '<div class="lab-stars lab-stars-pending" data-review-state="pending">' +
+      '<span>' + pendingLabel + '</span></div>';
   }
 
   function filtered() {
@@ -229,25 +235,25 @@
     var price = EV.formatPrice(EV.serviceForSubtype(p, state.subtype));
     var g = EV.GoogleReviews.resolveForPartner(p);
     var startShort = String(p.startMonth || '').replace(/^Vanaf\s+/i, '');
+    var href = '/vakmannen/' + encodeURIComponent(p.slug);
     return (
-      '<article class="lab-row">' +
+      '<a class="lab-row" href="' + href + '">' +
         '<div class="lab-row-media"><img src="' + p.image + '" alt="" style="object-position:' + (p.objectPos || '50% 50%') + '" loading="lazy"></div>' +
         '<div class="lab-row-main">' +
           '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
           '<h3>' + esc(p.name) + '</h3>' +
           '<p class="tagline">' + esc(p.specialtyLine) + '</p>' +
-          stars(g) +
+          stars(g, { compact: true }) +
         '</div>' +
         '<div class="lab-row-meta">' +
-          '<div><strong>' + esc(p.radius) + '</strong></div>' +
-          '<div>Eerste mogelijke start: ' + esc(startShort) + '</div>' +
+          '<div><strong>' + esc(p.radius) + '</strong><span class="lab-row-sep"> · </span>Start ' + esc(startShort) + '</div>' +
         '</div>' +
         '<div class="lab-row-price">' +
           '<div class="val">' + esc(price.display) + '</div>' +
           '<div class="ctx">' + esc(price.context || 'Prijsindicatie') + '</div>' +
         '</div>' +
-        '<a class="btn btn-primary btn-sm" href="/vakmannen/' + encodeURIComponent(p.slug) + '">Bekijk vakman</a>' +
-      '</article>'
+        '<span class="btn btn-primary btn-sm">Bekijk vakman</span>' +
+      '</a>'
     );
   }
 
