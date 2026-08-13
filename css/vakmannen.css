@@ -113,6 +113,10 @@
 .page-vakmannen a.lab-row .btn{
   pointer-events:none;
 }
+/* Desktop/tablet: footer children stay in the parent grid */
+.page-vakmannen .lab-row-footer{
+  display:contents;
+}
 
 /* ---------- Result rows: desktop scan layout ---------- */
 @media (min-width:860px){
@@ -288,6 +292,52 @@
   }
 }
 
+/* ---------- ≤768px: results price+CTA as one footer ---------- */
+@media (max-width:768px){
+  .page-vakmannen .lab-row{
+    grid-template-columns:72px minmax(0,1fr);
+    grid-template-areas:
+      "media main"
+      "media meta"
+      "footer footer";
+  }
+  .page-vakmannen .lab-row-footer{
+    grid-area:footer;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    width:100%;
+    padding-top:6px;
+    margin:0;
+  }
+  .page-vakmannen .lab-row-price{
+    grid-area:unset;
+    flex:1 1 auto;
+    min-width:0;
+    padding:0;
+    align-self:center;
+  }
+  .page-vakmannen .lab-row-price .val{
+    font-size:1.08rem;
+    line-height:1.15;
+  }
+  .page-vakmannen .lab-row-price .ctx{
+    font-size:.64rem;
+  }
+  .page-vakmannen .lab-row .btn{
+    grid-area:unset;
+    flex:0 0 auto;
+    width:auto;
+    min-width:0;
+    min-height:40px;
+    padding:0 14px;
+    justify-self:unset;
+    align-self:center;
+    white-space:nowrap;
+  }
+}
+
 /* ---------- Mobile profile identity: left editorial axis ---------- */
 @media (max-width:879px){
   .page-vakmannen .lab-identity{
@@ -346,15 +396,64 @@
   }
 }
 
+/* ---------- ≤768px: identity copy hierarchy only (photo position unchanged) ---------- */
+@media (max-width:768px){
+  .page-vakmannen .lab-identity-copy{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    text-align:left;
+    width:100%;
+    min-width:0;
+  }
+  .page-vakmannen .lab-identity-copy .lab-kicker{
+    margin:0 0 6px;
+    width:100%;
+    text-align:left;
+    align-self:stretch;
+  }
+  .page-vakmannen .lab-identity-copy .lab-row-badges{
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    margin:0 0 8px;
+    width:100%;
+  }
+  .page-vakmannen .lab-identity-copy .lab-chip{
+    margin:0;
+  }
+  .page-vakmannen .lab-identity-copy h1{
+    margin:0 0 6px;
+    width:100%;
+    text-align:left;
+  }
+  .page-vakmannen .lab-identity-place{
+    margin:0 0 6px;
+    width:100%;
+    text-align:left;
+  }
+  .page-vakmannen .lab-identity-copy .lab-stars{
+    display:inline-flex;
+    align-items:center;
+    justify-content:flex-start;
+    margin:0;
+    width:auto;
+    max-width:100%;
+    text-align:left;
+  }
+}
+
 .page-vakmannen .lab-stars-pending span{
   font-weight:500;
   color:var(--e-ink-soft, #5C6354);
   font-size:.78rem;
 }
-.page-vakmannen .lab-stars-live{
+.page-vakmannen .lab-stars-live,
+.page-vakmannen .lab-stars-demo{
   font-size:.84rem;
 }
-.page-vakmannen .lab-identity-copy .lab-stars-live{
+.page-vakmannen .lab-identity-copy .lab-stars-live,
+.page-vakmannen .lab-identity-copy .lab-stars-demo{
   font-size:.8rem;
 }
 .page-vakmannen .lab-identity-copy .lab-stars-pending span{

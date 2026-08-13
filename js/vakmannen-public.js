@@ -196,14 +196,31 @@
   }
   function stars(g, opts) {
     opts = opts || {};
-    if (!g || !g.show) return '';
-    if (g.status === 'live' && g.rating != null && g.count != null) {
-      return '<div class="lab-stars lab-stars-live" data-review-state="live">' +
-        '<svg class="icon" aria-hidden="true"><use href="#i-star"></use></svg> ' +
-        esc(String(g.rating).replace('.', ',')) +
-        ' <span>· ' + esc(String(g.count)) + ' Google-beoordelingen</span></div>';
+    var rating = null;
+    var count = null;
+    var state = 'pending';
+    if (g && g.show && g.status === 'live' && g.rating != null && g.count != null) {
+      rating = g.rating;
+      count = g.count;
+      state = 'live';
+    } else if (opts.partner && opts.partner.google && opts.partner.google.enabled && opts.partner.google.consent
+        && opts.partner.google.rating != null && opts.partner.google.count != null) {
+      /* Compact trust line may use demo numbers until live Google is connected */
+      rating = opts.partner.google.rating;
+      count = opts.partner.google.count;
+      state = 'demo';
+    } else if (g && g.show && g.status === 'demo' && g.rating != null && g.count != null) {
+      rating = g.rating;
+      count = g.count;
+      state = 'demo';
     }
-    /* Pending / unavailable — never show fabricated ratings as live Google data */
+    if (rating != null && count != null) {
+      return '<div class="lab-stars lab-stars-' + state + '" data-review-state="' + state + '">' +
+        '<svg class="icon" aria-hidden="true"><use href="#i-star"></use></svg> ' +
+        esc(String(rating).replace('.', ',')) +
+        ' <span>• ' + esc(String(count)) + ' Google-beoordelingen</span></div>';
+    }
+    if (!g || !g.show) return '';
     var pendingLabel = opts.compact
       ? 'Google-beoordelingen binnenkort'
       : 'Google-beoordelingen binnenkort beschikbaar';
@@ -243,16 +260,18 @@
           '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
           '<h3>' + esc(p.name) + '</h3>' +
           '<p class="tagline">' + esc(p.specialtyLine) + '</p>' +
-          stars(g, { compact: true }) +
+          stars(g, { compact: true, partner: p }) +
         '</div>' +
         '<div class="lab-row-meta">' +
           '<div><strong>' + esc(p.radius) + '</strong><span class="lab-row-sep"> · </span>Start ' + esc(startShort) + '</div>' +
         '</div>' +
-        '<div class="lab-row-price">' +
-          '<div class="val">' + esc(price.display) + '</div>' +
-          '<div class="ctx">' + esc(price.context || 'Prijsindicatie') + '</div>' +
+        '<div class="lab-row-footer">' +
+          '<div class="lab-row-price">' +
+            '<div class="val">' + esc(price.display) + '</div>' +
+            '<div class="ctx">' + esc(price.context || 'Prijsindicatie') + '</div>' +
+          '</div>' +
+          '<span class="btn btn-primary btn-sm">Bekijk vakman</span>' +
         '</div>' +
-        '<span class="btn btn-primary btn-sm">Bekijk vakman</span>' +
       '</a>'
     );
   }
@@ -485,7 +504,7 @@
             '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
             '<h1>' + esc(p.name) + '</h1>' +
             (p.city ? '<p class="lab-identity-place">' + esc(p.city) + '</p>' : '') +
-            stars(g) +
+            stars(g, { partner: p }) +
           '</div>' +
           '<div class="lab-identity-actions">' +
             '<button type="button" class="btn btn-primary" id="startQuote">Offerte aanvragen</button>' +
