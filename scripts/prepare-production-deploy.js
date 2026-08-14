@@ -1,7 +1,10 @@
 /**
- * Production deploy prep (Phase A)
- * Removes Partner Lab from production output so /internal/* is not publicly reachable.
- * Preview/development keep the Lab as UX reference.
+ * Optional production deploy prep.
+ * Prefer vercel.json redirect of /internal/* for production safety on this static site.
+ * Run manually when a custom Vercel build command is configured:
+ *   node scripts/prepare-production-deploy.js
+ *
+ * Removing internal/ only when VERCEL_ENV=production.
  */
 var fs = require('fs');
 var path = require('path');

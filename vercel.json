@@ -1,7 +1,13 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "outputDirectory": ".",
+  "redirects": [
+    {
+      "source": "/internal/:path*",
+      "destination": "/404",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/vakmannen/:slug",

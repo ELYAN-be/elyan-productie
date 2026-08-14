@@ -103,15 +103,23 @@ test('professionals pages exist', function () {
   });
 });
 
-test('production prepare removes internal/ when VERCEL_ENV=production', function () {
+test('production prepare script quarantines internal/', function () {
   var script = fs.readFileSync(path.join(root, 'scripts/prepare-production-deploy.js'), 'utf8');
   assert.ok(script.indexOf("VERCEL_ENV") >= 0);
   assert.ok(script.indexOf("production") >= 0);
   assert.ok(script.indexOf("internal") >= 0);
-  assert.ok(script.indexOf('rmSync') >= 0 || script.indexOf('rmdirSync') >= 0);
 });
 
-test('internal partner-lab still present in workspace (preview/dev)', function () {
+test('vercel.json redirects /internal away from public access', function () {
+  var v = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  assert.ok(Array.isArray(v.redirects));
+  var hit = v.redirects.some(function (r) {
+    return String(r.source).indexOf('/internal') === 0;
+  });
+  assert.ok(hit, 'expected /internal redirect');
+});
+
+test('internal partner-lab still present in workspace (local UX reference)', function () {
   assert.ok(fs.existsSync(path.join(root, 'internal/partner-lab.html')));
 });
 
