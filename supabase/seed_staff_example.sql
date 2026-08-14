@@ -1,0 +1,5 @@
+-- Example only: provision ELYAN staff AFTER the user exists in auth.users.
+-- Run in Supabase SQL editor with service role. Do NOT expose via client APIs.
+--
+-- INSERT INTO public.staff_users (user_id, role)
+-- VALUES ('00000000-0000-0000-0000-000000000000', 'elyan_admin');

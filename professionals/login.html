@@ -9,21 +9,26 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/css/styles.css">
 <link rel="stylesheet" href="/css/partner-lab.css">
-<link rel="stylesheet" href="/css/vakmannen.css">
+<link rel="stylesheet" href="/css/professionals.css">
 </head>
-<body class="page-partner-lab">
-<main class="lab-wrap" style="padding:56px 20px;max-width:480px;">
+<body class="page-partner-lab page-professionals">
+<main class="prof-shell">
   <p class="lab-kicker">ELYAN for Professionals</p>
   <h1 style="font-size:1.8rem;margin:0 0 10px;">Partner login</h1>
-  <p class="lab-hint">Beveiligde toegang voor vakbedrijven. Productie-authenticatie is nog niet aangesloten.</p>
-  <div class="lab-onboard" style="margin-top:20px;">
-    <p class="lab-hint"><strong>TODO (backend):</strong> echte auth (sessie/OAuth), rate limiting, geen client-only guards.</p>
-    <label class="lab-field">E-mail<input type="email" placeholder="naam@bedrijf.be" autocomplete="username" disabled></label>
-    <label class="lab-field">Wachtwoord<input type="password" placeholder="••••••••" autocomplete="current-password" disabled></label>
-    <button type="button" class="btn btn-primary btn-block" disabled>Inloggen (binnenkort)</button>
-    <p class="lab-hint" style="margin-top:14px;">Voorlopig: onboarding en dashboard testen via <a href="/internal/partner-lab">Partner Lab</a> (intern).</p>
-    <p class="lab-hint"><a href="/partners">Word Founding Partner</a></p>
-  </div>
+  <p class="lab-hint">Beveiligde toegang voor uitgenodigde vakbedrijven.</p>
+  <form id="loginForm" class="prof-card" novalidate>
+    <label class="lab-field">E-mail<input id="email" name="email" type="email" autocomplete="username" required></label>
+    <label class="lab-field">Wachtwoord<input id="password" name="password" type="password" autocomplete="current-password" required></label>
+    <button type="submit" class="btn btn-primary btn-block" id="loginSubmit">Inloggen</button>
+    <p id="loginStatus" class="prof-status" hidden></p>
+    <div class="prof-links">
+      <a class="lab-link" href="/professionals/forgot-password">Wachtwoord vergeten</a>
+      <a class="lab-link" href="/professionals/activate">Uitnodiging activeren</a>
+    </div>
+  </form>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/professionals/core.js"></script>
+<script src="/js/professionals/login.js"></script>
 </body>
 </html>

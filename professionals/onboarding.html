@@ -9,18 +9,24 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/css/styles.css">
 <link rel="stylesheet" href="/css/partner-lab.css">
+<link rel="stylesheet" href="/css/professionals.css">
 </head>
-<body class="page-partner-lab">
-<main class="lab-wrap" style="padding:48px 20px;">
+<body class="page-partner-lab page-professionals">
+<main class="prof-shell prof-shell-wide">
   <p class="lab-kicker">ELYAN for Professionals</p>
-  <h1 style="font-size:1.7rem;">Partner onboarding</h1>
-  <p class="lab-hint" style="max-width:40em;">Partners leveren data. ELYAN bouwt de presentatie. Deze route is voorbereid op beveiligde toegang.</p>
-  <div class="lab-onboard" style="margin-top:18px;">
-    <p class="lab-hint"><strong>Category Intelligence v1:</strong> alle 12 vakgebieden hebben eigen services, conditionele vragen, prijsmodellen en matchingvelden.</p>
-    <p class="lab-hint"><strong>TODO:</strong> auth-gate + persistente opslag + lege productievormen (geen vooraf ingevulde antwoorden).</p>
-    <p class="lab-hint">Test de volledige onboardingflow in <a href="/internal/partner-lab">Partner Lab</a>.</p>
-    <a class="btn btn-primary" href="/professionals/login">Naar login</a>
+  <h1 style="font-size:1.7rem;margin:0 0 8px;">Onboarding</h1>
+  <p class="lab-hint">Partner: <strong id="partnerLabel">—</strong></p>
+  <div class="prof-card">
+    <p class="lab-hint"><strong>Phase A:</strong> dit is een beveiligde stub. Persistente onboarding (Category Intelligence, prijzen, foto’s) volgt in Phase B.</p>
+    <p id="onboardStatus" class="prof-status" hidden></p>
+    <div class="prof-actions">
+      <a class="btn btn-primary" href="/professionals/dashboard">Terug naar dashboard</a>
+      <button type="button" class="btn" id="logoutBtn">Uitloggen</button>
+    </div>
   </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/professionals/core.js"></script>
+<script src="/js/professionals/onboarding.js"></script>
 </body>
 </html>

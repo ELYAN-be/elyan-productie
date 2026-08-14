@@ -9,18 +9,29 @@
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="stylesheet" href="/css/styles.css">
 <link rel="stylesheet" href="/css/partner-lab.css">
+<link rel="stylesheet" href="/css/professionals.css">
 </head>
-<body class="page-partner-lab">
-<main class="lab-wrap" style="padding:48px 20px;">
+<body class="page-partner-lab page-professionals">
+<main class="prof-shell prof-shell-wide">
   <p class="lab-kicker">ELYAN for Professionals</p>
-  <h1 style="font-size:1.7rem;">Partner dashboard</h1>
-  <p class="lab-hint">Overzicht · Aanvragen · Beschikbaarheid · Prijzen · Foto’s · Profiel</p>
-  <div class="lab-onboard" style="margin-top:18px;">
-    <p class="lab-hint"><strong>Interest-flow statusmodel:</strong> new → viewed → interested → declined → contact_started → completed</p>
-    <p class="lab-hint"><strong>Privacy:</strong> contactgegevens van klanten worden niet automatisch volledig gedeeld vóór noodzakelijke stap.</p>
-    <p class="lab-hint"><strong>TODO:</strong> beveiligde sessie vereist vóór publicatie van deze omgeving.</p>
-    <a class="btn btn-primary" href="/internal/partner-lab">Open Partner Lab (intern)</a>
+  <h1 style="font-size:1.7rem;margin:0 0 8px;">Partner dashboard</h1>
+  <p class="lab-hint">Beveiligde omgeving voor je vakbedrijf. Uitgebreide modules volgen in volgende fases.</p>
+  <p id="dashStatus" class="prof-status" hidden></p>
+  <div id="dashShell" class="prof-card" hidden>
+    <div class="prof-meta">
+      <div><span>Partner</span><strong id="partnerLabel">—</strong></div>
+      <div><span>Account</span><strong id="userEmail">—</strong></div>
+      <div><span>Rol</span><strong id="userRole">—</strong></div>
+    </div>
+    <p class="lab-hint" style="margin-top:16px;">Binnenkort: onboarding, aanvragen, beschikbaarheid, prijzen en foto’s.</p>
+    <div class="prof-actions">
+      <a class="btn btn-primary" href="/professionals/onboarding">Naar onboarding (binnenkort)</a>
+      <button type="button" class="btn" id="logoutBtn">Uitloggen</button>
+    </div>
   </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/professionals/core.js"></script>
+<script src="/js/professionals/dashboard.js"></script>
 </body>
 </html>

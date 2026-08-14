@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uitnodiging activeren | ELYAN for Professionals</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#3F4A32">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/partner-lab.css">
+<link rel="stylesheet" href="/css/professionals.css">
+</head>
+<body class="page-partner-lab page-professionals">
+<main class="prof-shell">
+  <p class="lab-kicker">ELYAN for Professionals</p>
+  <h1 style="font-size:1.8rem;margin:0 0 10px;">Uitnodiging activeren</h1>
+  <p class="lab-hint">Bevestig je lidmaatschap bij het uitgenodigde vakbedrijf. Nieuw account? Stel eerst je wachtwoord in via de e-mail van ELYAN, log daarna in en bevestig hier.</p>
+  <div id="activatePreview" class="prof-card" hidden>
+    <div class="prof-meta">
+      <div><span>Partner</span><strong id="partnerName">—</strong></div>
+      <div><span>Uitgenodigd e-mailadres</span><strong id="inviteEmail">—</strong></div>
+      <div><span>Rol</span><strong id="inviteRole">—</strong></div>
+    </div>
+    <div class="prof-actions">
+      <button type="button" class="btn btn-primary" id="claimBtn">Lidmaatschap bevestigen</button>
+      <a class="lab-link" id="loginLink" href="/professionals/login">Eerst inloggen</a>
+    </div>
+  </div>
+  <p id="activateStatus" class="prof-status" hidden></p>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/professionals/core.js"></script>
+<script src="/js/professionals/activate.js"></script>
+</body>
+</html>

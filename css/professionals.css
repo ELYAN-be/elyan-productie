@@ -1,0 +1,53 @@
+/* ELYAN for Professionals — Phase A shell (reuses partner-lab tokens) */
+.page-professionals .prof-shell{
+  max-width:480px;
+  margin:0 auto;
+  padding:48px 20px 64px;
+}
+.page-professionals .prof-shell-wide{
+  max-width:720px;
+}
+.page-professionals .prof-card{
+  margin-top:18px;
+  padding:20px 18px;
+  border:1px solid var(--e-line, rgba(63,74,50,.14));
+  border-radius:16px;
+  background:var(--e-cream, #FFFEFA);
+}
+.page-professionals .prof-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:16px;
+}
+.page-professionals .prof-status{
+  margin-top:12px;
+  font-size:.88rem;
+  line-height:1.45;
+  font-weight:600;
+}
+.page-professionals .prof-status.is-error{ color:#8B3A2F; }
+.page-professionals .prof-status.is-ok{ color:var(--e-green, #3F4A32); }
+.page-professionals .prof-status.is-info{ color:var(--e-ink-soft, #5B5D4F); }
+.page-professionals .prof-meta{
+  display:grid;
+  gap:8px;
+  margin-top:12px;
+  font-size:.9rem;
+}
+.page-professionals .prof-meta span{
+  color:var(--e-faint, #6E7062);
+  font-size:.75rem;
+  font-weight:700;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  display:block;
+  margin-bottom:2px;
+}
+.page-professionals .btn-block{ width:100%; }
+.page-professionals .prof-links{
+  margin-top:14px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px 16px;
+}
