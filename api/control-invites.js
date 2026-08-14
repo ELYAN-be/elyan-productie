@@ -1,20 +1,14 @@
 /**
- * POST /api/control/invites — staff only
- * Body: { email, role?, legalName?, displayName?, partnerId?, sendEmail? }
- * Creates partner (optional) + invite; optionally emails via Resend + Supabase generateLink.
+ * POST /api/control-invites — staff only (Phase A)
  */
-var { requireStaff } = require('./lib/tenancy');
-var { createInvite, generateSupabaseInviteLink, revokeInvite, normalizeEmail, isValidEmail } = require('./lib/invites');
-var { sendPartnerInviteEmail } = require('./lib/invite-email');
-var { json, methodNotAllowed, errorJson, readJson } = require('./lib/http');
-var { rateLimit, clientKey } = require('./lib/rate-limit');
+var { requireStaff } = require('../server/tenancy');
+var { createInvite, generateSupabaseInviteLink, revokeInvite, normalizeEmail, isValidEmail } = require('../server/invites');
+var { sendPartnerInviteEmail } = require('../server/invite-email');
+var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
+var { rateLimit, clientKey } = require('../server/rate-limit');
 
 module.exports = async function handler(req, res) {
-  if (req.method === 'DELETE' || (req.method === 'POST' && req.query && req.query.action === 'revoke')) {
-    // handled below for revoke via POST { action:'revoke', inviteId }
-  } else if (req.method !== 'POST') {
-    return methodNotAllowed(res, 'POST');
-  }
+  if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
 
   var rl = rateLimit(clientKey(req, 'control_invites'), 20, 60 * 1000);
   if (!rl.ok) return errorJson(res, 429, 'rate_limited');
@@ -81,7 +75,6 @@ module.exports = async function handler(req, res) {
       expiresAt: created.invite.expires_at,
       activateUrl: activateUrl,
       emailSent: !!(emailResult && emailResult.ok),
-      // rawToken returned once to staff caller for ops tooling — never log to audit
       rawToken: created.rawToken
     });
   } catch (err) {

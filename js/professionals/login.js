@@ -20,15 +20,15 @@
       var sb = await EP.getSupabase();
       var email = EP.$('#email').value.trim().toLowerCase();
       var password = EP.$('#password').value;
-      var { data, error } = await sb.auth.signInWithPassword({ email: email, password: password });
+      var { error } = await sb.auth.signInWithPassword({ email: email, password: password });
       if (error) {
         EP.setStatus(status, 'Aanmelden mislukt. Controleer e-mail en wachtwoord.', 'error');
         return;
       }
       try {
-        await EP.apiFetch('/api/professionals-login-audit', { method: 'POST', body: {} });
+        await EP.apiFetch('login-audit', { method: 'POST', body: {} });
       } catch (e2) { /* non-blocking */ }
-      var sessionRes = await EP.apiFetch('/api/professionals-session');
+      var sessionRes = await EP.apiFetch('session');
       if (!sessionRes.ok) {
         EP.setStatus(status, (sessionRes.body && sessionRes.body.message) || 'Sessie kon niet worden geladen.', 'error');
         await sb.auth.signOut();
@@ -46,12 +46,11 @@
     }
   });
 
-  // If already logged in with membership → dashboard
   EP.getSupabase().then(function (sb) {
     return sb.auth.getSession();
   }).then(function (res) {
     if (res && res.data && res.data.session) {
-      return EP.apiFetch('/api/professionals-session').then(function (s) {
+      return EP.apiFetch('session').then(function (s) {
         if (s.ok && s.body.memberships && s.body.memberships.length) {
           location.replace(nextUrl());
         }

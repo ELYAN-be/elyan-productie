@@ -41,7 +41,7 @@ test('env example has no secrets and required names', function () {
 });
 
 test('invite hash is deterministic sha256', function () {
-  var invites = require('../api/lib/invites');
+  var invites = require('../server/invites');
   var raw = 'test-token-abc';
   var h1 = invites.hashToken(raw);
   var h2 = crypto.createHash('sha256').update(raw, 'utf8').digest('hex');
@@ -50,14 +50,14 @@ test('invite hash is deterministic sha256', function () {
 });
 
 test('email normalize lowercases', function () {
-  var invites = require('../api/lib/invites');
+  var invites = require('../server/invites');
   assert.strictEqual(invites.normalizeEmail('  Foo@ELYAN.BE '), 'foo@elyan.be');
   assert.ok(invites.isValidEmail('a@b.be'));
   assert.ok(!invites.isValidEmail('nope'));
 });
 
 test('inviteFailureCode fail-closed', function () {
-  var invites = require('../api/lib/invites');
+  var invites = require('../server/invites');
   assert.strictEqual(invites.inviteFailureCode(null), 'invite_invalid');
   assert.strictEqual(invites.inviteFailureCode({ invite_status: 'revoked', expires_at: new Date(Date.now() + 99999).toISOString() }), 'invite_revoked');
   assert.strictEqual(invites.inviteFailureCode({ invite_status: 'accepted', expires_at: new Date(Date.now() + 99999).toISOString() }), 'invite_used');
@@ -66,7 +66,7 @@ test('inviteFailureCode fail-closed', function () {
 });
 
 test('rate limit trips', function () {
-  var rl = require('../api/lib/rate-limit');
+  var rl = require('../server/rate-limit');
   var key = 'test:' + Date.now();
   assert.ok(rl.rateLimit(key, 2, 60000).ok);
   assert.ok(rl.rateLimit(key, 2, 60000).ok);
@@ -74,7 +74,7 @@ test('rate limit trips', function () {
 });
 
 test('audit scrub removes tokens', function () {
-  var audit = require('../api/lib/audit');
+  var audit = require('../server/audit');
   var scrubbed = audit.scrubMeta({ token: 'secret', email: 'a@b.be', token_hash: 'x' });
   assert.strictEqual(scrubbed.email, 'a@b.be');
   assert.strictEqual(scrubbed.token, undefined);
@@ -83,15 +83,11 @@ test('audit scrub removes tokens', function () {
 
 test('API route files exist', function () {
   [
-    'api/professionals-session.js',
-    'api/professionals-activate.js',
-    'api/professionals-logout.js',
-    'api/professionals-public-config.js',
-    'api/professionals-login-audit.js',
+    'api/professionals.js',
     'api/control-invites.js',
-    'api/lib/supabase.js',
-    'api/lib/tenancy.js',
-    'api/lib/invites.js'
+    'server/supabase.js',
+    'server/tenancy.js',
+    'server/invites.js'
   ].forEach(function (f) {
     assert.ok(fs.existsSync(path.join(root, f)), f);
   });

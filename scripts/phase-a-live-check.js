@@ -20,8 +20,8 @@ if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY || !process.env.
 
 var assert = require('assert');
 var { createClient } = require('@supabase/supabase-js');
-var { createAdminClient, createAnonClient, getUserFromAccessToken } = require('../api/lib/supabase');
-var { createInvite, acceptInviteForUser, hashToken } = require('../api/lib/invites');
+var { createAdminClient, createAnonClient } = require('../server/supabase');
+var { createInvite, hashToken } = require('../server/invites');
 
 async function main() {
   var admin = createAdminClient();

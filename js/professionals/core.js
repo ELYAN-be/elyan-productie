@@ -19,13 +19,20 @@
     el.hidden = !message;
   }
 
-  function apiUrl(path) {
-    return path;
+  function apiProfessionals(action, options) {
+    options = options || {};
+    var q = '?action=' + encodeURIComponent(action);
+    if (options.query) {
+      Object.keys(options.query).forEach(function (k) {
+        q += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(options.query[k]);
+      });
+    }
+    return '/api/professionals' + q;
   }
 
   async function loadConfig() {
     if (cfgPromise) return cfgPromise;
-    cfgPromise = fetch(apiUrl('/api/professionals-public-config'), { credentials: 'same-origin' })
+    cfgPromise = fetch(apiProfessionals('public-config'), { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; }); })
       .then(function (res) {
         if (!res.ok || !res.body || !res.body.ok) {
@@ -61,22 +68,25 @@
     return data && data.session ? data.session.access_token : null;
   }
 
-  async function apiFetch(path, options) {
+  async function apiFetch(action, options) {
     options = options || {};
     var headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
     if (options.auth !== false) {
       var token = await getAccessToken();
       if (token) headers.Authorization = 'Bearer ' + token;
     }
-    var res = await fetch(apiUrl(path), {
-      method: options.method || 'GET',
+    var method = options.method || 'GET';
+    var body = options.body ? Object.assign({ action: action }, options.body) : null;
+    var url = apiProfessionals(action, { query: options.query });
+    var res = await fetch(url, {
+      method: method,
       headers: headers,
-      body: options.body ? JSON.stringify(options.body) : undefined,
+      body: method === 'GET' || method === 'HEAD' ? undefined : JSON.stringify(body || { action: action }),
       credentials: 'same-origin'
     });
-    var body = null;
-    try { body = await res.json(); } catch (e) { body = {}; }
-    return { ok: res.ok, status: res.status, body: body };
+    var parsed = null;
+    try { parsed = await res.json(); } catch (e) { parsed = {}; }
+    return { ok: res.ok, status: res.status, body: parsed };
   }
 
   async function requireSessionOrRedirect() {
@@ -87,7 +97,7 @@
       location.replace('/professionals/login?next=' + next);
       return null;
     }
-    var sessionRes = await apiFetch('/api/professionals-session');
+    var sessionRes = await apiFetch('session');
     if (sessionRes.status === 401) {
       await sb.auth.signOut();
       location.replace('/professionals/login?next=' + encodeURIComponent(location.pathname));
@@ -103,7 +113,7 @@
   }
 
   async function logout() {
-    try { await apiFetch('/api/professionals-logout', { method: 'POST', body: {} }); } catch (e) { /* ignore */ }
+    try { await apiFetch('logout', { method: 'POST', body: {} }); } catch (e) { /* ignore */ }
     try {
       var sb = await getSupabase();
       await sb.auth.signOut();
@@ -119,6 +129,7 @@
     getSupabase,
     getAccessToken,
     apiFetch,
+    apiProfessionals,
     requireSessionOrRedirect,
     logout
   };
