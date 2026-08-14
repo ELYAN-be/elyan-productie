@@ -26,9 +26,9 @@
         return;
       }
       try {
-        await EP.apiFetch('/api/professionals/login-audit', { method: 'POST', body: {} });
+        await EP.apiFetch('/api/professionals-login-audit', { method: 'POST', body: {} });
       } catch (e2) { /* non-blocking */ }
-      var sessionRes = await EP.apiFetch('/api/professionals/session');
+      var sessionRes = await EP.apiFetch('/api/professionals-session');
       if (!sessionRes.ok) {
         EP.setStatus(status, (sessionRes.body && sessionRes.body.message) || 'Sessie kon niet worden geladen.', 'error');
         await sb.auth.signOut();
@@ -51,7 +51,7 @@
     return sb.auth.getSession();
   }).then(function (res) {
     if (res && res.data && res.data.session) {
-      return EP.apiFetch('/api/professionals/session').then(function (s) {
+      return EP.apiFetch('/api/professionals-session').then(function (s) {
         if (s.ok && s.body.memberships && s.body.memberships.length) {
           location.replace(nextUrl());
         }

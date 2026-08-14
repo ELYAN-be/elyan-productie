@@ -16,7 +16,7 @@
       EP.setStatus(status, 'Deze uitnodigingslink is ongeldig.', 'error');
       return null;
     }
-    var res = await fetch('/api/professionals/activate?token=' + encodeURIComponent(token));
+    var res = await fetch('/api/professionals-activate?token=' + encodeURIComponent(token));
     var body = await res.json().catch(function () { return {}; });
     if (!res.ok || !body.ok) {
       EP.setStatus(status, body.message || 'Deze uitnodiging is niet geldig.', 'error');
@@ -42,7 +42,7 @@
         location.href = '/professionals/login?next=' + next;
         return;
       }
-      var res = await EP.apiFetch('/api/professionals/activate', {
+      var res = await EP.apiFetch('/api/professionals-activate', {
         method: 'POST',
         body: { token: tokenFromUrl() }
       });

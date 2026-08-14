@@ -3,11 +3,11 @@
  * Body: { email, role?, legalName?, displayName?, partnerId?, sendEmail? }
  * Creates partner (optional) + invite; optionally emails via Resend + Supabase generateLink.
  */
-var { requireStaff } = require('../lib/tenancy');
-var { createInvite, generateSupabaseInviteLink, revokeInvite, normalizeEmail, isValidEmail } = require('../lib/invites');
-var { sendPartnerInviteEmail } = require('../lib/invite-email');
-var { json, methodNotAllowed, errorJson, readJson } = require('../lib/http');
-var { rateLimit, clientKey } = require('../lib/rate-limit');
+var { requireStaff } = require('./lib/tenancy');
+var { createInvite, generateSupabaseInviteLink, revokeInvite, normalizeEmail, isValidEmail } = require('./lib/invites');
+var { sendPartnerInviteEmail } = require('./lib/invite-email');
+var { json, methodNotAllowed, errorJson, readJson } = require('./lib/http');
+var { rateLimit, clientKey } = require('./lib/rate-limit');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'DELETE' || (req.method === 'POST' && req.query && req.query.action === 'revoke')) {

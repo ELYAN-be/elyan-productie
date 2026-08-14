@@ -2,10 +2,10 @@
  * POST /api/professionals/logout
  * Client clears Supabase session; we audit the event.
  */
-var { requireUser } = require('../lib/tenancy');
-var { json, methodNotAllowed, errorJson, readJson } = require('../lib/http');
-var { writeAudit } = require('../lib/audit');
-var { rateLimit, clientKey } = require('../lib/rate-limit');
+var { requireUser } = require('./lib/tenancy');
+var { json, methodNotAllowed, errorJson, readJson } = require('./lib/http');
+var { writeAudit } = require('./lib/audit');
+var { rateLimit, clientKey } = require('./lib/rate-limit');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return methodNotAllowed(res, 'POST');

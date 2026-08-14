@@ -83,12 +83,12 @@ test('audit scrub removes tokens', function () {
 
 test('API route files exist', function () {
   [
-    'api/professionals/session.js',
-    'api/professionals/activate.js',
-    'api/professionals/logout.js',
-    'api/professionals/public-config.js',
-    'api/professionals/login-audit.js',
-    'api/control/invites.js',
+    'api/professionals-session.js',
+    'api/professionals-activate.js',
+    'api/professionals-logout.js',
+    'api/professionals-public-config.js',
+    'api/professionals-login-audit.js',
+    'api/control-invites.js',
     'api/lib/supabase.js',
     'api/lib/tenancy.js',
     'api/lib/invites.js'

@@ -2,10 +2,10 @@
  * GET  /api/professionals/activate?token=…  — preview invite
  * POST /api/professionals/activate         — claim membership { token }
  */
-var { requireUser } = require('../lib/tenancy');
-var { previewInvite, acceptInviteForUser } = require('../lib/invites');
-var { json, methodNotAllowed, errorJson, readJson } = require('../lib/http');
-var { rateLimit, clientKey } = require('../lib/rate-limit');
+var { requireUser } = require('./lib/tenancy');
+var { previewInvite, acceptInviteForUser } = require('./lib/invites');
+var { json, methodNotAllowed, errorJson, readJson } = require('./lib/http');
+var { rateLimit, clientKey } = require('./lib/rate-limit');
 
 module.exports = async function handler(req, res) {
   try {

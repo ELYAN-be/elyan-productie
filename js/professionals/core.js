@@ -25,7 +25,7 @@
 
   async function loadConfig() {
     if (cfgPromise) return cfgPromise;
-    cfgPromise = fetch(apiUrl('/api/professionals/public-config'), { credentials: 'same-origin' })
+    cfgPromise = fetch(apiUrl('/api/professionals-public-config'), { credentials: 'same-origin' })
       .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; }); })
       .then(function (res) {
         if (!res.ok || !res.body || !res.body.ok) {
@@ -87,7 +87,7 @@
       location.replace('/professionals/login?next=' + next);
       return null;
     }
-    var sessionRes = await apiFetch('/api/professionals/session');
+    var sessionRes = await apiFetch('/api/professionals-session');
     if (sessionRes.status === 401) {
       await sb.auth.signOut();
       location.replace('/professionals/login?next=' + encodeURIComponent(location.pathname));
@@ -103,7 +103,7 @@
   }
 
   async function logout() {
-    try { await apiFetch('/api/professionals/logout', { method: 'POST', body: {} }); } catch (e) { /* ignore */ }
+    try { await apiFetch('/api/professionals-logout', { method: 'POST', body: {} }); } catch (e) { /* ignore */ }
     try {
       var sb = await getSupabase();
       await sb.auth.signOut();

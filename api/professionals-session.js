@@ -2,9 +2,9 @@
  * GET /api/professionals/session
  * Returns authenticated user + active memberships.
  */
-var { requireUser, listActiveMemberships } = require('../lib/tenancy');
-var { json, methodNotAllowed, errorJson } = require('../lib/http');
-var { writeAudit } = require('../lib/audit');
+var { requireUser, listActiveMemberships } = require('./lib/tenancy');
+var { json, methodNotAllowed, errorJson } = require('./lib/http');
+var { writeAudit } = require('./lib/audit');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return methodNotAllowed(res, 'GET');

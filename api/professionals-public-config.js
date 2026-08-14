@@ -2,7 +2,7 @@
  * GET /api/professionals/public-config
  * Public Supabase URL + anon key only (never service role).
  */
-var { json, methodNotAllowed, errorJson } = require('../lib/http');
+var { json, methodNotAllowed, errorJson } = require('./lib/http');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') return methodNotAllowed(res, 'GET');

@@ -2,10 +2,10 @@
  * POST /api/professionals/login-audit
  * Optional audit after successful client-side Supabase login.
  */
-var { requireUser } = require('../lib/tenancy');
-var { json, methodNotAllowed, errorJson, readJson } = require('../lib/http');
-var { writeAudit } = require('../lib/audit');
-var { rateLimit, clientKey } = require('../lib/rate-limit');
+var { requireUser } = require('./lib/tenancy');
+var { json, methodNotAllowed, errorJson, readJson } = require('./lib/http');
+var { writeAudit } = require('./lib/audit');
+var { rateLimit, clientKey } = require('./lib/rate-limit');
 
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
