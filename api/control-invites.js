@@ -4,6 +4,7 @@
 var { requireStaff } = require('../server/tenancy');
 var { createInvite, generateSupabaseInviteLink, revokeInvite, normalizeEmail, isValidEmail } = require('../server/invites');
 var { sendPartnerInviteEmail } = require('../server/invite-email');
+var { buildActivateUrl, buildPasswordSetupUrl, isPasswordSetupUrl } = require('../server/invite-links');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
 var { rateLimit, clientKey } = require('../server/rate-limit');
 
@@ -47,28 +48,24 @@ module.exports = async function handler(req, res) {
     if (!appUrl) {
       return errorJson(res, 503, 'missing_env', { hint: 'PROFESSIONALS_APP_URL' });
     }
-    var activatePath = '/professionals/activate?token=' + encodeURIComponent(created.rawToken);
-    var activateUrl = appUrl + activatePath;
+    var activateUrl = buildActivateUrl(appUrl, created.rawToken);
 
-    // Password-setup link for NEW users. Never use Supabase action_link here:
-    // that verify redirect can collapse nested next= onto /professionals/activate.
+    // Password-setup link for NEW users. Never embed activate in next= (email clients
+    // mis-follow that nested path). Never use Supabase action_link as the CTA href.
     var passwordSetupUrl = null;
     var linkResult = await generateSupabaseInviteLink(
       email,
       appUrl + '/professionals/reset-password'
     );
     if (linkResult.ok && linkResult.hashedToken) {
-      var setup = new URL(appUrl + '/professionals/reset-password');
-      setup.searchParams.set('token_hash', linkResult.hashedToken);
-      setup.searchParams.set('type', 'invite');
-      setup.searchParams.set('next', activatePath);
-      passwordSetupUrl = setup.toString();
+      passwordSetupUrl = buildPasswordSetupUrl(appUrl, linkResult.hashedToken, created.rawToken);
     }
-    if (!passwordSetupUrl) {
+    if (!passwordSetupUrl || !isPasswordSetupUrl(passwordSetupUrl)) {
       console.error('invite_password_setup_url_missing', {
         ok: !!(linkResult && linkResult.ok),
         hasHashedToken: !!(linkResult && linkResult.hashedToken),
-        hasActionLink: !!(linkResult && linkResult.actionLink)
+        hasActionLink: !!(linkResult && linkResult.actionLink),
+        passwordSetupUrl: passwordSetupUrl || null
       });
       return errorJson(res, 500, 'server_error');
     }

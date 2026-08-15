@@ -87,7 +87,9 @@ test('API route files exist', function () {
     'api/control-invites.js',
     'server/supabase.js',
     'server/tenancy.js',
-    'server/invites.js'
+    'server/invites.js',
+    'server/invite-links.js',
+    'server/invite-email.js'
   ].forEach(function (f) {
     assert.ok(fs.existsSync(path.join(root, f)), f);
   });

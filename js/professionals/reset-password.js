@@ -12,14 +12,33 @@
     return n;
   }
 
-  function safeNextPath() {
-    return safeNextPathFrom(new URLSearchParams(location.search).get('next') || '');
+  function safeInviteToken(raw) {
+    var t = String(raw || '');
+    if (!t || !/^[A-Za-z0-9_-]+$/.test(t)) return null;
+    return t;
+  }
+
+  /**
+   * Only after successful password update. verifyOtp must never call this.
+   */
+  function redirectAfterPasswordUpdate(inviteToken, next) {
+    if (inviteToken) {
+      location.replace('/professionals/activate?token=' + encodeURIComponent(inviteToken));
+      return;
+    }
+    if (next) {
+      location.replace(next);
+      return;
+    }
+    location.replace('/professionals/login');
   }
 
   function stripInviteAuthParamsFromUrl() {
     var url = new URL(location.href);
     url.searchParams.delete('token_hash');
     url.searchParams.delete('type');
+    // Keep invite_token / next so a refresh after verify still knows where to go,
+    // but never navigate here — navigation only after updateUser success.
     var qs = url.searchParams.toString();
     history.replaceState({}, '', url.pathname + (qs ? '?' + qs : '') + url.hash);
   }
@@ -42,15 +61,15 @@
       var params = new URLSearchParams(location.search);
       var tokenHash = params.get('token_hash') || '';
       var type = params.get('type') || '';
-      var rawNext = params.get('next');
-      var next = safeNextPathFrom(rawNext || '');
+      var inviteToken = safeInviteToken(params.get('invite_token'));
+      var next = safeNextPathFrom(params.get('next') || '');
 
       if (tokenHash || type) {
         if (type !== 'invite' || !tokenHash) {
           EP.setStatus(status, 'Deze activatielink is ongeldig.', 'error');
           return;
         }
-        if (rawNext != null && rawNext !== '' && !next) {
+        if (!inviteToken && !next) {
           EP.setStatus(status, 'Deze activatielink is ongeldig.', 'error');
           return;
         }
@@ -61,6 +80,7 @@
           EP.setStatus(status, 'Activatielink is ongeldig of verlopen. Vraag een nieuwe uitnodiging aan.', 'error');
           return;
         }
+        // verifyOtp succeeded — stay on reset-password. Do NOT navigate to next/activate.
         stripInviteAuthParamsFromUrl();
 
         var inviteUpdate = await sb.auth.updateUser({ password: p1 });
@@ -69,17 +89,14 @@
           EP.setStatus(status, 'Wachtwoord instellen mislukt. Probeer het opnieuw.', 'error');
           return;
         }
-        if (next) {
-          EP.setStatus(status, 'Wachtwoord ingesteld. Je wordt doorgestuurd…', 'ok');
-          setTimeout(function () { location.replace(next); }, 1200);
-          return;
-        }
-        EP.setStatus(status, 'Wachtwoord bijgewerkt. Je kunt nu inloggen.', 'ok');
-        setTimeout(function () { location.replace('/professionals/login'); }, 1200);
+        EP.setStatus(status, 'Wachtwoord ingesteld. Je wordt doorgestuurd…', 'ok');
+        setTimeout(function () {
+          redirectAfterPasswordUpdate(inviteToken, next);
+        }, 1200);
         return;
       }
 
-      // Existing recovery / forgot-password flow (no invite token).
+      // Existing recovery / forgot-password flow (no invite token_hash).
       var { data } = await sb.auth.getSession();
       if (!data || !data.session) {
         EP.setStatus(status, 'Je herstelsessie is verlopen. Vraag opnieuw een resetlink aan.', 'error');
@@ -91,14 +108,10 @@
         EP.setStatus(status, 'Wachtwoord resetten mislukt. Probeer opnieuw via “Wachtwoord vergeten”.', 'error');
         return;
       }
-      next = safeNextPath();
-      if (next) {
-        EP.setStatus(status, 'Wachtwoord ingesteld. Je wordt doorgestuurd…', 'ok');
-        setTimeout(function () { location.replace(next); }, 1200);
-        return;
-      }
       EP.setStatus(status, 'Wachtwoord bijgewerkt. Je kunt nu inloggen.', 'ok');
-      setTimeout(function () { location.replace('/professionals/login'); }, 1200);
+      setTimeout(function () {
+        redirectAfterPasswordUpdate(null, next);
+      }, 1200);
     } catch (err) {
       console.error('reset_password_exception', err);
       EP.setStatus(status, 'Er ging iets mis. Probeer het later opnieuw.', 'error');
