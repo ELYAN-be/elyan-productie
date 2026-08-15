@@ -4,6 +4,14 @@
   var form = EP.$('#resetForm');
   var status = EP.$('#resetStatus');
 
+  /** Only same-origin relative paths starting with a single "/". */
+  function safeNextPath() {
+    var n = new URLSearchParams(location.search).get('next') || '';
+    if (!n || n.charAt(0) !== '/' || n.charAt(1) === '/') return null;
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(n) || n.indexOf('\\') >= 0) return null;
+    return n;
+  }
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     EP.setStatus(status, '', '');
@@ -27,6 +35,12 @@
       var { error } = await sb.auth.updateUser({ password: p1 });
       if (error) {
         EP.setStatus(status, 'Wachtwoord resetten mislukt. Probeer opnieuw via “Wachtwoord vergeten”.', 'error');
+        return;
+      }
+      var next = safeNextPath();
+      if (next) {
+        EP.setStatus(status, 'Wachtwoord ingesteld. Je wordt doorgestuurd…', 'ok');
+        setTimeout(function () { location.replace(next); }, 1200);
         return;
       }
       EP.setStatus(status, 'Wachtwoord bijgewerkt. Je kunt nu inloggen.', 'ok');

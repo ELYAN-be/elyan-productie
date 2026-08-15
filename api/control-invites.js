@@ -47,13 +47,14 @@ module.exports = async function handler(req, res) {
     if (!appUrl) {
       return errorJson(res, 503, 'missing_env', { hint: 'PROFESSIONALS_APP_URL' });
     }
-    var activateUrl = appUrl + '/professionals/activate?token=' + encodeURIComponent(created.rawToken);
+    var activatePath = '/professionals/activate?token=' + encodeURIComponent(created.rawToken);
+    var activateUrl = appUrl + activatePath;
+    // New users: Auth invite lands on password setup, then continues to membership claim.
+    var authRedirectTo =
+      appUrl + '/professionals/reset-password?next=' + encodeURIComponent(activatePath);
 
     var authLink = null;
-    var linkResult = await generateSupabaseInviteLink(
-      email,
-      appUrl + '/professionals/activate?token=' + encodeURIComponent(created.rawToken)
-    );
+    var linkResult = await generateSupabaseInviteLink(email, authRedirectTo);
     if (linkResult.ok) authLink = linkResult.actionLink;
 
     var emailResult = { ok: false, skipped: true };
