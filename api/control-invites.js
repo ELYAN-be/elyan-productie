@@ -49,13 +49,20 @@ module.exports = async function handler(req, res) {
     }
     var activatePath = '/professionals/activate?token=' + encodeURIComponent(created.rawToken);
     var activateUrl = appUrl + activatePath;
-    // New users: Auth invite lands on password setup, then continues to membership claim.
-    var authRedirectTo =
-      appUrl + '/professionals/reset-password?next=' + encodeURIComponent(activatePath);
 
     var authLink = null;
-    var linkResult = await generateSupabaseInviteLink(email, authRedirectTo);
-    if (linkResult.ok) authLink = linkResult.actionLink;
+    var linkResult = await generateSupabaseInviteLink(
+      email,
+      appUrl + '/professionals/reset-password?next=' + encodeURIComponent(activatePath)
+    );
+    if (linkResult.ok && linkResult.hashedToken) {
+      authLink =
+        appUrl +
+        '/professionals/reset-password?token_hash=' +
+        encodeURIComponent(linkResult.hashedToken) +
+        '&type=invite&next=' +
+        encodeURIComponent(activatePath);
+    }
 
     var emailResult = { ok: false, skipped: true };
     if (body.sendEmail !== false) {

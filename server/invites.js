@@ -310,11 +310,10 @@ async function generateSupabaseInviteLink(email, redirectTo) {
     console.error('generate_link_failed', error.message);
     return { ok: false, code: 'server_error', error: error.message };
   }
-  var actionLink =
-    (data && data.properties && data.properties.action_link) ||
-    (data && data.action_link) ||
-    null;
-  return { ok: true, actionLink: actionLink, data: data };
+  var props = (data && data.properties) || {};
+  var actionLink = props.action_link || (data && data.action_link) || null;
+  var hashedToken = props.hashed_token || (data && data.hashed_token) || null;
+  return { ok: true, actionLink: actionLink, hashedToken: hashedToken, data: data };
 }
 
 module.exports = {
