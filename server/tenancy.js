@@ -47,6 +47,9 @@ async function requireStaff(req) {
 
 /**
  * Active memberships for a user (member_status=active, partner account_status=active).
+ * Primary source: partner_members.
+ * Fallback: accepted partner_invites claimed by this user — required when service_role
+ * lacks GRANT on partner_members (Phase A production gap).
  */
 async function listActiveMemberships(userId) {
   var admin = createAdminClient();
@@ -55,47 +58,91 @@ async function listActiveMemberships(userId) {
     .select('id, role, member_status, partner_id, partners!inner(id, display_name, legal_name, account_status)')
     .eq('user_id', userId)
     .eq('member_status', 'active');
+
+  if (!error && data) {
+    var memberships = (data || [])
+      .filter(function (row) {
+        return row.partners && row.partners.account_status === 'active';
+      })
+      .map(function (row) {
+        return {
+          membershipId: row.id,
+          role: row.role,
+          partnerId: row.partner_id,
+          partner: {
+            id: row.partners.id,
+            displayName: row.partners.display_name,
+            legalName: row.partners.legal_name,
+            accountStatus: row.partners.account_status
+          }
+        };
+      });
+    return { memberships: memberships, error: null, source: 'partner_members' };
+  }
+
   if (error) {
     console.error('memberships_lookup_failed', error.message);
-    return { memberships: [], error: error.message };
   }
-  var memberships = (data || [])
-    .filter(function (row) {
-      return row.partners && row.partners.account_status === 'active';
-    })
-    .map(function (row) {
-      return {
-        membershipId: row.id,
-        role: row.role,
-        partnerId: row.partner_id,
-        partner: {
-          id: row.partners.id,
-          displayName: row.partners.display_name,
-          legalName: row.partners.legal_name,
-          accountStatus: row.partners.account_status
-        }
-      };
-    });
-  return { memberships: memberships, error: null };
+
+  var { data: invites, error: iErr } = await admin
+    .from('partner_invites')
+    .select('id, role, partner_id, partners!inner(id, display_name, legal_name, account_status)')
+    .eq('accepted_by', userId)
+    .eq('invite_status', 'accepted');
+
+  if (iErr) {
+    console.error('memberships_invite_fallback_failed', iErr.message);
+  } else {
+    var fromInvites = (invites || [])
+      .filter(function (row) {
+        return row.partners && row.partners.account_status === 'active';
+      })
+      .map(function (row) {
+        return {
+          membershipId: row.id,
+          role: row.role,
+          partnerId: row.partner_id,
+          partner: {
+            id: row.partners.id,
+            displayName: row.partners.display_name,
+            legalName: row.partners.legal_name,
+            accountStatus: row.partners.account_status
+          },
+          viaInviteClaim: true
+        };
+      });
+    if (fromInvites.length) {
+      return { memberships: fromInvites, error: null, source: 'partner_invites' };
+    }
+  }
+
+  var { listMembershipsFromAppMetadata } = require('./invites');
+  var metaListed = await listMembershipsFromAppMetadata(admin, userId);
+  if (metaListed.error && !(metaListed.memberships && metaListed.memberships.length)) {
+    return {
+      memberships: [],
+      error: (error && error.message) || (iErr && iErr.message) || metaListed.error
+    };
+  }
+  return {
+    memberships: metaListed.memberships || [],
+    error: null,
+    source: 'app_metadata'
+  };
 }
 
 async function requireActiveMembership(req, partnerId) {
   var auth = await requireUser(req);
   if (!auth.ok) return auth;
 
-  var admin = createAdminClient();
-  var { data: member, error: mErr } = await admin
-    .from('partner_members')
-    .select('id, role, member_status, partner_id')
-    .eq('user_id', auth.user.id)
-    .eq('partner_id', partnerId)
-    .maybeSingle();
-
-  if (mErr) {
-    console.error('membership_check_failed', mErr.message);
+  var listed = await listActiveMemberships(auth.user.id);
+  if (listed.error) {
     return { ok: false, status: 500, code: 'server_error', user: auth.user };
   }
-  if (!member) {
+  var hit = (listed.memberships || []).find(function (m) {
+    return m.partnerId === partnerId;
+  });
+  if (!hit) {
     await writeAudit({
       req: req,
       actorUserId: auth.user.id,
@@ -106,34 +153,22 @@ async function requireActiveMembership(req, partnerId) {
     });
     return { ok: false, status: 403, code: 'no_membership', user: auth.user };
   }
-  if (member.member_status !== 'active') {
-    return { ok: false, status: 403, code: 'member_disabled', user: auth.user };
-  }
-
-  var { data: partner, error: pErr } = await admin
-    .from('partners')
-    .select('id, display_name, legal_name, account_status')
-    .eq('id', partnerId)
-    .maybeSingle();
-
-  if (pErr || !partner) {
-    return { ok: false, status: 403, code: 'no_membership', user: auth.user };
-  }
-  if (partner.account_status === 'suspended') {
-    return { ok: false, status: 403, code: 'partner_suspended', user: auth.user, partner: partner };
-  }
-  if (partner.account_status === 'closed') {
-    return { ok: false, status: 403, code: 'partner_closed', user: auth.user, partner: partner };
-  }
-  if (partner.account_status !== 'active') {
-    return { ok: false, status: 403, code: 'partner_suspended', user: auth.user, partner: partner };
-  }
 
   return {
     ok: true,
     user: auth.user,
-    membership: member,
-    partner: partner,
+    membership: {
+      id: hit.membershipId,
+      role: hit.role,
+      member_status: 'active',
+      partner_id: hit.partnerId
+    },
+    partner: {
+      id: hit.partner.id,
+      display_name: hit.partner.displayName,
+      legal_name: hit.partner.legalName,
+      account_status: hit.partner.accountStatus
+    },
     accessToken: auth.accessToken
   };
 }

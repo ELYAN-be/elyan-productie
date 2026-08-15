@@ -185,3 +185,14 @@ GRANT SELECT, UPDATE, INSERT ON public.profiles TO authenticated;
 GRANT SELECT ON public.partners TO authenticated;
 GRANT SELECT ON public.partner_members TO authenticated;
 GRANT SELECT ON public.staff_users TO authenticated;
+
+-- BFF (Vercel serverless) uses the Supabase service_role key. Without these
+-- GRANTs, acceptInviteForUser fails with:
+--   membership_create_failed permission denied for table partner_members
+GRANT USAGE ON SCHEMA public TO service_role;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.profiles TO service_role;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.partners TO service_role;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.partner_members TO service_role;
+GRANT SELECT, INSERT, UPDATE ON TABLE public.partner_invites TO service_role;
+GRANT SELECT ON TABLE public.staff_users TO service_role;
+GRANT INSERT ON TABLE public.audit_logs TO service_role;

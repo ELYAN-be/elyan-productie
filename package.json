@@ -5,8 +5,9 @@
   "description": "ELYAN — renovatie-inschattingsplatform voor België",
   "scripts": {
     "prepare:production": "node scripts/prepare-production-deploy.js",
-    "test:phase-a": "node scripts/phase-a-check.js && node scripts/invite-flow-regression-check.js",
+    "test:phase-a": "node scripts/phase-a-check.js && node scripts/invite-flow-regression-check.js && node scripts/claim-flow-regression-check.js",
     "test:invite-e2e": "node scripts/invite-password-browser-e2e.js",
+    "test:claim-e2e": "node scripts/invite-claim-browser-e2e.js",
     "test:phase-a-live": "node scripts/phase-a-live-check.js",
     "validate:pricing": "node scripts/validate-pricing.js",
     "test:parity": "node scripts/test-parity.js",

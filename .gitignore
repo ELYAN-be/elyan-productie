@@ -8,3 +8,5 @@ node_modules/
 .e2e-invite.json
 .e2e-invite-email.html
 .e2e-browser-trace.json
+.e2e-claim-invite.json
+.e2e-claim-trace.json
