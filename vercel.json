@@ -10,6 +10,10 @@
   ],
   "rewrites": [
     {
+      "source": "/professionals/set-password/:payload",
+      "destination": "/professionals/reset-password"
+    },
+    {
       "source": "/vakmannen/:slug",
       "destination": "/vakmannen-detail"
     }

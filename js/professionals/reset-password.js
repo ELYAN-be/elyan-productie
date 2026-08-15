@@ -18,6 +18,56 @@
     return t;
   }
 
+  function decodePasswordSetupPayload(encoded) {
+    var s = String(encoded || '').replace(/-/g, '+').replace(/_/g, '/');
+    while (s.length % 4) s += '=';
+    var raw;
+    try {
+      raw = decodeURIComponent(escape(atob(s)));
+    } catch (e) {
+      return null;
+    }
+    var i = raw.indexOf('\n');
+    if (i < 1) return null;
+    var tokenHash = raw.slice(0, i);
+    var inviteToken = raw.slice(i + 1);
+    if (!tokenHash || !safeInviteToken(inviteToken)) return null;
+    return { tokenHash: tokenHash, inviteToken: inviteToken, type: 'invite' };
+  }
+
+  /**
+   * Resolve invite credentials from:
+   * 1) /professionals/set-password/<payload>  (canonical email CTA)
+   * 2) ?token_hash=&type=invite&invite_token= (legacy)
+   * Never reads activate URLs; never navigates on parse.
+   */
+  function resolveInviteCredentials() {
+    var path = location.pathname || '';
+    var m = path.match(/^\/professionals\/set-password\/([A-Za-z0-9_-]+)$/);
+    if (m) {
+      var decoded = decodePasswordSetupPayload(m[1]);
+      if (decoded) return decoded;
+    }
+    var params = new URLSearchParams(location.search);
+    var tokenHash = params.get('token_hash') || '';
+    var type = params.get('type') || '';
+    var inviteToken = safeInviteToken(params.get('invite_token'));
+    if (tokenHash || type) {
+      return {
+        tokenHash: tokenHash,
+        type: type,
+        inviteToken: inviteToken,
+        next: safeNextPathFrom(params.get('next') || '')
+      };
+    }
+    return {
+      tokenHash: '',
+      type: '',
+      inviteToken: null,
+      next: safeNextPathFrom(params.get('next') || '')
+    };
+  }
+
   /**
    * Only after successful password update. verifyOtp must never call this.
    */
@@ -34,11 +84,15 @@
   }
 
   function stripInviteAuthParamsFromUrl() {
+    var path = location.pathname || '';
+    if (/^\/professionals\/set-password\//.test(path)) {
+      // Stay on a stable path without the one-time payload after verify.
+      history.replaceState({}, '', '/professionals/reset-password');
+      return;
+    }
     var url = new URL(location.href);
     url.searchParams.delete('token_hash');
     url.searchParams.delete('type');
-    // Keep invite_token / next so a refresh after verify still knows where to go,
-    // but never navigate here — navigation only after updateUser success.
     var qs = url.searchParams.toString();
     history.replaceState({}, '', url.pathname + (qs ? '?' + qs : '') + url.hash);
   }
@@ -58,11 +112,11 @@
     }
     try {
       var sb = await EP.getSupabase();
-      var params = new URLSearchParams(location.search);
-      var tokenHash = params.get('token_hash') || '';
-      var type = params.get('type') || '';
-      var inviteToken = safeInviteToken(params.get('invite_token'));
-      var next = safeNextPathFrom(params.get('next') || '');
+      var creds = resolveInviteCredentials();
+      var tokenHash = creds.tokenHash || '';
+      var type = creds.type || (tokenHash ? 'invite' : '');
+      var inviteToken = creds.inviteToken || null;
+      var next = creds.next || null;
 
       if (tokenHash || type) {
         if (type !== 'invite' || !tokenHash) {

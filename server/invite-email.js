@@ -61,7 +61,13 @@ async function sendPartnerInviteEmail(opts) {
       console.error('Resend invite error', resp.status, errText);
       return { ok: false, queued: false, reason: 'email_failed' };
     }
-    return { ok: true, queued: true };
+    var payload = null;
+    try {
+      payload = await resp.json();
+    } catch (e) {
+      payload = null;
+    }
+    return { ok: true, queued: true, id: payload && payload.id ? payload.id : null };
   } catch (err) {
     console.error('invite_email_exception', err);
     return { ok: false, queued: false, reason: 'server_error' };

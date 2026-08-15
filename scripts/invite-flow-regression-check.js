@@ -9,6 +9,8 @@ var path = require('path');
 var {
   buildActivateUrl,
   buildPasswordSetupUrl,
+  encodePasswordSetupPayload,
+  decodePasswordSetupPayload,
   isPasswordSetupUrl,
   isActivateUrl,
   buildInviteEmailHtml,
@@ -25,16 +27,18 @@ function test(name, fn) {
   console.log('OK ', name);
 }
 
-test('password setup URL is reset-password with token_hash + invite_token (no activate path)', function () {
+test('password setup URL is opaque set-password path (no query, no activate)', function () {
   var url = buildPasswordSetupUrl(APP, HASH, ELYAN);
   var u = new URL(url);
-  assert.strictEqual(u.pathname, '/professionals/reset-password');
-  assert.strictEqual(u.searchParams.get('token_hash'), HASH);
-  assert.strictEqual(u.searchParams.get('type'), 'invite');
-  assert.strictEqual(u.searchParams.get('invite_token'), ELYAN);
-  assert.strictEqual(u.searchParams.get('next'), null);
+  assert.ok(/^\/professionals\/set-password\/[A-Za-z0-9_-]+$/.test(u.pathname));
+  assert.strictEqual(u.search, '');
   assert.ok(url.indexOf('/professionals/activate') < 0);
+  assert.ok(url.indexOf('token_hash') < 0);
+  assert.ok(url.indexOf('invite_token') < 0);
   assert.ok(isPasswordSetupUrl(url));
+  var decoded = decodePasswordSetupPayload(u.pathname.split('/').pop());
+  assert.strictEqual(decoded.tokenHash, HASH);
+  assert.strictEqual(decoded.inviteToken, ELYAN);
 });
 
 test('activate URL is membership confirm only', function () {
@@ -60,9 +64,9 @@ test('email HTML first CTA href is password setup; second is activate', function
   assert.ok(isPasswordSetupUrl(hrefs.passwordSetupUrl));
   assert.ok(isActivateUrl(hrefs.activateUrl));
   assert.ok(hrefs.passwordSetupUrl.indexOf('/professionals/activate') < 0);
+  assert.ok(hrefs.passwordSetupUrl.indexOf('/professionals/set-password/') >= 0);
   assert.ok(html.indexOf('Wachtwoord instellen') >= 0);
   assert.ok(html.indexOf('Lidmaatschap bevestigen') >= 0);
-  // Legacy confusing CTA label must not appear
   assert.ok(html.indexOf('Account activeren / wachtwoord instellen') < 0);
 });
 
@@ -74,6 +78,16 @@ test('legacy next=activate passwordSetupUrl is rejected', function () {
     '&type=invite&next=' +
     encodeURIComponent('/professionals/activate?token=' + ELYAN);
   assert.ok(!isPasswordSetupUrl(legacy));
+});
+
+test('legacy query invite_token form is still accepted', function () {
+  var legacy =
+    APP +
+    '/professionals/reset-password?token_hash=' +
+    encodeURIComponent(HASH) +
+    '&type=invite&invite_token=' +
+    encodeURIComponent(ELYAN);
+  assert.ok(isPasswordSetupUrl(legacy));
 });
 
 test('supabase action_link is rejected as password setup CTA', function () {
@@ -108,19 +122,18 @@ test('after updateUser: invite_token redirects to activate; else login', functio
 test('new-user flow mapping: setup page visible then activate after password', function () {
   var setup = buildPasswordSetupUrl(APP, HASH, ELYAN);
   var u = new URL(setup);
-  assert.strictEqual(u.pathname, '/professionals/reset-password');
-  // Simulated: verifyOtp OK → still on reset-password (no navigation helper returns null)
+  assert.ok(u.pathname.indexOf('/professionals/set-password/') === 0);
+  var payload = decodePasswordSetupPayload(u.pathname.split('/').pop());
   assert.strictEqual(
     resolvePasswordSetupRedirect({
       passwordUpdated: false,
-      inviteToken: u.searchParams.get('invite_token')
+      inviteToken: payload.inviteToken
     }),
     null
   );
-  // Simulated: updateUser OK → activate for membership claim
   var after = resolvePasswordSetupRedirect({
     passwordUpdated: true,
-    inviteToken: u.searchParams.get('invite_token')
+    inviteToken: payload.inviteToken
   });
   assert.strictEqual(after, '/professionals/activate?token=' + encodeURIComponent(ELYAN));
 });
@@ -129,6 +142,13 @@ test('existing-user flow: membership link is activate only (login then claim)', 
   var activateUrl = buildActivateUrl(APP, ELYAN);
   assert.ok(isActivateUrl(activateUrl));
   assert.ok(!isPasswordSetupUrl(activateUrl));
+});
+
+test('encode/decode roundtrip', function () {
+  var enc = encodePasswordSetupPayload(HASH, ELYAN);
+  var dec = decodePasswordSetupPayload(enc);
+  assert.strictEqual(dec.tokenHash, HASH);
+  assert.strictEqual(dec.inviteToken, ELYAN);
 });
 
 test('reset-password.js contains verify-then-update order and no navigate after verify alone', function () {
@@ -146,6 +166,7 @@ test('reset-password.js contains verify-then-update order and no navigate after 
   var between = afterVerify.slice(0, updateCall);
   assert.ok(between.indexOf('location.replace') < 0, 'no navigation between verify and update');
   assert.ok(between.indexOf('redirectAfterPasswordUpdate') < 0, 'no redirect helper between verify and update');
+  assert.ok(src.indexOf('set-password') >= 0, 'parses canonical set-password path');
 });
 
 test('control-invites uses buildPasswordSetupUrl / buildActivateUrl', function () {
@@ -154,6 +175,15 @@ test('control-invites uses buildPasswordSetupUrl / buildActivateUrl', function (
   assert.ok(src.indexOf('buildActivateUrl') >= 0);
   assert.ok(src.indexOf('passwordSetupUrl') >= 0);
   assert.ok(src.indexOf("searchParams.set('next'") < 0, 'must not set next=activate on password setup URL');
+});
+
+test('vercel rewrites set-password to reset-password page', function () {
+  var cfg = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'vercel.json'), 'utf8'));
+  var hit = (cfg.rewrites || []).some(function (r) {
+    return r.source === '/professionals/set-password/:payload' &&
+      r.destination === '/professionals/reset-password';
+  });
+  assert.ok(hit, 'set-password rewrite missing');
 });
 
 console.log('\nAll invite-flow regression checks passed');

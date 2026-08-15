@@ -14,33 +14,72 @@ function buildActivateUrl(appUrl, elyanInviteToken) {
 
 /**
  * Password-setup URL for NEW users.
- * IMPORTANT: do NOT embed /professionals/activate in `next=` — email clients and
- * link scanners often collapse that nested path and open activate instead.
- * Use opaque invite_token; the reset-password page builds the activate URL after
- * a successful updateUser({ password }).
+ *
+ * Opaque single path segment — no querystring and no "/activate" substring.
+ * Multi-param query URLs (and nested next=/activate) were mis-followed by
+ * email clients / link scanners onto /professionals/activate.
+ *
+ * Shape: /professionals/set-password/<base64url(token_hash + "\\n" + invite_token)>
  */
+function encodePasswordSetupPayload(hashedToken, elyanInviteToken) {
+  var raw = String(hashedToken || '') + '\n' + String(elyanInviteToken || '');
+  var b64;
+  if (typeof Buffer !== 'undefined') {
+    b64 = Buffer.from(raw, 'utf8').toString('base64');
+  } else if (typeof btoa === 'function') {
+    b64 = btoa(unescape(encodeURIComponent(raw)));
+  } else {
+    throw new Error('no_base64');
+  }
+  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+}
+
+function decodePasswordSetupPayload(encoded) {
+  var s = String(encoded || '').replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  var raw;
+  try {
+    if (typeof Buffer !== 'undefined') {
+      raw = Buffer.from(s, 'base64').toString('utf8');
+    } else if (typeof atob === 'function') {
+      raw = decodeURIComponent(escape(atob(s)));
+    } else {
+      return null;
+    }
+  } catch (e) {
+    return null;
+  }
+  var i = raw.indexOf('\n');
+  if (i < 1) return null;
+  var tokenHash = raw.slice(0, i);
+  var inviteToken = raw.slice(i + 1);
+  if (!tokenHash || !inviteToken) return null;
+  if (!/^[A-Za-z0-9_-]+$/.test(inviteToken)) return null;
+  return { tokenHash: tokenHash, inviteToken: inviteToken, type: 'invite' };
+}
+
 function buildPasswordSetupUrl(appUrl, hashedToken, elyanInviteToken) {
   var base = String(appUrl || '').replace(/\/$/, '');
-  var setup = new URL(base + '/professionals/reset-password');
-  setup.searchParams.set('token_hash', String(hashedToken || ''));
-  setup.searchParams.set('type', 'invite');
-  setup.searchParams.set('invite_token', String(elyanInviteToken || ''));
-  return setup.toString();
+  var payload = encodePasswordSetupPayload(hashedToken, elyanInviteToken);
+  return base + '/professionals/set-password/' + payload;
 }
 
 function isPasswordSetupUrl(url) {
   try {
     var u = new URL(String(url || ''));
-    if (u.pathname !== '/professionals/reset-password') return false;
-    if (!u.searchParams.get('token_hash')) return false;
-    if (u.searchParams.get('type') !== 'invite') return false;
-    if (!u.searchParams.get('invite_token')) return false;
-    // Must not look like an activate deep-link in the path.
-    if (u.pathname.indexOf('/professionals/activate') >= 0) return false;
-    // Reject legacy next=activate embeddings that email clients mis-follow.
-    var next = u.searchParams.get('next') || '';
-    if (next.indexOf('/professionals/activate') >= 0) return false;
-    return true;
+    if (String(url).indexOf('/professionals/activate') >= 0) return false;
+    if (/^\/professionals\/set-password\/[A-Za-z0-9_-]+$/.test(u.pathname)) {
+      return !!decodePasswordSetupPayload(u.pathname.split('/').pop());
+    }
+    // Legacy query form still accepted by the page for old emails in flight.
+    if (u.pathname === '/professionals/reset-password') {
+      if (!u.searchParams.get('token_hash')) return false;
+      if (u.searchParams.get('type') !== 'invite') return false;
+      if (!u.searchParams.get('invite_token') && !u.searchParams.get('next')) return false;
+      if ((u.searchParams.get('next') || '').indexOf('/professionals/activate') >= 0) return false;
+      return true;
+    }
+    return false;
   } catch (e) {
     return false;
   }
@@ -74,7 +113,7 @@ function buildInviteEmailHtml(opts) {
     '<h1 style="font-size:18px;">Uitnodiging voor ELYAN for Professionals</h1>' +
     '<p>Je bent uitgenodigd voor <strong>' + escapeHtml(partnerName) + '</strong>.</p>' +
     '<p><a id="cta-password" href="' + escapeHtml(passwordSetupUrl) + '">Wachtwoord instellen</a></p>' +
-    '<p style="color:#6E7062;font-size:13px;">Nieuwe gebruikers: stel eerst je wachtwoord in via de link hierboven. Daarna bevestig je je lidmaatschap.</p>' +
+    '<p style="color:#6E7062;font-size:13px;">Nieuwe gebruikers: open eerst alleen “Wachtwoord instellen”. Daarna bevestig je je lidmaatschap.</p>' +
     '<p><a id="cta-membership" href="' + escapeHtml(activateUrl) + '">Lidmaatschap bevestigen</a></p>' +
     '<p style="color:#6E7062;font-size:13px;">Heb je al een ELYAN-account? Log in met dit e-mailadres en open de bevestigingslink.</p>' +
     '</body></html>'
@@ -104,7 +143,6 @@ function resolvePasswordSetupRedirect(opts) {
   var next = opts.next || '';
   if (next && next.charAt(0) === '/' && next.charAt(1) !== '/') {
     if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(next) || next.indexOf('\\') >= 0) return null;
-    // Never auto-follow legacy next=activate from URL without passwordUpdated (already gated).
     return next;
   }
   return '/professionals/login';
@@ -114,6 +152,8 @@ module.exports = {
   escapeHtml,
   buildActivateUrl,
   buildPasswordSetupUrl,
+  encodePasswordSetupPayload,
+  decodePasswordSetupPayload,
   isPasswordSetupUrl,
   isActivateUrl,
   buildInviteEmailHtml,

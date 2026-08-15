@@ -50,8 +50,8 @@ module.exports = async function handler(req, res) {
     }
     var activateUrl = buildActivateUrl(appUrl, created.rawToken);
 
-    // Password-setup link for NEW users. Never embed activate in next= (email clients
-    // mis-follow that nested path). Never use Supabase action_link as the CTA href.
+    // Password-setup link for NEW users. Opaque /set-password/<payload> path —
+    // never embed activate in next=, never use Supabase action_link as CTA href.
     var passwordSetupUrl = null;
     var linkResult = await generateSupabaseInviteLink(
       email,

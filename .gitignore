@@ -5,3 +5,6 @@ node_modules/
 .env.local
 .env.*.local
 !.env.example
+.e2e-invite.json
+.e2e-invite-email.html
+.e2e-browser-trace.json

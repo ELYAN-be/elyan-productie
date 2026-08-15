@@ -6,6 +6,7 @@
   "scripts": {
     "prepare:production": "node scripts/prepare-production-deploy.js",
     "test:phase-a": "node scripts/phase-a-check.js && node scripts/invite-flow-regression-check.js",
+    "test:invite-e2e": "node scripts/invite-password-browser-e2e.js",
     "test:phase-a-live": "node scripts/phase-a-live-check.js",
     "validate:pricing": "node scripts/validate-pricing.js",
     "test:parity": "node scripts/test-parity.js",
@@ -26,5 +27,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
     "pdfkit": "^0.19.1"
+  },
+  "devDependencies": {
+    "playwright": "^1.49.1"
   }
 }

@@ -51,11 +51,18 @@
       throw new Error('Supabase client niet geladen');
     }
     var cfg = await loadConfig();
+    // On password-setup routes, never auto-consume URL tokens into a session
+    // redirect — verifyOtp runs only on explicit form submit.
+    var path = (global.location && global.location.pathname) || '';
+    var isPasswordSetupRoute =
+      path === '/professionals/reset-password' ||
+      path.indexOf('/professionals/set-password/') === 0;
+
     supabaseClient = global.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: true,
+        detectSessionInUrl: !isPasswordSetupRoute,
         flowType: 'pkce'
       }
     });
