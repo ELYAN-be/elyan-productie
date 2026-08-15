@@ -50,18 +50,27 @@ module.exports = async function handler(req, res) {
     var activatePath = '/professionals/activate?token=' + encodeURIComponent(created.rawToken);
     var activateUrl = appUrl + activatePath;
 
-    var authLink = null;
+    // Password-setup link for NEW users. Never use Supabase action_link here:
+    // that verify redirect can collapse nested next= onto /professionals/activate.
+    var passwordSetupUrl = null;
     var linkResult = await generateSupabaseInviteLink(
       email,
-      appUrl + '/professionals/reset-password?next=' + encodeURIComponent(activatePath)
+      appUrl + '/professionals/reset-password'
     );
     if (linkResult.ok && linkResult.hashedToken) {
-      authLink =
-        appUrl +
-        '/professionals/reset-password?token_hash=' +
-        encodeURIComponent(linkResult.hashedToken) +
-        '&type=invite&next=' +
-        encodeURIComponent(activatePath);
+      var setup = new URL(appUrl + '/professionals/reset-password');
+      setup.searchParams.set('token_hash', linkResult.hashedToken);
+      setup.searchParams.set('type', 'invite');
+      setup.searchParams.set('next', activatePath);
+      passwordSetupUrl = setup.toString();
+    }
+    if (!passwordSetupUrl) {
+      console.error('invite_password_setup_url_missing', {
+        ok: !!(linkResult && linkResult.ok),
+        hasHashedToken: !!(linkResult && linkResult.hashedToken),
+        hasActionLink: !!(linkResult && linkResult.actionLink)
+      });
+      return errorJson(res, 500, 'server_error');
     }
 
     var emailResult = { ok: false, skipped: true };
@@ -70,7 +79,7 @@ module.exports = async function handler(req, res) {
         to: email,
         partnerName: body.displayName || body.legalName || 'ELYAN Partner',
         activateUrl: activateUrl,
-        authActionLink: authLink
+        passwordSetupUrl: passwordSetupUrl
       });
     }
 
@@ -82,6 +91,7 @@ module.exports = async function handler(req, res) {
       role: created.invite.role,
       expiresAt: created.invite.expires_at,
       activateUrl: activateUrl,
+      passwordSetupUrl: passwordSetupUrl,
       emailSent: !!(emailResult && emailResult.ok),
       rawToken: created.rawToken
     });

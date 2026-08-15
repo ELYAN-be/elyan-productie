@@ -9,6 +9,20 @@ function escapeHtml(str) {
   });
 }
 
+function isPasswordSetupUrl(url) {
+  try {
+    var u = new URL(String(url || ''));
+    if (u.pathname.indexOf('/professionals/reset-password') < 0) return false;
+    if (!u.searchParams.get('token_hash')) return false;
+    if (u.searchParams.get('type') !== 'invite') return false;
+    // Pathname must not be the membership activate page.
+    if (u.pathname.indexOf('/professionals/activate') >= 0) return false;
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
 async function sendPartnerInviteEmail(opts) {
   var apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
@@ -19,16 +33,24 @@ async function sendPartnerInviteEmail(opts) {
   var to = opts.to;
   var partnerName = opts.partnerName || 'ELYAN';
   var activateUrl = opts.activateUrl;
-  var authActionLink = opts.authActionLink || null;
+  // Prefer passwordSetupUrl; keep authActionLink as legacy alias during transition.
+  var passwordSetupUrl = opts.passwordSetupUrl || opts.authActionLink || null;
+
+  if (!passwordSetupUrl || !isPasswordSetupUrl(passwordSetupUrl)) {
+    console.error('invite_email_invalid_password_setup_url', passwordSetupUrl || null);
+    return { ok: false, queued: false, reason: 'invalid_password_setup_url' };
+  }
+  if (!activateUrl) {
+    console.error('invite_email_missing_activate_url');
+    return { ok: false, queued: false, reason: 'missing_activate_url' };
+  }
 
   var html =
     '<!DOCTYPE html><html lang="nl-BE"><body style="font-family:Arial,Helvetica,sans-serif;color:#14150F;">' +
     '<h1 style="font-size:18px;">Uitnodiging voor ELYAN for Professionals</h1>' +
     '<p>Je bent uitgenodigd voor <strong>' + escapeHtml(partnerName) + '</strong>.</p>' +
-    (authActionLink
-      ? '<p><a href="' + escapeHtml(authActionLink) + '">Account activeren / wachtwoord instellen</a></p>' +
-        '<p style="color:#6E7062;font-size:13px;">Nieuwe gebruikers: gebruik eerst de activatielink hierboven. Daarna kun je je lidmaatschap bevestigen.</p>'
-      : '') +
+    '<p><a href="' + escapeHtml(passwordSetupUrl) + '">Account activeren / wachtwoord instellen</a></p>' +
+    '<p style="color:#6E7062;font-size:13px;">Nieuwe gebruikers: gebruik eerst de activatielink hierboven. Daarna kun je je lidmaatschap bevestigen.</p>' +
     '<p><a href="' + escapeHtml(activateUrl) + '">Lidmaatschap bevestigen</a></p>' +
     '<p style="color:#6E7062;font-size:13px;">Heb je al een ELYAN-account? Log in met dit e-mailadres en open de bevestigingslink.</p>' +
     '</body></html>';
@@ -59,4 +81,4 @@ async function sendPartnerInviteEmail(opts) {
   }
 }
 
-module.exports = { sendPartnerInviteEmail };
+module.exports = { sendPartnerInviteEmail, isPasswordSetupUrl };

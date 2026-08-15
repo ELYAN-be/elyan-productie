@@ -313,6 +313,14 @@ async function generateSupabaseInviteLink(email, redirectTo) {
   var props = (data && data.properties) || {};
   var actionLink = props.action_link || (data && data.action_link) || null;
   var hashedToken = props.hashed_token || (data && data.hashed_token) || null;
+  // Some GoTrue responses omit hashed_token but embed it as ?token= on action_link.
+  if (!hashedToken && actionLink) {
+    try {
+      hashedToken = new URL(actionLink).searchParams.get('token');
+    } catch (e) {
+      hashedToken = null;
+    }
+  }
   return { ok: true, actionLink: actionLink, hashedToken: hashedToken, data: data };
 }
 
