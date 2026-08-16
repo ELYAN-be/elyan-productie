@@ -59,7 +59,14 @@ var USER_MESSAGES = {
   password_too_weak: 'Kies een wachtwoord van minstens 8 tekens.',
   server_error: 'Er ging iets mis. Probeer het later opnieuw.',
   missing_env: 'De serveromgeving is nog niet geconfigureerd.',
-  not_staff: 'Je hebt geen ELYAN Control-rechten.'
+  not_staff: 'Je hebt geen ELYAN Control-rechten.',
+  version_required: 'Versie ontbreekt. Vernieuw de pagina en probeer opnieuw.',
+  version_conflict: 'Je gegevens zijn ondertussen gewijzigd. Vernieuw en probeer opnieuw.',
+  invalid_draft: 'De opgeslagen gegevens zijn ongeldig.',
+  invalid_step: 'Deze onboardingstap is ongeldig.',
+  invalid_status_transition: 'Deze actie is niet mogelijk in de huidige status.',
+  section_locked: 'Dit onderdeel is vergrendeld tijdens de ELYAN-controle.',
+  partner_required: 'Kies een partnercontext om verder te gaan.'
 };
 
 function userMessage(code) {

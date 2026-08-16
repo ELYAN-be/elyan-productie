@@ -36,5 +36,12 @@ Phase A BFF (`createAdminClient`) needs table GRANTs on:
 `staff_users` (SELECT), `audit_logs` (INSERT). Captured in
 `20260814_phase_a_foundation.sql` and re-applied idempotently by
 `20260815_service_role_grants.sql` for DBs that missed them.
+
+Phase B onboarding BFF additionally needs SELECT/INSERT/UPDATE on:
+`partner_onboarding`, `partner_profiles`, `partner_profile_assets`, `partner_review_items`
+(`20260816_phase_b_onboarding_foundation.sql`, repair in
+`20260816_phase_b_service_role_grants.sql`). Authenticated may SELECT those
+tables via RLS (active membership); writes remain BFF/service_role only.
+
 Do not grant invite/membership writes to `anon` or `authenticated`.
 The BFF still has Auth `app_metadata` fallback if table GRANTs are incomplete.

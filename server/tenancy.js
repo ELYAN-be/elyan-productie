@@ -176,10 +176,78 @@ async function requireActiveMembership(req, partnerId) {
   };
 }
 
+/**
+ * Resolve partner context from memberships.
+ * partnerId optional when the user has exactly one active membership.
+ */
+async function requirePartnerContext(req, partnerId) {
+  var auth = await requireUser(req);
+  if (!auth.ok) return auth;
+
+  var listed = await listActiveMemberships(auth.user.id);
+  if (listed.error) {
+    return { ok: false, status: 500, code: 'server_error', user: auth.user };
+  }
+  var memberships = listed.memberships || [];
+  if (!memberships.length) {
+    await writeAudit({
+      req: req,
+      actorUserId: auth.user.id,
+      actorType: 'user',
+      partnerId: partnerId || null,
+      action: 'authorization_denied',
+      meta: { reason: 'no_membership' }
+    });
+    return { ok: false, status: 403, code: 'no_membership', user: auth.user };
+  }
+
+  var pid = partnerId ? String(partnerId) : '';
+  var hit = null;
+  if (pid) {
+    hit = memberships.find(function (m) {
+      return m.partnerId === pid;
+    });
+    if (!hit) {
+      await writeAudit({
+        req: req,
+        actorUserId: auth.user.id,
+        actorType: 'user',
+        partnerId: pid,
+        action: 'authorization_denied',
+        meta: { reason: 'no_membership' }
+      });
+      return { ok: false, status: 403, code: 'no_membership', user: auth.user };
+    }
+  } else if (memberships.length === 1) {
+    hit = memberships[0];
+  } else {
+    return { ok: false, status: 400, code: 'partner_required', user: auth.user };
+  }
+
+  return {
+    ok: true,
+    user: auth.user,
+    membership: {
+      id: hit.membershipId,
+      role: hit.role,
+      member_status: 'active',
+      partner_id: hit.partnerId
+    },
+    partner: {
+      id: hit.partner.id,
+      display_name: hit.partner.displayName,
+      legal_name: hit.partner.legalName,
+      account_status: hit.partner.accountStatus
+    },
+    accessToken: auth.accessToken
+  };
+}
+
 module.exports = {
   requireUser,
   requireStaff,
   isStaff,
   listActiveMemberships,
-  requireActiveMembership
+  requireActiveMembership,
+  requirePartnerContext
 };
