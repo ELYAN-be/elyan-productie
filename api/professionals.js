@@ -1,10 +1,11 @@
 /**
  * /api/professionals — Phase A router (single serverless function for Hobby limits)
  * Routes via ?action= or JSON body.action
- * actions: public-config | session | activate | logout | login-audit
+ * actions: public-config | session | activate | setup-password | logout | login-audit
  */
 var { requireUser, listActiveMemberships } = require('../server/tenancy');
 var { previewInvite, acceptInviteForUser } = require('../server/invites');
+var { setupPasswordForInvite } = require('../server/auth-password');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
 var { writeAudit } = require('../server/audit');
 var { rateLimit, clientKey } = require('../server/rate-limit');
@@ -112,6 +113,29 @@ async function handleLogout(req, res) {
   return json(res, 200, { ok: true });
 }
 
+async function handleSetupPassword(req, res, body) {
+  if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+  var rl = rateLimit(clientKey(req, 'setup_password'), 10, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  var token = getToken(req, body);
+  var password = body && body.password != null ? String(body.password) : '';
+  if (!token) return errorJson(res, 400, 'invite_invalid');
+  var result = await setupPasswordForInvite({
+    rawToken: token,
+    password: password,
+    req: req
+  });
+  if (!result.ok) {
+    var status = result.code === 'password_too_weak' ? 400 : 400;
+    return errorJson(res, status, result.code);
+  }
+  return json(res, 200, {
+    ok: true,
+    email: result.email,
+    inviteToken: result.inviteToken
+  });
+}
+
 async function handleLoginAudit(req, res) {
   if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
   var rl = rateLimit(clientKey(req, 'login_audit'), 30, 60 * 1000);
@@ -139,6 +163,7 @@ module.exports = async function handler(req, res) {
     if (action === 'public-config' || action === 'config') return handlePublicConfig(req, res);
     if (action === 'session') return handleSession(req, res);
     if (action === 'activate') return handleActivate(req, res, body);
+    if (action === 'setup-password') return handleSetupPassword(req, res, body);
     if (action === 'logout') return handleLogout(req, res);
     if (action === 'login-audit') return handleLoginAudit(req, res);
 

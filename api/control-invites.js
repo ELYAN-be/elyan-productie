@@ -2,7 +2,7 @@
  * POST /api/control-invites — staff only (Phase A)
  */
 var { requireStaff } = require('../server/tenancy');
-var { createInvite, generateSupabaseInviteLink, revokeInvite, normalizeEmail, isValidEmail } = require('../server/invites');
+var { createInvite, revokeInvite, normalizeEmail, isValidEmail } = require('../server/invites');
 var { sendPartnerInviteEmail } = require('../server/invite-email');
 var { buildActivateUrl, buildPasswordSetupUrl, isPasswordSetupUrl } = require('../server/invite-links');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
@@ -50,21 +50,11 @@ module.exports = async function handler(req, res) {
     }
     var activateUrl = buildActivateUrl(appUrl, created.rawToken);
 
-    // Password-setup link for NEW users. Opaque /set-password/<payload> path —
-    // never embed activate in next=, never use Supabase action_link as CTA href.
-    var passwordSetupUrl = null;
-    var linkResult = await generateSupabaseInviteLink(
-      email,
-      appUrl + '/professionals/reset-password'
-    );
-    if (linkResult.ok && linkResult.hashedToken) {
-      passwordSetupUrl = buildPasswordSetupUrl(appUrl, linkResult.hashedToken, created.rawToken);
-    }
+    // Password CTA embeds ONLY the Elyan invite token. Auth password is set
+    // server-side on submit (no Supabase OTP in the email — scanner-safe).
+    var passwordSetupUrl = buildPasswordSetupUrl(appUrl, created.rawToken);
     if (!passwordSetupUrl || !isPasswordSetupUrl(passwordSetupUrl)) {
       console.error('invite_password_setup_url_missing', {
-        ok: !!(linkResult && linkResult.ok),
-        hasHashedToken: !!(linkResult && linkResult.hashedToken),
-        hasActionLink: !!(linkResult && linkResult.actionLink),
         passwordSetupUrl: passwordSetupUrl || null
       });
       return errorJson(res, 500, 'server_error');

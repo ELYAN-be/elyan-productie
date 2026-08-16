@@ -15,52 +15,65 @@ function buildActivateUrl(appUrl, elyanInviteToken) {
 /**
  * Password-setup URL for NEW users.
  *
- * Opaque single path segment — no querystring and no "/activate" substring.
- * Multi-param query URLs (and nested next=/activate) were mis-followed by
- * email clients / link scanners onto /professionals/activate.
+ * Opaque path with ONLY the Elyan invite token (no Supabase OTP / hashed_token).
+ * Password is set server-side via service role so:
+ * - email link scanners cannot consume a one-time Auth OTP
+ * - opening the form does not invalidate the link
+ * - submit succeeds iff the backend password update succeeds
  *
- * Shape: /professionals/set-password/<base64url(token_hash + "\\n" + invite_token)>
+ * Shape: /professionals/set-password/<elyan_invite_token>
+ *
+ * Legacy (still decoded by the page): base64url(token_hash + "\\n" + invite_token)
  */
-function encodePasswordSetupPayload(hashedToken, elyanInviteToken) {
-  var raw = String(hashedToken || '') + '\n' + String(elyanInviteToken || '');
-  var b64;
-  if (typeof Buffer !== 'undefined') {
-    b64 = Buffer.from(raw, 'utf8').toString('base64');
-  } else if (typeof btoa === 'function') {
-    b64 = btoa(unescape(encodeURIComponent(raw)));
-  } else {
-    throw new Error('no_base64');
-  }
-  return b64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+function encodePasswordSetupPayload(elyanInviteToken) {
+  // Token is already base64url from generateRawToken(); path-safe as-is.
+  return String(elyanInviteToken || '');
 }
 
 function decodePasswordSetupPayload(encoded) {
-  var s = String(encoded || '').replace(/-/g, '+').replace(/_/g, '/');
-  while (s.length % 4) s += '=';
-  var raw;
-  try {
-    if (typeof Buffer !== 'undefined') {
-      raw = Buffer.from(s, 'base64').toString('utf8');
-    } else if (typeof atob === 'function') {
-      raw = decodeURIComponent(escape(atob(s)));
-    } else {
-      return null;
+  var seg = String(encoded || '');
+  if (!seg) return null;
+
+  // New format: segment is the raw Elyan invite token.
+  if (/^[A-Za-z0-9_-]+$/.test(seg) && seg.indexOf('.') < 0) {
+    // Heuristic: legacy payloads are longer base64 blobs that decode to hash\ninvite.
+    // Try legacy decode first when segment looks like padded base64 of two parts.
+    try {
+      var s = seg.replace(/-/g, '+').replace(/_/g, '/');
+      while (s.length % 4) s += '=';
+      var raw;
+      if (typeof Buffer !== 'undefined') {
+        raw = Buffer.from(s, 'base64').toString('utf8');
+      } else if (typeof atob === 'function') {
+        raw = decodeURIComponent(escape(atob(s)));
+      } else {
+        raw = '';
+      }
+      var i = raw.indexOf('\n');
+      if (i >= 1) {
+        var tokenHash = raw.slice(0, i);
+        var inviteToken = raw.slice(i + 1);
+        if (tokenHash && inviteToken && /^[A-Za-z0-9_-]+$/.test(inviteToken)) {
+          return {
+            tokenHash: tokenHash,
+            inviteToken: inviteToken,
+            type: 'invite',
+            legacy: true
+          };
+        }
+      }
+    } catch (e) {
+      /* fall through to new format */
     }
-  } catch (e) {
-    return null;
   }
-  var i = raw.indexOf('\n');
-  if (i < 1) return null;
-  var tokenHash = raw.slice(0, i);
-  var inviteToken = raw.slice(i + 1);
-  if (!tokenHash || !inviteToken) return null;
-  if (!/^[A-Za-z0-9_-]+$/.test(inviteToken)) return null;
-  return { tokenHash: tokenHash, inviteToken: inviteToken, type: 'invite' };
+
+  if (!/^[A-Za-z0-9_-]+$/.test(seg) || seg.length < 16) return null;
+  return { tokenHash: '', inviteToken: seg, type: 'invite', legacy: false };
 }
 
-function buildPasswordSetupUrl(appUrl, hashedToken, elyanInviteToken) {
+function buildPasswordSetupUrl(appUrl, elyanInviteToken) {
   var base = String(appUrl || '').replace(/\/$/, '');
-  var payload = encodePasswordSetupPayload(hashedToken, elyanInviteToken);
+  var payload = encodePasswordSetupPayload(elyanInviteToken);
   return base + '/professionals/set-password/' + payload;
 }
 
@@ -73,6 +86,7 @@ function isPasswordSetupUrl(url) {
     }
     // Legacy query form still accepted by the page for old emails in flight.
     if (u.pathname === '/professionals/reset-password') {
+      if (u.searchParams.get('invite_token')) return true;
       if (!u.searchParams.get('token_hash')) return false;
       if (u.searchParams.get('type') !== 'invite') return false;
       if (!u.searchParams.get('invite_token') && !u.searchParams.get('next')) return false;
@@ -132,7 +146,7 @@ function extractInviteEmailHrefs(html) {
 
 /**
  * Post-password redirect resolution for reset-password page.
- * verifyOtp must NEVER navigate; only successful password update may.
+ * Password must already be persisted server-side / updateUser before calling.
  */
 function resolvePasswordSetupRedirect(opts) {
   if (!opts || !opts.passwordUpdated) return null;

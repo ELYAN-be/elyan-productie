@@ -56,6 +56,7 @@ var USER_MESSAGES = {
   rate_limited: 'Te veel pogingen. Probeer het zo opnieuw.',
   missing_fields: 'Vul alle verplichte velden in.',
   invalid_email: 'Ongeldig e-mailadres.',
+  password_too_weak: 'Kies een wachtwoord van minstens 8 tekens.',
   server_error: 'Er ging iets mis. Probeer het later opnieuw.',
   missing_env: 'De serveromgeving is nog niet geconfigureerd.',
   not_staff: 'Je hebt geen ELYAN Control-rechten.'

@@ -51,18 +51,14 @@
       throw new Error('Supabase client niet geladen');
     }
     var cfg = await loadConfig();
-    // On password-setup routes, never auto-consume URL tokens into a session
-    // redirect — verifyOtp runs only on explicit form submit.
-    var path = (global.location && global.location.pathname) || '';
-    var isPasswordSetupRoute =
-      path === '/professionals/reset-password' ||
-      path.indexOf('/professionals/set-password/') === 0;
-
+    // detectSessionInUrl MUST stay true so forgot-password recovery links
+    // (?code= PKCE / #access_token=) establish a session. Invite password
+    // setup no longer embeds Supabase OTP in the URL, so auto-detect is safe.
     supabaseClient = global.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true,
-        detectSessionInUrl: !isPasswordSetupRoute,
+        detectSessionInUrl: true,
         flowType: 'pkce'
       }
     });

@@ -27,17 +27,15 @@ function test(name, fn) {
   console.log('OK ', name);
 }
 
-test('password setup URL is opaque set-password path (no query, no activate)', function () {
-  var url = buildPasswordSetupUrl(APP, HASH, ELYAN);
+test('password setup URL is opaque set-password path with Elyan token only', function () {
+  var url = buildPasswordSetupUrl(APP, ELYAN);
   var u = new URL(url);
   assert.ok(/^\/professionals\/set-password\/[A-Za-z0-9_-]+$/.test(u.pathname));
   assert.strictEqual(u.search, '');
   assert.ok(url.indexOf('/professionals/activate') < 0);
   assert.ok(url.indexOf('token_hash') < 0);
-  assert.ok(url.indexOf('invite_token') < 0);
   assert.ok(isPasswordSetupUrl(url));
   var decoded = decodePasswordSetupPayload(u.pathname.split('/').pop());
-  assert.strictEqual(decoded.tokenHash, HASH);
   assert.strictEqual(decoded.inviteToken, ELYAN);
 });
 
@@ -51,7 +49,7 @@ test('activate URL is membership confirm only', function () {
 });
 
 test('email HTML first CTA href is password setup; second is activate', function () {
-  var passwordSetupUrl = buildPasswordSetupUrl(APP, HASH, ELYAN);
+  var passwordSetupUrl = buildPasswordSetupUrl(APP, ELYAN);
   var activateUrl = buildActivateUrl(APP, ELYAN);
   var html = buildInviteEmailHtml({
     partnerName: 'Testbedrijf',
@@ -99,7 +97,7 @@ test('supabase action_link is rejected as password setup CTA', function () {
   assert.ok(!isPasswordSetupUrl(action));
 });
 
-test('verifyOtp must never navigate: redirect only when passwordUpdated', function () {
+test('verify/setup must never navigate: redirect only when passwordUpdated', function () {
   assert.strictEqual(
     resolvePasswordSetupRedirect({ passwordUpdated: false, inviteToken: ELYAN }),
     null
@@ -110,7 +108,7 @@ test('verifyOtp must never navigate: redirect only when passwordUpdated', functi
   );
 });
 
-test('after updateUser: invite_token redirects to activate; else login', function () {
+test('after password saved: invite_token redirects to activate; else login', function () {
   var dest = resolvePasswordSetupRedirect({ passwordUpdated: true, inviteToken: ELYAN });
   assert.strictEqual(dest, '/professionals/activate?token=' + encodeURIComponent(ELYAN));
   assert.strictEqual(
@@ -119,8 +117,8 @@ test('after updateUser: invite_token redirects to activate; else login', functio
   );
 });
 
-test('new-user flow mapping: setup page visible then activate after password', function () {
-  var setup = buildPasswordSetupUrl(APP, HASH, ELYAN);
+test('new-user flow mapping: setup page then activate after password', function () {
+  var setup = buildPasswordSetupUrl(APP, ELYAN);
   var u = new URL(setup);
   assert.ok(u.pathname.indexOf('/professionals/set-password/') === 0);
   var payload = decodePasswordSetupPayload(u.pathname.split('/').pop());
@@ -144,36 +142,28 @@ test('existing-user flow: membership link is activate only (login then claim)', 
   assert.ok(!isPasswordSetupUrl(activateUrl));
 });
 
-test('encode/decode roundtrip', function () {
-  var enc = encodePasswordSetupPayload(HASH, ELYAN);
+test('encode/decode roundtrip for new format', function () {
+  var enc = encodePasswordSetupPayload(ELYAN);
   var dec = decodePasswordSetupPayload(enc);
-  assert.strictEqual(dec.tokenHash, HASH);
   assert.strictEqual(dec.inviteToken, ELYAN);
 });
 
-test('reset-password.js contains verify-then-update order and no navigate after verify alone', function () {
+test('reset-password.js uses setup-password API (no invite verifyOtp)', function () {
   var src = fs.readFileSync(
     path.join(__dirname, '..', 'js', 'professionals', 'reset-password.js'),
     'utf8'
   );
-  var verifyCall = src.indexOf("verifyOtp({ token_hash: tokenHash, type: 'invite' })");
-  assert.ok(verifyCall > 0, 'invite verifyOtp call present');
-  var afterVerify = src.slice(verifyCall);
-  var updateCall = afterVerify.indexOf('updateUser({ password: p1 })');
-  var redirectCall = afterVerify.indexOf('redirectAfterPasswordUpdate(');
-  assert.ok(updateCall > 0, 'updateUser after verifyOtp');
-  assert.ok(redirectCall > updateCall, 'redirect only after updateUser in invite path');
-  var between = afterVerify.slice(0, updateCall);
-  assert.ok(between.indexOf('location.replace') < 0, 'no navigation between verify and update');
-  assert.ok(between.indexOf('redirectAfterPasswordUpdate') < 0, 'no redirect helper between verify and update');
-  assert.ok(src.indexOf('set-password') >= 0, 'parses canonical set-password path');
+  assert.ok(src.indexOf("apiFetch('setup-password'") >= 0);
+  assert.ok(src.indexOf('verifyOtp') < 0);
+  assert.ok(src.indexOf('signInWithPassword') >= 0);
 });
 
-test('control-invites uses buildPasswordSetupUrl / buildActivateUrl', function () {
+test('control-invites uses buildPasswordSetupUrl with raw invite token only', function () {
   var src = fs.readFileSync(path.join(__dirname, '..', 'api', 'control-invites.js'), 'utf8');
   assert.ok(src.indexOf('buildPasswordSetupUrl') >= 0);
   assert.ok(src.indexOf('buildActivateUrl') >= 0);
   assert.ok(src.indexOf('passwordSetupUrl') >= 0);
+  assert.ok(src.indexOf('generateSupabaseInviteLink') < 0);
   assert.ok(src.indexOf("searchParams.set('next'") < 0, 'must not set next=activate on password setup URL');
 });
 

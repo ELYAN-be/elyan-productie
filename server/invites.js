@@ -445,6 +445,7 @@ module.exports = {
   previewInvite,
   generateSupabaseInviteLink,
   listMembershipsFromAppMetadata,
+  findInviteByRawToken,
   inviteFailureCode,
   INVITE_TTL_MS
 };
