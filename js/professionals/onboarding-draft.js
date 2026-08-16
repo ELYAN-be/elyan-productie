@@ -1,7 +1,8 @@
 /**
- * Phase B Sprint 3–5 — P1–P4 draft helpers (V2 frozen).
+ * Phase B Sprint 3–6 — P1–P6 draft helpers (V2 frozen).
  * Browser (script tag) + Node (require) for offline tests.
  * P3/P4 content from Category Intelligence (PartnerOnboardingEngine).
+ * P5 story.* domain; P6 photo metadata lives in partner_profile_assets.
  *
  * P3→P4 orphan rule: when a P3 service is removed, prune matching
  * offer.service_prices entries (do not keep orphan price data).
@@ -106,6 +107,45 @@
     'visit_speed',
     'visit_extra'
   ];
+
+  /** V2 P5 — Verhaal (exact fields; snake_case draft keys). */
+  var STORY_KEYS = [
+    'years_active',
+    'team_size',
+    'strength',
+    'prefer',
+    'avoid',
+    'care',
+    'why_choose',
+    'materials',
+    'must_know',
+    'guarantee_line',
+    'show_years_public',
+    'show_team_public'
+  ];
+
+  var YEARS_ACTIVE = [
+    { id: '0-2', label: '0–2 jaar' },
+    { id: '3-5', label: '3–5 jaar' },
+    { id: '6-10', label: '6–10 jaar' },
+    { id: '11-20', label: '11–20 jaar' },
+    { id: '20+', label: '20+ jaar' }
+  ];
+
+  var TEAM_SIZES = [
+    { id: '1', label: '1' },
+    { id: '2-3', label: '2–3' },
+    { id: '4-6', label: '4–6' },
+    { id: '7-10', label: '7–10' },
+    { id: '10+', label: '10+' }
+  ];
+
+  /** Portfolio draft domain is reserved; photo metadata is not stored here. */
+  var PORTFOLIO_KEYS = [];
+
+  var PORTFOLIO_MAX_ASSETS = 12;
+  var PORTFOLIO_MAX_BYTES = 8 * 1024 * 1024;
+  var PORTFOLIO_TITLE_MAX = 60;
 
   var SERVICE_PRICE_KEYS = [
     'pricing_model',
@@ -1359,7 +1399,233 @@ function sanitizeP2Patch(draft) {
       out.offer = offerSan.offer;
     }
 
+    if (Object.prototype.hasOwnProperty.call(draft, 'story')) {
+      var storySan = sanitizeStory(draft.story);
+      if (!storySan.ok) return storySan;
+      out.story = storySan.story;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(draft, 'portfolio')) {
+      var portSan = sanitizePortfolio(draft.portfolio);
+      if (!portSan.ok) return portSan;
+      out.portfolio = portSan.portfolio;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(draft, 'cover_asset_id')) {
+      return {
+        ok: false,
+        code: 'invalid_draft',
+        message: 'cover_asset_id is managed via portfolio assets, not draft'
+      };
+    }
+
     return { ok: true, draft: out };
+  }
+
+  function emptyStory() {
+    return {
+      years_active: '',
+      team_size: '',
+      strength: '',
+      prefer: '',
+      avoid: '',
+      care: '',
+      why_choose: '',
+      materials: '',
+      must_know: '',
+      guarantee_line: '',
+      show_years_public: true,
+      show_team_public: false
+    };
+  }
+
+  function pickStory(src) {
+    var out = emptyStory();
+    if (!isPlainObject(src)) return out;
+    STORY_KEYS.forEach(function (k) {
+      if (Object.prototype.hasOwnProperty.call(src, k)) out[k] = src[k];
+    });
+    if (out.show_years_public === true || out.show_years_public === false) {
+      /* keep */
+    } else if (out.show_years_public === 'true' || out.show_years_public === 'ja') {
+      out.show_years_public = true;
+    } else if (out.show_years_public === 'false' || out.show_years_public === 'nee') {
+      out.show_years_public = false;
+    } else if (out.show_years_public == null || out.show_years_public === '') {
+      out.show_years_public = true;
+    } else {
+      out.show_years_public = !!out.show_years_public;
+    }
+    if (out.show_team_public === true || out.show_team_public === false) {
+      /* keep */
+    } else if (out.show_team_public === 'true' || out.show_team_public === 'ja') {
+      out.show_team_public = true;
+    } else if (out.show_team_public === 'false' || out.show_team_public === 'nee') {
+      out.show_team_public = false;
+    } else if (out.show_team_public == null || out.show_team_public === '') {
+      out.show_team_public = false;
+    } else {
+      out.show_team_public = !!out.show_team_public;
+    }
+    return out;
+  }
+
+  function clampText(raw, max) {
+    return trimStr(raw).slice(0, max);
+  }
+
+  function sanitizeStory(rawStory) {
+    if (rawStory == null) return { ok: true, story: null };
+    if (!isPlainObject(rawStory)) {
+      return { ok: false, code: 'invalid_draft', message: 'story must be an object' };
+    }
+    var unknown = Object.keys(rawStory).filter(function (k) {
+      return STORY_KEYS.indexOf(k) < 0;
+    });
+    if (unknown.length) {
+      return { ok: false, code: 'invalid_draft', message: 'Unknown story fields: ' + unknown.join(', ') };
+    }
+
+    var story = {};
+    var has = function (k) {
+      return Object.prototype.hasOwnProperty.call(rawStory, k);
+    };
+
+    if (has('years_active')) {
+      var ya = trimStr(rawStory.years_active);
+      if (ya && enumId(YEARS_ACTIVE, ya) == null) {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige keuze voor jaren actief.' };
+      }
+      story.years_active = ya;
+    }
+    if (has('team_size')) {
+      var ts = trimStr(rawStory.team_size);
+      if (ts && enumId(TEAM_SIZES, ts) == null) {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige teamgrootte.' };
+      }
+      story.team_size = ts;
+    }
+    if (has('strength')) {
+      story.strength = clampText(rawStory.strength, 160);
+      if (story.strength && story.strength.length < 10) {
+        return { ok: false, code: 'invalid_field', message: 'Sterk in: minstens 10 tekens.' };
+      }
+    }
+    if (has('prefer')) {
+      story.prefer = clampText(rawStory.prefer, 160);
+      if (story.prefer && story.prefer.length < 10) {
+        return { ok: false, code: 'invalid_field', message: 'Liever wel: minstens 10 tekens.' };
+      }
+    }
+    if (has('avoid')) story.avoid = clampText(rawStory.avoid, 160);
+    if (has('care')) story.care = clampText(rawStory.care, 160);
+    if (has('why_choose')) story.why_choose = clampText(rawStory.why_choose, 160);
+    if (has('materials')) story.materials = clampText(rawStory.materials, 160);
+    if (has('must_know')) story.must_know = clampText(rawStory.must_know, 200);
+    if (has('guarantee_line')) story.guarantee_line = clampText(rawStory.guarantee_line, 120);
+
+    if (has('show_years_public')) {
+      if (rawStory.show_years_public === true || rawStory.show_years_public === false) {
+        story.show_years_public = rawStory.show_years_public;
+      } else if (rawStory.show_years_public === 'true' || rawStory.show_years_public === 'ja') {
+        story.show_years_public = true;
+      } else if (rawStory.show_years_public === 'false' || rawStory.show_years_public === 'nee') {
+        story.show_years_public = false;
+      } else if (rawStory.show_years_public == null || rawStory.show_years_public === '') {
+        story.show_years_public = true;
+      } else {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige toggle voor jaren publiek.' };
+      }
+    }
+    if (has('show_team_public')) {
+      if (rawStory.show_team_public === true || rawStory.show_team_public === false) {
+        story.show_team_public = rawStory.show_team_public;
+      } else if (rawStory.show_team_public === 'true' || rawStory.show_team_public === 'ja') {
+        story.show_team_public = true;
+      } else if (rawStory.show_team_public === 'false' || rawStory.show_team_public === 'nee') {
+        story.show_team_public = false;
+      } else if (rawStory.show_team_public == null || rawStory.show_team_public === '') {
+        story.show_team_public = false;
+      } else {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige toggle voor teamgrootte publiek.' };
+      }
+    }
+
+    return { ok: true, story: story };
+  }
+
+  function sanitizePortfolio(raw) {
+    if (raw == null) return { ok: true, portfolio: null };
+    if (!isPlainObject(raw)) {
+      return { ok: false, code: 'invalid_draft', message: 'portfolio must be an object' };
+    }
+    var unknown = Object.keys(raw).filter(function (k) {
+      return PORTFOLIO_KEYS.indexOf(k) < 0;
+    });
+    if (unknown.length) {
+      return {
+        ok: false,
+        code: 'invalid_draft',
+        message: 'Unknown portfolio fields: ' + unknown.join(', ')
+      };
+    }
+    return { ok: true, portfolio: {} };
+  }
+
+  /**
+   * Client completeness before leaving P5 (V2: jaren + sterk in + liever wel).
+   * Toggles always present with defaults when complete.
+   */
+  function validateP5Complete(draft) {
+    var errors = {};
+    var story = pickStory(draft && draft.story);
+
+    if (!story.years_active || enumId(YEARS_ACTIVE, story.years_active) == null) {
+      errors.years_active = 'Kies hoe lang jullie actief zijn.';
+    }
+    if (!trimStr(story.strength) || trimStr(story.strength).length < 10) {
+      errors.strength = 'Vertel kort waar jullie sterk in zijn (min. 10 tekens).';
+    } else if (trimStr(story.strength).length > 160) {
+      errors.strength = 'Sterk in: max. 160 tekens.';
+    }
+    if (!trimStr(story.prefer) || trimStr(story.prefer).length < 10) {
+      errors.prefer = 'Vertel welke projecten jullie liever wel doen (min. 10 tekens).';
+    } else if (trimStr(story.prefer).length > 160) {
+      errors.prefer = 'Liever wel: max. 160 tekens.';
+    }
+    if (story.team_size && enumId(TEAM_SIZES, story.team_size) == null) {
+      errors.team_size = 'Ongeldige teamgrootte.';
+    }
+    if (trimStr(story.avoid).length > 160) errors.avoid = 'Max. 160 tekens.';
+    if (trimStr(story.care).length > 160) errors.care = 'Max. 160 tekens.';
+    if (trimStr(story.why_choose).length > 160) errors.why_choose = 'Max. 160 tekens.';
+    if (trimStr(story.materials).length > 160) errors.materials = 'Max. 160 tekens.';
+    if (trimStr(story.must_know).length > 200) errors.must_know = 'Max. 200 tekens.';
+    if (trimStr(story.guarantee_line).length > 120) {
+      errors.guarantee_line = 'Garantiezin: max. 120 tekens.';
+    }
+    if (story.show_years_public !== true && story.show_years_public !== false) {
+      errors.show_years_public = 'Kies of jaren publiek getoond worden.';
+    }
+    if (story.show_team_public !== true && story.show_team_public !== false) {
+      errors.show_team_public = 'Kies of teamgrootte publiek getoond wordt.';
+    }
+
+    return { ok: Object.keys(errors).length === 0, errors: errors, story: story };
+  }
+
+  /** Soft portfolio gate: 0 photos never block; only a soft nudge. */
+  function validateP6Soft(assets) {
+    var count = Array.isArray(assets) ? assets.length : 0;
+    return {
+      ok: true,
+      photoCount: count,
+      softNudge: count === 0,
+      message:
+        count === 0
+          ? 'Foto’s helpen klanten jullie werk te zien — je mag ook verder zonder.'
+          : ''
+    };
   }
 
   /**
@@ -1535,6 +1801,13 @@ function sanitizeP2Patch(draft) {
     SERVICE_AREA_KEYS: SERVICE_AREA_KEYS,
     CRAFT_KEYS: CRAFT_KEYS,
     OFFER_KEYS: OFFER_KEYS,
+    STORY_KEYS: STORY_KEYS,
+    PORTFOLIO_KEYS: PORTFOLIO_KEYS,
+    YEARS_ACTIVE: YEARS_ACTIVE,
+    TEAM_SIZES: TEAM_SIZES,
+    PORTFOLIO_MAX_ASSETS: PORTFOLIO_MAX_ASSETS,
+    PORTFOLIO_MAX_BYTES: PORTFOLIO_MAX_BYTES,
+    PORTFOLIO_TITLE_MAX: PORTFOLIO_TITLE_MAX,
     CLIENT_TYPES: CLIENT_TYPES,
     RESPONSE_TIMES: RESPONSE_TIMES,
     VAT_BASIS_OPTIONS: VAT_BASIS_OPTIONS,
@@ -1544,10 +1817,12 @@ function sanitizeP2Patch(draft) {
     emptyCraft: emptyCraft,
     emptyOffer: emptyOffer,
     emptyServicePrice: emptyServicePrice,
+    emptyStory: emptyStory,
     pickCompany: pickCompany,
     pickServiceArea: pickServiceArea,
     pickCraft: pickCraft,
     pickOffer: pickOffer,
+    pickStory: pickStory,
     normalizeKbo: normalizeKbo,
     formatKboDisplay: formatKboDisplay,
     validateKbo: validateKbo,
@@ -1561,12 +1836,16 @@ function sanitizeP2Patch(draft) {
     sanitizeP2Patch: sanitizeP2Patch,
     sanitizeCraft: sanitizeCraft,
     sanitizeOffer: sanitizeOffer,
+    sanitizeStory: sanitizeStory,
+    sanitizePortfolio: sanitizePortfolio,
     mergeCraft: mergeCraft,
     mergeOffer: mergeOffer,
     pruneOfferToServices: pruneOfferToServices,
     validateP2Complete: validateP2Complete,
     validateP3Complete: validateP3Complete,
     validateP4Complete: validateP4Complete,
+    validateP5Complete: validateP5Complete,
+    validateP6Soft: validateP6Soft,
     hasCategoryDependentP3Data: hasCategoryDependentP3Data,
     resetCraftForCategoryChange: resetCraftForCategoryChange,
     listCategories: listCategories,

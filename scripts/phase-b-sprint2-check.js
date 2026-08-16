@@ -181,8 +181,7 @@ test('onboarding HTML is wizard shell with P1–P8 panels', function () {
   assert.ok(html.indexOf('prof-shell-wizard') >= 0);
   assert.ok(html.indexOf('onboarding-shell.js') >= 0);
   assert.ok(html.indexOf('onboarding.js') >= 0);
-  // Placeholder only for form steps — no real form fields / upload / Google
-  assert.ok(html.indexOf('type="file"') < 0);
+  // Sprint 2 shell: Google out of onboarding; file upload lands in Sprint 6
   assert.ok(html.indexOf('google_intent') < 0);
   assert.ok(html.indexOf('prof-placeholder') >= 0);
 });

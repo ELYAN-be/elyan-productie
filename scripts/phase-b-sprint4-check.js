@@ -205,7 +205,6 @@ test('onboarding HTML/JS wires P3 Ambacht + CI script', function () {
   assert.ok(html.indexOf('id="conditionalsHost"') >= 0);
   assert.ok(html.indexOf('id="extrasHost"') >= 0);
   assert.ok(html.indexOf('data-step="aanbod"') >= 0);
-  assert.ok(html.indexOf('type="file"') < 0);
   assert.ok(html.indexOf('google_intent') < 0);
 
   var src = fs.readFileSync(path.join(root, 'js/professionals/onboarding.js'), 'utf8');

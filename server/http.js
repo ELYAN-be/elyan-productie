@@ -66,7 +66,14 @@ var USER_MESSAGES = {
   invalid_step: 'Deze onboardingstap is ongeldig.',
   invalid_status_transition: 'Deze actie is niet mogelijk in de huidige status.',
   section_locked: 'Dit onderdeel is vergrendeld tijdens de ELYAN-controle.',
-  partner_required: 'Kies een partnercontext om verder te gaan.'
+  partner_required: 'Kies een partnercontext om verder te gaan.',
+  max_assets: 'Maximaal 12 projectfoto’s.',
+  file_too_large: 'Foto mag max. 8 MB zijn.',
+  invalid_mime: 'Alleen JPEG, PNG of WebP.',
+  invalid_file: 'Ongeldig bestand.',
+  invalid_asset: 'Ongeldige foto.',
+  not_found: 'Niet gevonden.',
+  upload_failed: 'Upload mislukt. Probeer opnieuw.'
 };
 
 function userMessage(code) {

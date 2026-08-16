@@ -251,15 +251,13 @@ test('shell P3→P4→P5 routing', function () {
   assert.strictEqual(Shell.prevStepId('aanbod'), 'ambacht');
 });
 
-test('HTML/JS wires P4 Aanbod without P5–P8 forms or Google', function () {
+test('HTML/JS wires P4 Aanbod; P5–P6 owned by Sprint 6', function () {
   var html = fs.readFileSync(path.join(root, 'professionals/onboarding.html'), 'utf8');
   assert.ok(html.indexOf('id="p4Form"') >= 0);
   assert.ok(html.indexOf('id="servicePricesHost"') >= 0);
   assert.ok(html.indexOf('id="clientTypesGrid"') >= 0);
   assert.ok(html.indexOf('id="capacityGrid"') >= 0);
   assert.ok(html.indexOf('google_intent') < 0);
-  assert.ok(html.indexOf('type="file"') < 0);
-  assert.ok(html.indexOf('prof-placeholder') >= 0); // P5–P8 still placeholder
 
   var src = fs.readFileSync(path.join(root, 'js/professionals/onboarding.js'), 'utf8');
   assert.ok(src.indexOf('collectP4Draft') >= 0);

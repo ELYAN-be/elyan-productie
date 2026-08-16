@@ -19,6 +19,7 @@ var {
   mapProfileRow,
   mapReviewItem
 } = require('./onboarding-model');
+var { mapAsset, sortAssets } = require('./assets');
 
 async function ensureRows(admin, partnerId) {
   var { error: oErr } = await admin.from('partner_onboarding').upsert(
@@ -74,11 +75,21 @@ async function loadOnboarding(admin, partnerId) {
     return { ok: false, code: 'server_error' };
   }
 
+  var { data: assets, error: aErr } = await admin
+    .from('partner_profile_assets')
+    .select('*')
+    .eq('partner_id', partnerId);
+  if (aErr) {
+    console.error('assets_load_failed', aErr.message);
+    return { ok: false, code: 'server_error' };
+  }
+
   return {
     ok: true,
     onboarding: onboarding,
     profile: profile,
-    reviewItems: reviewItems || []
+    reviewItems: reviewItems || [],
+    assets: sortAssets(assets || [])
   };
 }
 
@@ -98,6 +109,8 @@ function buildPayload(loaded, role) {
     onboardingStatus: status,
     profileStatus: profile.profileStatus,
     reviewItems: (loaded.reviewItems || []).map(mapReviewItem),
+    assets: (loaded.assets || []).map(mapAsset),
+    coverAssetId: profile.coverAssetId || null,
     reviewHub: isReviewHub(status),
     editableSections: editableSectionsFor(status),
     canEdit: canEditRole(role) && editableSectionsFor(status).length > 0,
@@ -268,7 +281,7 @@ async function saveOnboarding(opts) {
     }
   }
 
-  // Sync denormalized profile hints from draft (cover_asset_id waits for upload sprint / FK).
+  // Sync denormalized profile hints from draft (cover stays on assets API).
   var profilePatch = {};
   if (nextDraft && nextDraft.craft && nextDraft.craft.primary_category_id) {
     profilePatch.primary_category_id = String(nextDraft.craft.primary_category_id);

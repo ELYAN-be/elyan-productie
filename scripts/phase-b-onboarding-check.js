@@ -214,6 +214,7 @@ function createMemoryDb() {
   var store = {
     partner_onboarding: {},
     partner_profiles: {},
+    partner_profile_assets: {},
     partner_review_items: {},
     audit_logs: []
   };
@@ -232,7 +233,7 @@ function createMemoryDb() {
     var mode = 'select';
     var orderAsc = true;
     var api = {
-      select: function () { mode = mode === 'update' || mode === 'upsert' ? mode : 'select'; return api; },
+      select: function () { mode = mode === 'update' || mode === 'upsert' || mode === 'insert' ? mode : 'select'; return api; },
       insert: function (row) {
         mode = 'insert';
         payload = row;
@@ -246,6 +247,10 @@ function createMemoryDb() {
       update: function (row) {
         mode = 'update';
         payload = row;
+        return api;
+      },
+      delete: function () {
+        mode = 'delete';
         return api;
       },
       eq: function (col, val) {
@@ -277,12 +282,23 @@ function createMemoryDb() {
           store.audit_logs.push(payload);
           return { data: payload, error: null };
         }
+        if (mode === 'delete') {
+          var toDelete = Object.keys(store[name] || {})
+            .map(function (k) { return store[name][k]; })
+            .filter(function (r) { return matchFilters(r, filters); });
+          toDelete.forEach(function (r) {
+            var key = r.id || r.partner_id;
+            delete store[name][key];
+          });
+          return { data: toDelete, error: null };
+        }
         if (mode === 'upsert' || mode === 'insert') {
           var key = payload.partner_id || payload.id;
-          if (name === 'partner_review_items') {
-            if (!payload.id) payload.id = 'ri-' + Object.keys(store.partner_review_items).length;
+          if (name === 'partner_review_items' || name === 'partner_profile_assets') {
+            if (!payload.id) payload.id = 'row-' + Object.keys(store[name]).length;
             key = payload.id;
             if (!store[name][key]) store[name][key] = Object.assign({}, payload);
+            else store[name][key] = Object.assign({}, store[name][key], payload);
             return { data: store[name][key], error: null };
           }
           if (!store[name][key]) {
@@ -331,7 +347,7 @@ function createMemoryDb() {
           return { data: rows.length === 1 ? rows[0] : rows, error: null };
         }
         // select — return clones so callers are not mutated by later updates
-        var selected = Object.keys(store[name])
+        var selected = Object.keys(store[name] || {})
           .map(function (k) { return Object.assign({}, store[name][k]); })
           .filter(function (r) { return matchFilters(r, filters); });
         return { data: selected, error: null };
@@ -474,7 +490,13 @@ async function runLifecycle() {
         role: 'owner',
         userId: userId,
         expectedVersion: submitted.version,
-        draft: { portfolio: { titles: ['werf'] }, story: { why: 'kwaliteit' } },
+        draft: {
+          portfolio: {},
+          story: {
+            why_choose: 'Klanten kiezen ons voor nette planning.',
+            guarantee_line: '2 jaar op plaatsing'
+          }
+        },
         currentStepId: 'portfolio',
         req: {}
       });

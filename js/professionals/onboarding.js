@@ -4,7 +4,8 @@
   var EP = window.ElyanProfessionals;
   var Shell = window.ElyanOnboardingShell;
   var Draft = window.ElyanOnboardingDraft;
-  if (!EP || !Shell || !Draft) return;
+  var Portfolio = window.ElyanOnboardingPortfolio;
+  if (!EP || !Shell || !Draft || !Portfolio) return;
 
   var statusEl = EP.$('#onboardStatus');
   var shellEl = EP.$('#wizardShell');
@@ -23,6 +24,7 @@
   var p2Form = EP.$('#p2Form');
   var p3Form = EP.$('#p3Form');
   var p4Form = EP.$('#p4Form');
+  var p5Form = EP.$('#p5Form');
 
   var state = {
     partnerId: null,
@@ -43,7 +45,12 @@
     provinces: [],
     regions: [],
     craft: Draft.emptyCraft(),
-    offer: Draft.emptyOffer()
+    offer: Draft.emptyOffer(),
+    story: Draft.emptyStory(),
+    assets: [],
+    coverAssetId: null,
+    pendingUploads: {},
+    dragAssetId: null
   };
 
   EP.$('#logoutBtn').addEventListener('click', function () {
@@ -650,6 +657,237 @@
     renderP4();
   }
 
+  function collectP5Draft() {
+    return { story: Draft.pickStory(state.story) };
+  }
+
+  function renderP5() {
+    var yearsGrid = EP.$('#yearsActiveGrid');
+    if (yearsGrid) {
+      yearsGrid.innerHTML = Draft.YEARS_ACTIVE.map(function (o) {
+        return '<button type="button" class="lab-choice' +
+          (state.story.years_active === o.id ? ' is-selected' : '') +
+          '" data-years-active="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+    var teamGrid = EP.$('#teamSizeGrid');
+    if (teamGrid) {
+      teamGrid.innerHTML = Draft.TEAM_SIZES.map(function (o) {
+        return '<button type="button" class="lab-choice' +
+          (state.story.team_size === o.id ? ' is-selected' : '') +
+          '" data-team-size="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+    var map = {
+      f_strength: 'strength',
+      f_prefer: 'prefer',
+      f_avoid: 'avoid',
+      f_care: 'care',
+      f_why_choose: 'why_choose',
+      f_materials: 'materials',
+      f_must_know: 'must_know',
+      f_guarantee_line: 'guarantee_line'
+    };
+    Object.keys(map).forEach(function (id) {
+      var el = EP.$('#' + id);
+      if (el) el.value = state.story[map[id]] || '';
+    });
+    var showYears = EP.$('#f_show_years_public');
+    if (showYears) showYears.checked = state.story.show_years_public !== false;
+    var showTeam = EP.$('#f_show_team_public');
+    if (showTeam) showTeam.checked = !!state.story.show_team_public;
+    setFormReadOnly(!state.canEdit);
+  }
+
+  function hydrateP5FromDraft() {
+    state.story = Draft.pickStory(state.draft && state.draft.story);
+    renderP5();
+  }
+
+  function syncAssetsFromPayload(payload) {
+    if (payload && Array.isArray(payload.assets)) {
+      state.assets = payload.assets.slice();
+    }
+    if (payload && Object.prototype.hasOwnProperty.call(payload, 'coverAssetId')) {
+      state.coverAssetId = payload.coverAssetId || null;
+    } else if (payload && payload.profile && payload.profile.coverAssetId != null) {
+      state.coverAssetId = payload.profile.coverAssetId;
+    }
+  }
+
+  function updatePortfolioSoftNudge() {
+    var soft = Draft.validateP6Soft(state.assets);
+    var el = EP.$('#p6SoftNudge');
+    if (!el) return;
+    if (soft.softNudge) {
+      el.hidden = false;
+      el.textContent = soft.message;
+    } else {
+      el.hidden = true;
+      el.textContent = '';
+    }
+    var countEl = EP.$('#portfolioCount');
+    if (countEl) {
+      countEl.textContent = state.assets.length
+        ? state.assets.length + ' / ' + Draft.PORTFOLIO_MAX_ASSETS + ' foto’s'
+        : 'Nog geen foto’s — dat is oké voor later.';
+    }
+  }
+
+  function renderPortfolio() {
+    var grid = EP.$('#portfolioGrid');
+    if (!grid) return;
+    var items = state.assets.slice().sort(function (a, b) {
+      return (a.sortOrder || 0) - (b.sortOrder || 0);
+    });
+    var pendingHtml = Object.keys(state.pendingUploads).map(function (localId) {
+      var p = state.pendingUploads[localId];
+      return '<li class="prof-portfolio-item is-uploading" data-local-id="' + escapeHtml(localId) + '">' +
+        '<div class="prof-portfolio-thumb">' +
+        (p.previewUrl ? '<img src="' + escapeHtml(p.previewUrl) + '" alt="">' : '') +
+        '<div class="prof-upload-bar"><span style="width:' + Math.round((p.progress || 0) * 100) + '%"></span></div>' +
+        '</div>' +
+        '<div class="prof-portfolio-body">' +
+        '<p class="lab-hint">' + (p.error ? escapeHtml(p.error) : 'Bezig met uploaden…') + '</p>' +
+        (p.error
+          ? '<div class="prof-portfolio-actions"><button type="button" class="btn" data-retry-local="' +
+            escapeHtml(localId) + '">Opnieuw</button>' +
+            '<button type="button" class="btn" data-cancel-local="' + escapeHtml(localId) + '">Verwijder</button></div>'
+          : '') +
+        '</div></li>';
+    }).join('');
+
+    grid.innerHTML = items.map(function (a) {
+      var isCover = !!a.isCover || a.id === state.coverAssetId;
+      return '<li class="prof-portfolio-item" draggable="' + (state.canEdit ? 'true' : 'false') +
+        '" data-asset-id="' + escapeHtml(a.id) + '">' +
+        '<div class="prof-portfolio-thumb" data-drag-handle="1">' +
+        (a.publicUrl ? '<img src="' + escapeHtml(a.publicUrl) + '" alt="">' : '') +
+        (isCover ? '<span class="prof-cover-badge">Cover</span>' : '') +
+        '</div>' +
+        '<div class="prof-portfolio-body">' +
+        '<label class="lab-field">Titel <span class="prof-opt">(optioneel)</span>' +
+        '<input type="text" maxlength="60" data-asset-title="' + escapeHtml(a.id) + '" value="' +
+        escapeHtml(a.title || '') + '"' + (state.canEdit ? '' : ' disabled') + '>' +
+        '</label>' +
+        '<div class="prof-portfolio-actions">' +
+        (state.canEdit && !isCover
+          ? '<button type="button" class="btn" data-set-cover="' + escapeHtml(a.id) + '">Als cover</button>'
+          : '') +
+        (state.canEdit
+          ? '<button type="button" class="btn" data-delete-asset="' + escapeHtml(a.id) + '">Verwijder</button>'
+          : '') +
+        '</div></div></li>';
+    }).join('') + pendingHtml;
+
+    updatePortfolioSoftNudge();
+    var drop = EP.$('#portfolioDropzone');
+    if (drop) drop.hidden = !state.canEdit || state.assets.length >= Draft.PORTFOLIO_MAX_ASSETS;
+  }
+
+  function hydratePortfolioFromPayload() {
+    renderPortfolio();
+  }
+
+  async function persistAssetOrder() {
+    if (!state.canEdit) return;
+    var orderedIds = state.assets
+      .slice()
+      .sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); })
+      .map(function (a) { return a.id; });
+    var res = await EP.apiFetch('onboarding-assets-reorder', {
+      method: 'POST',
+      body: { partnerId: state.partnerId, orderedIds: orderedIds }
+    });
+    if (res.ok && res.body && res.body.ok) {
+      syncAssetsFromPayload(res.body);
+      renderPortfolio();
+    }
+  }
+
+  async function uploadOneFile(file, localId) {
+    var checked = Portfolio.validateSourceFile(file);
+    if (!checked.ok) {
+      state.pendingUploads[localId] = {
+        progress: 1,
+        error: checked.message,
+        file: file,
+        previewUrl: state.pendingUploads[localId] && state.pendingUploads[localId].previewUrl
+      };
+      renderPortfolio();
+      return;
+    }
+    if (state.assets.length >= Draft.PORTFOLIO_MAX_ASSETS) {
+      delete state.pendingUploads[localId];
+      setSaveUi('error', 'Maximaal 12 projectfoto’s.');
+      renderPortfolio();
+      return;
+    }
+    state.pendingUploads[localId] = state.pendingUploads[localId] || {};
+    state.pendingUploads[localId].file = file;
+    state.pendingUploads[localId].error = '';
+    state.pendingUploads[localId].progress = 0.1;
+    renderPortfolio();
+
+    var compressed = await Portfolio.compressImageFile(file, function (p) {
+      if (state.pendingUploads[localId]) {
+        state.pendingUploads[localId].progress = Math.min(0.75, 0.1 + p * 0.65);
+        renderPortfolio();
+      }
+    });
+    if (!compressed.ok) {
+      state.pendingUploads[localId].error = compressed.message || 'Compressie mislukt';
+      renderPortfolio();
+      return;
+    }
+    if (state.pendingUploads[localId]) state.pendingUploads[localId].progress = 0.85;
+    renderPortfolio();
+
+    var res = await EP.apiFetch('onboarding-asset-upload', {
+      method: 'POST',
+      body: {
+        partnerId: state.partnerId,
+        dataBase64: compressed.dataBase64,
+        contentType: compressed.contentType,
+        title: ''
+      }
+    });
+    if (!res.ok || !res.body || !res.body.ok) {
+      state.pendingUploads[localId].error =
+        (res.body && (res.body.message || res.body.detail)) || 'Upload mislukt';
+      state.pendingUploads[localId].progress = 1;
+      renderPortfolio();
+      setSaveUi('error', state.pendingUploads[localId].error);
+      return;
+    }
+    delete state.pendingUploads[localId];
+    syncAssetsFromPayload(res.body);
+    renderPortfolio();
+    setSaveUi('ok', 'Foto opgeslagen');
+  }
+
+  async function handleIncomingFiles(fileList) {
+    if (!state.canEdit) return;
+    var files = Array.prototype.slice.call(fileList || []);
+    var room = Draft.PORTFOLIO_MAX_ASSETS - state.assets.length;
+    if (room <= 0) {
+      setSaveUi('error', 'Maximaal 12 projectfoto’s.');
+      return;
+    }
+    files = files.slice(0, room);
+    for (var i = 0; i < files.length; i++) {
+      var localId = 'local-' + Date.now() + '-' + i;
+      var previewUrl = '';
+      try {
+        previewUrl = URL.createObjectURL(files[i]);
+      } catch (e) { /* ignore */ }
+      state.pendingUploads[localId] = { progress: 0, file: files[i], previewUrl: previewUrl, error: '' };
+      renderPortfolio();
+      // sequential to keep version/order predictable
+      await uploadOneFile(files[i], localId);
+    }
+  }
+
   function applyLocalDraft(patch) {
     state.draft = Object.assign({}, state.draft, patch);
     if (patch.company) {
@@ -670,6 +908,10 @@
       );
       state.draft.offer = state.offer;
     }
+    if (patch.story) {
+      state.draft.story = Object.assign({}, state.draft.story || {}, patch.story);
+      state.story = Draft.pickStory(state.draft.story);
+    }
     updateLivingPreview();
   }
 
@@ -679,25 +921,30 @@
       state.currentStepId !== 'bedrijf_bereik' &&
       state.currentStepId !== 'start' &&
       state.currentStepId !== 'ambacht' &&
-      state.currentStepId !== 'aanbod'
+      state.currentStepId !== 'aanbod' &&
+      state.currentStepId !== 'verhaal'
     ) {
       return;
     }
     var draftPatch =
-      state.currentStepId === 'aanbod'
-        ? collectP4Draft()
-        : state.currentStepId === 'ambacht'
-          ? collectP3Draft()
-          : collectP2Draft();
-    applyLocalDraft(draftPatch);
-    if (state.saveTimer) clearTimeout(state.saveTimer);
-    state.saveTimer = setTimeout(function () {
-      var payload =
-        state.currentStepId === 'aanbod'
+      state.currentStepId === 'verhaal'
+        ? collectP5Draft()
+        : state.currentStepId === 'aanbod'
           ? collectP4Draft()
           : state.currentStepId === 'ambacht'
             ? collectP3Draft()
             : collectP2Draft();
+    applyLocalDraft(draftPatch);
+    if (state.saveTimer) clearTimeout(state.saveTimer);
+    state.saveTimer = setTimeout(function () {
+      var payload =
+        state.currentStepId === 'verhaal'
+          ? collectP5Draft()
+          : state.currentStepId === 'aanbod'
+            ? collectP4Draft()
+            : state.currentStepId === 'ambacht'
+              ? collectP3Draft()
+              : collectP2Draft();
       saveStep(state.currentStepId, { draft: payload });
     }, 700);
   }
@@ -742,6 +989,10 @@
       hydrateP3FromDraft();
     } else if (stepId === 'aanbod') {
       hydrateP4FromDraft();
+    } else if (stepId === 'verhaal') {
+      hydrateP5FromDraft();
+    } else if (stepId === 'portfolio') {
+      hydratePortfolioFromPayload();
     } else {
       updateLivingPreview();
     }
@@ -793,6 +1044,10 @@
     } else if (payload.onboarding && payload.onboarding.draft) {
       state.draft = payload.onboarding.draft;
     }
+    syncAssetsFromPayload(payload);
+    if (state.draft && state.draft.story) {
+      state.story = Draft.pickStory(state.draft.story);
+    }
   }
 
   async function saveStep(stepId, opts) {
@@ -821,6 +1076,8 @@
         body.draft = collectP3Draft();
       } else if (stepId === 'aanbod') {
         body.draft = collectP4Draft();
+      } else if (stepId === 'verhaal') {
+        body.draft = collectP5Draft();
       }
       var res = await EP.apiFetch('onboarding-save', {
         method: 'POST',
@@ -845,6 +1102,9 @@
         state.offer = Draft.pickOffer(state.draft.offer);
         syncOfferWithCraft();
       }
+      if (state.draft && state.draft.story) {
+        state.story = Draft.pickStory(state.draft.story);
+      }
       setSaveUi('ok', 'Alles opgeslagen');
       updateLivingPreview();
       return { ok: true, body: res.body };
@@ -856,13 +1116,15 @@
       if (state.dirtySave) {
         state.dirtySave = false;
         var queuedDraft =
-          state.currentStepId === 'aanbod'
-            ? collectP4Draft()
-            : state.currentStepId === 'ambacht'
-              ? collectP3Draft()
-              : state.currentStepId === 'bedrijf_bereik'
-                ? collectP2Draft()
-                : null;
+          state.currentStepId === 'verhaal'
+            ? collectP5Draft()
+            : state.currentStepId === 'aanbod'
+              ? collectP4Draft()
+              : state.currentStepId === 'ambacht'
+                ? collectP3Draft()
+                : state.currentStepId === 'bedrijf_bereik'
+                  ? collectP2Draft()
+                  : null;
         saveStep(state.currentStepId, queuedDraft ? { draft: queuedDraft } : {});
       }
     }
@@ -889,6 +1151,8 @@
           draft = collectP3Draft();
         } else if (stepId === 'aanbod' || state.currentStepId === 'aanbod') {
           draft = collectP4Draft();
+        } else if (stepId === 'verhaal' || state.currentStepId === 'verhaal') {
+          draft = collectP5Draft();
         }
       }
       await saveStep(stepId, { draft: draft });
@@ -951,6 +1215,26 @@
         applyLocalDraft(p4);
         var nextP4 = Shell.nextStepId(state.currentStepId);
         if (nextP4 && nextP4 !== 'review_hub') goToStep(nextP4, { draft: p4 });
+        return;
+      }
+      if (state.currentStepId === 'verhaal') {
+        var p5 = collectP5Draft();
+        var p5Check = Draft.validateP5Complete(p5);
+        if (!p5Check.ok) {
+          showFieldErrors(p5Check.errors);
+          setSaveUi('error', 'Controleer de gemarkeerde velden.');
+          return;
+        }
+        clearFieldErrors();
+        applyLocalDraft(p5);
+        var nextP5 = Shell.nextStepId(state.currentStepId);
+        if (nextP5 && nextP5 !== 'review_hub') goToStep(nextP5, { draft: p5 });
+        return;
+      }
+      if (state.currentStepId === 'portfolio') {
+        // 0 photos allowed — soft nudge only, never a blocker
+        var nextP6 = Shell.nextStepId(state.currentStepId);
+        if (nextP6 && nextP6 !== 'review_hub') goToStep(nextP6);
         return;
       }
       var nextStep = Shell.nextStepId(state.currentStepId);
@@ -1275,6 +1559,209 @@
     });
   }
 
+  function touchP5() {
+    // Keep toggles in sync from DOM
+    var showYears = EP.$('#f_show_years_public');
+    var showTeam = EP.$('#f_show_team_public');
+    state.story.show_years_public = showYears ? !!showYears.checked : true;
+    state.story.show_team_public = showTeam ? !!showTeam.checked : false;
+    state.story.strength = (EP.$('#f_strength') && EP.$('#f_strength').value) || '';
+    state.story.prefer = (EP.$('#f_prefer') && EP.$('#f_prefer').value) || '';
+    state.story.avoid = (EP.$('#f_avoid') && EP.$('#f_avoid').value) || '';
+    state.story.care = (EP.$('#f_care') && EP.$('#f_care').value) || '';
+    state.story.why_choose = (EP.$('#f_why_choose') && EP.$('#f_why_choose').value) || '';
+    state.story.materials = (EP.$('#f_materials') && EP.$('#f_materials').value) || '';
+    state.story.must_know = (EP.$('#f_must_know') && EP.$('#f_must_know').value) || '';
+    state.story.guarantee_line = (EP.$('#f_guarantee_line') && EP.$('#f_guarantee_line').value) || '';
+    applyLocalDraft(collectP5Draft());
+    scheduleAutosave();
+  }
+
+  if (p5Form) {
+    p5Form.addEventListener('click', function (ev) {
+      if (!state.canEdit) return;
+      var yBtn = ev.target.closest('[data-years-active]');
+      if (yBtn) {
+        state.story.years_active = yBtn.getAttribute('data-years-active');
+        renderP5();
+        touchP5();
+        return;
+      }
+      var tBtn = ev.target.closest('[data-team-size]');
+      if (tBtn) {
+        state.story.team_size = tBtn.getAttribute('data-team-size');
+        renderP5();
+        touchP5();
+      }
+    });
+    p5Form.addEventListener('input', function () {
+      if (!state.canEdit) return;
+      touchP5();
+    });
+    p5Form.addEventListener('change', function () {
+      if (!state.canEdit) return;
+      touchP5();
+    });
+  }
+
+  var portfolioGrid = EP.$('#portfolioGrid');
+  var portfolioDrop = EP.$('#portfolioDropzone');
+  var portfolioInput = EP.$('#portfolioFileInput');
+  var portfolioPickBtn = EP.$('#portfolioPickBtn');
+
+  if (portfolioPickBtn && portfolioInput) {
+    portfolioPickBtn.addEventListener('click', function (ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+      if (!state.canEdit) return;
+      portfolioInput.click();
+    });
+  }
+  if (portfolioDrop && portfolioInput) {
+    portfolioDrop.addEventListener('click', function () {
+      if (!state.canEdit) return;
+      portfolioInput.click();
+    });
+    portfolioDrop.addEventListener('dragover', function (ev) {
+      ev.preventDefault();
+      if (!state.canEdit) return;
+      portfolioDrop.classList.add('is-dragover');
+    });
+    portfolioDrop.addEventListener('dragleave', function () {
+      portfolioDrop.classList.remove('is-dragover');
+    });
+    portfolioDrop.addEventListener('drop', function (ev) {
+      ev.preventDefault();
+      portfolioDrop.classList.remove('is-dragover');
+      if (!state.canEdit) return;
+      handleIncomingFiles(ev.dataTransfer && ev.dataTransfer.files);
+    });
+  }
+  if (portfolioInput) {
+    portfolioInput.addEventListener('change', function () {
+      if (!state.canEdit) return;
+      handleIncomingFiles(portfolioInput.files);
+      portfolioInput.value = '';
+    });
+  }
+
+  if (portfolioGrid) {
+    portfolioGrid.addEventListener('click', async function (ev) {
+      if (!state.canEdit) return;
+      var retry = ev.target.closest('[data-retry-local]');
+      if (retry) {
+        var rid = retry.getAttribute('data-retry-local');
+        var pending = state.pendingUploads[rid];
+        if (pending && pending.file) await uploadOneFile(pending.file, rid);
+        return;
+      }
+      var cancel = ev.target.closest('[data-cancel-local]');
+      if (cancel) {
+        var cid = cancel.getAttribute('data-cancel-local');
+        delete state.pendingUploads[cid];
+        renderPortfolio();
+        return;
+      }
+      var coverBtn = ev.target.closest('[data-set-cover]');
+      if (coverBtn) {
+        var coverId = coverBtn.getAttribute('data-set-cover');
+        var coverRes = await EP.apiFetch('onboarding-asset-update', {
+          method: 'POST',
+          body: { partnerId: state.partnerId, assetId: coverId, setCover: true }
+        });
+        if (coverRes.ok && coverRes.body && coverRes.body.ok) {
+          syncAssetsFromPayload(coverRes.body);
+          renderPortfolio();
+          setSaveUi('ok', 'Cover bijgewerkt');
+        } else {
+          setSaveUi('error', (coverRes.body && coverRes.body.message) || 'Cover wijzigen mislukt');
+        }
+        return;
+      }
+      var delBtn = ev.target.closest('[data-delete-asset]');
+      if (delBtn) {
+        var delId = delBtn.getAttribute('data-delete-asset');
+        var delRes = await EP.apiFetch('onboarding-asset-delete', {
+          method: 'POST',
+          body: { partnerId: state.partnerId, assetId: delId }
+        });
+        if (delRes.ok && delRes.body && delRes.body.ok) {
+          syncAssetsFromPayload(delRes.body);
+          renderPortfolio();
+          setSaveUi('ok', 'Foto verwijderd');
+        } else {
+          setSaveUi('error', (delRes.body && delRes.body.message) || 'Verwijderen mislukt');
+        }
+      }
+    });
+
+    var titleTimer = null;
+    portfolioGrid.addEventListener('input', function (ev) {
+      if (!state.canEdit || !ev.target || !ev.target.getAttribute('data-asset-title')) return;
+      var assetId = ev.target.getAttribute('data-asset-title');
+      var title = ev.target.value;
+      var asset = state.assets.filter(function (a) { return a.id === assetId; })[0];
+      if (asset) asset.title = title;
+      if (titleTimer) clearTimeout(titleTimer);
+      titleTimer = setTimeout(async function () {
+        var res = await EP.apiFetch('onboarding-asset-update', {
+          method: 'POST',
+          body: { partnerId: state.partnerId, assetId: assetId, title: title }
+        });
+        if (res.ok && res.body && res.body.ok) {
+          syncAssetsFromPayload(res.body);
+          setSaveUi('ok', 'Titel opgeslagen');
+        }
+      }, 500);
+    });
+
+    portfolioGrid.addEventListener('dragstart', function (ev) {
+      if (!state.canEdit) return;
+      var item = ev.target.closest('[data-asset-id]');
+      if (!item) return;
+      state.dragAssetId = item.getAttribute('data-asset-id');
+      item.classList.add('is-dragging');
+      if (ev.dataTransfer) {
+        ev.dataTransfer.effectAllowed = 'move';
+        ev.dataTransfer.setData('text/plain', state.dragAssetId);
+      }
+    });
+    portfolioGrid.addEventListener('dragend', function (ev) {
+      var item = ev.target.closest('[data-asset-id]');
+      if (item) item.classList.remove('is-dragging');
+      state.dragAssetId = null;
+    });
+    portfolioGrid.addEventListener('dragover', function (ev) {
+      ev.preventDefault();
+    });
+    portfolioGrid.addEventListener('drop', async function (ev) {
+      ev.preventDefault();
+      if (!state.canEdit) return;
+      var target = ev.target.closest('[data-asset-id]');
+      var fromId = state.dragAssetId || (ev.dataTransfer && ev.dataTransfer.getData('text/plain'));
+      if (!target || !fromId) return;
+      var toId = target.getAttribute('data-asset-id');
+      if (fromId === toId) return;
+      var ordered = state.assets
+        .slice()
+        .sort(function (a, b) { return (a.sortOrder || 0) - (b.sortOrder || 0); });
+      var fromIdx = -1;
+      var toIdx = -1;
+      ordered.forEach(function (a, i) {
+        if (a.id === fromId) fromIdx = i;
+        if (a.id === toId) toIdx = i;
+      });
+      if (fromIdx < 0 || toIdx < 0) return;
+      var moved = ordered.splice(fromIdx, 1)[0];
+      ordered.splice(toIdx, 0, moved);
+      ordered.forEach(function (a, i) { a.sortOrder = i; });
+      state.assets = ordered;
+      renderPortfolio();
+      await persistAssetOrder();
+      setSaveUi('ok', 'Volgorde opgeslagen');
+    });
+  }
+
   window.addEventListener('popstate', function () {
     var requested = Shell.parseStepFromLocation(location);
     var step = Shell.resolveRouteStep({
@@ -1330,6 +1817,7 @@
     applyPayload(onboardRes.body);
     state.craft = Draft.pickCraft(state.draft && state.draft.craft);
     state.offer = Draft.pickOffer(state.draft && state.draft.offer);
+    state.story = Draft.pickStory(state.draft && state.draft.story);
     syncOfferWithCraft();
     EP.showEl(shellEl, true);
     EP.setStatus(statusEl, '', '');
@@ -1359,6 +1847,7 @@
       if (landing === 'bedrijf_bereik') landingDraft = collectP2Draft();
       else if (landing === 'ambacht') landingDraft = collectP3Draft();
       else if (landing === 'aanbod') landingDraft = collectP4Draft();
+      else if (landing === 'verhaal') landingDraft = collectP5Draft();
       await saveStep(landing, landingDraft ? { draft: landingDraft } : {});
     }
   }).catch(function (err) {

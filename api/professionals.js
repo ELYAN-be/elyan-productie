@@ -1,11 +1,12 @@
 /**
- * /api/professionals — Phase A + Phase B Sprint 1–3 router
+ * /api/professionals — Phase A + Phase B Sprint 1–6 router
  * (single serverless function for Hobby limits)
  * Routes via ?action= or JSON body.action
  *
  * Phase A: public-config | session | activate | setup-password | logout | login-audit
  * Phase B: onboarding | onboarding-status | onboarding-save | onboarding-submit | onboarding-resubmit
- * Sprint 2 UI: wizard shell · Sprint 3: P1 start + P2 bedrijf_bereik draft validation
+ * Sprint 6: onboarding-assets | onboarding-asset-upload | onboarding-asset-update |
+ *           onboarding-asset-delete | onboarding-assets-reorder
  */
 var { requireUser, listActiveMemberships, requirePartnerContext } = require('../server/tenancy');
 var { previewInvite, acceptInviteForUser } = require('../server/invites');
@@ -17,6 +18,13 @@ var {
   submitOnboarding,
   resubmitOnboarding
 } = require('../server/onboarding');
+var {
+  getAssets,
+  uploadAsset,
+  updateAsset,
+  reorderAssets,
+  deleteAsset
+} = require('../server/assets');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
 var { writeAudit } = require('../server/audit');
 var { rateLimit, clientKey } = require('../server/rate-limit');
@@ -64,7 +72,11 @@ function statusForCode(code) {
   if (code === 'version_conflict') return 409;
   if (code === 'rate_limited') return 429;
   if (code === 'missing_env') return 503;
-  if (code === 'server_error') return 500;
+  if (code === 'server_error' || code === 'upload_failed') return 500;
+  if (code === 'not_found') return 404;
+  if (code === 'max_assets' || code === 'file_too_large' || code === 'invalid_mime' || code === 'invalid_file' || code === 'invalid_asset') {
+    return 400;
+  }
   return 400;
 }
 
@@ -287,10 +299,97 @@ async function handleOnboardingResubmit(req, res, body) {
   });
 }
 
+async function handleOnboardingAssets(req, res, body) {
+  if (req.method !== 'GET') return methodNotAllowed(res, 'GET');
+  var rl = rateLimit(clientKey(req, 'onboarding_assets'), 60, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await getAssets({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id
+    });
+    return respondOnboarding(res, result);
+  });
+}
+
+async function handleOnboardingAssetUpload(req, res, body) {
+  if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+  var rl = rateLimit(clientKey(req, 'onboarding_asset_upload'), 40, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await uploadAsset({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id,
+      dataBase64: body && body.dataBase64,
+      contentType: body && body.contentType,
+      title: body && body.title,
+      setCover: !!(body && body.setCover),
+      req: req
+    });
+    return respondOnboarding(res, result);
+  });
+}
+
+async function handleOnboardingAssetUpdate(req, res, body) {
+  if (req.method !== 'POST' && req.method !== 'PATCH') {
+    return methodNotAllowed(res, 'POST, PATCH');
+  }
+  var rl = rateLimit(clientKey(req, 'onboarding_asset_update'), 60, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await updateAsset({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id,
+      assetId: body && body.assetId,
+      title: body && Object.prototype.hasOwnProperty.call(body, 'title') ? body.title : undefined,
+      setCover: body && body.setCover === true,
+      req: req
+    });
+    return respondOnboarding(res, result);
+  });
+}
+
+async function handleOnboardingAssetDelete(req, res, body) {
+  if (req.method !== 'POST' && req.method !== 'DELETE') {
+    return methodNotAllowed(res, 'POST, DELETE');
+  }
+  var rl = rateLimit(clientKey(req, 'onboarding_asset_delete'), 40, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await deleteAsset({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id,
+      assetId: body && body.assetId,
+      req: req
+    });
+    return respondOnboarding(res, result);
+  });
+}
+
+async function handleOnboardingAssetsReorder(req, res, body) {
+  if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+  var rl = rateLimit(clientKey(req, 'onboarding_assets_reorder'), 40, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await reorderAssets({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id,
+      orderedIds: body && body.orderedIds,
+      req: req
+    });
+    return respondOnboarding(res, result);
+  });
+}
+
 module.exports = async function handler(req, res) {
   try {
     var body = {};
-    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
+    if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH' || req.method === 'DELETE') {
       body = await readJson(req);
     }
     var action = getAction(req, body) || (req.method === 'GET' && getToken(req, body) ? 'activate' : '');
@@ -307,6 +406,11 @@ module.exports = async function handler(req, res) {
     if (action === 'onboarding-save') return handleOnboardingSave(req, res, body);
     if (action === 'onboarding-submit') return handleOnboardingSubmit(req, res, body);
     if (action === 'onboarding-resubmit') return handleOnboardingResubmit(req, res, body);
+    if (action === 'onboarding-assets') return handleOnboardingAssets(req, res, body);
+    if (action === 'onboarding-asset-upload') return handleOnboardingAssetUpload(req, res, body);
+    if (action === 'onboarding-asset-update') return handleOnboardingAssetUpdate(req, res, body);
+    if (action === 'onboarding-asset-delete') return handleOnboardingAssetDelete(req, res, body);
+    if (action === 'onboarding-assets-reorder') return handleOnboardingAssetsReorder(req, res, body);
 
     return errorJson(res, 400, 'missing_fields', { message: 'Onbekende of ontbrekende action.' });
   } catch (err) {

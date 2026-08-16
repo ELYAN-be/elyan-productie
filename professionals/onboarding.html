@@ -316,18 +316,101 @@
 
     <section class="prof-step-panel" data-step="verhaal" hidden>
       <h2>Verhaal</h2>
-      <p class="lab-hint prof-placeholder">Formuliervelden volgen in een latere sprint. Placeholder — navigatie en opslaan werken al.</p>
+      <p class="lab-hint">Korte, concrete antwoorden — geen essay. Zo herkennen klanten jullie aanpak.</p>
+      <form id="p5Form" class="prof-form" novalidate>
+        <fieldset class="prof-fieldset">
+          <legend>Ervaring</legend>
+          <p class="prof-q-label">Jaren actief</p>
+          <div class="lab-choice-grid is-3" id="yearsActiveGrid" role="group" aria-label="Jaren actief"></div>
+          <span class="prof-field-error" data-error-for="years_active" hidden></span>
+
+          <p class="prof-q-label" style="margin-top:12px">Teamgrootte <span class="prof-opt">(optioneel)</span></p>
+          <div class="lab-choice-grid is-3" id="teamSizeGrid" role="group" aria-label="Teamgrootte"></div>
+          <span class="prof-field-error" data-error-for="team_size" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Aanpak</legend>
+          <label class="lab-field">Sterk in
+            <textarea id="f_strength" name="strength" rows="2" maxlength="160" required
+              placeholder="Bijvoorbeeld: renovatie van hellende daken of complexe details"></textarea>
+            <span class="prof-field-error" data-error-for="strength" hidden></span>
+          </label>
+          <label class="lab-field">Liever wel
+            <textarea id="f_prefer" name="prefer" rows="2" maxlength="160" required
+              placeholder="Bijvoorbeeld: gezinswoningen, totaalrenovaties"></textarea>
+            <span class="prof-field-error" data-error-for="prefer" hidden></span>
+          </label>
+          <label class="lab-field">Liever niet <span class="prof-opt">(optioneel)</span>
+            <textarea id="f_avoid" name="avoid" rows="2" maxlength="160"
+              placeholder="Bijvoorbeeld: spoedwerken zonder opmeting"></textarea>
+            <span class="prof-field-error" data-error-for="avoid" hidden></span>
+          </label>
+          <label class="lab-field">Extra aandacht op de werf <span class="prof-opt">(optioneel)</span>
+            <textarea id="f_care" name="care" rows="2" maxlength="160"
+              placeholder="Bijvoorbeeld: nette werf, planning, communicatie"></textarea>
+            <span class="prof-field-error" data-error-for="care" hidden></span>
+          </label>
+          <label class="lab-field">Waarom klanten kiezen <span class="prof-opt">(optioneel)</span>
+            <textarea id="f_why_choose" name="why_choose" rows="2" maxlength="160"
+              placeholder="Kort en eerlijk"></textarea>
+            <span class="prof-field-error" data-error-for="why_choose" hidden></span>
+          </label>
+          <label class="lab-field">Materialen / merken <span class="prof-opt">(optioneel)</span>
+            <textarea id="f_materials" name="materials" rows="2" maxlength="160"
+              placeholder="Bijvoorbeeld: keramische pannen, EPDM, PIR"></textarea>
+            <span class="prof-field-error" data-error-for="materials" hidden></span>
+          </label>
+          <label class="lab-field">Must-know vooraf <span class="prof-opt">(optioneel)</span>
+            <textarea id="f_must_know" name="must_know" rows="2" maxlength="200"
+              placeholder="Wat moet een klant zeker weten?"></textarea>
+            <span class="prof-field-error" data-error-for="must_know" hidden></span>
+          </label>
+          <label class="lab-field">Korte garantiezin <span class="prof-opt">(optioneel)</span>
+            <input id="f_guarantee_line" name="guarantee_line" type="text" maxlength="120"
+              placeholder="Bijvoorbeeld: 2 jaar op plaatsing">
+            <span class="prof-field-error" data-error-for="guarantee_line" hidden></span>
+          </label>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Publiek tonen</legend>
+          <label class="prof-toggle">
+            <input type="checkbox" id="f_show_years_public" name="show_years_public" checked>
+            <span>Toon jaren actief op jullie profiel</span>
+          </label>
+          <span class="prof-field-error" data-error-for="show_years_public" hidden></span>
+          <label class="prof-toggle">
+            <input type="checkbox" id="f_show_team_public" name="show_team_public">
+            <span>Toon teamgrootte op jullie profiel</span>
+          </label>
+          <span class="prof-field-error" data-error-for="show_team_public" hidden></span>
+        </fieldset>
+      </form>
     </section>
 
     <section class="prof-step-panel" data-step="portfolio" hidden>
       <h2>Portfolio</h2>
-      <p class="lab-hint prof-placeholder">Foto-upload volgt later. Placeholder — navigatie en opslaan werken al.</p>
+      <p class="lab-hint">Toon recent werk. Foto’s zijn optioneel — je mag later verder zonder.</p>
+      <div id="p6SoftNudge" class="prof-soft-nudge" hidden role="status"></div>
+
+      <div id="portfolioDropzone" class="prof-dropzone" tabindex="0" role="button"
+        aria-label="Foto’s toevoegen">
+        <input type="file" id="portfolioFileInput" accept="image/jpeg,image/png,image/webp"
+          multiple capture="environment" hidden>
+        <p class="prof-dropzone-title">Voeg projectfoto’s toe</p>
+        <p class="prof-dropzone-hint">Sleep hierheen of kies uit galerij / camera · max. 12 · JPEG, PNG of WebP · tot 8&nbsp;MB</p>
+        <button type="button" class="btn btn-primary" id="portfolioPickBtn">Foto’s kiezen</button>
+      </div>
+
+      <ul id="portfolioGrid" class="prof-portfolio-grid" aria-label="Projectfoto’s"></ul>
+      <p id="portfolioCount" class="lab-hint prof-portfolio-count"></p>
     </section>
 
     <section class="prof-step-panel" data-step="controle" hidden>
       <h2>Controle</h2>
       <p class="lab-hint">Controleer je gegevens vóór indienen. Indienen volgt in een latere sprint; dit scherm is de shell.</p>
-      <p class="lab-hint prof-placeholder">Geen echte validatie of submit-knop in Sprint 2.</p>
+      <p class="lab-hint prof-placeholder">Geen echte validatie of submit-knop in deze sprint.</p>
     </section>
 
     <section class="prof-step-panel" data-step="review_hub" hidden>
@@ -347,6 +430,7 @@
 <script src="/js/professionals/core.js"></script>
 <script src="/js/professionals/onboarding-shell.js"></script>
 <script src="/js/professionals/onboarding-draft.js"></script>
+<script src="/js/professionals/onboarding-portfolio.js"></script>
 <script src="/js/professionals/onboarding.js"></script>
 </body>
 </html>
