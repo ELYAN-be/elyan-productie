@@ -41,19 +41,176 @@
     </div>
 
     <section class="prof-step-panel" data-step="start" hidden>
-      <h2>Welkom bij je onboarding</h2>
-      <p class="lab-hint">In een paar stappen richt je je vakbedrijf in voor ELYAN. Je voortgang wordt automatisch bewaard.</p>
-      <ul class="prof-step-list">
-        <li>Bedrijf &amp; bereik</li>
-        <li>Ambacht en aanbod</li>
-        <li>Verhaal en portfolio</li>
-        <li>Controle en indienen</li>
-      </ul>
+      <div class="prof-start-layout">
+        <div class="prof-start-copy">
+          <h2>Welkom in het ELYAN-netwerk</h2>
+          <p class="lab-hint">Je richt hier je bedrijfsprofiel in. ELYAN gebruikt die gegevens om jullie te matchen met passende woningeigenaars en om een rustig, publiek vakmanprofiel voor te bereiden.</p>
+          <p class="prof-expect"><strong>Reken op ongeveer 10 minuten.</strong> Je kunt tussentijds stoppen: alles wordt automatisch bewaard.</p>
+          <ul class="prof-step-list">
+            <li>Bedrijf &amp; bereik</li>
+            <li>Ambacht en aanbod</li>
+            <li>Verhaal en portfolio</li>
+            <li>Controle en indienen bij ELYAN</li>
+          </ul>
+          <p class="lab-hint prof-start-note">ELYAN controleert elk profiel vóór publicatie. Er is geen openbare self-signup.</p>
+          <button type="button" class="btn btn-primary" id="startProfileBtn">Profiel starten</button>
+        </div>
+        <aside class="prof-living-preview" aria-label="Voorbeeld marketplace-profiel">
+          <p class="prof-preview-kicker">Zo kan het eruitzien</p>
+          <div class="prof-preview-card" id="livingPreview">
+            <div class="prof-preview-media" aria-hidden="true"></div>
+            <div class="prof-preview-body">
+              <p class="prof-preview-name" id="previewName">Jullie vakbedrijf</p>
+              <p class="prof-preview-meta" id="previewMeta">Vestiging volgt</p>
+              <p class="prof-preview-area" id="previewArea">Werkgebied volgt</p>
+              <p class="prof-preview-hint" id="previewHint">Ambacht volgt in de volgende stappen</p>
+            </div>
+          </div>
+          <p class="lab-hint prof-preview-foot">Dit voorbeeld groeit mee terwijl je invult.</p>
+        </aside>
+      </div>
     </section>
 
     <section class="prof-step-panel" data-step="bedrijf_bereik" hidden>
       <h2>Bedrijf &amp; bereik</h2>
-      <p class="lab-hint prof-placeholder">Formuliervelden volgen in een latere sprint. Je kunt wel verder navigeren; je stap wordt bewaard.</p>
+      <p class="lab-hint">Juridische identiteit, contact en waar jullie werken. Eén denkstap voor matching én vertrouwen.</p>
+
+      <aside class="prof-living-preview prof-living-preview-inline" aria-label="Levende preview">
+        <p class="prof-preview-kicker">Levende preview</p>
+        <div class="prof-preview-card is-compact">
+          <div class="prof-preview-body">
+            <p class="prof-preview-name" id="previewNameP2">Jullie vakbedrijf</p>
+            <p class="prof-preview-meta" id="previewMetaP2">Vestiging volgt</p>
+            <p class="prof-preview-area" id="previewAreaP2">Werkgebied volgt</p>
+          </div>
+        </div>
+      </aside>
+
+      <form id="p2Form" class="prof-form" novalidate>
+        <fieldset class="prof-fieldset">
+          <legend>Bedrijfsidentiteit</legend>
+          <div class="prof-field-grid">
+            <label class="lab-field">Officiële bedrijfsnaam
+              <input id="f_legal_name" name="legal_name" type="text" autocomplete="organization" maxlength="120" required>
+              <span class="prof-field-error" data-error-for="legal_name" hidden></span>
+            </label>
+            <label class="lab-field">Handelsnaam
+              <input id="f_display_name" name="display_name" type="text" maxlength="80" required>
+              <span class="prof-field-error" data-error-for="display_name" hidden></span>
+            </label>
+            <label class="lab-field">Rechtsvorm
+              <select id="f_rechtsvorm" name="rechtsvorm" required>
+                <option value="">Kies…</option>
+              </select>
+              <span class="prof-field-error" data-error-for="rechtsvorm" hidden></span>
+            </label>
+            <label class="lab-field">Ondernemingsnummer (KBO)
+              <input id="f_kbo" name="kbo" type="text" inputmode="numeric" placeholder="BE 0XXX.XXX.XXX" autocomplete="off" required>
+              <span class="prof-field-error" data-error-for="kbo" hidden></span>
+            </label>
+          </div>
+          <div class="prof-field-row">
+            <p class="prof-field-label">BTW-plichtig</p>
+            <div class="lab-seg" id="btwSeg" role="group" aria-label="BTW-plichtig">
+              <button type="button" data-btw="true">Ja</button>
+              <button type="button" data-btw="false">Nee</button>
+            </div>
+            <span class="prof-field-error" data-error-for="btw_plichtig" hidden></span>
+          </div>
+          <label class="lab-field" id="btwNumberWrap" hidden>BTW-nummer
+            <input id="f_btw_nummer" name="btw_nummer" type="text" inputmode="numeric" placeholder="BE 0XXX.XXX.XXX" autocomplete="off">
+            <span class="prof-field-error" data-error-for="btw_nummer" hidden></span>
+          </label>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Vestiging</legend>
+          <div class="prof-field-grid">
+            <label class="lab-field prof-span-2">Adres
+              <input id="f_adres" name="adres" type="text" autocomplete="street-address" maxlength="160" required>
+              <span class="prof-field-error" data-error-for="adres" hidden></span>
+            </label>
+            <label class="lab-field">Postcode
+              <input id="f_postcode" name="postcode" type="text" inputmode="numeric" maxlength="4" autocomplete="postal-code" required>
+              <span class="prof-field-error" data-error-for="postcode" hidden></span>
+            </label>
+            <label class="lab-field">Gemeente
+              <input id="f_gemeente" name="gemeente" type="text" autocomplete="address-level2" maxlength="80" required>
+              <span class="prof-field-error" data-error-for="gemeente" hidden></span>
+            </label>
+            <label class="lab-field">Gewest
+              <select id="f_gewest" name="gewest" required>
+                <option value="">Kies…</option>
+              </select>
+              <span class="prof-field-error" data-error-for="gewest" hidden></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Contact</legend>
+          <div class="prof-field-grid">
+            <label class="lab-field">Website <span class="prof-opt">(optioneel)</span>
+              <input id="f_website" name="website" type="url" placeholder="https://" autocomplete="url">
+              <span class="prof-field-error" data-error-for="website" hidden></span>
+            </label>
+            <label class="lab-field">Zakelijk e-mail
+              <input id="f_email" name="email" type="email" autocomplete="email" required>
+              <span class="prof-field-error" data-error-for="email" hidden></span>
+            </label>
+            <label class="lab-field">Telefoon
+              <input id="f_phone" name="phone" type="tel" placeholder="+32 …" autocomplete="tel" required>
+              <span class="prof-field-error" data-error-for="phone" hidden></span>
+            </label>
+            <label class="lab-field">Contactpersoon
+              <input id="f_contact_name" name="contact_name" type="text" maxlength="80" autocomplete="name" required>
+              <span class="prof-field-error" data-error-for="contact_name" hidden></span>
+            </label>
+            <label class="lab-field">Functie contact <span class="prof-opt">(optioneel)</span>
+              <input id="f_contact_role" name="contact_role" type="text" maxlength="80" placeholder="Zaakvoerder, projectleider…">
+              <span class="prof-field-error" data-error-for="contact_role" hidden></span>
+            </label>
+            <label class="lab-field">Taal communicatie
+              <select id="f_language" name="language" required>
+              </select>
+              <span class="prof-field-error" data-error-for="language" hidden></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Werkgebied</legend>
+          <p class="lab-hint">Matching gebruikt de structuur; klanten zien de publieke tekst.</p>
+          <div class="lab-choice-grid is-2" id="areaModeGrid" role="group" aria-label="Werkgebiedmodus"></div>
+          <span class="prof-field-error" data-error-for="mode" hidden></span>
+
+          <label class="lab-field" id="radiusWrap" hidden>Radius (km)
+            <input id="f_radius_km" name="radius_km" type="number" min="5" max="150" step="1" inputmode="numeric">
+            <span class="prof-field-error" data-error-for="radius_km" hidden></span>
+          </label>
+
+          <div id="provincesWrap" class="prof-multi" hidden>
+            <p class="prof-field-label">Provincies</p>
+            <div class="lab-choice-grid is-2" id="provincesGrid"></div>
+            <span class="prof-field-error" data-error-for="provinces" hidden></span>
+          </div>
+
+          <div id="regionsWrap" class="prof-multi" hidden>
+            <p class="prof-field-label">Gewest-dekking</p>
+            <div class="lab-choice-grid is-2" id="regionsGrid"></div>
+            <span class="prof-field-error" data-error-for="regions" hidden></span>
+          </div>
+
+          <label class="lab-field">Publieke werkgebiedtekst
+            <input id="f_public_text" name="public_text" type="text" maxlength="80" required>
+            <span class="prof-field-error" data-error-for="public_text" hidden></span>
+          </label>
+          <label class="lab-field">Uitsluitingen <span class="prof-opt">(optioneel)</span>
+            <input id="f_exclusions" name="exclusions" type="text" maxlength="120" placeholder="Bv. kustgemeenten">
+            <span class="prof-field-error" data-error-for="exclusions" hidden></span>
+          </label>
+        </fieldset>
+      </form>
     </section>
 
     <section class="prof-step-panel" data-step="ambacht" hidden>
@@ -97,6 +254,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/js/professionals/core.js"></script>
 <script src="/js/professionals/onboarding-shell.js"></script>
+<script src="/js/professionals/onboarding-draft.js"></script>
 <script src="/js/professionals/onboarding.js"></script>
 </body>
 </html>

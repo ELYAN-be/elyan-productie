@@ -2,6 +2,8 @@
  * Phase B onboarding — status enums, steps, draft helpers, transition rules.
  * Source of truth: Phase B Productspecificatie V2 (frozen).
  */
+var draftHelpers = require('../js/professionals/onboarding-draft');
+
 var ONBOARDING_STATUSES = [
   'not_started',
   'in_progress',
@@ -96,8 +98,8 @@ function isPlainObject(v) {
 }
 
 /**
- * Structural draft check for Sprint 1 (not full V2 field UX validation).
- * Rejects non-objects, arrays-as-root, and known forbidden onboarding keys.
+ * Structural draft check + Sprint 3 P2 shape/Belgian format gates.
+ * Autosave allows partial drafts; malformed formats / unknown P2 keys fail.
  */
 function validateDraftStructure(draft) {
   if (draft == null) return { ok: true, draft: {} };
@@ -107,7 +109,15 @@ function validateDraftStructure(draft) {
   if (Object.prototype.hasOwnProperty.call(draft, 'google_intent')) {
     return { ok: false, code: 'invalid_draft', message: 'google_intent is not part of onboarding V2' };
   }
-  return { ok: true, draft: draft };
+  var p2 = draftHelpers.sanitizeP2Patch(draft);
+  if (!p2.ok) {
+    return {
+      ok: false,
+      code: p2.code || 'invalid_draft',
+      message: p2.message || 'Invalid draft'
+    };
+  }
+  return { ok: true, draft: p2.draft || draft };
 }
 
 function canAutosave(status) {
@@ -245,5 +255,6 @@ module.exports = {
   draftCompletion,
   mapOnboardingRow,
   mapProfileRow,
-  mapReviewItem
+  mapReviewItem,
+  draftHelpers
 };
