@@ -18,6 +18,10 @@
       "destination": "/professionals/onboarding"
     },
     {
+      "source": "/professionals/control/:partnerId",
+      "destination": "/professionals/control"
+    },
+    {
       "source": "/vakmannen/:slug",
       "destination": "/vakmannen-detail"
     }

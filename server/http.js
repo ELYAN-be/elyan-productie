@@ -73,7 +73,11 @@ var USER_MESSAGES = {
   invalid_file: 'Ongeldig bestand.',
   invalid_asset: 'Ongeldige foto.',
   not_found: 'Niet gevonden.',
-  upload_failed: 'Upload mislukt. Probeer opnieuw.'
+  upload_failed: 'Upload mislukt. Probeer opnieuw.',
+  open_review_items: 'Er staan nog open aanpassingspunten. Los die eerst op of vraag wijzigingen.',
+  publication_gate_failed: 'Publicatiecriteria zijn niet vervuld.',
+  invalid_review_item: 'Voeg minstens één duidelijke feedbacktekst toe.',
+  invalid_filter: 'Ongeldige filter.'
 };
 
 function userMessage(code) {

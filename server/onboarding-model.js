@@ -243,6 +243,7 @@ function mapProfileRow(row) {
     coverAssetId: row.cover_asset_id || null,
     publishedAt: row.published_at || null,
     pausedAt: row.paused_at || null,
+    hiddenAt: row.hidden_at || null,
     readyAt: row.ready_at || null
   };
 }

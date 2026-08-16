@@ -85,6 +85,7 @@ test('API route files exist', function () {
   [
     'api/professionals.js',
     'api/control-invites.js',
+    'api/control.js',
     'server/supabase.js',
     'server/tenancy.js',
     'server/invites.js',
@@ -96,7 +97,7 @@ test('API route files exist', function () {
 });
 
 test('professionals pages exist', function () {
-  ['login', 'activate', 'forgot-password', 'reset-password', 'dashboard', 'onboarding'].forEach(function (p) {
+  ['login', 'activate', 'forgot-password', 'reset-password', 'dashboard', 'onboarding', 'control'].forEach(function (p) {
     assert.ok(fs.existsSync(path.join(root, 'professionals', p + '.html')), p);
   });
 });

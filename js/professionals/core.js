@@ -30,6 +30,17 @@
     return '/api/professionals' + q;
   }
 
+  function apiControl(action, options) {
+    options = options || {};
+    var q = '?action=' + encodeURIComponent(action);
+    if (options.query) {
+      Object.keys(options.query).forEach(function (k) {
+        q += '&' + encodeURIComponent(k) + '=' + encodeURIComponent(options.query[k]);
+      });
+    }
+    return '/api/control' + q;
+  }
+
   async function loadConfig() {
     if (cfgPromise) return cfgPromise;
     cfgPromise = fetch(apiProfessionals('public-config'), { credentials: 'same-origin' })
@@ -92,6 +103,46 @@
     return { ok: res.ok, status: res.status, body: parsed };
   }
 
+  async function controlFetch(action, options) {
+    options = options || {};
+    var headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+    if (options.auth !== false) {
+      var token = await getAccessToken();
+      if (token) headers.Authorization = 'Bearer ' + token;
+    }
+    var method = options.method || 'GET';
+    var body = options.body ? Object.assign({ action: action }, options.body) : null;
+    var url = apiControl(action, { query: options.query });
+    var res = await fetch(url, {
+      method: method,
+      headers: headers,
+      body: method === 'GET' || method === 'HEAD' ? undefined : JSON.stringify(body || { action: action }),
+      credentials: 'same-origin'
+    });
+    var parsed = null;
+    try { parsed = await res.json(); } catch (e) { parsed = {}; }
+    return { ok: res.ok, status: res.status, body: parsed };
+  }
+
+  async function requireStaffOrRedirect() {
+    var sb = await getSupabase();
+    var { data } = await sb.auth.getSession();
+    if (!data || !data.session) {
+      location.replace('/professionals/login?next=' + encodeURIComponent('/professionals/control'));
+      return null;
+    }
+    var sessionRes = await controlFetch('session');
+    if (sessionRes.status === 401) {
+      await sb.auth.signOut();
+      location.replace('/professionals/login?next=' + encodeURIComponent('/professionals/control'));
+      return null;
+    }
+    if (sessionRes.status === 403 || !sessionRes.ok) {
+      return { error: sessionRes.body, notStaff: true };
+    }
+    return sessionRes.body;
+  }
+
   async function requireSessionOrRedirect() {
     var sb = await getSupabase();
     var { data } = await sb.auth.getSession();
@@ -132,8 +183,11 @@
     getSupabase,
     getAccessToken,
     apiFetch,
+    controlFetch,
     apiProfessionals,
+    apiControl,
     requireSessionOrRedirect,
+    requireStaffOrRedirect,
     logout
   };
 })(window);

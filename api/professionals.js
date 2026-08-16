@@ -8,7 +8,7 @@
  * Sprint 6: onboarding-assets | onboarding-asset-upload | onboarding-asset-update |
  *           onboarding-asset-delete | onboarding-assets-reorder
  */
-var { requireUser, listActiveMemberships, requirePartnerContext } = require('../server/tenancy');
+var { requireUser, listActiveMemberships, requirePartnerContext, isStaff } = require('../server/tenancy');
 var { previewInvite, acceptInviteForUser } = require('../server/invites');
 var { setupPasswordForInvite } = require('../server/auth-password');
 var {
@@ -111,10 +111,12 @@ async function handleSession(req, res) {
   if (!auth.ok) return errorJson(res, auth.status, auth.code);
   var listed = await listActiveMemberships(auth.user.id);
   if (listed.error) return errorJson(res, 500, 'server_error');
+  var staff = await isStaff(auth.user.id);
   return json(res, 200, {
     ok: true,
     user: { id: auth.user.id, email: auth.user.email },
-    memberships: listed.memberships
+    memberships: listed.memberships,
+    staff: staff.staff ? { role: staff.role } : null
   });
 }
 
