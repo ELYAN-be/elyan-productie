@@ -16,6 +16,28 @@ var { writeAudit } = require('./audit');
 var { canEditRole, canReadRole } = require('./onboarding-model');
 var blob = require('./blob-storage');
 
+async function loadOnboardingStatus(admin, partnerId) {
+  var { data, error } = await admin
+    .from('partner_onboarding')
+    .select('onboarding_status')
+    .eq('partner_id', partnerId)
+    .maybeSingle();
+  if (error) {
+    console.error('assets_onboarding_status_failed', error.message);
+    return { ok: false, code: 'server_error' };
+  }
+  return { ok: true, status: data ? data.onboarding_status : 'not_started' };
+}
+
+function canMutateAssets(status) {
+  return (
+    status === 'in_progress' ||
+    status === 'changes_requested' ||
+    status === 'submitted' ||
+    status === 'not_started'
+  );
+}
+
 function mapAsset(row) {
   if (!row) return null;
   return {
@@ -163,6 +185,12 @@ async function uploadAsset(opts) {
   if (!canEditRole(opts.role)) return { ok: false, code: 'forbidden' };
 
   var admin = createAdminClient();
+  var statusLoad = await loadOnboardingStatus(admin, opts.partnerId);
+  if (!statusLoad.ok) return statusLoad;
+  if (!canMutateAssets(statusLoad.status)) {
+    return { ok: false, code: 'section_locked' };
+  }
+
   var listed = await listAssets(admin, opts.partnerId);
   if (!listed.ok) return listed;
   if (listed.assets.length >= blob.MAX_ASSETS) {
@@ -276,6 +304,11 @@ async function loadOwnedAsset(admin, partnerId, assetId) {
 async function updateAsset(opts) {
   if (!canEditRole(opts.role)) return { ok: false, code: 'forbidden' };
   var admin = createAdminClient();
+  var statusLoad = await loadOnboardingStatus(admin, opts.partnerId);
+  if (!statusLoad.ok) return statusLoad;
+  if (!canMutateAssets(statusLoad.status)) {
+    return { ok: false, code: 'section_locked' };
+  }
   var owned = await loadOwnedAsset(admin, opts.partnerId, opts.assetId);
   if (!owned.ok) return owned;
 
@@ -320,6 +353,11 @@ async function reorderAssets(opts) {
   }
 
   var admin = createAdminClient();
+  var statusLoad = await loadOnboardingStatus(admin, opts.partnerId);
+  if (!statusLoad.ok) return statusLoad;
+  if (!canMutateAssets(statusLoad.status)) {
+    return { ok: false, code: 'section_locked' };
+  }
   var listed = await listAssets(admin, opts.partnerId);
   if (!listed.ok) return listed;
 
@@ -369,6 +407,11 @@ async function reorderAssets(opts) {
 async function deleteAsset(opts) {
   if (!canEditRole(opts.role)) return { ok: false, code: 'forbidden' };
   var admin = createAdminClient();
+  var statusLoad = await loadOnboardingStatus(admin, opts.partnerId);
+  if (!statusLoad.ok) return statusLoad;
+  if (!canMutateAssets(statusLoad.status)) {
+    return { ok: false, code: 'section_locked' };
+  }
   var owned = await loadOwnedAsset(admin, opts.partnerId, opts.assetId);
   if (!owned.ok) return owned;
 

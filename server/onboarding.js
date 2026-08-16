@@ -17,7 +17,8 @@ var {
   draftCompletion,
   mapOnboardingRow,
   mapProfileRow,
-  mapReviewItem
+  mapReviewItem,
+  draftHelpers
 } = require('./onboarding-model');
 var { mapAsset, sortAssets } = require('./assets');
 
@@ -97,26 +98,40 @@ function buildPayload(loaded, role) {
   var onboarding = mapOnboardingRow(loaded.onboarding);
   var profile = mapProfileRow(loaded.profile);
   var status = onboarding.onboardingStatus;
+  var draft = onboarding.draft;
+  var assets = (loaded.assets || []).map(mapAsset);
+  var strength = draftHelpers.evaluateProfileStrength
+    ? draftHelpers.evaluateProfileStrength(draft, assets)
+    : null;
+  var gates = draftHelpers.evaluateSubmitGates
+    ? draftHelpers.evaluateSubmitGates(draft)
+    : { ok: false, missing: [] };
   return {
     ok: true,
     partnerId: onboarding.partnerId,
     role: role,
     onboarding: onboarding,
     profile: profile,
-    draft: onboarding.draft,
+    draft: draft,
     version: onboarding.version,
     currentStepId: onboarding.currentStepId,
     onboardingStatus: status,
     profileStatus: profile.profileStatus,
     reviewItems: (loaded.reviewItems || []).map(mapReviewItem),
-    assets: (loaded.assets || []).map(mapAsset),
+    assets: assets,
     coverAssetId: profile.coverAssetId || null,
     reviewHub: isReviewHub(status),
     editableSections: editableSectionsFor(status),
     canEdit: canEditRole(role) && editableSectionsFor(status).length > 0,
     canSubmit: canEditRole(role) && canSubmit(status),
     canResubmit: canEditRole(role) && canResubmit(status),
-    completion: draftCompletion(onboarding.draft)
+    completion: draftCompletion(draft),
+    profileStrength: strength,
+    submitGates: {
+      ok: !!gates.ok,
+      missing: gates.missing || [],
+      sections: gates.sections || null
+    }
   };
 }
 
@@ -201,13 +216,22 @@ async function saveOnboarding(opts) {
     return { ok: false, code: 'invalid_status_transition' };
   }
 
-  // During submitted, only polish domains may change (structural gate for Sprint 1).
+  // During submitted, only polish domains may change (V2 Review Hub allowlist).
   if (previousStatus === 'submitted' && opts.draft != null) {
     var forbidden = Object.keys(opts.draft).filter(function (k) {
-      return k !== 'portfolio' && k !== 'story' && k !== 'cover_asset_id';
+      return k !== 'portfolio' && k !== 'story';
     });
     if (forbidden.length) {
       return { ok: false, code: 'section_locked' };
+    }
+    if (opts.draft.story && typeof opts.draft.story === 'object') {
+      var storyKeys = Object.keys(opts.draft.story);
+      var coreTouched = storyKeys.filter(function (k) {
+        return draftHelpers.isStoryCoreKey && draftHelpers.isStoryCoreKey(k);
+      });
+      if (coreTouched.length) {
+        return { ok: false, code: 'section_locked', message: 'Kernvelden van het verhaal zijn vergrendeld tijdens review.' };
+      }
     }
   }
 
@@ -329,6 +353,12 @@ async function submitOnboarding(opts) {
   if (!loaded.ok) return loaded;
 
   var row = loaded.onboarding;
+
+  // Idempotent: already submitted with matching/earlier version → return current payload.
+  if (row.onboarding_status === 'submitted') {
+    return buildPayload(loaded, opts.role);
+  }
+
   if (row.version !== expectedVersion) {
     return {
       ok: false,
@@ -345,6 +375,16 @@ async function submitOnboarding(opts) {
   if (!draftCheck.ok) return draftCheck;
   if (!draftCheck.draft || typeof draftCheck.draft !== 'object') {
     return { ok: false, code: 'invalid_draft' };
+  }
+
+  var gates = draftHelpers.evaluateSubmitGates(row.draft);
+  if (!gates.ok) {
+    return {
+      ok: false,
+      code: 'submit_incomplete',
+      message: 'Nog niet alle verplichte punten zijn in orde.',
+      missing: gates.missing
+    };
   }
 
   var now = new Date().toISOString();
@@ -370,6 +410,11 @@ async function submitOnboarding(opts) {
     return { ok: false, code: 'server_error' };
   }
   if (!updated) {
+    // Race: concurrent submit — treat as idempotent if already submitted.
+    var again = await loadOnboarding(admin, opts.partnerId);
+    if (again.ok && again.onboarding.onboarding_status === 'submitted') {
+      return buildPayload(again, opts.role);
+    }
     return { ok: false, code: 'version_conflict' };
   }
 
@@ -408,6 +453,11 @@ async function resubmitOnboarding(opts) {
   if (!loaded.ok) return loaded;
 
   var row = loaded.onboarding;
+
+  if (row.onboarding_status === 'submitted') {
+    return buildPayload(loaded, opts.role);
+  }
+
   if (row.version !== expectedVersion) {
     return {
       ok: false,
@@ -422,6 +472,16 @@ async function resubmitOnboarding(opts) {
 
   var draftCheck = validateDraftStructure(row.draft);
   if (!draftCheck.ok) return draftCheck;
+
+  var gates = draftHelpers.evaluateSubmitGates(row.draft);
+  if (!gates.ok) {
+    return {
+      ok: false,
+      code: 'submit_incomplete',
+      message: 'Nog niet alle verplichte punten zijn in orde.',
+      missing: gates.missing
+    };
+  }
 
   var now = new Date().toISOString();
   var { data: updated, error: uErr } = await admin
@@ -447,6 +507,10 @@ async function resubmitOnboarding(opts) {
     return { ok: false, code: 'server_error' };
   }
   if (!updated) {
+    var again = await loadOnboarding(admin, opts.partnerId);
+    if (again.ok && again.onboarding.onboarding_status === 'submitted') {
+      return buildPayload(again, opts.role);
+    }
     return { ok: false, code: 'version_conflict' };
   }
 

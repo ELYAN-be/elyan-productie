@@ -89,15 +89,19 @@
   }
 
   /**
-   * Server-resume landing: honour saved current_step_id, force Review Hub
-   * when onboarding is under/after Control review (V2).
+   * Server-resume landing: honour saved current_step_id.
+   * Review Hub for submitted/approved; changes_requested may resume on saved wizard step.
    */
   function resolveLandingStep(opts) {
     opts = opts || {};
     var status = opts.onboardingStatus || 'not_started';
     var saved = isStepId(opts.currentStepId) ? opts.currentStepId : 'start';
 
-    if (isReviewStatus(status)) {
+    if (status === 'submitted' || status === 'approved') {
+      return 'review_hub';
+    }
+    if (status === 'changes_requested') {
+      if (saved && saved !== 'start' && isStepId(saved)) return saved;
       return 'review_hub';
     }
     if (status === 'not_started') {
@@ -110,8 +114,11 @@
   }
 
   /**
-   * Whether the shell may show a step for the given status.
-   * Sprint 2: wizard only while editable; review statuses stay on review_hub.
+   * Whether the shell may show a step for the given status (V2 + Sprint 7).
+   * - in_progress: wizard steps
+   * - submitted: Review Hub + polish allowlist (portfolio / verhaal)
+   * - changes_requested: wizard + Review Hub (correction mode)
+   * - approved: Review Hub only
    */
   function canVisitStep(opts) {
     opts = opts || {};
@@ -119,8 +126,18 @@
     var stepId = opts.stepId;
     if (!isStepId(stepId)) return false;
 
-    if (isReviewStatus(status)) {
+    if (status === 'approved') {
       return stepId === 'review_hub';
+    }
+    if (status === 'submitted') {
+      return (
+        stepId === 'review_hub' ||
+        stepId === 'portfolio' ||
+        stepId === 'verhaal'
+      );
+    }
+    if (status === 'changes_requested') {
+      return isWizardStep(stepId) || stepId === 'review_hub';
     }
     if (status === 'not_started' || status === 'in_progress') {
       return isWizardStep(stepId);
@@ -251,20 +268,20 @@
   function reviewHubCopy(status) {
     if (status === 'submitted') {
       return {
-        title: 'In review bij ELYAN',
-        body: 'Je onboarding is ingediend. ELYAN Control bekijkt je profiel. Je kunt hier later terugkomen voor de status.'
+        title: 'Ingediend',
+        body: 'ELYAN bereidt jullie profiel voor. Meestal binnen 3 werkdagen horen jullie meer.'
       };
     }
     if (status === 'changes_requested') {
       return {
         title: 'Wijzigingen gevraagd',
-        body: 'ELYAN vroeg om aanpassingen. In een volgende sprint kun je hier feedback afhandelen en opnieuw indienen.'
+        body: 'ELYAN vroeg om aanpassingen. Los de open punten op en dien opnieuw in.'
       };
     }
     if (status === 'approved') {
       return {
         title: 'Goedgekeurd',
-        body: 'Je onboarding is goedgekeurd. Je bedrijfsprofiel volgt in latere stappen.'
+        body: 'Jullie onboarding is goedgekeurd. Het marketplace-profiel staat klaar voor publicatie door ELYAN.'
       };
     }
     return {
@@ -273,10 +290,18 @@
     };
   }
 
+  var REVIEW_CHECKS = [
+    'KBO en bedrijfsgegevens op consistentie',
+    'Diensten en richtprijzen',
+    'Foto’s en cover',
+    'Tekstkwaliteit van jullie verhaal'
+  ];
+
   return {
     STEP_IDS: STEP_IDS,
     STEP_META: STEP_META,
     WIZARD_STEPS: WIZARD_STEPS,
+    REVIEW_CHECKS: REVIEW_CHECKS,
     isStepId: isStepId,
     stepIndex: stepIndex,
     wizardIndex: wizardIndex,

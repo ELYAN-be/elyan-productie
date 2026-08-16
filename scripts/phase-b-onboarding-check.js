@@ -32,6 +32,80 @@ function test(name, fn) {
   }
 }
 
+var VALID_KBO = 'BE0123456749';
+
+function buildCompleteSubmitDraft(Draft) {
+  var sid = Draft.getServices('schilderwerken')[0].id;
+  var sp = Draft.emptyServicePrice();
+  sp.pricing_model = 'on_request';
+  var prices = {};
+  prices[sid] = sp;
+  return {
+    company: {
+      legal_name: 'Test BV',
+      display_name: 'Test',
+      rechtsvorm: 'bv',
+      kbo: VALID_KBO,
+      btw_plichtig: false,
+      btw_nummer: '',
+      adres: 'Voorbeeldstraat 1',
+      postcode: '2000',
+      gemeente: 'Antwerpen',
+      gewest: 'vlaanderen',
+      website: '',
+      email: 'owner@elyan-test.invalid',
+      phone: '+32470123456',
+      contact_name: 'Test Owner',
+      contact_role: '',
+      language: 'nl-BE'
+    },
+    service_area: {
+      mode: 'radius',
+      radius_km: 25,
+      provinces: [],
+      regions: [],
+      public_text: 'Antwerpen + 25 km',
+      exclusions: ''
+    },
+    craft: {
+      primary_category_id: 'schilderwerken',
+      service_ids: [sid],
+      conditionals: {},
+      extras: { scope: ['Binnen'] }
+    },
+    offer: {
+      service_prices: prices,
+      vat_basis: 'exclusief',
+      project_minimum: null,
+      client_types: ['particulier'],
+      response_time: '24u',
+      urgency_jobs: null,
+      capacity: 'limited',
+      start_month: Draft.listStartMonths()[0].id,
+      visit_speed: '2w',
+      visit_extra: []
+    },
+    story: {
+      years_active: '3-5',
+      team_size: '',
+      strength: 'Nette schilderwerken binnenshuis.',
+      prefer: 'Renovatieprojecten bij particulieren.',
+      avoid: '',
+      care: '',
+      why_choose: '',
+      materials: '',
+      must_know: '',
+      guarantee_line: '',
+      show_years_public: true,
+      show_team_public: false
+    },
+    confirmations: {
+      data_correct: true,
+      editorial_ok: true
+    }
+  };
+}
+
 var model = require('../server/onboarding-model');
 
 // ---------------------------------------------------------------------------
@@ -461,11 +535,36 @@ async function runLifecycle() {
       });
       assert.strictEqual(memberDenied.code, 'forbidden');
 
-      var submitted = await onboarding.submitOnboarding({
+      var incompleteSubmit = await onboarding.submitOnboarding({
         partnerId: partnerId,
         role: 'owner',
         userId: userId,
         expectedVersion: 2,
+        req: {}
+      });
+      assert.ok(!incompleteSubmit.ok);
+      assert.strictEqual(incompleteSubmit.code, 'submit_incomplete');
+      assert.ok(Array.isArray(incompleteSubmit.missing));
+      assert.ok(incompleteSubmit.missing.length > 0);
+
+      var Draft = require('../js/professionals/onboarding-draft');
+      var complete = buildCompleteSubmitDraft(Draft);
+      var filled = await onboarding.saveOnboarding({
+        partnerId: partnerId,
+        role: 'owner',
+        userId: userId,
+        expectedVersion: 2,
+        currentStepId: 'controle',
+        draft: complete,
+        req: {}
+      });
+      assert.ok(filled.ok, filled.code);
+
+      var submitted = await onboarding.submitOnboarding({
+        partnerId: partnerId,
+        role: 'owner',
+        userId: userId,
+        expectedVersion: filled.version,
         req: {}
       });
       assert.ok(submitted.ok, submitted.code);
@@ -474,6 +573,16 @@ async function runLifecycle() {
       assert.strictEqual(submitted.currentStepId, 'review_hub');
       assert.ok(submitted.reviewHub);
       assert.ok(!submitted.canSubmit);
+
+      var doubleSubmit = await onboarding.submitOnboarding({
+        partnerId: partnerId,
+        role: 'owner',
+        userId: userId,
+        expectedVersion: submitted.version,
+        req: {}
+      });
+      assert.ok(doubleSubmit.ok, 'idempotent double submit');
+      assert.strictEqual(doubleSubmit.onboardingStatus, 'submitted');
 
       var locked = await onboarding.saveOnboarding({
         partnerId: partnerId,
@@ -484,6 +593,16 @@ async function runLifecycle() {
         req: {}
       });
       assert.strictEqual(locked.code, 'section_locked');
+
+      var coreStoryLocked = await onboarding.saveOnboarding({
+        partnerId: partnerId,
+        role: 'owner',
+        userId: userId,
+        expectedVersion: submitted.version,
+        draft: { story: { strength: 'Dit mag niet meer tijdens review.' } },
+        req: {}
+      });
+      assert.strictEqual(coreStoryLocked.code, 'section_locked');
 
       var polish = await onboarding.saveOnboarding({
         partnerId: partnerId,
@@ -547,7 +666,8 @@ async function runLifecycle() {
         expectedVersion: resub.version,
         req: {}
       });
-      assert.strictEqual(badSubmit.code, 'invalid_status_transition');
+      assert.ok(badSubmit.ok, 'submit while already submitted is idempotent');
+      assert.strictEqual(badSubmit.onboardingStatus, 'submitted');
 
       assert.ok(db.store.audit_logs.some(function (a) { return a.action === 'onboarding_started'; }));
       assert.ok(db.store.audit_logs.some(function (a) { return a.action === 'onboarding_submitted'; }));

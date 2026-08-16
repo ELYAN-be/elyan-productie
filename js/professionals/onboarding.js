@@ -30,6 +30,8 @@
     partnerId: null,
     role: null,
     canEdit: false,
+    canSubmit: false,
+    canResubmit: false,
     partnerDisplayName: '',
     partnerLegalName: '',
     onboardingStatus: 'not_started',
@@ -37,6 +39,7 @@
     version: 1,
     draft: {},
     saving: false,
+    submitting: false,
     dirtySave: false,
     saveTimer: null,
     publicTextTouched: false,
@@ -47,10 +50,14 @@
     craft: Draft.emptyCraft(),
     offer: Draft.emptyOffer(),
     story: Draft.emptyStory(),
+    confirmations: Draft.emptyConfirmations(),
     assets: [],
     coverAssetId: null,
     pendingUploads: {},
-    dragAssetId: null
+    dragAssetId: null,
+    reviewItems: [],
+    profileStrength: null,
+    profileStatus: null
   };
 
   EP.$('#logoutBtn').addEventListener('click', function () {
@@ -336,6 +343,375 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function renderStrength(el, strength) {
+    if (!el) return;
+    if (!strength) {
+      el.innerHTML = '';
+      el.hidden = true;
+      return;
+    }
+    el.hidden = false;
+    el.innerHTML =
+      '<p class="prof-strength-level">Profielsterkte: ' + escapeHtml(strength.level) +
+      (strength.score != null ? ' · ' + strength.score + '%' : '') + '</p>' +
+      '<p class="prof-strength-tip">' + escapeHtml(strength.tip || '') + '</p>';
+  }
+
+  function renderControlePanel() {
+    var sectionsEl = EP.$('#controleSections');
+    var missingWrap = EP.$('#controleMissing');
+    var missingList = EP.$('#controleMissingList');
+    var submitBtn = EP.$('#submitOnboardingBtn');
+    var submitHint = EP.$('#submitHint');
+    var banner = EP.$('#controleChangesBanner');
+    var conf = Draft.pickConfirmations(state.draft.confirmations || state.confirmations);
+    state.confirmations = conf;
+
+    var dataCb = EP.$('#f_data_correct');
+    var editCb = EP.$('#f_editorial_ok');
+    if (dataCb) dataCb.checked = !!conf.data_correct;
+    if (editCb) editCb.checked = !!conf.editorial_ok;
+
+    var gates = Draft.evaluateSubmitGates(
+      Object.assign({}, state.draft, { confirmations: conf })
+    );
+    var sections = Draft.buildControleSections(
+      Object.assign({}, state.draft, { confirmations: conf }),
+      state.assets
+    );
+    renderStrength(EP.$('#controleStrength'), Draft.evaluateProfileStrength(state.draft, state.assets));
+
+    if (sectionsEl) {
+      sectionsEl.innerHTML = sections.map(function (sec) {
+        var missHtml = (sec.missing || [])
+          .map(function (m) {
+            return (
+              '<li><a href="' + escapeHtml(m.href) +
+              '" data-deep-step="' + escapeHtml(m.stepId) +
+              '" data-deep-field="' + escapeHtml(m.fieldKey || '') + '">' +
+              escapeHtml(m.message) + '</a></li>'
+            );
+          })
+          .join('');
+        return (
+          '<article class="prof-summary-card' + (sec.ok ? '' : ' is-incomplete') + '">' +
+          '<div class="prof-summary-head"><h3>' + escapeHtml(sec.title) + '</h3>' +
+          '<button type="button" class="btn" data-edit-step="' + escapeHtml(sec.stepId) + '"' +
+          (state.canEdit ? '' : ' disabled') + '>Aanpassen</button></div>' +
+          '<ul class="prof-summary-lines">' +
+          (sec.lines || []).map(function (line) {
+            return '<li>' + escapeHtml(line) + '</li>';
+          }).join('') +
+          '</ul>' +
+          (missHtml ? '<ul class="prof-summary-missing">' + missHtml + '</ul>' : '') +
+          '</article>'
+        );
+      }).join('');
+    }
+
+    var gateMissing = (gates.missing || []).filter(function (m) {
+      return m.stepId !== 'controle';
+    });
+    if (missingWrap && missingList) {
+      if (gateMissing.length) {
+        missingWrap.hidden = false;
+        missingList.innerHTML = gateMissing.map(function (m) {
+          return (
+            '<li><a href="' + escapeHtml(m.href) +
+            '" data-deep-step="' + escapeHtml(m.stepId) +
+            '" data-deep-field="' + escapeHtml(m.fieldKey || '') + '">' +
+            escapeHtml(m.message) + '</a></li>'
+          );
+        }).join('');
+      } else {
+        missingWrap.hidden = true;
+        missingList.innerHTML = '';
+      }
+    }
+
+    if (banner) {
+      if (state.onboardingStatus === 'changes_requested') {
+        var openCount = (state.reviewItems || []).filter(function (r) {
+          return r.status === 'open';
+        }).length;
+        banner.hidden = false;
+        banner.textContent = openCount > 0
+          ? 'ELYAN vroeg om aanpassingen (' + openCount + ' open). Corrigeer de punten en dien opnieuw in.'
+          : 'ELYAN vroeg om aanpassingen. Controleer jullie gegevens en dien opnieuw in.';
+      } else {
+        banner.hidden = true;
+        banner.textContent = '';
+      }
+    }
+
+    var isResubmit = state.onboardingStatus === 'changes_requested';
+    var maySubmit = state.canEdit && !state.submitting &&
+      ((isResubmit && state.canResubmit) || (!isResubmit && state.canSubmit));
+    if (submitBtn) {
+      submitBtn.textContent = isResubmit ? 'Opnieuw indienen' : 'Indienen bij ELYAN';
+      submitBtn.disabled = !maySubmit || !gates.ok || state.submitting;
+    }
+    if (submitHint) {
+      if (state.submitting) submitHint.textContent = 'Bezig met indienen…';
+      else if (!state.canEdit) submitHint.textContent = 'Alleen-lezen: indienen niet beschikbaar.';
+      else if (!gates.ok) submitHint.textContent = 'Los de ontbrekende punten op om in te dienen.';
+      else {
+        submitHint.textContent = isResubmit
+          ? 'Alles staat klaar om opnieuw in te dienen.'
+          : 'Alles staat klaar om in te dienen bij ELYAN.';
+      }
+    }
+
+    var fieldset = EP.$('#controleConfirmFieldset');
+    if (fieldset) {
+      fieldset.querySelectorAll('input').forEach(function (el) {
+        el.disabled = !state.canEdit || state.submitting;
+      });
+    }
+  }
+
+  function openReviewItems() {
+    return (state.reviewItems || []).filter(function (r) {
+      return r.status === 'open';
+    });
+  }
+
+  function renderReviewHubPanel() {
+    var copy = Shell.reviewHubCopy(state.onboardingStatus);
+    if (reviewHubTitle) reviewHubTitle.textContent = copy.title;
+    if (reviewHubBody) reviewHubBody.textContent = copy.body;
+
+    var statusText = EP.$('#reviewStatusText');
+    var banner = EP.$('#reviewHubBanner');
+    var checks = EP.$('#reviewChecksList');
+    var openWrap = EP.$('#reviewOpenItems');
+    var openList = EP.$('#reviewOpenItemsList');
+    var google = EP.$('#reviewGoogleTeaser');
+    var polish = EP.$('#reviewPolishActions');
+    var tipsEl = EP.$('#reviewPolishTips');
+
+    var statusMap = {
+      submitted: 'Ingediend',
+      changes_requested: 'Wijzigingen gevraagd',
+      approved: 'Goedgekeurd'
+    };
+    if (statusText) statusText.textContent = statusMap[state.onboardingStatus] || copy.title;
+
+    if (banner) {
+      if (state.onboardingStatus === 'changes_requested') {
+        banner.hidden = false;
+        banner.className = 'prof-banner prof-banner-warn';
+        banner.textContent = 'Er zijn open aanpassingen. Corrigeer ze en dien opnieuw in via Controle.';
+      } else if (state.onboardingStatus === 'approved') {
+        banner.hidden = false;
+        banner.className = 'prof-banner prof-banner-ok';
+        banner.textContent = state.profileStatus === 'ready'
+          ? 'Goedgekeurd — jullie profielstatus is klaar voor publicatie door ELYAN.'
+          : 'Goedgekeurd — ELYAN zet jullie profiel verder klaar.';
+      } else if (state.onboardingStatus === 'submitted') {
+        banner.hidden = false;
+        banner.className = 'prof-banner prof-banner-ok';
+        banner.textContent = 'Ingediend — ELYAN bereidt jullie profiel voor (meestal binnen 3 werkdagen).';
+      } else {
+        banner.hidden = true;
+      }
+    }
+
+    if (checks) {
+      checks.innerHTML = (Shell.REVIEW_CHECKS || []).map(function (c) {
+        return '<li>' + escapeHtml(c) + '</li>';
+      }).join('');
+    }
+
+    var open = openReviewItems();
+    if (openWrap && openList) {
+      if (state.onboardingStatus === 'changes_requested' && open.length) {
+        openWrap.hidden = false;
+        openList.innerHTML = open.map(function (item) {
+          var stepId = item.stepId || Draft.stepIdForField(item.fieldKey);
+          var href = Draft.deepLinkFor(stepId, item.fieldKey);
+          return (
+            '<li><a href="' + escapeHtml(href) +
+            '" data-deep-step="' + escapeHtml(stepId) +
+            '" data-deep-field="' + escapeHtml(item.fieldKey || '') + '">' +
+            escapeHtml(item.message || 'Aanpassing gevraagd') + '</a></li>'
+          );
+        }).join('');
+      } else {
+        openWrap.hidden = true;
+        openList.innerHTML = '';
+      }
+    }
+
+    var strength = state.profileStrength || Draft.evaluateProfileStrength(state.draft, state.assets);
+    renderStrength(EP.$('#reviewStrength'), strength);
+    if (tipsEl) {
+      var tips = (strength && strength.tips) || [];
+      tipsEl.innerHTML = tips.length
+        ? '<h3>Concrete tips</h3><ul>' +
+          tips.map(function (t) { return '<li>' + escapeHtml(t) + '</li>'; }).join('') +
+          '</ul>'
+        : '';
+    }
+
+    if (google) {
+      google.hidden = !(state.onboardingStatus === 'approved' || state.profileStatus === 'ready');
+    }
+    if (polish) {
+      polish.hidden = !(state.canEdit &&
+        (state.onboardingStatus === 'submitted' || state.onboardingStatus === 'changes_requested'));
+    }
+
+    var model = Draft.previewModel({
+      company: state.draft.company,
+      service_area: state.draft.service_area,
+      craft: state.draft.craft || state.craft,
+      fallbackName: state.partnerDisplayName
+    });
+    var rn = EP.$('#reviewPreviewName');
+    var rm = EP.$('#reviewPreviewMeta');
+    var ra = EP.$('#reviewPreviewArea');
+    var rh = EP.$('#reviewPreviewHint');
+    if (rn) rn.textContent = model.displayName;
+    if (rm) rm.textContent = model.locationLine;
+    if (ra) ra.textContent = model.areaText;
+    if (rh) rh.textContent = model.specialtyHint;
+    var media = EP.$('#reviewPreviewMedia');
+    if (media) {
+      var cover = (state.assets || []).filter(function (a) {
+        return a.isCover || a.id === state.coverAssetId;
+      })[0];
+      if (cover && cover.publicUrl) {
+        media.classList.add('has-cover');
+        media.style.backgroundImage = 'url("' + String(cover.publicUrl).replace(/"/g, '') + '")';
+      } else {
+        media.classList.remove('has-cover');
+        media.style.backgroundImage = '';
+      }
+    }
+  }
+
+  function focusField(fieldKey) {
+    if (!fieldKey) return;
+    var map = {
+      legal_name: '#f_legal_name',
+      display_name: '#f_display_name',
+      rechtsvorm: '#f_rechtsvorm',
+      kbo: '#f_kbo',
+      btw_plichtig: '#btwSeg',
+      btw_nummer: '#f_btw_nummer',
+      adres: '#f_adres',
+      postcode: '#f_postcode',
+      gemeente: '#f_gemeente',
+      gewest: '#f_gewest',
+      website: '#f_website',
+      email: '#f_email',
+      phone: '#f_phone',
+      contact_name: '#f_contact_name',
+      language: '#f_language',
+      mode: '#areaModeGrid',
+      radius_km: '#f_radius_km',
+      provinces: '#provincesGrid',
+      regions: '#regionsGrid',
+      public_text: '#f_public_text',
+      primary_category_id: '#categoryGrid',
+      service_ids: '#servicesGrid',
+      years_active: '#f_years_active',
+      strength: '#f_strength',
+      prefer: '#f_prefer',
+      data_correct: '#f_data_correct',
+      editorial_ok: '#f_editorial_ok'
+    };
+    var sel = map[fieldKey];
+    if (!sel && fieldKey.indexOf('cond_') === 0) sel = '#conditionalsHost';
+    if (!sel && fieldKey.indexOf('extra_') === 0) sel = '#extrasHost';
+    if (!sel && fieldKey.indexOf('price_') === 0) sel = '#servicePricesHost';
+    var el = sel ? EP.$(sel) : null;
+    if (el && el.focus) {
+      try { el.focus(); } catch (e) { /* ignore */ }
+    } else if (el && el.scrollIntoView) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  async function followDeepLink(stepId, fieldKey) {
+    if (!stepId) return;
+    if (!Shell.canVisitStep({ onboardingStatus: state.onboardingStatus, stepId: stepId })) {
+      return;
+    }
+    await goToStep(stepId, { persist: state.canEdit });
+    setTimeout(function () { focusField(fieldKey); }, 50);
+  }
+
+  function collectConfirmations() {
+    return {
+      confirmations: {
+        data_correct: !!(EP.$('#f_data_correct') && EP.$('#f_data_correct').checked),
+        editorial_ok: !!(EP.$('#f_editorial_ok') && EP.$('#f_editorial_ok').checked)
+      }
+    };
+  }
+
+  async function persistConfirmations() {
+    if (!state.canEdit) return;
+    var patch = collectConfirmations();
+    state.confirmations = patch.confirmations;
+    state.draft.confirmations = patch.confirmations;
+    await saveStep('controle', { draft: patch });
+    renderControlePanel();
+  }
+
+  async function submitOrResubmit() {
+    if (state.submitting || !state.canEdit) return;
+    var patch = collectConfirmations();
+    state.draft.confirmations = patch.confirmations;
+    var gates = Draft.evaluateSubmitGates(state.draft);
+    if (!gates.ok) {
+      renderControlePanel();
+      setSaveUi('error', 'Nog niet alle verplichte punten zijn in orde.');
+      return;
+    }
+
+    state.submitting = true;
+    renderControlePanel();
+    setSaveUi('saving', 'Indienen…');
+    try {
+      await saveStep('controle', { draft: patch });
+      var action = state.onboardingStatus === 'changes_requested'
+        ? 'onboarding-resubmit'
+        : 'onboarding-submit';
+      var res = await EP.apiFetch(action, {
+        method: 'POST',
+        body: { partnerId: state.partnerId, version: state.version }
+      });
+      if (!res.ok || !res.body || !res.body.ok) {
+        var code = res.body && res.body.error;
+        if (code === 'submit_incomplete') {
+          setSaveUi('error', 'Nog niet alle verplichte punten zijn in orde.');
+          renderControlePanel();
+          return;
+        }
+        if (code === 'version_conflict' && res.body.currentVersion) {
+          state.version = res.body.currentVersion;
+          setSaveUi('error', 'Conflict — opnieuw proberen…');
+          state.submitting = false;
+          return submitOrResubmit();
+        }
+        setSaveUi('error', (res.body && (res.body.message || res.body.detail)) || 'Indienen mislukt');
+        return;
+      }
+      applyPayload(res.body);
+      setSaveUi('ok', 'Ingediend');
+      showStep('review_hub');
+      renderReviewHubPanel();
+    } catch (err) {
+      setSaveUi('error', err.message || 'Indienen mislukt');
+    } finally {
+      state.submitting = false;
+      if (state.currentStepId === 'controle') renderControlePanel();
+    }
   }
 
   function collectP3Draft() {
@@ -978,12 +1354,12 @@
     renderDots(stepId);
 
     if (stepId === 'review_hub') {
-      var copy = Shell.reviewHubCopy(state.onboardingStatus);
-      if (reviewHubTitle) reviewHubTitle.textContent = copy.title;
-      if (reviewHubBody) reviewHubBody.textContent = copy.body;
+      renderReviewHubPanel();
     }
 
-    if (stepId === 'bedrijf_bereik') {
+    if (stepId === 'controle') {
+      renderControlePanel();
+    } else if (stepId === 'bedrijf_bereik') {
       hydrateP2Form();
     } else if (stepId === 'ambacht') {
       hydrateP3FromDraft();
@@ -991,22 +1367,35 @@
       hydrateP4FromDraft();
     } else if (stepId === 'verhaal') {
       hydrateP5FromDraft();
+      if (state.onboardingStatus === 'submitted') {
+        lockCoreFieldsWhileSubmitted();
+      }
     } else if (stepId === 'portfolio') {
       hydratePortfolioFromPayload();
     } else {
       updateLivingPreview();
     }
 
-    var reviewLocked = Shell.isReviewStatus(state.onboardingStatus);
+    var reviewLocked = state.onboardingStatus === 'submitted' || state.onboardingStatus === 'approved';
     var prev = Shell.prevStepId(stepId);
     var next = Shell.nextStepId(stepId);
 
     if (backBtn) {
-      backBtn.hidden = reviewLocked || !prev;
-      backBtn.disabled = reviewLocked || !prev;
+      if (state.onboardingStatus === 'changes_requested') {
+        backBtn.hidden = !prev || stepId === 'review_hub';
+        backBtn.disabled = !prev || stepId === 'review_hub';
+      } else {
+        backBtn.hidden = reviewLocked || !prev || stepId === 'review_hub';
+        backBtn.disabled = reviewLocked || !prev || stepId === 'review_hub';
+      }
     }
     if (nextBtn) {
-      if (reviewLocked || stepId === 'controle' || stepId === 'review_hub' || stepId === 'start') {
+      if (
+        stepId === 'controle' ||
+        stepId === 'review_hub' ||
+        stepId === 'start' ||
+        (reviewLocked && state.onboardingStatus !== 'changes_requested')
+      ) {
         nextBtn.hidden = true;
       } else {
         nextBtn.hidden = false;
@@ -1017,6 +1406,16 @@
 
     state.currentStepId = stepId;
     syncUrl(stepId);
+  }
+
+  function lockCoreFieldsWhileSubmitted() {
+    // V2: core story fields locked; optional story fields remain editable.
+    ['#f_years_active', '#f_strength', '#f_prefer'].forEach(function (sel) {
+      var el = EP.$(sel);
+      if (!el) return;
+      el.disabled = true;
+      el.readOnly = true;
+    });
   }
 
   function syncUrl(stepId) {
@@ -1034,8 +1433,13 @@
     state.partnerId = payload.partnerId;
     state.role = payload.role;
     state.canEdit = !!payload.canEdit;
+    state.canSubmit = !!payload.canSubmit;
+    state.canResubmit = !!payload.canResubmit;
     state.onboardingStatus = payload.onboardingStatus || payload.onboarding && payload.onboarding.onboardingStatus;
+    state.profileStatus = payload.profileStatus || (payload.profile && payload.profile.profileStatus) || null;
     state.version = payload.version;
+    state.profileStrength = payload.profileStrength || null;
+    state.reviewItems = Array.isArray(payload.reviewItems) ? payload.reviewItems : [];
     if (payload.currentStepId) {
       state.currentStepId = payload.currentStepId;
     }
@@ -1043,6 +1447,9 @@
       state.draft = payload.draft;
     } else if (payload.onboarding && payload.onboarding.draft) {
       state.draft = payload.onboarding.draft;
+    }
+    if (state.draft && state.draft.confirmations) {
+      state.confirmations = Draft.pickConfirmations(state.draft.confirmations);
     }
     syncAssetsFromPayload(payload);
     if (state.draft && state.draft.story) {
@@ -1759,6 +2166,57 @@
       renderPortfolio();
       await persistAssetOrder();
       setSaveUi('ok', 'Volgorde opgeslagen');
+    });
+  }
+
+  document.addEventListener('click', function (ev) {
+    var editBtn = ev.target.closest('[data-edit-step]');
+    if (editBtn) {
+      ev.preventDefault();
+      followDeepLink(editBtn.getAttribute('data-edit-step'), null);
+      return;
+    }
+    var deep = ev.target.closest('[data-deep-step]');
+    if (deep) {
+      ev.preventDefault();
+      followDeepLink(deep.getAttribute('data-deep-step'), deep.getAttribute('data-deep-field'));
+    }
+  });
+
+  var submitBtn = EP.$('#submitOnboardingBtn');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', function () {
+      submitOrResubmit();
+    });
+  }
+  var dataCb = EP.$('#f_data_correct');
+  var editCb = EP.$('#f_editorial_ok');
+  if (dataCb) {
+    dataCb.addEventListener('change', function () {
+      persistConfirmations();
+    });
+  }
+  if (editCb) {
+    editCb.addEventListener('change', function () {
+      persistConfirmations();
+    });
+  }
+  var gotoControleBtn = EP.$('#gotoControleBtn');
+  if (gotoControleBtn) {
+    gotoControleBtn.addEventListener('click', function () {
+      followDeepLink('controle', null);
+    });
+  }
+  var polishPortfolioBtn = EP.$('#polishPortfolioBtn');
+  if (polishPortfolioBtn) {
+    polishPortfolioBtn.addEventListener('click', function () {
+      followDeepLink('portfolio', null);
+    });
+  }
+  var polishStoryBtn = EP.$('#polishStoryBtn');
+  if (polishStoryBtn) {
+    polishStoryBtn.addEventListener('click', function () {
+      followDeepLink('verhaal', null);
     });
   }
 

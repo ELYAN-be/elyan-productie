@@ -86,6 +86,7 @@ function respondOnboarding(res, result) {
     if (result.currentVersion != null) extra.currentVersion = result.currentVersion;
     if (result.onboardingStatus) extra.onboardingStatus = result.onboardingStatus;
     if (result.message) extra.detail = result.message;
+    if (result.missing) extra.missing = result.missing;
     return errorJson(res, statusForCode(result.code), result.code, extra);
   }
   return json(res, 200, result);

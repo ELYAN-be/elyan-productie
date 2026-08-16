@@ -76,15 +76,35 @@ test('resume landing uses current_step_id for in_progress', function () {
   );
 });
 
-test('submitted / changes_requested / approved force review_hub', function () {
-  ['submitted', 'changes_requested', 'approved'].forEach(function (st) {
-    assert.strictEqual(
-      Shell.resolveLandingStep({ onboardingStatus: st, currentStepId: 'ambacht' }),
-      'review_hub'
-    );
-    assert.ok(Shell.canVisitStep({ onboardingStatus: st, stepId: 'review_hub' }));
-    assert.ok(!Shell.canVisitStep({ onboardingStatus: st, stepId: 'ambacht' }));
-  });
+test('submitted / changes_requested / approved routing (Sprint 7)', function () {
+  assert.strictEqual(
+    Shell.resolveLandingStep({ onboardingStatus: 'submitted', currentStepId: 'ambacht' }),
+    'review_hub'
+  );
+  assert.strictEqual(
+    Shell.resolveLandingStep({ onboardingStatus: 'approved', currentStepId: 'controle' }),
+    'review_hub'
+  );
+  assert.strictEqual(
+    Shell.resolveLandingStep({
+      onboardingStatus: 'changes_requested',
+      currentStepId: 'bedrijf_bereik'
+    }),
+    'bedrijf_bereik'
+  );
+
+  assert.ok(Shell.canVisitStep({ onboardingStatus: 'submitted', stepId: 'review_hub' }));
+  assert.ok(Shell.canVisitStep({ onboardingStatus: 'submitted', stepId: 'portfolio' }));
+  assert.ok(Shell.canVisitStep({ onboardingStatus: 'submitted', stepId: 'verhaal' }));
+  assert.ok(!Shell.canVisitStep({ onboardingStatus: 'submitted', stepId: 'ambacht' }));
+  assert.ok(!Shell.canVisitStep({ onboardingStatus: 'submitted', stepId: 'bedrijf_bereik' }));
+
+  assert.ok(Shell.canVisitStep({ onboardingStatus: 'changes_requested', stepId: 'review_hub' }));
+  assert.ok(Shell.canVisitStep({ onboardingStatus: 'changes_requested', stepId: 'ambacht' }));
+  assert.ok(Shell.canVisitStep({ onboardingStatus: 'changes_requested', stepId: 'controle' }));
+
+  assert.ok(Shell.canVisitStep({ onboardingStatus: 'approved', stepId: 'review_hub' }));
+  assert.ok(!Shell.canVisitStep({ onboardingStatus: 'approved', stepId: 'portfolio' }));
 });
 
 test('route resolver ignores illegal requested steps', function () {
@@ -181,9 +201,10 @@ test('onboarding HTML is wizard shell with P1–P8 panels', function () {
   assert.ok(html.indexOf('prof-shell-wizard') >= 0);
   assert.ok(html.indexOf('onboarding-shell.js') >= 0);
   assert.ok(html.indexOf('onboarding.js') >= 0);
-  // Sprint 2 shell: Google out of onboarding; file upload lands in Sprint 6
+  // Sprint 2 shell: Google out of onboarding; Sprint 7 removed placeholders
   assert.ok(html.indexOf('google_intent') < 0);
-  assert.ok(html.indexOf('prof-placeholder') >= 0);
+  assert.ok(html.indexOf('submitOnboardingBtn') >= 0);
+  assert.ok(html.indexOf('prof-placeholder') < 0);
 });
 
 test('onboarding.js wires session guard, GET onboarding resume, save UI', function () {

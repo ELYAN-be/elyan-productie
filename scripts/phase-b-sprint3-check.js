@@ -153,7 +153,9 @@ test('onboarding HTML has P1 CTA, living preview, P2 fields; no photos/Google; l
   assert.ok(html.indexOf('google_intent') < 0);
   assert.ok(html.indexOf('data-step="ambacht"') >= 0);
   assert.ok(html.indexOf('id="p3Form"') >= 0 || html.indexOf('categoryGrid') >= 0);
-  assert.ok(html.indexOf('prof-placeholder') >= 0);
+  assert.ok(html.indexOf('submitOnboardingBtn') >= 0);
+  assert.ok(html.indexOf('f_data_correct') >= 0);
+  assert.ok(html.indexOf('f_editorial_ok') >= 0);
 });
 
 test('onboarding.js wires start CTA, draft autosave, P2 validation, resume', function () {

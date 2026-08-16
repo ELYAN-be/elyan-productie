@@ -408,15 +408,89 @@
     </section>
 
     <section class="prof-step-panel" data-step="controle" hidden>
-      <h2>Controle</h2>
-      <p class="lab-hint">Controleer je gegevens vóór indienen. Indienen volgt in een latere sprint; dit scherm is de shell.</p>
-      <p class="lab-hint prof-placeholder">Geen echte validatie of submit-knop in deze sprint.</p>
+      <h2>Controle &amp; indienen</h2>
+      <p class="lab-hint">Controleer jullie gegevens. Ontbrekende verplichte punten zie je hieronder met een directe link om ze aan te passen.</p>
+
+      <div id="controleChangesBanner" class="prof-banner prof-banner-warn" hidden role="status"></div>
+
+      <div id="controleStrength" class="prof-strength" aria-live="polite"></div>
+
+      <div id="controleSections" class="prof-controle-sections"></div>
+
+      <div id="controleMissing" class="prof-missing-list" hidden>
+        <h3>Nog in orde te brengen</h3>
+        <ul id="controleMissingList"></ul>
+      </div>
+
+      <fieldset class="prof-fieldset" id="controleConfirmFieldset">
+        <legend>Bevestiging</legend>
+        <label class="prof-toggle">
+          <input type="checkbox" id="f_data_correct" name="data_correct">
+          <span>Ik bevestig dat deze gegevens correct zijn</span>
+        </label>
+        <label class="prof-toggle">
+          <input type="checkbox" id="f_editorial_ok" name="editorial_ok">
+          <span>ELYAN mag redactioneel aanpassen met behoud van feiten</span>
+        </label>
+      </fieldset>
+
+      <div class="prof-controle-actions">
+        <button type="button" class="btn btn-primary" id="submitOnboardingBtn" disabled>Indienen bij ELYAN</button>
+        <p id="submitHint" class="lab-hint"></p>
+      </div>
     </section>
 
     <section class="prof-step-panel" data-step="review_hub" hidden>
       <h2 id="reviewHubTitle">Review Hub</h2>
       <p class="lab-hint" id="reviewHubBody">Status volgt na indienen.</p>
-      <p class="lab-hint prof-placeholder">Review Hub-functionaliteit volgt later — dit is alleen de shell.</p>
+
+      <div id="reviewHubBanner" class="prof-banner" hidden role="status"></div>
+
+      <div class="prof-review-layout">
+        <div class="prof-review-main">
+          <div id="reviewStatusCard" class="prof-status-card">
+            <p class="prof-status-label" id="reviewStatusLabel">Status</p>
+            <p class="prof-status-text" id="reviewStatusText"></p>
+          </div>
+
+          <div class="prof-review-checks">
+            <h3>Wat ELYAN nakijkt</h3>
+            <ul id="reviewChecksList" class="prof-check-list"></ul>
+          </div>
+
+          <div id="reviewOpenItems" class="prof-open-items" hidden>
+            <h3>Open aanpassingen</h3>
+            <ul id="reviewOpenItemsList"></ul>
+            <button type="button" class="btn btn-primary" id="gotoControleBtn">Naar controle &amp; herindienen</button>
+          </div>
+
+          <div id="reviewStrength" class="prof-strength"></div>
+          <div id="reviewPolishTips" class="prof-polish-tips"></div>
+
+          <div id="reviewGoogleTeaser" class="prof-google-teaser" hidden>
+            <h3>Google Reviews</h3>
+            <p class="lab-hint">Na goedkeuring kun je Google Reviews koppelen. Dat volgt later — er is nog geen koppeling in dit scherm.</p>
+          </div>
+
+          <div id="reviewPolishActions" class="prof-polish-actions" hidden>
+            <button type="button" class="btn" id="polishPortfolioBtn">Portfolio bijwerken</button>
+            <button type="button" class="btn" id="polishStoryBtn">Optionele teksten aanvullen</button>
+          </div>
+        </div>
+
+        <aside class="prof-living-preview" aria-label="Marketplace-voorbeeld">
+          <p class="prof-preview-kicker">Marketplace-voorbeeld</p>
+          <div class="prof-preview-card" id="reviewPreview">
+            <div class="prof-preview-media" id="reviewPreviewMedia" aria-hidden="true"></div>
+            <div class="prof-preview-body">
+              <p class="prof-preview-name" id="reviewPreviewName">Jullie vakbedrijf</p>
+              <p class="prof-preview-meta" id="reviewPreviewMeta">Vestiging volgt</p>
+              <p class="prof-preview-area" id="reviewPreviewArea">Werkgebied volgt</p>
+              <p class="prof-preview-hint" id="reviewPreviewHint">Ambacht volgt</p>
+            </div>
+          </div>
+        </aside>
+      </div>
     </section>
 
     <nav class="prof-wizard-nav" aria-label="Onboarding navigatie">

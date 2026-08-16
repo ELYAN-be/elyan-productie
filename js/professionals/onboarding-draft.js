@@ -143,9 +143,37 @@
   /** Portfolio draft domain is reserved; photo metadata is not stored here. */
   var PORTFOLIO_KEYS = [];
 
+  /** V2 P7 confirmations (draft.confirmations). */
+  var CONFIRMATION_KEYS = ['data_correct', 'editorial_ok'];
+
+  /** Core P5 fields locked while onboarding_status=submitted (V2 Review Hub). */
+  var STORY_CORE_KEYS = ['years_active', 'strength', 'prefer'];
+
+  /** Optional P5 fields editable during submitted polish. */
+  var STORY_OPTIONAL_KEYS = [
+    'team_size',
+    'avoid',
+    'care',
+    'why_choose',
+    'materials',
+    'must_know',
+    'guarantee_line',
+    'show_years_public',
+    'show_team_public'
+  ];
+
   var PORTFOLIO_MAX_ASSETS = 12;
   var PORTFOLIO_MAX_BYTES = 8 * 1024 * 1024;
   var PORTFOLIO_TITLE_MAX = 60;
+
+  /** V2 D.5 — three-tier UI on 0–100 weighted score (not a submit gate). */
+  var STRENGTH_WEIGHTS = {
+    identity: 25,
+    craft: 25,
+    offer: 20,
+    story: 15,
+    portfolio: 15
+  };
 
   var SERVICE_PRICE_KEYS = [
     'pricing_model',
@@ -1411,6 +1439,12 @@ function sanitizeP2Patch(draft) {
       out.portfolio = portSan.portfolio;
     }
 
+    if (Object.prototype.hasOwnProperty.call(draft, 'confirmations')) {
+      var confSan = sanitizeConfirmations(draft.confirmations);
+      if (!confSan.ok) return confSan;
+      out.confirmations = confSan.confirmations;
+    }
+
     if (Object.prototype.hasOwnProperty.call(draft, 'cover_asset_id')) {
       return {
         ok: false,
@@ -1420,6 +1454,49 @@ function sanitizeP2Patch(draft) {
     }
 
     return { ok: true, draft: out };
+  }
+
+  function emptyConfirmations() {
+    return { data_correct: false, editorial_ok: false };
+  }
+
+  function pickConfirmations(src) {
+    var out = emptyConfirmations();
+    if (!isPlainObject(src)) return out;
+    if (src.data_correct === true) out.data_correct = true;
+    if (src.editorial_ok === true) out.editorial_ok = true;
+    return out;
+  }
+
+  function sanitizeConfirmations(raw) {
+    if (raw == null) return { ok: true, confirmations: null };
+    if (!isPlainObject(raw)) {
+      return { ok: false, code: 'invalid_draft', message: 'confirmations must be an object' };
+    }
+    var unknown = Object.keys(raw).filter(function (k) {
+      return CONFIRMATION_KEYS.indexOf(k) < 0;
+    });
+    if (unknown.length) {
+      return {
+        ok: false,
+        code: 'invalid_draft',
+        message: 'Unknown confirmation fields: ' + unknown.join(', ')
+      };
+    }
+    var conf = {};
+    if (Object.prototype.hasOwnProperty.call(raw, 'data_correct')) {
+      if (raw.data_correct !== true && raw.data_correct !== false) {
+        return { ok: false, code: 'invalid_field', message: 'Bevestiging juistheid ongeldig.' };
+      }
+      conf.data_correct = raw.data_correct === true;
+    }
+    if (Object.prototype.hasOwnProperty.call(raw, 'editorial_ok')) {
+      if (raw.editorial_ok !== true && raw.editorial_ok !== false) {
+        return { ok: false, code: 'invalid_field', message: 'Redactioneel akkoord ongeldig.' };
+      }
+      conf.editorial_ok = raw.editorial_ok === true;
+    }
+    return { ok: true, confirmations: conf };
   }
 
   function emptyStory() {
@@ -1791,6 +1868,334 @@ function sanitizeP2Patch(draft) {
     };
   }
 
+  /** Map field/error key → wizard step for P7 deep-links. */
+  function stepIdForField(fieldKey) {
+    var k = String(fieldKey || '');
+    if (k === 'data_correct' || k === 'editorial_ok' || k.indexOf('confirm') === 0) {
+      return 'controle';
+    }
+    if (
+      k.indexOf('price_') === 0 ||
+      k === 'vat_basis' ||
+      k === 'project_minimum' ||
+      k === 'client_types' ||
+      k === 'response_time' ||
+      k === 'urgency_jobs' ||
+      k === 'capacity' ||
+      k === 'start_month' ||
+      k === 'visit_speed' ||
+      k === 'visit_extra'
+    ) {
+      return 'aanbod';
+    }
+    if (
+      k === 'primary_category_id' ||
+      k === 'service_ids' ||
+      k.indexOf('cond_') === 0 ||
+      k.indexOf('extra_') === 0
+    ) {
+      return 'ambacht';
+    }
+    if (
+      k === 'years_active' ||
+      k === 'team_size' ||
+      k === 'strength' ||
+      k === 'prefer' ||
+      k === 'avoid' ||
+      k === 'care' ||
+      k === 'why_choose' ||
+      k === 'materials' ||
+      k === 'must_know' ||
+      k === 'guarantee_line' ||
+      k === 'show_years_public' ||
+      k === 'show_team_public'
+    ) {
+      return 'verhaal';
+    }
+    return 'bedrijf_bereik';
+  }
+
+  function deepLinkFor(stepId, fieldKey) {
+    var path = '/professionals/onboarding/' + stepId;
+    if (fieldKey) path += '?field=' + encodeURIComponent(fieldKey);
+    return path;
+  }
+
+  function pushMissing(list, stepId, fieldKey, message) {
+    list.push({
+      stepId: stepId,
+      fieldKey: fieldKey,
+      message: message,
+      href: deepLinkFor(stepId, fieldKey)
+    });
+  }
+
+  function appendErrors(list, errors, defaultStep) {
+    Object.keys(errors || {}).forEach(function (fieldKey) {
+      var stepId = stepIdForField(fieldKey) || defaultStep;
+      pushMissing(list, stepId, fieldKey, errors[fieldKey]);
+    });
+  }
+
+  /**
+   * V2 D.9 submit gates — server + client shared.
+   * Portfolio photos / website / optional story / Google are NOT required.
+   */
+  function evaluateSubmitGates(draft) {
+    var missing = [];
+    var d = isPlainObject(draft) ? draft : {};
+
+    var p2 = validateP2Complete(d);
+    if (!p2.ok) appendErrors(missing, p2.errors, 'bedrijf_bereik');
+
+    var p3 = validateP3Complete(d);
+    if (!p3.ok) appendErrors(missing, p3.errors, 'ambacht');
+
+    var p4 = validateP4Complete(d);
+    if (!p4.ok) appendErrors(missing, p4.errors, 'aanbod');
+
+    var p5 = validateP5Complete(d);
+    if (!p5.ok) appendErrors(missing, p5.errors, 'verhaal');
+
+    var conf = pickConfirmations(d.confirmations);
+    if (!conf.data_correct) {
+      pushMissing(
+        missing,
+        'controle',
+        'data_correct',
+        'Bevestig dat de gegevens correct zijn.'
+      );
+    }
+    if (!conf.editorial_ok) {
+      pushMissing(
+        missing,
+        'controle',
+        'editorial_ok',
+        'Bevestig dat ELYAN redactioneel mag aanpassen met behoud van feiten.'
+      );
+    }
+
+    return {
+      ok: missing.length === 0,
+      missing: missing,
+      confirmations: conf,
+      sections: {
+        bedrijf_bereik: p2.ok,
+        ambacht: p3.ok,
+        aanbod: p4.ok,
+        verhaal: p5.ok,
+        confirmations: !!(conf.data_correct && conf.editorial_ok)
+      }
+    };
+  }
+
+  function labelForEnum(list, id) {
+    var hit = (list || []).filter(function (x) { return x.id === id; })[0];
+    return hit ? hit.label : id || '';
+  }
+
+  function buildControleSections(draft, assets) {
+    var d = isPlainObject(draft) ? draft : {};
+    var company = pickCompany(d.company);
+    var area = pickServiceArea(d.service_area);
+    var craft = pickCraft(d.craft);
+    var offer = pickOffer(d.offer);
+    var story = pickStory(d.story);
+    var gates = evaluateSubmitGates(d);
+    var photoCount = Array.isArray(assets) ? assets.length : 0;
+
+    function missingForStep(stepId) {
+      return gates.missing.filter(function (m) { return m.stepId === stepId; });
+    }
+
+    var cat = craft.primary_category_id ? getCategory(craft.primary_category_id) : null;
+    var serviceLabels = (craft.service_ids || []).map(function (sid) {
+      var svcs = craft.primary_category_id ? getServices(craft.primary_category_id) : [];
+      var s = svcs.filter(function (x) { return x.id === sid; })[0];
+      return s ? s.label : sid;
+    });
+
+    var priceBits = (craft.service_ids || []).map(function (sid) {
+      var sp = offer.service_prices[sid] || emptyServicePrice();
+      var label = serviceLabels[(craft.service_ids || []).indexOf(sid)] || sid;
+      if (!sp.pricing_model) return label + ': prijs volgt';
+      if (sp.pricing_model === 'on_request') return label + ': op aanvraag';
+      var range = sp.min_price != null ? 'vanaf €' + sp.min_price : '';
+      if (sp.max_price != null) range += (range ? '–' : '') + '€' + sp.max_price;
+      return label + (range ? ' · ' + range : '');
+    });
+
+    return [
+      {
+        id: 'bedrijf_bereik',
+        stepId: 'bedrijf_bereik',
+        title: 'Bedrijf & bereik',
+        ok: gates.sections.bedrijf_bereik,
+        lines: [
+          (trimStr(company.display_name) || trimStr(company.legal_name) || 'Bedrijfsnaam volgt') +
+            (company.rechtsvorm ? ' · ' + labelForEnum(RECHTSVORMEN, company.rechtsvorm) : ''),
+          company.kbo ? formatKboDisplay(company.kbo) : 'KBO volgt',
+          [trimStr(company.adres), trimStr(company.postcode), trimStr(company.gemeente)]
+            .filter(Boolean)
+            .join(', ') || 'Adres volgt',
+          trimStr(area.public_text) || 'Werkgebied volgt',
+          trimStr(company.email) || 'Contact volgt'
+        ].filter(Boolean),
+        missing: missingForStep('bedrijf_bereik')
+      },
+      {
+        id: 'ambacht',
+        stepId: 'ambacht',
+        title: 'Ambacht + diensten',
+        ok: gates.sections.ambacht,
+        lines: [
+          cat ? cat.label : 'Categorie volgt',
+          serviceLabels.length ? serviceLabels.join(', ') : 'Diensten volgen'
+        ],
+        missing: missingForStep('ambacht')
+      },
+      {
+        id: 'aanbod',
+        stepId: 'aanbod',
+        title: 'Aanbod / prijzen / beschikbaarheid',
+        ok: gates.sections.aanbod,
+        lines: [
+          priceBits.length ? priceBits.slice(0, 3).join(' · ') : 'Prijzen volgen',
+          offer.client_types && offer.client_types.length
+            ? 'Klanttypes: ' + offer.client_types.join(', ')
+            : '',
+          offer.response_time ? 'Reactie: ' + labelForEnum(RESPONSE_TIMES, offer.response_time) : '',
+          offer.capacity ? 'Capaciteit: ' + labelForEnum(getCapacityOptions(), offer.capacity) : '',
+          offer.start_month ? 'Start: ' + labelForEnum(listStartMonths(), offer.start_month) : ''
+        ].filter(Boolean),
+        missing: missingForStep('aanbod')
+      },
+      {
+        id: 'verhaal',
+        stepId: 'verhaal',
+        title: 'Verhaal',
+        ok: gates.sections.verhaal,
+        lines: [
+          story.years_active ? 'Actief: ' + labelForEnum(YEARS_ACTIVE, story.years_active) : 'Jaren volgen',
+          trimStr(story.strength) || 'Sterk in volgt',
+          trimStr(story.prefer) || 'Liever wel volgt'
+        ],
+        missing: missingForStep('verhaal')
+      },
+      {
+        id: 'portfolio',
+        stepId: 'portfolio',
+        title: 'Portfolio',
+        ok: true,
+        lines: [
+          photoCount === 0
+            ? 'Nog geen foto’s (niet verplicht om in te dienen)'
+            : photoCount + (photoCount === 1 ? ' foto' : ' foto’s')
+        ],
+        missing: []
+      }
+    ];
+  }
+
+  function ratioOk(errors, totalKeys) {
+    var miss = Object.keys(errors || {}).length;
+    if (totalKeys <= 0) return 0;
+    return Math.max(0, Math.min(1, (totalKeys - miss) / totalKeys));
+  }
+
+  /**
+   * V2 D.5 Profielsterkte — derived only; never a submit/authZ gate.
+   * Weights: identity 25 · craft 25 · offer 20 · story 15 · portfolio 15.
+   * Tiers on 0–100: Basis &lt;50 · Sterk 50–79 · Uitstekend ≥80.
+   */
+  function evaluateProfileStrength(draft, assets) {
+    var d = isPlainObject(draft) ? draft : {};
+    var p2 = validateP2Complete(d);
+    var p3 = validateP3Complete(d);
+    var p4 = validateP4Complete(d);
+    var p5 = validateP5Complete(d);
+    var photoCount = Array.isArray(assets) ? assets.length : 0;
+    var hasCover = Array.isArray(assets) && assets.some(function (a) {
+      return a && (a.isCover || a.is_cover);
+    });
+
+    var identityScore = p2.ok ? 1 : ratioOk(p2.errors, 14);
+    var craftScore = p3.ok ? 1 : ratioOk(p3.errors, 4);
+    var offerScore = p4.ok ? 1 : ratioOk(p4.errors, 8);
+    var storyScore = p5.ok ? 1 : ratioOk(p5.errors, 5);
+
+    var story = pickStory(d.story);
+    var optionalFilled = 0;
+    var optionalTotal = 6;
+    ['avoid', 'care', 'why_choose', 'materials', 'must_know', 'guarantee_line'].forEach(function (k) {
+      if (trimStr(story[k]).length >= 8) optionalFilled += 1;
+    });
+    if (p5.ok) {
+      storyScore = Math.min(1, 0.75 + (0.25 * optionalFilled) / optionalTotal);
+    }
+
+    var portfolioScore = 0;
+    if (photoCount >= 1) portfolioScore = 0.45;
+    if (photoCount >= 3) portfolioScore = 0.75;
+    if (photoCount >= 5) portfolioScore = 0.9;
+    if (photoCount >= 1 && hasCover) portfolioScore = Math.min(1, portfolioScore + 0.1);
+    if (photoCount >= 8) portfolioScore = 1;
+
+    var score = Math.round(
+      identityScore * STRENGTH_WEIGHTS.identity +
+        craftScore * STRENGTH_WEIGHTS.craft +
+        offerScore * STRENGTH_WEIGHTS.offer +
+        storyScore * STRENGTH_WEIGHTS.story +
+        portfolioScore * STRENGTH_WEIGHTS.portfolio
+    );
+
+    var level = 'Basis';
+    if (score >= 80) level = 'Uitstekend';
+    else if (score >= 50) level = 'Sterk';
+
+    var tip = 'Vul de verplichte gegevens verder aan.';
+    if (!p2.ok) tip = 'Vervolledig Bedrijf & bereik — zo herkennen klanten jullie meteen.';
+    else if (!p3.ok) tip = 'Kies categorie en diensten onder Ambacht.';
+    else if (!p4.ok) tip = 'Vul richtprijzen of “op aanvraag” in bij Aanbod.';
+    else if (!p5.ok) tip = 'Schrijf kort waar jullie sterk in zijn onder Verhaal.';
+    else if (photoCount === 0) tip = 'Voeg een coverfoto toe — dat maakt jullie profiel tastbaar.';
+    else if (!hasCover) tip = 'Kies een coverfoto voor jullie marketplace-voorbeeld.';
+    else if (optionalFilled < 2) tip = 'Vul optionele verhaalvelden aan, zoals materialen of garantiezin.';
+    else if (photoCount < 3) tip = 'Voeg nog een paar projectfoto’s toe voor een sterker portfolio.';
+    else tip = 'Jullie basis staat: blijf foto’s en korte teksten aanscherpen.';
+
+    var tips = [];
+    if (photoCount === 0) tips.push('Voeg minstens één projectfoto toe als cover.');
+    if (p5.ok && !trimStr(story.why_choose)) tips.push('Vul “Waarom klanten kiezen” in (optioneel, wel sterk).');
+    if (p5.ok && !trimStr(story.guarantee_line)) tips.push('Voeg een korte garantiezin toe.');
+    if (p2.ok && !trimStr(pickCompany(d.company).website)) {
+      tips.push('Website is optioneel — handig als klanten meer willen zien.');
+    }
+    if (!tips.length) tips.push(tip);
+
+    return {
+      score: score,
+      level: level,
+      tip: tip,
+      tips: tips.slice(0, 3),
+      parts: {
+        identity: Math.round(identityScore * STRENGTH_WEIGHTS.identity),
+        craft: Math.round(craftScore * STRENGTH_WEIGHTS.craft),
+        offer: Math.round(offerScore * STRENGTH_WEIGHTS.offer),
+        story: Math.round(storyScore * STRENGTH_WEIGHTS.story),
+        portfolio: Math.round(portfolioScore * STRENGTH_WEIGHTS.portfolio)
+      }
+    };
+  }
+
+  function isStoryCoreKey(k) {
+    return STORY_CORE_KEYS.indexOf(k) >= 0;
+  }
+
+  function isStoryOptionalKey(k) {
+    return STORY_OPTIONAL_KEYS.indexOf(k) >= 0;
+  }
+
   return {
     RECHTSVORMEN: RECHTSVORMEN,
     GEWESTEN: GEWESTEN,
@@ -1802,6 +2207,9 @@ function sanitizeP2Patch(draft) {
     CRAFT_KEYS: CRAFT_KEYS,
     OFFER_KEYS: OFFER_KEYS,
     STORY_KEYS: STORY_KEYS,
+    STORY_CORE_KEYS: STORY_CORE_KEYS,
+    STORY_OPTIONAL_KEYS: STORY_OPTIONAL_KEYS,
+    CONFIRMATION_KEYS: CONFIRMATION_KEYS,
     PORTFOLIO_KEYS: PORTFOLIO_KEYS,
     YEARS_ACTIVE: YEARS_ACTIVE,
     TEAM_SIZES: TEAM_SIZES,
@@ -1812,17 +2220,20 @@ function sanitizeP2Patch(draft) {
     RESPONSE_TIMES: RESPONSE_TIMES,
     VAT_BASIS_OPTIONS: VAT_BASIS_OPTIONS,
     URGENCY_OPTIONS: URGENCY_OPTIONS,
+    STRENGTH_WEIGHTS: STRENGTH_WEIGHTS,
     emptyCompany: emptyCompany,
     emptyServiceArea: emptyServiceArea,
     emptyCraft: emptyCraft,
     emptyOffer: emptyOffer,
     emptyServicePrice: emptyServicePrice,
     emptyStory: emptyStory,
+    emptyConfirmations: emptyConfirmations,
     pickCompany: pickCompany,
     pickServiceArea: pickServiceArea,
     pickCraft: pickCraft,
     pickOffer: pickOffer,
     pickStory: pickStory,
+    pickConfirmations: pickConfirmations,
     normalizeKbo: normalizeKbo,
     formatKboDisplay: formatKboDisplay,
     validateKbo: validateKbo,
@@ -1838,6 +2249,7 @@ function sanitizeP2Patch(draft) {
     sanitizeOffer: sanitizeOffer,
     sanitizeStory: sanitizeStory,
     sanitizePortfolio: sanitizePortfolio,
+    sanitizeConfirmations: sanitizeConfirmations,
     mergeCraft: mergeCraft,
     mergeOffer: mergeOffer,
     pruneOfferToServices: pruneOfferToServices,
@@ -1846,6 +2258,13 @@ function sanitizeP2Patch(draft) {
     validateP4Complete: validateP4Complete,
     validateP5Complete: validateP5Complete,
     validateP6Soft: validateP6Soft,
+    evaluateSubmitGates: evaluateSubmitGates,
+    evaluateProfileStrength: evaluateProfileStrength,
+    buildControleSections: buildControleSections,
+    stepIdForField: stepIdForField,
+    deepLinkFor: deepLinkFor,
+    isStoryCoreKey: isStoryCoreKey,
+    isStoryOptionalKey: isStoryOptionalKey,
     hasCategoryDependentP3Data: hasCategoryDependentP3Data,
     resetCraftForCategoryChange: resetCraftForCategoryChange,
     listCategories: listCategories,
