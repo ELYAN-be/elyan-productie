@@ -1,7 +1,10 @@
 /**
- * Phase B Sprint 3–4 — P1/P2 + P3 Ambacht draft helpers (V2 frozen).
+ * Phase B Sprint 3–5 — P1–P4 draft helpers (V2 frozen).
  * Browser (script tag) + Node (require) for offline tests.
- * P3 content comes from Category Intelligence (PartnerOnboardingEngine).
+ * P3/P4 content from Category Intelligence (PartnerOnboardingEngine).
+ *
+ * P3→P4 orphan rule: when a P3 service is removed, prune matching
+ * offer.service_prices entries (do not keep orphan price data).
  */
 (function (root, factory) {
   'use strict';
@@ -91,6 +94,55 @@
     'extras'
   ];
 
+  var OFFER_KEYS = [
+    'service_prices',
+    'vat_basis',
+    'project_minimum',
+    'client_types',
+    'response_time',
+    'urgency_jobs',
+    'capacity',
+    'start_month',
+    'visit_speed',
+    'visit_extra'
+  ];
+
+  var SERVICE_PRICE_KEYS = [
+    'pricing_model',
+    'min_price',
+    'max_price',
+    'internal_note'
+  ];
+
+  var CLIENT_TYPES = [
+    { id: 'particulier', label: 'Particulier' },
+    { id: 'b2b', label: 'B2B' },
+    { id: 'syndic_vme', label: 'Syndic / VME' }
+  ];
+
+  var RESPONSE_TIMES = [
+    { id: 'zelfde_dag', label: 'Zelfde dag' },
+    { id: '24u', label: 'Binnen 24 uur' },
+    { id: '48u', label: 'Binnen 48 uur' },
+    { id: '3_werkdagen', label: 'Binnen 3 werkdagen' }
+  ];
+
+  var VAT_BASIS_OPTIONS = [
+    { id: 'exclusief', label: 'Exclusief btw' },
+    { id: 'inclusief', label: 'Inclusief btw' }
+  ];
+
+  var URGENCY_OPTIONS = [
+    { id: 'ja', label: 'Ja' },
+    { id: 'beperkt', label: 'Beperkt' },
+    { id: 'nee', label: 'Nee' }
+  ];
+
+  var NL_MONTHS = [
+    'Januari', 'Februari', 'Maart', 'April', 'Mei', 'Juni',
+    'Juli', 'Augustus', 'September', 'Oktober', 'November', 'December'
+  ];
+
   function isPlainObject(v) {
     return !!v && typeof v === 'object' && !Array.isArray(v);
   }
@@ -140,6 +192,518 @@
   function getOnboardExtras(categoryId) {
     var oe = getOnboardingEngine();
     return oe ? oe.getOnboardExtras(categoryId) : [];
+  }
+
+  function getVisitOptions() {
+    var oe = getOnboardingEngine();
+    var intel = getIntelligence();
+    if (oe && oe.visitOptions) return oe.visitOptions.slice();
+    return intel && intel.VISIT_OPTIONS ? intel.VISIT_OPTIONS.slice() : [];
+  }
+
+  function getCapacityOptions() {
+    var oe = getOnboardingEngine();
+    var intel = getIntelligence();
+    if (oe && oe.capacityOptions) return oe.capacityOptions.slice();
+    return intel && intel.CAPACITY_OPTIONS ? intel.CAPACITY_OPTIONS.slice() : [];
+  }
+
+  function getVisitExtraOptions() {
+    var oe = getOnboardingEngine();
+    var intel = getIntelligence();
+    if (oe && oe.visitExtraOptions) return oe.visitExtraOptions.slice();
+    return intel && intel.VISIT_EXTRA_OPTIONS ? intel.VISIT_EXTRA_OPTIONS.slice() : [];
+  }
+
+  function pricingModelsForService(categoryId, serviceId) {
+    var oe = getOnboardingEngine();
+    if (oe && oe.pricingModelsForService) {
+      return oe.pricingModelsForService(categoryId, serviceId);
+    }
+    var intel = getIntelligence();
+    if (intel && intel.PriceEngine) {
+      var models = intel.PriceEngine.modelsForService(categoryId, serviceId);
+      if (models.indexOf('on_request') < 0) models = models.concat(['on_request']);
+      return models;
+    }
+    return ['on_request'];
+  }
+
+  function unitHintForService(categoryId, serviceId) {
+    var oe = getOnboardingEngine();
+    if (oe && oe.unitHintForService) return oe.unitHintForService(categoryId, serviceId);
+    var svcs = getServices(categoryId);
+    for (var i = 0; i < svcs.length; i++) {
+      if (svcs[i].id === serviceId) return svcs[i].unitHint || null;
+    }
+    return null;
+  }
+
+  function priceModelLabel(model) {
+    var intel = getIntelligence();
+    if (intel && intel.PriceEngine && intel.PriceEngine.labelFor) {
+      return intel.PriceEngine.labelFor(model);
+    }
+    return model;
+  }
+
+  /** V2: spoed only for dakwerken or service `herstelling` — no other category hardcodes. */
+  function showUrgencyJobs(craft) {
+    craft = pickCraft(craft);
+    var oe = getOnboardingEngine();
+    if (oe && oe.showUrgencyJobs) {
+      return oe.showUrgencyJobs(craft.primary_category_id, craft.service_ids);
+    }
+    if (craft.primary_category_id === 'dakwerken') return true;
+    return (craft.service_ids || []).indexOf('herstelling') >= 0;
+  }
+
+  function hasCiProjectMinimum(categoryId) {
+    var oe = getOnboardingEngine();
+    if (oe && oe.hasCiProjectMinimum) return oe.hasCiProjectMinimum(categoryId);
+    var extras = getOnboardExtras(categoryId);
+    return extras.some(function (q) { return q.key === 'minProject'; });
+  }
+
+  /** Horizon: current month … +12 (YYYY-MM). */
+  function listStartMonths(now) {
+    now = now || new Date();
+    var y = now.getFullYear();
+    var m = now.getMonth();
+    var out = [];
+    for (var i = 0; i <= 12; i++) {
+      var mm = m + i;
+      var yy = y + Math.floor(mm / 12);
+      var mo = mm % 12;
+      var id = yy + '-' + (mo + 1 < 10 ? '0' : '') + (mo + 1);
+      out.push({ id: id, label: NL_MONTHS[mo] + ' ' + yy });
+    }
+    return out;
+  }
+
+  function emptyServicePrice() {
+    return {
+      pricing_model: '',
+      min_price: null,
+      max_price: null,
+      internal_note: ''
+    };
+  }
+
+  function emptyOffer() {
+    return {
+      service_prices: {},
+      vat_basis: 'exclusief',
+      project_minimum: null,
+      client_types: [],
+      response_time: '',
+      urgency_jobs: null,
+      capacity: '',
+      start_month: '',
+      visit_speed: '',
+      visit_extra: []
+    };
+  }
+
+  function pickOffer(src) {
+    var out = emptyOffer();
+    if (!isPlainObject(src)) return out;
+    if (isPlainObject(src.service_prices)) {
+      Object.keys(src.service_prices).forEach(function (sid) {
+        var sp = src.service_prices[sid];
+        if (!isPlainObject(sp)) return;
+        out.service_prices[sid] = {
+          pricing_model: trimStr(sp.pricing_model),
+          min_price: sp.min_price == null || sp.min_price === '' ? null : Number(sp.min_price),
+          max_price: sp.max_price == null || sp.max_price === '' ? null : Number(sp.max_price),
+          internal_note: trimStr(sp.internal_note).slice(0, 200)
+        };
+      });
+    }
+    if (src.vat_basis != null) out.vat_basis = trimStr(src.vat_basis) || 'exclusief';
+    if (Object.prototype.hasOwnProperty.call(src, 'project_minimum')) {
+      out.project_minimum = src.project_minimum == null || src.project_minimum === ''
+        ? null
+        : Number(src.project_minimum);
+    }
+    if (Array.isArray(src.client_types)) out.client_types = src.client_types.slice();
+    if (src.response_time != null) out.response_time = trimStr(src.response_time);
+    if (Object.prototype.hasOwnProperty.call(src, 'urgency_jobs')) {
+      out.urgency_jobs = src.urgency_jobs == null || src.urgency_jobs === ''
+        ? null
+        : trimStr(src.urgency_jobs);
+    }
+    if (src.capacity != null) out.capacity = trimStr(src.capacity);
+    if (src.start_month != null) out.start_month = trimStr(src.start_month);
+    if (src.visit_speed != null) out.visit_speed = trimStr(src.visit_speed);
+    if (Array.isArray(src.visit_extra)) out.visit_extra = src.visit_extra.slice();
+    return out;
+  }
+
+  /**
+   * Orphan rule: drop service_prices for services no longer selected in P3.
+   */
+  function pruneOfferToServices(offer, serviceIds) {
+    var out = pickOffer(offer);
+    var allow = {};
+    (serviceIds || []).forEach(function (id) { allow[id] = true; });
+    var next = {};
+    Object.keys(out.service_prices).forEach(function (sid) {
+      if (allow[sid]) next[sid] = out.service_prices[sid];
+    });
+    out.service_prices = next;
+    return out;
+  }
+
+  function parseNonNegNumber(raw, fieldLabel) {
+    if (raw === '' || raw == null) return { ok: true, value: null, empty: true };
+    var n = Number(raw);
+    if (!Number.isFinite(n)) {
+      return { ok: false, code: 'invalid_field', message: fieldLabel + ': vul een getal in.' };
+    }
+    if (n < 0) {
+      return { ok: false, code: 'invalid_field', message: fieldLabel + ': bedrag mag niet negatief zijn.' };
+    }
+    return { ok: true, value: n };
+  }
+
+  function modelNeedsMax(model) {
+    return model === 'price_range';
+  }
+
+  function modelNeedsMin(model) {
+    return !!model && model !== 'on_request';
+  }
+
+  /**
+   * Soft-sanitize offer for autosave. Partials OK.
+   * When craftHint provided, prune orphans + enforce CI models for set prices.
+   */
+  function sanitizeOffer(rawOffer, craftHint) {
+    if (rawOffer == null) return { ok: true, offer: null };
+    if (!isPlainObject(rawOffer)) {
+      return { ok: false, code: 'invalid_draft', message: 'offer must be an object' };
+    }
+    var unknown = Object.keys(rawOffer).filter(function (k) {
+      return OFFER_KEYS.indexOf(k) < 0;
+    });
+    if (unknown.length) {
+      return { ok: false, code: 'invalid_draft', message: 'Unknown offer fields: ' + unknown.join(', ') };
+    }
+
+    var craft = pickCraft(craftHint);
+    var offer = emptyOffer();
+    var has = function (k) {
+      return Object.prototype.hasOwnProperty.call(rawOffer, k);
+    };
+
+    if (has('vat_basis')) {
+      var vb = trimStr(rawOffer.vat_basis);
+      if (vb && enumId(VAT_BASIS_OPTIONS, vb) == null) {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige btw-weergavebasis.' };
+      }
+      offer.vat_basis = vb || 'exclusief';
+    }
+
+    if (has('project_minimum')) {
+      var pm = parseNonNegNumber(rawOffer.project_minimum, 'Projectminimum');
+      if (!pm.ok) return pm;
+      offer.project_minimum = pm.value;
+    }
+
+    if (has('client_types')) {
+      if (!Array.isArray(rawOffer.client_types)) {
+        return { ok: false, code: 'invalid_draft', message: 'client_types must be an array' };
+      }
+      var ctAllowed = CLIENT_TYPES.map(function (c) { return c.id; });
+      offer.client_types = [];
+      for (var ci = 0; ci < rawOffer.client_types.length; ci++) {
+        var ct = trimStr(rawOffer.client_types[ci]);
+        if (!ct) continue;
+        if (ctAllowed.indexOf(ct) < 0) {
+          return { ok: false, code: 'invalid_field', message: 'Ongeldig klanttype.' };
+        }
+        if (offer.client_types.indexOf(ct) < 0) offer.client_types.push(ct);
+      }
+    }
+
+    if (has('response_time')) {
+      var rt = trimStr(rawOffer.response_time);
+      if (rt && enumId(RESPONSE_TIMES, rt) == null) {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige reactietijd.' };
+      }
+      offer.response_time = rt;
+    }
+
+    if (has('urgency_jobs')) {
+      if (rawOffer.urgency_jobs == null || rawOffer.urgency_jobs === '') {
+        offer.urgency_jobs = null;
+      } else {
+        var uj = trimStr(rawOffer.urgency_jobs);
+        if (enumId(URGENCY_OPTIONS, uj) == null) {
+          return { ok: false, code: 'invalid_field', message: 'Ongeldige spoedoptie.' };
+        }
+        offer.urgency_jobs = uj;
+      }
+    }
+
+    if (has('capacity')) {
+      var cap = trimStr(rawOffer.capacity);
+      var caps = getCapacityOptions();
+      if (cap && enumId(caps, cap) == null) {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige capaciteit.' };
+      }
+      offer.capacity = cap;
+    }
+
+    if (has('start_month')) {
+      var sm = trimStr(rawOffer.start_month);
+      if (sm) {
+        var allowedMonths = listStartMonths();
+        if (enumId(allowedMonths, sm) == null) {
+          return { ok: false, code: 'invalid_field', message: 'Kies een startmaand binnen 12 maanden.' };
+        }
+      }
+      offer.start_month = sm;
+    }
+
+    if (has('visit_speed')) {
+      var vs = trimStr(rawOffer.visit_speed);
+      var visits = getVisitOptions();
+      if (vs && enumId(visits, vs) == null) {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige plaatsbezoek-snelheid.' };
+      }
+      offer.visit_speed = vs;
+    }
+
+    if (has('visit_extra')) {
+      if (!Array.isArray(rawOffer.visit_extra)) {
+        return { ok: false, code: 'invalid_draft', message: 'visit_extra must be an array' };
+      }
+      var veAllowed = getVisitExtraOptions().map(function (v) { return v.id; });
+      offer.visit_extra = [];
+      for (var vi = 0; vi < rawOffer.visit_extra.length; vi++) {
+        var ve = trimStr(rawOffer.visit_extra[vi]);
+        if (!ve) continue;
+        if (veAllowed.indexOf(ve) < 0) {
+          return { ok: false, code: 'invalid_field', message: 'Ongeldige afspraakoptie.' };
+        }
+        if (offer.visit_extra.indexOf(ve) < 0) offer.visit_extra.push(ve);
+      }
+    }
+
+    if (has('service_prices')) {
+      if (rawOffer.service_prices != null && !isPlainObject(rawOffer.service_prices)) {
+        return { ok: false, code: 'invalid_draft', message: 'service_prices must be an object' };
+      }
+      offer.service_prices = {};
+      var rawPrices = rawOffer.service_prices || {};
+      var catId = craft.primary_category_id;
+      var selected = craft.service_ids || [];
+      var pruneToSelected = selected.length > 0 || (craftHint && Array.isArray(craftHint.service_ids));
+
+      var sids = Object.keys(rawPrices);
+      for (var si = 0; si < sids.length; si++) {
+        var sid = trimStr(sids[si]);
+        if (!sid) continue;
+        if (pruneToSelected && selected.indexOf(sid) < 0) continue; // orphan prune
+        if (catId) {
+          var known = getServices(catId).some(function (s) { return s.id === sid; });
+          if (!known) {
+            return { ok: false, code: 'invalid_field', message: 'Prijs voor onbekende dienst.' };
+          }
+        }
+        var rawSp = rawPrices[sids[si]];
+        if (!isPlainObject(rawSp)) {
+          return { ok: false, code: 'invalid_draft', message: 'service price must be an object' };
+        }
+        var unkSp = Object.keys(rawSp).filter(function (k) {
+          return SERVICE_PRICE_KEYS.indexOf(k) < 0;
+        });
+        if (unkSp.length) {
+          return { ok: false, code: 'invalid_draft', message: 'Unknown price fields: ' + unkSp.join(', ') };
+        }
+        var sp = emptyServicePrice();
+        if (Object.prototype.hasOwnProperty.call(rawSp, 'pricing_model')) {
+          var model = trimStr(rawSp.pricing_model);
+          if (model && catId) {
+            var allowedModels = pricingModelsForService(catId, sid);
+            if (allowedModels.indexOf(model) < 0) {
+              return {
+                ok: false,
+                code: 'invalid_field',
+                message: 'Dit prijsmodel past niet bij deze dienst.'
+              };
+            }
+          } else if (model) {
+            var intel = getIntelligence();
+            var allModels = intel && intel.PRICING_MODELS ? intel.PRICING_MODELS : [];
+            if (allModels.length && allModels.indexOf(model) < 0 && model !== 'on_request') {
+              return { ok: false, code: 'invalid_field', message: 'Ongeldig prijsmodel.' };
+            }
+          }
+          sp.pricing_model = model;
+        }
+        if (Object.prototype.hasOwnProperty.call(rawSp, 'min_price')) {
+          var minP = parseNonNegNumber(rawSp.min_price, 'Minimumprijs');
+          if (!minP.ok) return minP;
+          sp.min_price = minP.value;
+        }
+        if (Object.prototype.hasOwnProperty.call(rawSp, 'max_price')) {
+          var maxP = parseNonNegNumber(rawSp.max_price, 'Maximumprijs');
+          if (!maxP.ok) return maxP;
+          sp.max_price = maxP.value;
+        }
+        if (sp.min_price != null && sp.max_price != null && sp.max_price < sp.min_price) {
+          return {
+            ok: false,
+            code: 'invalid_field',
+            message: 'Maximumprijs moet minstens het minimum zijn.'
+          };
+        }
+        if (Object.prototype.hasOwnProperty.call(rawSp, 'internal_note')) {
+          sp.internal_note = trimStr(rawSp.internal_note).slice(0, 200);
+        }
+        if (sp.pricing_model === 'on_request') {
+          sp.min_price = null;
+          sp.max_price = null;
+        }
+        offer.service_prices[sid] = sp;
+      }
+    }
+
+    var out = {};
+    OFFER_KEYS.forEach(function (k) {
+      if (has(k)) out[k] = offer[k];
+    });
+    return { ok: true, offer: out };
+  }
+
+  function mergeOffer(base, patch) {
+    var out = pickOffer(base);
+    if (!isPlainObject(patch)) return out;
+    if (Object.prototype.hasOwnProperty.call(patch, 'service_prices') && isPlainObject(patch.service_prices)) {
+      Object.keys(patch.service_prices).forEach(function (sid) {
+        var sp = patch.service_prices[sid];
+        if (!isPlainObject(sp)) return;
+        var cur = out.service_prices[sid] || emptyServicePrice();
+        if (Object.prototype.hasOwnProperty.call(sp, 'pricing_model')) cur.pricing_model = trimStr(sp.pricing_model);
+        if (Object.prototype.hasOwnProperty.call(sp, 'min_price')) {
+          cur.min_price = sp.min_price == null || sp.min_price === '' ? null : Number(sp.min_price);
+        }
+        if (Object.prototype.hasOwnProperty.call(sp, 'max_price')) {
+          cur.max_price = sp.max_price == null || sp.max_price === '' ? null : Number(sp.max_price);
+        }
+        if (Object.prototype.hasOwnProperty.call(sp, 'internal_note')) {
+          cur.internal_note = trimStr(sp.internal_note).slice(0, 200);
+        }
+        out.service_prices[sid] = cur;
+      });
+    }
+    ['vat_basis', 'response_time', 'capacity', 'start_month', 'visit_speed'].forEach(function (k) {
+      if (Object.prototype.hasOwnProperty.call(patch, k)) out[k] = patch[k];
+    });
+    if (Object.prototype.hasOwnProperty.call(patch, 'project_minimum')) {
+      out.project_minimum = patch.project_minimum;
+    }
+    if (Object.prototype.hasOwnProperty.call(patch, 'urgency_jobs')) {
+      out.urgency_jobs = patch.urgency_jobs;
+    }
+    if (Object.prototype.hasOwnProperty.call(patch, 'client_types')) {
+      out.client_types = Array.isArray(patch.client_types) ? patch.client_types.slice() : [];
+    }
+    if (Object.prototype.hasOwnProperty.call(patch, 'visit_extra')) {
+      out.visit_extra = Array.isArray(patch.visit_extra) ? patch.visit_extra.slice() : [];
+    }
+    return out;
+  }
+
+  /**
+   * Client completeness before leaving P4 (V2 submit-gate subset for this step).
+   */
+  function validateP4Complete(draft) {
+    var errors = {};
+    var craft = pickCraft(draft && draft.craft);
+    var offer = pickOffer(draft && draft.offer);
+    var catId = craft.primary_category_id;
+    var serviceIds = craft.service_ids || [];
+
+    if (!catId || !serviceIds.length) {
+      errors.service_ids = 'Selecteer eerst diensten bij Ambacht.';
+      return { ok: false, errors: errors, offer: offer, craft: craft };
+    }
+
+    serviceIds.forEach(function (sid) {
+      var sp = offer.service_prices[sid] || emptyServicePrice();
+      var prefix = 'price_' + sid + '_';
+      if (!sp.pricing_model) {
+        errors[prefix + 'model'] = 'Kies een prijsmodel.';
+        return;
+      }
+      var allowed = pricingModelsForService(catId, sid);
+      if (allowed.indexOf(sp.pricing_model) < 0) {
+        errors[prefix + 'model'] = 'Dit prijsmodel past niet bij deze dienst.';
+        return;
+      }
+      if (sp.pricing_model === 'on_request') return;
+      if (modelNeedsMin(sp.pricing_model)) {
+        if (sp.min_price == null || !Number.isFinite(sp.min_price) || sp.min_price < 0) {
+          errors[prefix + 'min'] = 'Vul een richtprijs in (vanaf).';
+        }
+      }
+      if (modelNeedsMax(sp.pricing_model)) {
+        if (sp.max_price == null || !Number.isFinite(sp.max_price) || sp.max_price < 0) {
+          errors[prefix + 'max'] = 'Vul een maximumprijs in.';
+        } else if (sp.min_price != null && sp.max_price < sp.min_price) {
+          errors[prefix + 'max'] = 'Maximum moet minstens het minimum zijn.';
+        }
+      } else if (sp.max_price != null && sp.min_price != null && sp.max_price < sp.min_price) {
+        errors[prefix + 'max'] = 'Maximum moet minstens het minimum zijn.';
+      }
+    });
+
+    if (!offer.vat_basis || enumId(VAT_BASIS_OPTIONS, offer.vat_basis) == null) {
+      errors.vat_basis = 'Kies de btw-weergavebasis.';
+    }
+
+    if (!hasCiProjectMinimum(catId) && offer.project_minimum != null) {
+      if (!Number.isFinite(offer.project_minimum) || offer.project_minimum < 0) {
+        errors.project_minimum = 'Projectminimum mag niet negatief zijn.';
+      }
+    }
+
+    if (!offer.client_types || !offer.client_types.length) {
+      errors.client_types = 'Selecteer minstens één klanttype.';
+    }
+
+    if (!offer.response_time || enumId(RESPONSE_TIMES, offer.response_time) == null) {
+      errors.response_time = 'Kies een typische reactietijd.';
+    }
+
+    if (showUrgencyJobs(craft) && offer.urgency_jobs != null) {
+      if (enumId(URGENCY_OPTIONS, offer.urgency_jobs) == null) {
+        errors.urgency_jobs = 'Ongeldige spoedoptie.';
+      }
+    }
+
+    if (!offer.capacity || enumId(getCapacityOptions(), offer.capacity) == null) {
+      errors.capacity = 'Kies jullie capaciteit.';
+    }
+
+    if (!offer.start_month || enumId(listStartMonths(), offer.start_month) == null) {
+      errors.start_month = 'Kies de eerste startmaand.';
+    }
+
+    if (!offer.visit_speed || enumId(getVisitOptions(), offer.visit_speed) == null) {
+      errors.visit_speed = 'Kies de plaatsbezoek-snelheid.';
+    }
+
+    return {
+      ok: Object.keys(errors).length === 0,
+      errors: errors,
+      offer: offer,
+      craft: craft
+    };
   }
 
   function isInfoQuestion(q) {
@@ -789,6 +1353,12 @@ function sanitizeP2Patch(draft) {
       out.craft = craftSan.craft;
     }
 
+    if (Object.prototype.hasOwnProperty.call(draft, 'offer')) {
+      var offerSan = sanitizeOffer(draft.offer, draft.craft || out.craft || null);
+      if (!offerSan.ok) return offerSan;
+      out.offer = offerSan.offer;
+    }
+
     return { ok: true, draft: out };
   }
 
@@ -964,12 +1534,20 @@ function sanitizeP2Patch(draft) {
     COMPANY_KEYS: COMPANY_KEYS,
     SERVICE_AREA_KEYS: SERVICE_AREA_KEYS,
     CRAFT_KEYS: CRAFT_KEYS,
+    OFFER_KEYS: OFFER_KEYS,
+    CLIENT_TYPES: CLIENT_TYPES,
+    RESPONSE_TIMES: RESPONSE_TIMES,
+    VAT_BASIS_OPTIONS: VAT_BASIS_OPTIONS,
+    URGENCY_OPTIONS: URGENCY_OPTIONS,
     emptyCompany: emptyCompany,
     emptyServiceArea: emptyServiceArea,
     emptyCraft: emptyCraft,
+    emptyOffer: emptyOffer,
+    emptyServicePrice: emptyServicePrice,
     pickCompany: pickCompany,
     pickServiceArea: pickServiceArea,
     pickCraft: pickCraft,
+    pickOffer: pickOffer,
     normalizeKbo: normalizeKbo,
     formatKboDisplay: formatKboDisplay,
     validateKbo: validateKbo,
@@ -982,9 +1560,13 @@ function sanitizeP2Patch(draft) {
     validateWebsite: validateWebsite,
     sanitizeP2Patch: sanitizeP2Patch,
     sanitizeCraft: sanitizeCraft,
+    sanitizeOffer: sanitizeOffer,
     mergeCraft: mergeCraft,
+    mergeOffer: mergeOffer,
+    pruneOfferToServices: pruneOfferToServices,
     validateP2Complete: validateP2Complete,
     validateP3Complete: validateP3Complete,
+    validateP4Complete: validateP4Complete,
     hasCategoryDependentP3Data: hasCategoryDependentP3Data,
     resetCraftForCategoryChange: resetCraftForCategoryChange,
     listCategories: listCategories,
@@ -992,6 +1574,17 @@ function sanitizeP2Patch(draft) {
     getServices: getServices,
     getConditionalsForSelected: getConditionalsForSelected,
     getOnboardExtras: getOnboardExtras,
+    getVisitOptions: getVisitOptions,
+    getCapacityOptions: getCapacityOptions,
+    getVisitExtraOptions: getVisitExtraOptions,
+    pricingModelsForService: pricingModelsForService,
+    unitHintForService: unitHintForService,
+    priceModelLabel: priceModelLabel,
+    showUrgencyJobs: showUrgencyJobs,
+    hasCiProjectMinimum: hasCiProjectMinimum,
+    listStartMonths: listStartMonths,
+    modelNeedsMin: modelNeedsMin,
+    modelNeedsMax: modelNeedsMax,
     isInfoQuestion: isInfoQuestion,
     isRequiredQuestion: isRequiredQuestion,
     suggestPublicText: suggestPublicText,

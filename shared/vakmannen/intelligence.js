@@ -448,6 +448,14 @@
     { id: 'full', label: 'Momenteel volzet', public: null }
   ];
 
+  /* Partner Lab visit-extra types (optional P4 multi); same options for all categories. */
+  var VISIT_EXTRA_OPTIONS = [
+    { id: 'technisch_bezoek', label: 'Technisch bezoek' },
+    { id: 'opmeting', label: 'Opmeting' },
+    { id: 'ontwerpgesprek', label: 'Ontwerpgesprek' },
+    { id: 'onderhoudsafspraak', label: 'Onderhoudsafspraak' }
+  ];
+
   var DECLINE_REASONS = [
     { id: 'planning', label: 'Planning' },
     { id: 'outside_area', label: 'Buiten werkgebied' },
@@ -589,6 +597,7 @@
     identityQuestions: IDENTITY_QUESTIONS,
     visitOptions: VISIT_OPTIONS,
     capacityOptions: CAPACITY_OPTIONS,
+    visitExtraOptions: VISIT_EXTRA_OPTIONS,
     getCategory: function (id) { return CI[id] || null; },
     listCategories: function () {
       return Object.keys(CI).map(function (id) {
@@ -626,6 +635,34 @@
         });
       }
       return qs;
+    },
+    /** CI models for service + on_request (V2: always allowed escape hatch). */
+    pricingModelsForService: function (categoryId, serviceId) {
+      var models = PriceEngine.modelsForService(categoryId, serviceId);
+      if (models.indexOf('on_request') < 0) models.push('on_request');
+      return models;
+    },
+    unitHintForService: function (categoryId, serviceId) {
+      var c = CI[categoryId];
+      if (!c) return null;
+      for (var i = 0; i < c.services.length; i++) {
+        if (c.services[i].id === serviceId) return c.services[i].unitHint || null;
+      }
+      return null;
+    },
+    /** V2: show spoed only for dakwerken or selected service id `herstelling`. */
+    showUrgencyJobs: function (categoryId, serviceIds) {
+      if (categoryId === 'dakwerken') return true;
+      serviceIds = serviceIds || [];
+      return serviceIds.indexOf('herstelling') >= 0;
+    },
+    /** True when CI already asks project minimum as onboardQuestion (single source → P3). */
+    hasCiProjectMinimum: function (categoryId) {
+      var c = CI[categoryId];
+      if (!c) return false;
+      return (c.onboardQuestions || []).some(function (qq) {
+        return qq.key === 'minProject';
+      });
     },
     emptyAnswers: function () {
       return {
@@ -707,6 +744,7 @@
     IDENTITY_QUESTIONS: IDENTITY_QUESTIONS,
     VISIT_OPTIONS: VISIT_OPTIONS,
     CAPACITY_OPTIONS: CAPACITY_OPTIONS,
+    VISIT_EXTRA_OPTIONS: VISIT_EXTRA_OPTIONS,
     DECLINE_REASONS: DECLINE_REASONS,
     REQUEST_STATUS: REQUEST_STATUS,
     PriceEngine: PriceEngine,

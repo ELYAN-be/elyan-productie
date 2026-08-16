@@ -244,7 +244,74 @@
 
     <section class="prof-step-panel" data-step="aanbod" hidden>
       <h2>Aanbod</h2>
-      <p class="lab-hint prof-placeholder">Formuliervelden volgen in een latere sprint. Placeholder — navigatie en opslaan werken al.</p>
+      <p class="lab-hint">Geef per dienst een richtprijs en stel in hoe snel jullie kunnen reageren en starten. Bedragen zijn indicatief voor klanten.</p>
+      <form id="p4Form" class="prof-form" novalidate>
+        <fieldset class="prof-fieldset">
+          <legend>Richtprijzen</legend>
+          <p class="lab-hint" id="p4PricesLead">Selecteer eerst diensten bij Ambacht.</p>
+          <div id="servicePricesHost" class="prof-price-list"></div>
+          <span class="prof-field-error" data-error-for="service_ids" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>BTW-weergave</legend>
+          <p class="lab-hint">Hoe tonen we jullie richtprijzen?</p>
+          <div class="lab-choice-grid is-2" id="vatBasisGrid" role="group" aria-label="BTW-weergavebasis"></div>
+          <span class="prof-field-error" data-error-for="vat_basis" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset" id="projectMinFieldset">
+          <legend>Projectminimum <span class="prof-opt">(optioneel)</span></legend>
+          <label class="lab-field">Minimum projectbedrag (€)
+            <input id="f_project_minimum" name="project_minimum" type="number" min="0" step="1" inputmode="decimal" placeholder="Bv. 2500">
+          </label>
+          <span class="prof-field-error" data-error-for="project_minimum" hidden></span>
+          <p class="lab-hint" id="projectMinCiNote" hidden>Het projectminimum vul je al in bij Ambacht voor deze categorie.</p>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Voor wie werken jullie?</legend>
+          <div class="lab-choice-grid is-3" id="clientTypesGrid" role="group" aria-label="Klanttype"></div>
+          <span class="prof-field-error" data-error-for="client_types" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Reactietijd</legend>
+          <p class="lab-hint">Typische reactietijd op een aanvraag</p>
+          <div class="lab-choice-grid is-2" id="responseTimeGrid" role="group" aria-label="Reactietijd"></div>
+          <span class="prof-field-error" data-error-for="response_time" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset" id="urgencyFieldset" hidden>
+          <legend>Spoed / lekkage <span class="prof-opt">(optioneel)</span></legend>
+          <p class="lab-hint">Nemen jullie spoed- of lekkagejobs aan?</p>
+          <div class="lab-choice-grid is-3" id="urgencyGrid" role="group" aria-label="Spoedjobs"></div>
+          <span class="prof-field-error" data-error-for="urgency_jobs" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset">
+          <legend>Beschikbaarheid</legend>
+          <p class="prof-q-label">Capaciteit</p>
+          <div class="lab-choice-grid is-3" id="capacityGrid" role="group" aria-label="Capaciteit"></div>
+          <span class="prof-field-error" data-error-for="capacity" hidden></span>
+
+          <label class="lab-field" style="margin-top:12px">Eerste mogelijke startmaand
+            <select id="f_start_month" name="start_month" required>
+              <option value="">Kies maand…</option>
+            </select>
+            <span class="prof-field-error" data-error-for="start_month" hidden></span>
+          </label>
+
+          <p class="prof-q-label">Plaatsbezoek</p>
+          <div class="lab-choice-grid is-2" id="visitSpeedGrid" role="group" aria-label="Plaatsbezoek-snelheid"></div>
+          <span class="prof-field-error" data-error-for="visit_speed" hidden></span>
+
+          <div id="visitExtraWrap">
+            <p class="prof-q-label" style="margin-top:12px">Extra afspraaktypes <span class="prof-opt">(optioneel)</span></p>
+            <div class="lab-choice-grid is-2" id="visitExtraGrid" role="group" aria-label="Extra afspraaktypes"></div>
+          </div>
+        </fieldset>
+      </form>
     </section>
 
     <section class="prof-step-panel" data-step="verhaal" hidden>

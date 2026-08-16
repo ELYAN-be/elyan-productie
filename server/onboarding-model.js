@@ -66,6 +66,7 @@ function canReadRole(role) {
 /**
  * Deep-merge plain objects. Arrays replace (not concat). Non-objects overwrite.
  * `craft` uses mergeCraft so conditionals/extras replace (category-reset safe).
+ * `offer` uses mergeOffer; after merge, orphan service_prices are pruned to P3 services.
  * Used for autosave partial draft patches.
  */
 function mergeDraft(base, patch) {
@@ -82,6 +83,10 @@ function mergeDraft(base, patch) {
       out[k] = draftHelpers.mergeCraft(ov, pv);
       return;
     }
+    if (k === 'offer' && isPlainObject(pv)) {
+      out[k] = draftHelpers.mergeOffer(ov, pv);
+      return;
+    }
     if (
       pv &&
       typeof pv === 'object' &&
@@ -95,6 +100,23 @@ function mergeDraft(base, patch) {
       out[k] = pv;
     }
   });
+  // P3→P4 orphan rule: prune offer.service_prices not in craft.service_ids
+  if (out.offer && out.craft && draftHelpers.pruneOfferToServices) {
+    out.offer = draftHelpers.pruneOfferToServices(
+      out.offer,
+      (out.craft.service_ids || [])
+    );
+    if (!draftHelpers.showUrgencyJobs(out.craft)) {
+      var pruned = draftHelpers.pickOffer(out.offer);
+      pruned.urgency_jobs = null;
+      out.offer = pruned;
+    }
+    if (draftHelpers.hasCiProjectMinimum(out.craft.primary_category_id)) {
+      var o2 = draftHelpers.pickOffer(out.offer);
+      o2.project_minimum = null;
+      out.offer = o2;
+    }
+  }
   return out;
 }
 
@@ -103,7 +125,7 @@ function isPlainObject(v) {
 }
 
 /**
- * Structural draft check + Sprint 3 P2 / Sprint 4 P3 CI gates.
+ * Structural draft check + Sprint 3–5 P2/P3/P4 CI gates.
  * Autosave allows partial drafts; malformed formats / unknown keys fail.
  */
 function validateDraftStructure(draft) {

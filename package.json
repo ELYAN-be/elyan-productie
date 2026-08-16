@@ -6,10 +6,11 @@
   "scripts": {
     "prepare:production": "node scripts/prepare-production-deploy.js",
     "test:phase-a": "node scripts/phase-a-check.js && node scripts/invite-flow-regression-check.js && node scripts/claim-flow-regression-check.js && node scripts/auth-flow-regression-check.js",
-    "test:phase-b": "node scripts/phase-b-onboarding-check.js && node scripts/phase-b-sprint2-check.js && node scripts/phase-b-sprint3-check.js && node scripts/phase-b-sprint4-check.js",
+    "test:phase-b": "node scripts/phase-b-onboarding-check.js && node scripts/phase-b-sprint2-check.js && node scripts/phase-b-sprint3-check.js && node scripts/phase-b-sprint4-check.js && node scripts/phase-b-sprint5-check.js",
     "test:phase-b-sprint2": "node scripts/phase-b-sprint2-check.js",
     "test:phase-b-sprint3": "node scripts/phase-b-sprint3-check.js",
     "test:phase-b-sprint4": "node scripts/phase-b-sprint4-check.js",
+    "test:phase-b-sprint5": "node scripts/phase-b-sprint5-check.js",
     "test:professionals": "npm run test:phase-a && npm run test:phase-b",
     "test:invite-e2e": "node scripts/invite-password-browser-e2e.js",
     "test:claim-e2e": "node scripts/invite-claim-browser-e2e.js",

@@ -22,6 +22,7 @@
   var reviewHubBody = EP.$('#reviewHubBody');
   var p2Form = EP.$('#p2Form');
   var p3Form = EP.$('#p3Form');
+  var p4Form = EP.$('#p4Form');
 
   var state = {
     partnerId: null,
@@ -41,7 +42,8 @@
     areaMode: '',
     provinces: [],
     regions: [],
-    craft: Draft.emptyCraft()
+    craft: Draft.emptyCraft(),
+    offer: Draft.emptyOffer()
   };
 
   EP.$('#logoutBtn').addEventListener('click', function () {
@@ -215,6 +217,18 @@
       });
     }
     document.querySelectorAll('#categoryGrid button, #servicesGrid button, #conditionalsHost button, #extrasHost button').forEach(function (b) {
+      b.disabled = ro;
+    });
+    if (p4Form) {
+      p4Form.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+        if (el.tagName === 'BUTTON') el.disabled = ro;
+        else el.readOnly = ro;
+        if (el.tagName === 'SELECT' || el.type === 'number' || el.type === 'checkbox') el.disabled = ro;
+      });
+    }
+    document.querySelectorAll(
+      '#vatBasisGrid button, #clientTypesGrid button, #responseTimeGrid button, #urgencyGrid button, #capacityGrid button, #visitSpeedGrid button, #visitExtraGrid button, #servicePricesHost button'
+    ).forEach(function (b) {
       b.disabled = ro;
     });
     if (startProfileBtn) startProfileBtn.disabled = ro;
@@ -452,6 +466,190 @@
     updateLivingPreview();
   }
 
+  function syncOfferWithCraft() {
+    state.offer = Draft.pruneOfferToServices(state.offer, state.craft.service_ids || []);
+    if (!Draft.showUrgencyJobs(state.craft)) state.offer.urgency_jobs = null;
+    if (Draft.hasCiProjectMinimum(state.craft.primary_category_id)) {
+      state.offer.project_minimum = null;
+    }
+  }
+
+  function collectP4Draft() {
+    syncOfferWithCraft();
+    return {
+      craft: Draft.pickCraft(state.craft),
+      offer: Draft.pickOffer(state.offer)
+    };
+  }
+
+  function ensureServicePrice(sid) {
+    if (!state.offer.service_prices[sid]) {
+      state.offer.service_prices[sid] = Draft.emptyServicePrice();
+    }
+    return state.offer.service_prices[sid];
+  }
+
+  function unitHintLabel(hint) {
+    if (!hint) return '';
+    var map = {
+      m2: 'm²',
+      lm: 'lopende meter',
+      stuk: 'stuk',
+      wp: 'Wp',
+      kwh: 'kWh'
+    };
+    return map[hint] || hint;
+  }
+
+  function renderP4() {
+    syncOfferWithCraft();
+    var catId = state.craft.primary_category_id || '';
+    var serviceIds = state.craft.service_ids || [];
+    var host = EP.$('#servicePricesHost');
+    var lead = EP.$('#p4PricesLead');
+    if (lead) {
+      lead.textContent = serviceIds.length
+        ? 'Vul per dienst een richtprijs in. “Op aanvraag” mag altijd.'
+        : 'Selecteer eerst diensten bij Ambacht.';
+    }
+    if (host) {
+      host.innerHTML = serviceIds.map(function (sid) {
+        var svc = Draft.getServices(catId).filter(function (s) { return s.id === sid; })[0];
+        var label = svc ? svc.label : sid;
+        var sp = ensureServicePrice(sid);
+        var models = Draft.pricingModelsForService(catId, sid);
+        var unit = unitHintLabel(Draft.unitHintForService(catId, sid));
+        var needsMin = Draft.modelNeedsMin(sp.pricing_model);
+        var needsMax = Draft.modelNeedsMax(sp.pricing_model);
+        var onReq = sp.pricing_model === 'on_request';
+        return '<article class="prof-price-card" data-service-price="' + escapeHtml(sid) + '">' +
+          '<h3>' + escapeHtml(label) + '</h3>' +
+          (unit ? '<p class="prof-price-unit">Eenheid: ' + escapeHtml(unit) + '</p>' : '') +
+          '<p class="prof-q-label">Prijsmodel</p>' +
+          '<div class="lab-choice-grid is-2">' +
+          models.map(function (m) {
+            return '<button type="button" class="lab-choice' + (sp.pricing_model === m ? ' is-selected' : '') +
+              '" data-price-model="' + escapeHtml(sid) + '" data-model="' + escapeHtml(m) + '">' +
+              escapeHtml(Draft.priceModelLabel(m)) + '</button>';
+          }).join('') +
+          '</div>' +
+          '<span class="prof-field-error" data-error-for="price_' + escapeHtml(sid) + '_model" hidden></span>' +
+          '<div class="prof-price-amounts"' + (onReq ? ' hidden' : '') + '>' +
+          '<label class="lab-field">Vanaf / min (€)' +
+          '<input type="number" min="0" step="1" inputmode="decimal" data-price-min="' + escapeHtml(sid) + '" value="' +
+          (sp.min_price != null ? escapeHtml(sp.min_price) : '') + '"' + (needsMin ? ' required' : '') + '>' +
+          '</label>' +
+          '<span class="prof-field-error" data-error-for="price_' + escapeHtml(sid) + '_min" hidden></span>' +
+          '<label class="lab-field"' + (needsMax || sp.max_price != null ? '' : '') + '>Tot / max (€)' +
+          (needsMax ? '' : ' <span class="prof-opt">(optioneel)</span>') +
+          '<input type="number" min="0" step="1" inputmode="decimal" data-price-max="' + escapeHtml(sid) + '" value="' +
+          (sp.max_price != null ? escapeHtml(sp.max_price) : '') + '"' + (needsMax ? ' required' : '') + '>' +
+          '</label>' +
+          '<span class="prof-field-error" data-error-for="price_' + escapeHtml(sid) + '_max" hidden></span>' +
+          '</div>' +
+          '<label class="lab-field prof-price-note">Interne notitie <span class="prof-opt">(niet publiek)</span>' +
+          '<input type="text" maxlength="200" data-price-note="' + escapeHtml(sid) + '" value="' +
+          escapeHtml(sp.internal_note || '') + '" placeholder="Enkel voor jullie / ELYAN">' +
+          '</label>' +
+          '</article>';
+      }).join('');
+    }
+
+    var vatGrid = EP.$('#vatBasisGrid');
+    if (vatGrid) {
+      vatGrid.innerHTML = Draft.VAT_BASIS_OPTIONS.map(function (o) {
+        return '<button type="button" class="lab-choice' + (state.offer.vat_basis === o.id ? ' is-selected' : '') +
+          '" data-vat-basis="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+
+    var hasCiMin = Draft.hasCiProjectMinimum(catId);
+    var minFs = EP.$('#projectMinFieldset');
+    var minInput = EP.$('#f_project_minimum');
+    var minNote = EP.$('#projectMinCiNote');
+    if (minInput) {
+      minInput.value = state.offer.project_minimum != null ? state.offer.project_minimum : '';
+      minInput.disabled = !state.canEdit || hasCiMin;
+    }
+    if (minNote) minNote.hidden = !hasCiMin;
+    if (minFs) minFs.classList.toggle('is-ci-sourced', !!hasCiMin);
+
+    var ctGrid = EP.$('#clientTypesGrid');
+    if (ctGrid) {
+      ctGrid.innerHTML = Draft.CLIENT_TYPES.map(function (o) {
+        var sel = (state.offer.client_types || []).indexOf(o.id) >= 0;
+        return '<button type="button" class="lab-choice' + (sel ? ' is-selected' : '') +
+          '" data-client-type="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+
+    var rtGrid = EP.$('#responseTimeGrid');
+    if (rtGrid) {
+      rtGrid.innerHTML = Draft.RESPONSE_TIMES.map(function (o) {
+        return '<button type="button" class="lab-choice' + (state.offer.response_time === o.id ? ' is-selected' : '') +
+          '" data-response-time="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+
+    var showUrg = Draft.showUrgencyJobs(state.craft);
+    var urgFs = EP.$('#urgencyFieldset');
+    if (urgFs) urgFs.hidden = !showUrg;
+    var urgGrid = EP.$('#urgencyGrid');
+    if (urgGrid && showUrg) {
+      urgGrid.innerHTML = Draft.URGENCY_OPTIONS.map(function (o) {
+        return '<button type="button" class="lab-choice' + (state.offer.urgency_jobs === o.id ? ' is-selected' : '') +
+          '" data-urgency="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+
+    var capGrid = EP.$('#capacityGrid');
+    if (capGrid) {
+      capGrid.innerHTML = Draft.getCapacityOptions().map(function (o) {
+        return '<button type="button" class="lab-choice' + (state.offer.capacity === o.id ? ' is-selected' : '') +
+          '" data-capacity="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+
+    var startSel = EP.$('#f_start_month');
+    if (startSel) {
+      var months = Draft.listStartMonths();
+      var cur = state.offer.start_month || '';
+      startSel.innerHTML = '<option value="">Kies maand…</option>' + months.map(function (m) {
+        return '<option value="' + escapeHtml(m.id) + '"' + (cur === m.id ? ' selected' : '') + '>' +
+          escapeHtml(m.label) + '</option>';
+      }).join('');
+    }
+
+    var visitGrid = EP.$('#visitSpeedGrid');
+    if (visitGrid) {
+      visitGrid.innerHTML = Draft.getVisitOptions().map(function (o) {
+        return '<button type="button" class="lab-choice' + (state.offer.visit_speed === o.id ? ' is-selected' : '') +
+          '" data-visit-speed="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+
+    var veOpts = Draft.getVisitExtraOptions();
+    var veWrap = EP.$('#visitExtraWrap');
+    var veGrid = EP.$('#visitExtraGrid');
+    if (veWrap) veWrap.hidden = !veOpts.length;
+    if (veGrid) {
+      veGrid.innerHTML = veOpts.map(function (o) {
+        var sel = (state.offer.visit_extra || []).indexOf(o.id) >= 0;
+        return '<button type="button" class="lab-choice' + (sel ? ' is-selected' : '') +
+          '" data-visit-extra="' + escapeHtml(o.id) + '">' + escapeHtml(o.label) + '</button>';
+      }).join('');
+    }
+
+    setFormReadOnly(!state.canEdit);
+  }
+
+  function hydrateP4FromDraft() {
+    state.craft = Draft.pickCraft(state.draft && state.draft.craft);
+    state.offer = Draft.pickOffer(state.draft && state.draft.offer);
+    syncOfferWithCraft();
+    renderP4();
+  }
+
   function applyLocalDraft(patch) {
     state.draft = Object.assign({}, state.draft, patch);
     if (patch.company) {
@@ -464,6 +662,14 @@
       state.draft.craft = Draft.mergeCraft(state.draft.craft, patch.craft);
       state.craft = Draft.pickCraft(state.draft.craft);
     }
+    if (patch.offer) {
+      state.draft.offer = Draft.mergeOffer(state.draft.offer, patch.offer);
+      state.offer = Draft.pruneOfferToServices(
+        Draft.pickOffer(state.draft.offer),
+        state.craft.service_ids || []
+      );
+      state.draft.offer = state.offer;
+    }
     updateLivingPreview();
   }
 
@@ -472,18 +678,26 @@
     if (
       state.currentStepId !== 'bedrijf_bereik' &&
       state.currentStepId !== 'start' &&
-      state.currentStepId !== 'ambacht'
+      state.currentStepId !== 'ambacht' &&
+      state.currentStepId !== 'aanbod'
     ) {
       return;
     }
     var draftPatch =
-      state.currentStepId === 'ambacht' ? collectP3Draft() : collectP2Draft();
-    if (state.currentStepId === 'ambacht') applyLocalDraft(draftPatch);
-    else applyLocalDraft(draftPatch);
+      state.currentStepId === 'aanbod'
+        ? collectP4Draft()
+        : state.currentStepId === 'ambacht'
+          ? collectP3Draft()
+          : collectP2Draft();
+    applyLocalDraft(draftPatch);
     if (state.saveTimer) clearTimeout(state.saveTimer);
     state.saveTimer = setTimeout(function () {
       var payload =
-        state.currentStepId === 'ambacht' ? collectP3Draft() : collectP2Draft();
+        state.currentStepId === 'aanbod'
+          ? collectP4Draft()
+          : state.currentStepId === 'ambacht'
+            ? collectP3Draft()
+            : collectP2Draft();
       saveStep(state.currentStepId, { draft: payload });
     }, 700);
   }
@@ -526,6 +740,8 @@
       hydrateP2Form();
     } else if (stepId === 'ambacht') {
       hydrateP3FromDraft();
+    } else if (stepId === 'aanbod') {
+      hydrateP4FromDraft();
     } else {
       updateLivingPreview();
     }
@@ -603,6 +819,8 @@
         body.draft = collectP2Draft();
       } else if (stepId === 'ambacht') {
         body.draft = collectP3Draft();
+      } else if (stepId === 'aanbod') {
+        body.draft = collectP4Draft();
       }
       var res = await EP.apiFetch('onboarding-save', {
         method: 'POST',
@@ -623,6 +841,10 @@
       if (state.draft && state.draft.craft) {
         state.craft = Draft.pickCraft(state.draft.craft);
       }
+      if (state.draft && state.draft.offer) {
+        state.offer = Draft.pickOffer(state.draft.offer);
+        syncOfferWithCraft();
+      }
       setSaveUi('ok', 'Alles opgeslagen');
       updateLivingPreview();
       return { ok: true, body: res.body };
@@ -634,11 +856,13 @@
       if (state.dirtySave) {
         state.dirtySave = false;
         var queuedDraft =
-          state.currentStepId === 'ambacht'
-            ? collectP3Draft()
-            : state.currentStepId === 'bedrijf_bereik'
-              ? collectP2Draft()
-              : null;
+          state.currentStepId === 'aanbod'
+            ? collectP4Draft()
+            : state.currentStepId === 'ambacht'
+              ? collectP3Draft()
+              : state.currentStepId === 'bedrijf_bereik'
+                ? collectP2Draft()
+                : null;
         saveStep(state.currentStepId, queuedDraft ? { draft: queuedDraft } : {});
       }
     }
@@ -663,6 +887,8 @@
           draft = collectP2Draft();
         } else if (stepId === 'ambacht' || state.currentStepId === 'ambacht') {
           draft = collectP3Draft();
+        } else if (stepId === 'aanbod' || state.currentStepId === 'aanbod') {
+          draft = collectP4Draft();
         }
       }
       await saveStep(stepId, { draft: draft });
@@ -711,6 +937,20 @@
         applyLocalDraft(p3);
         var nextP3 = Shell.nextStepId(state.currentStepId);
         if (nextP3 && nextP3 !== 'review_hub') goToStep(nextP3, { draft: p3 });
+        return;
+      }
+      if (state.currentStepId === 'aanbod') {
+        var p4 = collectP4Draft();
+        var p4Check = Draft.validateP4Complete(p4);
+        if (!p4Check.ok) {
+          showFieldErrors(p4Check.errors);
+          setSaveUi('error', 'Controleer de gemarkeerde velden.');
+          return;
+        }
+        clearFieldErrors();
+        applyLocalDraft(p4);
+        var nextP4 = Shell.nextStepId(state.currentStepId);
+        if (nextP4 && nextP4 !== 'review_hub') goToStep(nextP4, { draft: p4 });
         return;
       }
       var nextStep = Shell.nextStepId(state.currentStepId);
@@ -840,7 +1080,8 @@
         if (!ok) return;
       }
       state.craft = Draft.resetCraftForCategoryChange(nextId);
-      applyLocalDraft(collectP3Draft());
+      state.offer = Draft.emptyOffer();
+      applyLocalDraft({ craft: state.craft, offer: state.offer });
       renderP3();
       scheduleAutosave();
     });
@@ -858,7 +1099,8 @@
       else list.push(id);
       state.craft.service_ids = list;
       pruneCraftAnswers();
-      applyLocalDraft(collectP3Draft());
+      syncOfferWithCraft();
+      applyLocalDraft({ craft: Draft.pickCraft(state.craft), offer: Draft.pickOffer(state.offer) });
       renderP3();
       scheduleAutosave();
     });
@@ -910,6 +1152,128 @@
   }
   bindAnswerHost(EP.$('#conditionalsHost'));
   bindAnswerHost(EP.$('#extrasHost'));
+
+  function touchP4() {
+    applyLocalDraft(collectP4Draft());
+    scheduleAutosave();
+  }
+
+  if (p4Form) {
+    p4Form.addEventListener('click', function (ev) {
+      if (!state.canEdit) return;
+      var modelBtn = ev.target.closest('[data-price-model]');
+      if (modelBtn) {
+        var sid = modelBtn.getAttribute('data-price-model');
+        var model = modelBtn.getAttribute('data-model');
+        var sp = ensureServicePrice(sid);
+        sp.pricing_model = model;
+        if (model === 'on_request') {
+          sp.min_price = null;
+          sp.max_price = null;
+        }
+        renderP4();
+        touchP4();
+        return;
+      }
+      var vatBtn = ev.target.closest('[data-vat-basis]');
+      if (vatBtn) {
+        state.offer.vat_basis = vatBtn.getAttribute('data-vat-basis');
+        renderP4();
+        touchP4();
+        return;
+      }
+      var ctBtn = ev.target.closest('[data-client-type]');
+      if (ctBtn) {
+        var ct = ctBtn.getAttribute('data-client-type');
+        var list = state.offer.client_types || [];
+        var ix = list.indexOf(ct);
+        if (ix >= 0) list.splice(ix, 1);
+        else list.push(ct);
+        state.offer.client_types = list;
+        renderP4();
+        touchP4();
+        return;
+      }
+      var rtBtn = ev.target.closest('[data-response-time]');
+      if (rtBtn) {
+        state.offer.response_time = rtBtn.getAttribute('data-response-time');
+        renderP4();
+        touchP4();
+        return;
+      }
+      var urgBtn = ev.target.closest('[data-urgency]');
+      if (urgBtn) {
+        state.offer.urgency_jobs = urgBtn.getAttribute('data-urgency');
+        renderP4();
+        touchP4();
+        return;
+      }
+      var capBtn = ev.target.closest('[data-capacity]');
+      if (capBtn) {
+        state.offer.capacity = capBtn.getAttribute('data-capacity');
+        renderP4();
+        touchP4();
+        return;
+      }
+      var vsBtn = ev.target.closest('[data-visit-speed]');
+      if (vsBtn) {
+        state.offer.visit_speed = vsBtn.getAttribute('data-visit-speed');
+        renderP4();
+        touchP4();
+        return;
+      }
+      var veBtn = ev.target.closest('[data-visit-extra]');
+      if (veBtn) {
+        var ve = veBtn.getAttribute('data-visit-extra');
+        var veList = state.offer.visit_extra || [];
+        var vix = veList.indexOf(ve);
+        if (vix >= 0) veList.splice(vix, 1);
+        else veList.push(ve);
+        state.offer.visit_extra = veList;
+        renderP4();
+        touchP4();
+      }
+    });
+    p4Form.addEventListener('input', function (ev) {
+      if (!state.canEdit || !ev.target) return;
+      var minEl = ev.target.getAttribute('data-price-min');
+      if (minEl) {
+        var spMin = ensureServicePrice(minEl);
+        spMin.min_price = ev.target.value === '' ? null : Number(ev.target.value);
+        touchP4();
+        return;
+      }
+      var maxEl = ev.target.getAttribute('data-price-max');
+      if (maxEl) {
+        var spMax = ensureServicePrice(maxEl);
+        spMax.max_price = ev.target.value === '' ? null : Number(ev.target.value);
+        touchP4();
+        return;
+      }
+      var noteEl = ev.target.getAttribute('data-price-note');
+      if (noteEl) {
+        ensureServicePrice(noteEl).internal_note = String(ev.target.value || '').slice(0, 200);
+        touchP4();
+        return;
+      }
+      if (ev.target.id === 'f_project_minimum') {
+        state.offer.project_minimum = ev.target.value === '' ? null : Number(ev.target.value);
+        touchP4();
+        return;
+      }
+      if (ev.target.id === 'f_start_month') {
+        state.offer.start_month = ev.target.value || '';
+        touchP4();
+      }
+    });
+    p4Form.addEventListener('change', function (ev) {
+      if (!state.canEdit || !ev.target) return;
+      if (ev.target.id === 'f_start_month') {
+        state.offer.start_month = ev.target.value || '';
+        touchP4();
+      }
+    });
+  }
 
   window.addEventListener('popstate', function () {
     var requested = Shell.parseStepFromLocation(location);
@@ -965,6 +1329,8 @@
 
     applyPayload(onboardRes.body);
     state.craft = Draft.pickCraft(state.draft && state.draft.craft);
+    state.offer = Draft.pickOffer(state.draft && state.draft.offer);
+    syncOfferWithCraft();
     EP.showEl(shellEl, true);
     EP.setStatus(statusEl, '', '');
     setFormReadOnly(!state.canEdit);
@@ -992,6 +1358,7 @@
       var landingDraft = null;
       if (landing === 'bedrijf_bereik') landingDraft = collectP2Draft();
       else if (landing === 'ambacht') landingDraft = collectP3Draft();
+      else if (landing === 'aanbod') landingDraft = collectP4Draft();
       await saveStep(landing, landingDraft ? { draft: landingDraft } : {});
     }
   }).catch(function (err) {
