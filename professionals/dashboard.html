@@ -23,15 +23,18 @@
       <div><span>Account</span><strong id="userEmail">—</strong></div>
       <div><span>Rol</span><strong id="userRole">—</strong></div>
     </div>
-    <p class="lab-hint" style="margin-top:16px;">Beheer je bedrijfsprofiel en onboarding.</p>
-    <div class="prof-actions">
-      <a class="btn btn-primary" href="/professionals/onboarding">Naar onboarding</a>
-      <button type="button" class="btn" id="logoutBtn">Uitloggen</button>
+    <div class="prof-cta-block" id="onboardingCtaBlock">
+      <p class="lab-hint" id="onboardingCtaHint" style="margin-top:16px;">Beheer je bedrijfsprofiel en onboarding.</p>
+      <div class="prof-actions">
+        <a class="btn btn-primary" id="onboardingCta" href="/professionals/onboarding">Naar onboarding</a>
+        <button type="button" class="btn" id="logoutBtn">Uitloggen</button>
+      </div>
     </div>
   </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/js/professionals/core.js"></script>
+<script src="/js/professionals/onboarding-shell.js"></script>
 <script src="/js/professionals/dashboard.js"></script>
 </body>
 </html>

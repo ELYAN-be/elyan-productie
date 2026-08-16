@@ -1,10 +1,11 @@
 /**
- * /api/professionals — Phase A + Phase B Sprint 1 router
+ * /api/professionals — Phase A + Phase B Sprint 1–2 router
  * (single serverless function for Hobby limits)
  * Routes via ?action= or JSON body.action
  *
  * Phase A: public-config | session | activate | setup-password | logout | login-audit
  * Phase B: onboarding | onboarding-status | onboarding-save | onboarding-submit | onboarding-resubmit
+ * Sprint 2 UI: /professionals/onboarding wizard shell (no new BFF actions)
  */
 var { requireUser, listActiveMemberships, requirePartnerContext } = require('../server/tenancy');
 var { previewInvite, acceptInviteForUser } = require('../server/invites');
