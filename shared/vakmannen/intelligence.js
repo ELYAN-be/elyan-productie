@@ -736,4 +736,8 @@
   if (!EV.CATEGORIES || !EV.CATEGORIES.dakwerken || !EV.CATEGORIES.dakwerken.services) {
     // keep existing categories.js if loaded; Intelligence is additive
   }
-})(typeof window !== 'undefined' ? window : global);
+
+  if (typeof module === 'object' && module.exports) {
+    module.exports = EV.Intelligence;
+  }
+})(typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : this);

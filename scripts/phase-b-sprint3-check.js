@@ -121,7 +121,7 @@ test('validateP2Complete requires V2 P2 fields only', function () {
   assert.ok(full.ok, JSON.stringify(full.errors));
 });
 
-test('onboarding HTML has P1 CTA, living preview, P2 fields; no photos/Google/P3 forms', function () {
+test('onboarding HTML has P1 CTA, living preview, P2 fields; no photos/Google; later placeholders', function () {
   var html = fs.readFileSync(path.join(root, 'professionals/onboarding.html'), 'utf8');
   assert.ok(html.indexOf('Profiel starten') >= 0);
   assert.ok(html.indexOf('id="startProfileBtn"') >= 0);
@@ -153,6 +153,7 @@ test('onboarding HTML has P1 CTA, living preview, P2 fields; no photos/Google/P3
   assert.ok(html.indexOf('type="file"') < 0);
   assert.ok(html.indexOf('google_intent') < 0);
   assert.ok(html.indexOf('data-step="ambacht"') >= 0);
+  assert.ok(html.indexOf('id="p3Form"') >= 0 || html.indexOf('categoryGrid') >= 0);
   assert.ok(html.indexOf('prof-placeholder') >= 0);
 });
 

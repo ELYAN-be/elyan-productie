@@ -1,6 +1,7 @@
 /**
- * Phase B Sprint 3 — P1/P2 draft helpers (V2 frozen).
+ * Phase B Sprint 3–4 — P1/P2 + P3 Ambacht draft helpers (V2 frozen).
  * Browser (script tag) + Node (require) for offline tests.
+ * P3 content comes from Category Intelligence (PartnerOnboardingEngine).
  */
 (function (root, factory) {
   'use strict';
@@ -83,8 +84,297 @@
     'exclusions'
   ];
 
+  var CRAFT_KEYS = [
+    'primary_category_id',
+    'service_ids',
+    'conditionals',
+    'extras'
+  ];
+
   function isPlainObject(v) {
     return !!v && typeof v === 'object' && !Array.isArray(v);
+  }
+
+  function getIntelligence() {
+    if (typeof globalThis !== 'undefined' && globalThis.ElyanVakmannen && globalThis.ElyanVakmannen.Intelligence) {
+      return globalThis.ElyanVakmannen.Intelligence;
+    }
+    if (typeof window !== 'undefined' && window.ElyanVakmannen && window.ElyanVakmannen.Intelligence) {
+      return window.ElyanVakmannen.Intelligence;
+    }
+    if (typeof require === 'function') {
+      try {
+        return require('../../shared/vakmannen/intelligence');
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  function getOnboardingEngine() {
+    var intel = getIntelligence();
+    return intel && intel.PartnerOnboardingEngine ? intel.PartnerOnboardingEngine : null;
+  }
+
+  function listCategories() {
+    var oe = getOnboardingEngine();
+    return oe ? oe.listCategories() : [];
+  }
+
+  function getCategory(id) {
+    var oe = getOnboardingEngine();
+    return oe ? oe.getCategory(id) : null;
+  }
+
+  function getServices(categoryId) {
+    var oe = getOnboardingEngine();
+    return oe ? oe.getServices(categoryId) : [];
+  }
+
+  function getConditionalsForSelected(categoryId, serviceIds) {
+    var oe = getOnboardingEngine();
+    return oe ? oe.getConditionalsForSelected(categoryId, serviceIds || []) : [];
+  }
+
+  function getOnboardExtras(categoryId) {
+    var oe = getOnboardingEngine();
+    return oe ? oe.getOnboardExtras(categoryId) : [];
+  }
+
+  function isInfoQuestion(q) {
+    return !!(q && q.type === 'info');
+  }
+
+  /** V2/V1: single/multi/select without empty:true are required when visible. */
+  function isRequiredQuestion(q) {
+    if (!q || isInfoQuestion(q) || q.empty) return false;
+    return q.type === 'single' || q.type === 'multi' || q.type === 'select';
+  }
+
+  function optionValues(q) {
+    return (q.options || []).map(function (opt) {
+      return typeof opt === 'string' ? opt : opt.id;
+    });
+  }
+
+  function emptyCraft() {
+    return {
+      primary_category_id: '',
+      service_ids: [],
+      conditionals: {},
+      extras: {}
+    };
+  }
+
+  function pickCraft(src) {
+    var out = emptyCraft();
+    if (!isPlainObject(src)) return out;
+    if (src.primary_category_id != null) out.primary_category_id = trimStr(src.primary_category_id);
+    if (Array.isArray(src.service_ids)) out.service_ids = src.service_ids.slice();
+    if (isPlainObject(src.conditionals)) {
+      Object.keys(src.conditionals).forEach(function (k) {
+        out.conditionals[k] = src.conditionals[k];
+      });
+    }
+    if (isPlainObject(src.extras)) {
+      Object.keys(src.extras).forEach(function (k) {
+        out.extras[k] = src.extras[k];
+      });
+    }
+    return out;
+  }
+
+  function hasCategoryDependentP3Data(craft) {
+    craft = pickCraft(craft);
+    if (craft.service_ids && craft.service_ids.length) return true;
+    if (craft.conditionals && Object.keys(craft.conditionals).length) return true;
+    if (craft.extras && Object.keys(craft.extras).length) return true;
+    return false;
+  }
+
+  function resetCraftForCategoryChange(newCategoryId) {
+    return {
+      primary_category_id: trimStr(newCategoryId) || '',
+      service_ids: [],
+      conditionals: {},
+      extras: {}
+    };
+  }
+
+  function sanitizeAnswerValue(q, raw) {
+    if (q.type === 'multi') {
+      if (raw == null || raw === '') return [];
+      if (!Array.isArray(raw)) return { ok: false, code: 'invalid_draft', message: q.key + ' must be an array' };
+      var allowed = optionValues(q);
+      var cleaned = [];
+      for (var i = 0; i < raw.length; i++) {
+        var v = trimStr(raw[i]);
+        if (!v) continue;
+        if (allowed.length && allowed.indexOf(v) < 0) {
+          return { ok: false, code: 'invalid_field', message: 'Ongeldige optie voor ' + q.label };
+        }
+        if (cleaned.indexOf(v) < 0) cleaned.push(v);
+      }
+      return { ok: true, value: cleaned };
+    }
+    if (q.type === 'single' || q.type === 'select') {
+      var s = trimStr(raw);
+      if (!s) return { ok: true, value: '' };
+      var opts = optionValues(q);
+      if (opts.length && opts.indexOf(s) < 0) {
+        return { ok: false, code: 'invalid_field', message: 'Ongeldige optie voor ' + q.label };
+      }
+      return { ok: true, value: s };
+    }
+    if (q.type === 'number') {
+      if (raw === '' || raw == null) return { ok: true, value: null };
+      var n = Number(raw);
+      if (!Number.isFinite(n)) {
+        return { ok: false, code: 'invalid_field', message: q.label + ': vul een getal in.' };
+      }
+      return { ok: true, value: n };
+    }
+    if (q.type === 'text') {
+      return { ok: true, value: trimStr(raw).slice(0, 200) };
+    }
+    return { ok: true, value: raw };
+  }
+
+  function answerSatisfiesRequired(q, value) {
+    if (!isRequiredQuestion(q)) return true;
+    if (q.type === 'multi') return Array.isArray(value) && value.length > 0;
+    if (q.type === 'single' || q.type === 'select') return !!trimStr(value);
+    return true;
+  }
+
+  /**
+   * Normalize + soft-validate craft for autosave against Category Intelligence.
+   * Partials allowed; unknown categories/services/keys rejected.
+   */
+  function sanitizeCraft(rawCraft) {
+    if (rawCraft == null) return { ok: true, craft: null };
+    if (!isPlainObject(rawCraft)) {
+      return { ok: false, code: 'invalid_draft', message: 'craft must be an object' };
+    }
+    var unknown = Object.keys(rawCraft).filter(function (k) {
+      return CRAFT_KEYS.indexOf(k) < 0;
+    });
+    if (unknown.length) {
+      return { ok: false, code: 'invalid_draft', message: 'Unknown craft fields: ' + unknown.join(', ') };
+    }
+
+    var oe = getOnboardingEngine();
+    if (!oe) {
+      return { ok: false, code: 'invalid_draft', message: 'Category Intelligence unavailable' };
+    }
+
+    var craft = emptyCraft();
+    var hasCat = Object.prototype.hasOwnProperty.call(rawCraft, 'primary_category_id');
+    var hasSvc = Object.prototype.hasOwnProperty.call(rawCraft, 'service_ids');
+    var hasCond = Object.prototype.hasOwnProperty.call(rawCraft, 'conditionals');
+    var hasEx = Object.prototype.hasOwnProperty.call(rawCraft, 'extras');
+
+    if (hasCat) {
+      var catId = trimStr(rawCraft.primary_category_id);
+      if (catId) {
+        if (!oe.getCategory(catId)) {
+          return { ok: false, code: 'invalid_field', message: 'Ongeldige hoofdcategorie.' };
+        }
+        craft.primary_category_id = catId;
+      } else {
+        craft.primary_category_id = '';
+      }
+    }
+
+    var effectiveCat = hasCat ? craft.primary_category_id : trimStr(rawCraft.primary_category_id);
+    var serviceIds = Array.isArray(rawCraft.service_ids) ? rawCraft.service_ids : [];
+
+    if (hasSvc) {
+      if (!Array.isArray(rawCraft.service_ids)) {
+        return { ok: false, code: 'invalid_draft', message: 'service_ids must be an array' };
+      }
+      if (!effectiveCat && rawCraft.service_ids.length) {
+        return { ok: false, code: 'invalid_field', message: 'Kies eerst een hoofdcategorie.' };
+      }
+      var allowedSvc = {};
+      if (effectiveCat) {
+        getServices(effectiveCat).forEach(function (s) {
+          allowedSvc[s.id] = true;
+        });
+      }
+      craft.service_ids = [];
+      for (var si = 0; si < rawCraft.service_ids.length; si++) {
+        var sid = trimStr(rawCraft.service_ids[si]);
+        if (!sid) continue;
+        if (!allowedSvc[sid]) {
+          return { ok: false, code: 'invalid_field', message: 'Ongeldige dienst voor deze categorie.' };
+        }
+        if (craft.service_ids.indexOf(sid) < 0) craft.service_ids.push(sid);
+      }
+      serviceIds = craft.service_ids;
+    }
+
+    if (hasCond) {
+      if (rawCraft.conditionals != null && !isPlainObject(rawCraft.conditionals)) {
+        return { ok: false, code: 'invalid_draft', message: 'conditionals must be an object' };
+      }
+      var condMap = {};
+      getConditionalsForSelected(effectiveCat, serviceIds).forEach(function (q) {
+        condMap[q.key] = q;
+      });
+      craft.conditionals = {};
+      var rawCond = rawCraft.conditionals || {};
+      var unkCond = Object.keys(rawCond).filter(function (k) {
+        return !condMap[k];
+      });
+      if (unkCond.length) {
+        return {
+          ok: false,
+          code: 'invalid_draft',
+          message: 'Unknown or irrelevant conditionals: ' + unkCond.join(', ')
+        };
+      }
+      var ck = Object.keys(rawCond);
+      for (var ci = 0; ci < ck.length; ci++) {
+        var cKey = ck[ci];
+        var cSan = sanitizeAnswerValue(condMap[cKey], rawCond[cKey]);
+        if (!cSan.ok) return cSan;
+        craft.conditionals[cKey] = cSan.value;
+      }
+    }
+
+    if (hasEx) {
+      if (rawCraft.extras != null && !isPlainObject(rawCraft.extras)) {
+        return { ok: false, code: 'invalid_draft', message: 'extras must be an object' };
+      }
+      var extraMap = {};
+      getOnboardExtras(effectiveCat).forEach(function (q) {
+        if (!isInfoQuestion(q)) extraMap[q.key] = q;
+      });
+      craft.extras = {};
+      var rawEx = rawCraft.extras || {};
+      var unkEx = Object.keys(rawEx).filter(function (k) {
+        return !extraMap[k];
+      });
+      if (unkEx.length) {
+        return { ok: false, code: 'invalid_draft', message: 'Unknown craft extras: ' + unkEx.join(', ') };
+      }
+      var ek = Object.keys(rawEx);
+      for (var ei = 0; ei < ek.length; ei++) {
+        var eKey = ek[ei];
+        var eSan = sanitizeAnswerValue(extraMap[eKey], rawEx[eKey]);
+        if (!eSan.ok) return eSan;
+        craft.extras[eKey] = eSan.value;
+      }
+    }
+
+    var out = {};
+    if (hasCat) out.primary_category_id = craft.primary_category_id;
+    if (hasSvc) out.service_ids = craft.service_ids;
+    if (hasCond) out.conditionals = craft.conditionals;
+    if (hasEx) out.extras = craft.extras;
+    return { ok: true, craft: out };
   }
 
   function trimStr(v) {
@@ -493,10 +783,75 @@ function sanitizeP2Patch(draft) {
       out.service_area = area;
     }
 
+    if (Object.prototype.hasOwnProperty.call(draft, 'craft')) {
+      var craftSan = sanitizeCraft(draft.craft);
+      if (!craftSan.ok) return craftSan;
+      out.craft = craftSan.craft;
+    }
+
     return { ok: true, draft: out };
-  }  /**
-   * Client completeness check before leaving P2 (not submit-gate).
+  }
+
+  /**
+   * Merge craft patches without deep-merging conditionals/extras
+   * (empty {} after category reset must clear prior answers).
    */
+  function mergeCraft(base, patch) {
+    var out = pickCraft(base);
+    if (!isPlainObject(patch)) return out;
+    if (Object.prototype.hasOwnProperty.call(patch, 'primary_category_id')) {
+      out.primary_category_id = trimStr(patch.primary_category_id);
+    }
+    if (Object.prototype.hasOwnProperty.call(patch, 'service_ids')) {
+      out.service_ids = Array.isArray(patch.service_ids) ? patch.service_ids.slice() : [];
+    }
+    if (Object.prototype.hasOwnProperty.call(patch, 'conditionals')) {
+      out.conditionals = isPlainObject(patch.conditionals) ? Object.assign({}, patch.conditionals) : {};
+    }
+    if (Object.prototype.hasOwnProperty.call(patch, 'extras')) {
+      out.extras = isPlainObject(patch.extras) ? Object.assign({}, patch.extras) : {};
+    }
+    return out;
+  }
+
+  /**
+   * Client completeness check before leaving P3 (not submit-gate).
+   */
+  function validateP3Complete(draft) {
+    var errors = {};
+    var craft = pickCraft(draft && draft.craft);
+    var catId = craft.primary_category_id;
+    if (!catId || !getCategory(catId)) {
+      errors.primary_category_id = 'Kies een hoofdcategorie.';
+      return { ok: false, errors: errors, craft: craft };
+    }
+    if (!craft.service_ids || !craft.service_ids.length) {
+      errors.service_ids = 'Selecteer minstens één dienst.';
+    }
+
+    getConditionalsForSelected(catId, craft.service_ids).forEach(function (q) {
+      if (!isRequiredQuestion(q)) return;
+      var val = craft.conditionals[q.key];
+      if (!answerSatisfiesRequired(q, val)) {
+        errors['cond_' + q.key] = 'Beantwoord: ' + q.label;
+      }
+    });
+
+    getOnboardExtras(catId).forEach(function (q) {
+      if (isInfoQuestion(q)) return;
+      if (!isRequiredQuestion(q)) return;
+      var val = craft.extras[q.key];
+      if (!answerSatisfiesRequired(q, val)) {
+        errors['extra_' + q.key] = 'Beantwoord: ' + q.label;
+      }
+    });
+
+    return {
+      ok: Object.keys(errors).length === 0,
+      errors: errors,
+      craft: craft
+    };
+  }
   function validateP2Complete(draft) {
     var errors = {};
     var company = pickCompany(draft && draft.company);
@@ -585,13 +940,18 @@ function sanitizeP2Patch(draft) {
     opts = opts || {};
     var company = pickCompany(opts.company);
     var area = pickServiceArea(opts.service_area);
+    var craft = pickCraft(opts.craft);
     var name = trimStr(company.display_name) || trimStr(opts.fallbackName) || 'Jullie vakbedrijf';
     var areaText = trimStr(area.public_text) || suggestPublicText(company, area) || 'Werkgebied volgt';
+    var cat = craft.primary_category_id ? getCategory(craft.primary_category_id) : null;
+    var specialtyHint = cat
+      ? cat.label + (craft.service_ids.length ? ' · ' + craft.service_ids.length + ' diensten' : '')
+      : 'Ambacht volgt in de volgende stappen';
     return {
       displayName: name,
       areaText: areaText,
       locationLine: [trimStr(company.postcode), trimStr(company.gemeente)].filter(Boolean).join(' ') || 'Vestiging volgt',
-      specialtyHint: 'Ambacht volgt in de volgende stappen'
+      specialtyHint: specialtyHint
     };
   }
 
@@ -603,10 +963,13 @@ function sanitizeP2Patch(draft) {
     PROVINCES: PROVINCES,
     COMPANY_KEYS: COMPANY_KEYS,
     SERVICE_AREA_KEYS: SERVICE_AREA_KEYS,
+    CRAFT_KEYS: CRAFT_KEYS,
     emptyCompany: emptyCompany,
     emptyServiceArea: emptyServiceArea,
+    emptyCraft: emptyCraft,
     pickCompany: pickCompany,
     pickServiceArea: pickServiceArea,
+    pickCraft: pickCraft,
     normalizeKbo: normalizeKbo,
     formatKboDisplay: formatKboDisplay,
     validateKbo: validateKbo,
@@ -618,7 +981,19 @@ function sanitizeP2Patch(draft) {
     validateEmail: validateEmail,
     validateWebsite: validateWebsite,
     sanitizeP2Patch: sanitizeP2Patch,
+    sanitizeCraft: sanitizeCraft,
+    mergeCraft: mergeCraft,
     validateP2Complete: validateP2Complete,
+    validateP3Complete: validateP3Complete,
+    hasCategoryDependentP3Data: hasCategoryDependentP3Data,
+    resetCraftForCategoryChange: resetCraftForCategoryChange,
+    listCategories: listCategories,
+    getCategory: getCategory,
+    getServices: getServices,
+    getConditionalsForSelected: getConditionalsForSelected,
+    getOnboardExtras: getOnboardExtras,
+    isInfoQuestion: isInfoQuestion,
+    isRequiredQuestion: isRequiredQuestion,
     suggestPublicText: suggestPublicText,
     previewModel: previewModel
   };

@@ -21,6 +21,7 @@
   var reviewHubTitle = EP.$('#reviewHubTitle');
   var reviewHubBody = EP.$('#reviewHubBody');
   var p2Form = EP.$('#p2Form');
+  var p3Form = EP.$('#p3Form');
 
   var state = {
     partnerId: null,
@@ -39,7 +40,8 @@
     btwPlichtig: null,
     areaMode: '',
     provinces: [],
-    regions: []
+    regions: [],
+    craft: Draft.emptyCraft()
   };
 
   EP.$('#logoutBtn').addEventListener('click', function () {
@@ -113,9 +115,11 @@
   function updateLivingPreview() {
     var company = Draft.pickCompany(state.draft.company);
     var area = Draft.pickServiceArea(state.draft.service_area);
+    var craft = Draft.pickCraft(state.draft.craft || state.craft);
     var model = Draft.previewModel({
       company: company,
       service_area: area,
+      craft: craft,
       fallbackName: state.partnerDisplayName
     });
     ['previewName', 'previewNameP2'].forEach(function (id) {
@@ -192,14 +196,25 @@
   }
 
   function setFormReadOnly(ro) {
-    if (!p2Form) return;
-    p2Form.querySelectorAll('input, select, textarea, button').forEach(function (el) {
-      if (el.closest && el.closest('.prof-wizard-nav')) return;
-      if (el.tagName === 'BUTTON') el.disabled = ro;
-      else el.readOnly = ro;
-      if (el.tagName === 'SELECT' || el.type === 'number' || el.type === 'checkbox') el.disabled = ro;
-    });
+    if (p2Form) {
+      p2Form.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+        if (el.closest && el.closest('.prof-wizard-nav')) return;
+        if (el.tagName === 'BUTTON') el.disabled = ro;
+        else el.readOnly = ro;
+        if (el.tagName === 'SELECT' || el.type === 'number' || el.type === 'checkbox') el.disabled = ro;
+      });
+    }
     document.querySelectorAll('#btwSeg button, #areaModeGrid button, #provincesGrid button, #regionsGrid button').forEach(function (b) {
+      b.disabled = ro;
+    });
+    if (p3Form) {
+      p3Form.querySelectorAll('input, select, textarea, button').forEach(function (el) {
+        if (el.tagName === 'BUTTON') el.disabled = ro;
+        else el.readOnly = ro;
+        if (el.tagName === 'SELECT' || el.type === 'number' || el.type === 'checkbox') el.disabled = ro;
+      });
+    }
+    document.querySelectorAll('#categoryGrid button, #servicesGrid button, #conditionalsHost button, #extrasHost button').forEach(function (b) {
       b.disabled = ro;
     });
     if (startProfileBtn) startProfileBtn.disabled = ro;
@@ -294,6 +309,185 @@
     return { company: company, service_area: area };
   }
 
+  function escapeHtml(str) {
+    return String(str == null ? '' : str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function collectP3Draft() {
+    return { craft: Draft.pickCraft(state.craft) };
+  }
+
+  function renderQuestionBlocks(host, questions, answers, kind) {
+    if (!host) return;
+    answers = answers || {};
+    host.innerHTML = (questions || []).map(function (qq) {
+      if (Draft.isInfoQuestion(qq)) {
+        return '<p class="prof-info-note" data-info-key="' + escapeHtml(qq.key) + '">' + escapeHtml(qq.label) + '</p>';
+      }
+      var errKey = (kind === 'cond' ? 'cond_' : 'extra_') + qq.key;
+      if (qq.type === 'multi') {
+        var selected = Array.isArray(answers[qq.key]) ? answers[qq.key] : [];
+        return '<div class="prof-q-block" data-q-key="' + escapeHtml(qq.key) + '">' +
+          '<p class="prof-q-label">' + escapeHtml(qq.label) + '</p>' +
+          '<div class="lab-choice-grid is-2">' +
+          (qq.options || []).map(function (opt) {
+            var oid = typeof opt === 'string' ? opt : opt.id;
+            var olab = typeof opt === 'string' ? opt : opt.label;
+            return '<button type="button" class="lab-choice' + (selected.indexOf(oid) >= 0 ? ' is-selected' : '') +
+              '" data-' + kind + '-multi="' + escapeHtml(qq.key) + '" data-val="' + escapeHtml(oid) + '">' +
+              escapeHtml(olab) + '</button>';
+          }).join('') +
+          '</div>' +
+          '<span class="prof-field-error" data-error-for="' + escapeHtml(errKey) + '" hidden></span>' +
+          '</div>';
+      }
+      if (qq.type === 'single' || qq.type === 'select') {
+        var cur = answers[qq.key] || '';
+        return '<div class="prof-q-block" data-q-key="' + escapeHtml(qq.key) + '">' +
+          '<p class="prof-q-label">' + escapeHtml(qq.label) + '</p>' +
+          '<div class="lab-choice-grid is-2">' +
+          (qq.options || []).map(function (opt) {
+            var oid = typeof opt === 'string' ? opt : opt.id;
+            var olab = typeof opt === 'string' ? opt : opt.label;
+            return '<button type="button" class="lab-choice' + (cur === oid ? ' is-selected' : '') +
+              '" data-' + kind + '-single="' + escapeHtml(qq.key) + '" data-val="' + escapeHtml(oid) + '">' +
+              escapeHtml(olab) + '</button>';
+          }).join('') +
+          '</div>' +
+          '<span class="prof-field-error" data-error-for="' + escapeHtml(errKey) + '" hidden></span>' +
+          '</div>';
+      }
+      if (qq.type === 'number' || qq.type === 'text') {
+        var val = answers[qq.key] == null ? '' : answers[qq.key];
+        return '<div class="prof-q-block" data-q-key="' + escapeHtml(qq.key) + '">' +
+          '<label class="lab-field">' + escapeHtml(qq.label) +
+          '<input data-' + kind + '-field="' + escapeHtml(qq.key) + '" type="' +
+          (qq.type === 'number' ? 'number' : 'text') + '" value="' + escapeHtml(val) + '"' +
+          (qq.placeholder ? ' placeholder="' + escapeHtml(qq.placeholder) + '"' : '') + '>' +
+          '</label>' +
+          '<span class="prof-field-error" data-error-for="' + escapeHtml(errKey) + '" hidden></span>' +
+          '</div>';
+      }
+      return '';
+    }).join('');
+  }
+
+  function pruneCraftAnswers() {
+    var catId = state.craft.primary_category_id;
+    var serviceIds = state.craft.service_ids || [];
+    var condAllowed = {};
+    Draft.getConditionalsForSelected(catId, serviceIds).forEach(function (q) {
+      condAllowed[q.key] = true;
+    });
+    var nextCond = {};
+    Object.keys(state.craft.conditionals || {}).forEach(function (k) {
+      if (condAllowed[k]) nextCond[k] = state.craft.conditionals[k];
+    });
+    state.craft.conditionals = nextCond;
+
+    var extraAllowed = {};
+    Draft.getOnboardExtras(catId).forEach(function (q) {
+      if (!Draft.isInfoQuestion(q)) extraAllowed[q.key] = true;
+    });
+    var nextEx = {};
+    Object.keys(state.craft.extras || {}).forEach(function (k) {
+      if (extraAllowed[k]) nextEx[k] = state.craft.extras[k];
+    });
+    state.craft.extras = nextEx;
+  }
+
+  function renderP3() {
+    var catGrid = EP.$('#categoryGrid');
+    if (catGrid && !catGrid.getAttribute('data-ready')) {
+      catGrid.innerHTML = Draft.listCategories().map(function (c) {
+        return '<button type="button" class="lab-choice" data-category="' + escapeHtml(c.id) + '">' +
+          escapeHtml(c.label) + '</button>';
+      }).join('');
+      catGrid.setAttribute('data-ready', '1');
+    }
+
+    var catId = state.craft.primary_category_id || '';
+    document.querySelectorAll('#categoryGrid [data-category]').forEach(function (btn) {
+      btn.classList.toggle('is-selected', btn.getAttribute('data-category') === catId);
+    });
+
+    var servicesFieldset = EP.$('#servicesFieldset');
+    var servicesGrid = EP.$('#servicesGrid');
+    var servicesLead = EP.$('#servicesLead');
+    var cat = catId ? Draft.getCategory(catId) : null;
+    if (servicesFieldset) servicesFieldset.hidden = !cat;
+    if (cat && servicesGrid) {
+      if (servicesLead) {
+        servicesLead.textContent = cat.label + ': selecteer wat jullie effectief doen (minstens één).';
+      }
+      var selected = state.craft.service_ids || [];
+      servicesGrid.innerHTML = Draft.getServices(catId).map(function (s) {
+        return '<button type="button" class="lab-choice' + (selected.indexOf(s.id) >= 0 ? ' is-selected' : '') +
+          '" data-service="' + escapeHtml(s.id) + '">' + escapeHtml(s.label) + '</button>';
+      }).join('');
+    }
+
+    var condQs = cat ? Draft.getConditionalsForSelected(catId, state.craft.service_ids || []) : [];
+    var condFieldset = EP.$('#conditionalsFieldset');
+    var condHost = EP.$('#conditionalsHost');
+    if (condFieldset) condFieldset.hidden = !condQs.length;
+    renderQuestionBlocks(condHost, condQs, state.craft.conditionals, 'cond');
+
+    var extraQs = cat ? Draft.getOnboardExtras(catId) : [];
+    var extrasFieldset = EP.$('#extrasFieldset');
+    var extrasHost = EP.$('#extrasHost');
+    if (extrasFieldset) extrasFieldset.hidden = !extraQs.length;
+    renderQuestionBlocks(extrasHost, extraQs, state.craft.extras, 'extra');
+
+    setFormReadOnly(!state.canEdit);
+  }
+
+  function hydrateP3FromDraft() {
+    state.craft = Draft.pickCraft(state.draft && state.draft.craft);
+    renderP3();
+    updateLivingPreview();
+  }
+
+  function applyLocalDraft(patch) {
+    state.draft = Object.assign({}, state.draft, patch);
+    if (patch.company) {
+      state.draft.company = Object.assign({}, state.draft.company || {}, patch.company);
+    }
+    if (patch.service_area) {
+      state.draft.service_area = Object.assign({}, state.draft.service_area || {}, patch.service_area);
+    }
+    if (patch.craft) {
+      state.draft.craft = Draft.mergeCraft(state.draft.craft, patch.craft);
+      state.craft = Draft.pickCraft(state.draft.craft);
+    }
+    updateLivingPreview();
+  }
+
+  function scheduleAutosave() {
+    if (!state.canEdit) return;
+    if (
+      state.currentStepId !== 'bedrijf_bereik' &&
+      state.currentStepId !== 'start' &&
+      state.currentStepId !== 'ambacht'
+    ) {
+      return;
+    }
+    var draftPatch =
+      state.currentStepId === 'ambacht' ? collectP3Draft() : collectP2Draft();
+    if (state.currentStepId === 'ambacht') applyLocalDraft(draftPatch);
+    else applyLocalDraft(draftPatch);
+    if (state.saveTimer) clearTimeout(state.saveTimer);
+    state.saveTimer = setTimeout(function () {
+      var payload =
+        state.currentStepId === 'ambacht' ? collectP3Draft() : collectP2Draft();
+      saveStep(state.currentStepId, { draft: payload });
+    }, 700);
+  }
+
   function maybeSuggestPublicText() {
     if (state.publicTextTouched) return;
     var pub = EP.$('#f_public_text');
@@ -303,29 +497,6 @@
     if (suggestion && suggestion !== 'jullie regio') {
       pub.value = suggestion.slice(0, 80);
     }
-  }
-
-  function applyLocalDraft(patch) {
-    state.draft = Draft.pickCompany && state.draft
-      ? Object.assign({}, state.draft, patch)
-      : Object.assign({}, state.draft, patch);
-    if (patch.company) {
-      state.draft.company = Object.assign({}, state.draft.company || {}, patch.company);
-    }
-    if (patch.service_area) {
-      state.draft.service_area = Object.assign({}, state.draft.service_area || {}, patch.service_area);
-    }
-    updateLivingPreview();
-  }
-
-  function scheduleAutosave() {
-    if (!state.canEdit) return;
-    if (state.currentStepId !== 'bedrijf_bereik' && state.currentStepId !== 'start') return;
-    applyLocalDraft(collectP2Draft());
-    if (state.saveTimer) clearTimeout(state.saveTimer);
-    state.saveTimer = setTimeout(function () {
-      saveStep(state.currentStepId, { draft: collectP2Draft() });
-    }, 700);
   }
 
   function showStep(stepId) {
@@ -353,6 +524,8 @@
 
     if (stepId === 'bedrijf_bereik') {
       hydrateP2Form();
+    } else if (stepId === 'ambacht') {
+      hydrateP3FromDraft();
     } else {
       updateLivingPreview();
     }
@@ -428,6 +601,8 @@
         body.draft = opts.draft;
       } else if (stepId === 'bedrijf_bereik') {
         body.draft = collectP2Draft();
+      } else if (stepId === 'ambacht') {
+        body.draft = collectP3Draft();
       }
       var res = await EP.apiFetch('onboarding-save', {
         method: 'POST',
@@ -445,6 +620,9 @@
         return { ok: false, body: res.body };
       }
       applyPayload(res.body);
+      if (state.draft && state.draft.craft) {
+        state.craft = Draft.pickCraft(state.draft.craft);
+      }
       setSaveUi('ok', 'Alles opgeslagen');
       updateLivingPreview();
       return { ok: true, body: res.body };
@@ -455,7 +633,13 @@
       state.saving = false;
       if (state.dirtySave) {
         state.dirtySave = false;
-        saveStep(state.currentStepId, { draft: collectP2Draft() });
+        var queuedDraft =
+          state.currentStepId === 'ambacht'
+            ? collectP3Draft()
+            : state.currentStepId === 'bedrijf_bereik'
+              ? collectP2Draft()
+              : null;
+        saveStep(state.currentStepId, queuedDraft ? { draft: queuedDraft } : {});
       }
     }
   }
@@ -474,8 +658,12 @@
     showStep(stepId);
     if (opts.persist !== false) {
       var draft = opts.draft;
-      if (!draft && (stepId === 'bedrijf_bereik' || state.currentStepId === 'bedrijf_bereik')) {
-        draft = collectP2Draft();
+      if (!draft) {
+        if (stepId === 'bedrijf_bereik' || state.currentStepId === 'bedrijf_bereik') {
+          draft = collectP2Draft();
+        } else if (stepId === 'ambacht' || state.currentStepId === 'ambacht') {
+          draft = collectP3Draft();
+        }
       }
       await saveStep(stepId, { draft: draft });
       showStep(stepId);
@@ -509,6 +697,20 @@
         applyLocalDraft(draft);
         var next = Shell.nextStepId(state.currentStepId);
         if (next && next !== 'review_hub') goToStep(next, { draft: draft });
+        return;
+      }
+      if (state.currentStepId === 'ambacht') {
+        var p3 = collectP3Draft();
+        var p3Check = Draft.validateP3Complete(p3);
+        if (!p3Check.ok) {
+          showFieldErrors(p3Check.errors);
+          setSaveUi('error', 'Controleer de gemarkeerde velden.');
+          return;
+        }
+        clearFieldErrors();
+        applyLocalDraft(p3);
+        var nextP3 = Shell.nextStepId(state.currentStepId);
+        if (nextP3 && nextP3 !== 'review_hub') goToStep(nextP3, { draft: p3 });
         return;
       }
       var nextStep = Shell.nextStepId(state.currentStepId);
@@ -624,6 +826,91 @@
     });
   }
 
+  var categoryGrid = EP.$('#categoryGrid');
+  if (categoryGrid) {
+    categoryGrid.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-category]');
+      if (!btn || !state.canEdit) return;
+      var nextId = btn.getAttribute('data-category');
+      if (!nextId || nextId === state.craft.primary_category_id) return;
+      if (Draft.hasCategoryDependentP3Data(state.craft)) {
+        var ok = window.confirm(
+          'Categorie wijzigen wist de geselecteerde diensten, verfijning en projectvoorkeuren. Bedrijfsgegevens blijven bewaard. Doorgaan?'
+        );
+        if (!ok) return;
+      }
+      state.craft = Draft.resetCraftForCategoryChange(nextId);
+      applyLocalDraft(collectP3Draft());
+      renderP3();
+      scheduleAutosave();
+    });
+  }
+
+  var servicesGridEl = EP.$('#servicesGrid');
+  if (servicesGridEl) {
+    servicesGridEl.addEventListener('click', function (ev) {
+      var btn = ev.target.closest('[data-service]');
+      if (!btn || !state.canEdit) return;
+      var id = btn.getAttribute('data-service');
+      var list = state.craft.service_ids || [];
+      var i = list.indexOf(id);
+      if (i >= 0) list.splice(i, 1);
+      else list.push(id);
+      state.craft.service_ids = list;
+      pruneCraftAnswers();
+      applyLocalDraft(collectP3Draft());
+      renderP3();
+      scheduleAutosave();
+    });
+  }
+
+  function bindAnswerHost(host) {
+    if (!host) return;
+    host.addEventListener('click', function (ev) {
+      if (!state.canEdit) return;
+      var multi = ev.target.closest('[data-cond-multi], [data-extra-multi]');
+      if (multi) {
+        var mKey = multi.getAttribute('data-cond-multi') || multi.getAttribute('data-extra-multi');
+        var mVal = multi.getAttribute('data-val');
+        var bucket = multi.hasAttribute('data-cond-multi') ? state.craft.conditionals : state.craft.extras;
+        if (!Array.isArray(bucket[mKey])) bucket[mKey] = [];
+        var mi = bucket[mKey].indexOf(mVal);
+        if (mi >= 0) bucket[mKey].splice(mi, 1);
+        else bucket[mKey].push(mVal);
+        applyLocalDraft(collectP3Draft());
+        renderP3();
+        scheduleAutosave();
+        return;
+      }
+      var single = ev.target.closest('[data-cond-single], [data-extra-single]');
+      if (single) {
+        var sKey = single.getAttribute('data-cond-single') || single.getAttribute('data-extra-single');
+        var sVal = single.getAttribute('data-val');
+        var sBucket = single.hasAttribute('data-cond-single') ? state.craft.conditionals : state.craft.extras;
+        sBucket[sKey] = sVal;
+        applyLocalDraft(collectP3Draft());
+        renderP3();
+        scheduleAutosave();
+      }
+    });
+    host.addEventListener('input', function (ev) {
+      if (!state.canEdit || !ev.target) return;
+      var field = ev.target.getAttribute('data-cond-field') || ev.target.getAttribute('data-extra-field');
+      if (!field) return;
+      var fBucket = ev.target.hasAttribute('data-cond-field') ? state.craft.conditionals : state.craft.extras;
+      var raw = ev.target.value;
+      if (ev.target.type === 'number') {
+        fBucket[field] = raw === '' ? null : Number(raw);
+      } else {
+        fBucket[field] = raw;
+      }
+      applyLocalDraft(collectP3Draft());
+      scheduleAutosave();
+    });
+  }
+  bindAnswerHost(EP.$('#conditionalsHost'));
+  bindAnswerHost(EP.$('#extrasHost'));
+
   window.addEventListener('popstate', function () {
     var requested = Shell.parseStepFromLocation(location);
     var step = Shell.resolveRouteStep({
@@ -677,6 +964,7 @@
     }
 
     applyPayload(onboardRes.body);
+    state.craft = Draft.pickCraft(state.draft && state.draft.craft);
     EP.showEl(shellEl, true);
     EP.setStatus(statusEl, '', '');
     setFormReadOnly(!state.canEdit);
@@ -701,7 +989,10 @@
       landing !== onboardRes.body.currentStepId &&
       !Shell.isReviewStatus(state.onboardingStatus)
     ) {
-      await saveStep(landing, landing === 'bedrijf_bereik' ? { draft: collectP2Draft() } : {});
+      var landingDraft = null;
+      if (landing === 'bedrijf_bereik') landingDraft = collectP2Draft();
+      else if (landing === 'ambacht') landingDraft = collectP3Draft();
+      await saveStep(landing, landingDraft ? { draft: landingDraft } : {});
     }
   }).catch(function (err) {
     EP.showEl(shellEl, false);

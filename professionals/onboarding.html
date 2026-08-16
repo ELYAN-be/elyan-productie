@@ -215,7 +215,31 @@
 
     <section class="prof-step-panel" data-step="ambacht" hidden>
       <h2>Ambacht</h2>
-      <p class="lab-hint prof-placeholder">Formuliervelden volgen in een latere sprint. Placeholder — navigatie en opslaan werken al.</p>
+      <p class="lab-hint">Kies jullie hoofdcategorie en de werken die jullie effectief uitvoeren. Extra vragen verschijnen alleen waar relevant.</p>
+      <form id="p3Form" class="prof-form" novalidate>
+        <fieldset class="prof-fieldset">
+          <legend>Hoofdcategorie</legend>
+          <div class="lab-choice-grid is-3" id="categoryGrid" role="group" aria-label="Hoofdcategorie"></div>
+          <span class="prof-field-error" data-error-for="primary_category_id" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset" id="servicesFieldset" hidden>
+          <legend>Diensten</legend>
+          <p class="lab-hint" id="servicesLead">Selecteer wat jullie effectief doen.</p>
+          <div class="lab-choice-grid is-2" id="servicesGrid" role="group" aria-label="Diensten"></div>
+          <span class="prof-field-error" data-error-for="service_ids" hidden></span>
+        </fieldset>
+
+        <fieldset class="prof-fieldset" id="conditionalsFieldset" hidden>
+          <legend>Verfijning</legend>
+          <div id="conditionalsHost"></div>
+        </fieldset>
+
+        <fieldset class="prof-fieldset" id="extrasFieldset" hidden>
+          <legend>Projectvoorkeuren</legend>
+          <div id="extrasHost"></div>
+        </fieldset>
+      </form>
     </section>
 
     <section class="prof-step-panel" data-step="aanbod" hidden>
@@ -252,6 +276,7 @@
   </div>
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/shared/vakmannen/intelligence.js"></script>
 <script src="/js/professionals/core.js"></script>
 <script src="/js/professionals/onboarding-shell.js"></script>
 <script src="/js/professionals/onboarding-draft.js"></script>

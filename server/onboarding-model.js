@@ -65,6 +65,7 @@ function canReadRole(role) {
 
 /**
  * Deep-merge plain objects. Arrays replace (not concat). Non-objects overwrite.
+ * `craft` uses mergeCraft so conditionals/extras replace (category-reset safe).
  * Used for autosave partial draft patches.
  */
 function mergeDraft(base, patch) {
@@ -77,6 +78,10 @@ function mergeDraft(base, patch) {
   Object.keys(patch).forEach(function (k) {
     var pv = patch[k];
     var ov = out[k];
+    if (k === 'craft' && isPlainObject(pv)) {
+      out[k] = draftHelpers.mergeCraft(ov, pv);
+      return;
+    }
     if (
       pv &&
       typeof pv === 'object' &&
@@ -98,8 +103,8 @@ function isPlainObject(v) {
 }
 
 /**
- * Structural draft check + Sprint 3 P2 shape/Belgian format gates.
- * Autosave allows partial drafts; malformed formats / unknown P2 keys fail.
+ * Structural draft check + Sprint 3 P2 / Sprint 4 P3 CI gates.
+ * Autosave allows partial drafts; malformed formats / unknown keys fail.
  */
 function validateDraftStructure(draft) {
   if (draft == null) return { ok: true, draft: {} };
@@ -109,15 +114,15 @@ function validateDraftStructure(draft) {
   if (Object.prototype.hasOwnProperty.call(draft, 'google_intent')) {
     return { ok: false, code: 'invalid_draft', message: 'google_intent is not part of onboarding V2' };
   }
-  var p2 = draftHelpers.sanitizeP2Patch(draft);
-  if (!p2.ok) {
+  var sanitized = draftHelpers.sanitizeP2Patch(draft);
+  if (!sanitized.ok) {
     return {
       ok: false,
-      code: p2.code || 'invalid_draft',
-      message: p2.message || 'Invalid draft'
+      code: sanitized.code || 'invalid_draft',
+      message: sanitized.message || 'Invalid draft'
     };
   }
-  return { ok: true, draft: p2.draft || draft };
+  return { ok: true, draft: sanitized.draft || draft };
 }
 
 function canAutosave(status) {

@@ -293,6 +293,33 @@
   border-color:#8B3A2F;
 }
 
+.page-professionals .prof-q-block{ margin:0 0 14px; }
+.page-professionals .prof-q-label{
+  margin:0 0 8px;
+  font-size:.86rem;
+  font-weight:600;
+  color:var(--e-ink, #14150F);
+}
+.page-professionals .prof-info-note{
+  margin:0 0 12px;
+  padding:10px 12px;
+  border-radius:10px;
+  background:rgba(63,74,50,.06);
+  font-size:.86rem;
+  line-height:1.45;
+  color:var(--e-ink-soft, #5B5D4F);
+}
+.page-professionals #categoryGrid,
+.page-professionals #servicesGrid,
+.page-professionals #conditionalsHost .lab-choice-grid,
+.page-professionals #extrasHost .lab-choice-grid{
+  max-width:100%;
+}
+.page-professionals .lab-choice{
+  word-break:break-word;
+  text-align:left;
+}
+
 @media (max-width:640px){
   .page-professionals .prof-shell-wizard{
     padding:24px 16px 56px;
