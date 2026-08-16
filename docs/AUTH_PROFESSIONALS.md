@@ -31,6 +31,10 @@ Notes:
 
 ## DB grants (service_role)
 
-Apply `supabase/migrations/20260815_service_role_grants.sql` if membership claim
-still logs `permission denied for table partner_members` / `partner_invites`.
-The BFF also has Auth `app_metadata` fallback for claims.
+Phase A BFF (`createAdminClient`) needs table GRANTs on:
+`profiles`, `partners`, `partner_members`, `partner_invites` (SELECT/INSERT/UPDATE),
+`staff_users` (SELECT), `audit_logs` (INSERT). Captured in
+`20260814_phase_a_foundation.sql` and re-applied idempotently by
+`20260815_service_role_grants.sql` for DBs that missed them.
+Do not grant invite/membership writes to `anon` or `authenticated`.
+The BFF still has Auth `app_metadata` fallback if table GRANTs are incomplete.

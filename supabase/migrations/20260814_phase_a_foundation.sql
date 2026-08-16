@@ -173,7 +173,7 @@ CREATE POLICY staff_users_select_own ON public.staff_users
 -- audit_logs: no client access
 -- (intentionally no policies)
 
--- Explicit revoke defaults for anon
+-- Explicit revoke defaults for anon (no client table access)
 REVOKE ALL ON public.profiles FROM anon;
 REVOKE ALL ON public.partners FROM anon;
 REVOKE ALL ON public.partner_members FROM anon;
@@ -181,14 +181,20 @@ REVOKE ALL ON public.partner_invites FROM anon;
 REVOKE ALL ON public.staff_users FROM anon;
 REVOKE ALL ON public.audit_logs FROM anon;
 
+-- authenticated: RLS-scoped reads (+ own profile write). No partner_invites /
+-- audit_logs / staff writes — membership + invites are BFF/service_role only.
 GRANT SELECT, UPDATE, INSERT ON public.profiles TO authenticated;
 GRANT SELECT ON public.partners TO authenticated;
 GRANT SELECT ON public.partner_members TO authenticated;
 GRANT SELECT ON public.staff_users TO authenticated;
 
--- BFF (Vercel serverless) uses the Supabase service_role key. Without these
--- GRANTs, acceptInviteForUser fails with:
---   membership_create_failed permission denied for table partner_members
+-- service_role: BFF only (createAdminClient / SUPABASE_SERVICE_ROLE_KEY).
+-- PostgREST needs these GRANTs even though RLS is bypassed for service_role.
+-- Without them acceptInviteForUser fails with permission denied on
+-- partner_members (INSERT) and sometimes partner_invites (UPDATE).
+-- Same set is re-applied idempotently in 20260815_service_role_grants.sql.
+-- See that file for the BFF module → privilege map. No DELETE; no escalation
+-- of anon/authenticated beyond the grants above.
 GRANT USAGE ON SCHEMA public TO service_role;
 GRANT SELECT, INSERT, UPDATE ON TABLE public.profiles TO service_role;
 GRANT SELECT, INSERT, UPDATE ON TABLE public.partners TO service_role;

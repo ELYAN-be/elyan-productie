@@ -11,21 +11,50 @@ function test(name, fn) {
   console.log('OK ', name);
 }
 
-test('foundation migration grants service_role on partner_members', function () {
+test('foundation migration grants complete Phase A service_role set', function () {
   var sql = fs.readFileSync(
     path.join(__dirname, '..', 'supabase', 'migrations', '20260814_phase_a_foundation.sql'),
     'utf8'
   );
-  assert.ok(/GRANT SELECT, INSERT, UPDATE ON TABLE public\.partner_members TO service_role/.test(sql));
-  assert.ok(/GRANT SELECT, INSERT, UPDATE ON TABLE public\.partner_invites TO service_role/.test(sql));
+  [
+    'profiles',
+    'partners',
+    'partner_members',
+    'partner_invites'
+  ].forEach(function (table) {
+    assert.ok(
+      new RegExp(
+        'GRANT SELECT, INSERT, UPDATE ON TABLE public\\.' + table + ' TO service_role'
+      ).test(sql),
+      table
+    );
+  });
+  assert.ok(/GRANT SELECT ON TABLE public\.staff_users TO service_role/.test(sql));
+  assert.ok(/GRANT INSERT ON TABLE public\.audit_logs TO service_role/.test(sql));
+  // Client roles must not get invite/membership writes or audit access
+  assert.ok(!/GRANT .+ ON public\.partner_invites TO authenticated/.test(sql));
+  assert.ok(!/GRANT .+ ON public\.audit_logs TO (authenticated|anon)/.test(sql));
+  assert.ok(sql.indexOf('REVOKE ALL ON public.partner_invites FROM anon') >= 0);
 });
 
-test('service_role grants migration file exists', function () {
+test('service_role grants migration mirrors foundation (idempotent repair)', function () {
   var p = path.join(__dirname, '..', 'supabase', 'migrations', '20260815_service_role_grants.sql');
   assert.ok(fs.existsSync(p));
   var sql = fs.readFileSync(p, 'utf8');
-  assert.ok(sql.indexOf('partner_members') >= 0);
-  assert.ok(sql.indexOf('service_role') >= 0);
+  assert.ok(sql.indexOf('createAdminClient') >= 0 || sql.indexOf('BFF') >= 0);
+  [
+    'profiles',
+    'partners',
+    'partner_members',
+    'partner_invites',
+    'staff_users',
+    'audit_logs'
+  ].forEach(function (table) {
+    assert.ok(sql.indexOf('public.' + table) >= 0, table);
+  });
+  assert.ok(sql.indexOf('TO service_role') >= 0);
+  assert.ok(sql.indexOf('TO authenticated') < 0);
+  assert.ok(sql.indexOf('TO anon') < 0);
 });
 
 test('acceptInviteForUser falls back to Auth app_metadata when table GRANTs missing', function () {
