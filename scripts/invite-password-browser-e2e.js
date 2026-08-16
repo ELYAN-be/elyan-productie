@@ -78,7 +78,15 @@ function startServer() {
           return send(
             res,
             200,
-            JSON.stringify({ ok: true, email: 'e2e@example.com', inviteToken: ELYAN }),
+            JSON.stringify({
+              ok: true,
+              email: 'e2e@example.com',
+              inviteToken: ELYAN,
+              claimed: true,
+              membershipId: 'm1',
+              role: 'owner',
+              partner: { id: 'p1', displayName: 'E2E Partner', legalName: 'E2E BV' }
+            }),
             MIME['.json']
           );
         });
@@ -245,7 +253,19 @@ async function main() {
         body: JSON.stringify({
           ok: true,
           user: { id: 'e2e', email: 'e2e@example.com' },
-          memberships: [{ partnerId: 'p1', role: 'owner' }]
+          memberships: [
+            {
+              membershipId: 'm1',
+              partnerId: 'p1',
+              role: 'owner',
+              partner: {
+                id: 'p1',
+                displayName: 'E2E Partner',
+                legalName: 'E2E BV',
+                accountStatus: 'active'
+              }
+            }
+          ]
         })
       });
     });
@@ -253,7 +273,8 @@ async function main() {
     await page.fill('#password', 'TestPass123!');
     await page.fill('#password2', 'TestPass123!');
 
-    var activated = page.waitForURL(/\/professionals\/activate\?token=/, { timeout: 15000 });
+    // setup-password claims membership server-side → redirect straight to dashboard.
+    var dash = page.waitForURL(/\/professionals\/dashboard/, { timeout: 15000 });
     await page.click('button[type="submit"]');
     await page.waitForFunction(
       function () {
@@ -262,21 +283,20 @@ async function main() {
       { timeout: 10000 }
     );
     var auth = await page.evaluate(function () { return window.__e2eAuth; });
-    await activated;
+    await dash;
     if (started.getSetupPosts() < 1) throw new Error('FAIL: setup-password not called');
     if (!auth || auth.signInCalls < 1) throw new Error('FAIL: expected signInWithPassword after setup');
 
-    await page.waitForSelector('#claimBtn', { timeout: 10000 });
-    await Promise.all([
-      page.waitForURL(/\/professionals\/dashboard/, { timeout: 15000 }),
-      page.click('#claimBtn')
-    ]);
+    await page.waitForSelector('#dashShell', { timeout: 10000 });
+    var partner = await page.locator('#partnerLabel').textContent();
+    if (!partner || partner === '—') throw new Error('FAIL: dashboard missing partner label');
 
     console.log('E2E_PASS', JSON.stringify({
       firstCtaPath: afterClickPath,
       setupPosts: started.getSetupPosts(),
       signInCalls: auth.signInCalls,
-      claimPath: new URL(page.url()).pathname,
+      finalPath: new URL(page.url()).pathname,
+      partner: partner,
       trace: trace
     }));
   } catch (err) {

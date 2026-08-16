@@ -272,18 +272,32 @@ async function acceptInviteForUser(opts) {
   }
 
   // Auth metadata fallback when table writes are denied (current production grants gap).
-  if ((membersTableDenied || invitesTableDenied) && !membershipId) {
+  // Also dual-write metadata when invite was accepted but partner_members row is missing,
+  // so listActiveMemberships can still resolve the claim via app_metadata.
+  var needsMetadataClaim =
+    !membershipId || membersTableDenied || invitesTableDenied;
+  if (needsMetadataClaim) {
     var metaResult = await claimMembershipInAppMetadata(admin, user.id, {
       partnerId: invite.partner_id,
       role: invite.role,
       inviteId: invite.id
     });
-    if (!metaResult.ok) return { ok: false, code: 'server_error' };
-    membershipId = metaResult.membershipId;
+    if (!metaResult.ok) {
+      if (!membershipId) return { ok: false, code: 'server_error' };
+    } else if (!membershipId) {
+      membershipId = metaResult.membershipId;
+    }
   }
 
   if (!membershipId) {
-    membershipId = invite.id;
+    // Do not fake success — dashboard would show no membership.
+    console.error('invite_accept_no_membership_persisted', {
+      inviteId: invite.id,
+      userId: user.id,
+      membersTableDenied: membersTableDenied || false,
+      invitesTableDenied: invitesTableDenied || false
+    });
+    return { ok: false, code: 'server_error' };
   }
 
   await writeAudit({

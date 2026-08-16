@@ -42,6 +42,51 @@ test('listActiveMemberships falls back to app_metadata', function () {
   assert.ok(src.indexOf('listMembershipsFromAppMetadata') >= 0);
 });
 
+test('listActiveMemberships does not return empty partner_members without fallbacks', function () {
+  var src = fs.readFileSync(path.join(__dirname, '..', 'server', 'tenancy.js'), 'utf8');
+  var fnStart = src.indexOf('async function listActiveMemberships');
+  assert.ok(fnStart >= 0);
+  var fn = src.slice(fnStart, src.indexOf('async function requireActiveMembership'));
+  // Must gate partner_members short-circuit on non-empty memberships
+  assert.ok(fn.indexOf('if (memberships.length)') >= 0);
+  assert.ok(fn.indexOf("source: 'partner_members'") >= 0);
+  // Empty [] must still reach invite + metadata fallbacks
+  assert.ok(fn.indexOf("source: 'partner_invites'") >= 0);
+  assert.ok(fn.indexOf("source: 'app_metadata'") >= 0);
+});
+
+test('acceptInviteForUser does not fake membershipId without persistence', function () {
+  var src = fs.readFileSync(path.join(__dirname, '..', 'server', 'invites.js'), 'utf8');
+  assert.ok(src.indexOf('invite_accept_no_membership_persisted') >= 0);
+  assert.ok(src.indexOf('needsMetadataClaim') >= 0);
+});
+
+test('setup-password claims membership in the same BFF step', function () {
+  var src = fs.readFileSync(path.join(__dirname, '..', 'server', 'auth-password.js'), 'utf8');
+  assert.ok(src.indexOf('acceptInviteForUser') >= 0);
+  assert.ok(src.indexOf('claimed:') >= 0 || src.indexOf('claimed =') >= 0);
+  var api = fs.readFileSync(path.join(__dirname, '..', 'api', 'professionals.js'), 'utf8');
+  assert.ok(api.indexOf('claimed: !!result.claimed') >= 0);
+});
+
+test('reset-password redirects to dashboard when setup-password claimed', function () {
+  var src = fs.readFileSync(
+    path.join(__dirname, '..', 'js', 'professionals', 'reset-password.js'),
+    'utf8'
+  );
+  assert.ok(src.indexOf("location.replace('/professionals/dashboard')") >= 0);
+  assert.ok(src.indexOf('setupRes.body.claimed') >= 0 || src.indexOf('setupRes.body && setupRes.body.claimed') >= 0);
+});
+
+test('activate auto-claims when session is present', function () {
+  var src = fs.readFileSync(
+    path.join(__dirname, '..', 'js', 'professionals', 'activate.js'),
+    'utf8'
+  );
+  assert.ok(src.indexOf('claimMembership') >= 0);
+  assert.ok(src.indexOf('data.session') >= 0);
+});
+
 test('requireActiveMembership uses listActiveMemberships (invite-aware)', function () {
   var src = fs.readFileSync(path.join(__dirname, '..', 'server', 'tenancy.js'), 'utf8');
   var idx = src.indexOf('async function requireActiveMembership');

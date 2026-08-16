@@ -132,7 +132,11 @@ async function handleSetupPassword(req, res, body) {
   return json(res, 200, {
     ok: true,
     email: result.email,
-    inviteToken: result.inviteToken
+    inviteToken: result.inviteToken,
+    claimed: !!result.claimed,
+    membershipId: result.membershipId || null,
+    role: result.role || null,
+    partner: result.partner || null
   });
 }
 

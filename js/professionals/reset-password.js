@@ -64,7 +64,11 @@
     return { inviteToken: null, next: next };
   }
 
-  function redirectAfterPasswordUpdate(inviteToken, next) {
+  function redirectAfterPasswordUpdate(inviteToken, next, claimed) {
+    if (claimed) {
+      location.replace('/professionals/dashboard');
+      return;
+    }
     if (inviteToken) {
       location.replace('/professionals/activate?token=' + encodeURIComponent(inviteToken));
       return;
@@ -166,18 +170,21 @@
             'ok'
           );
           redirecting = true;
+          var claimedOnFail = !!(setupRes.body && setupRes.body.claimed);
+          var nextAfterLogin = claimedOnFail
+            ? '/professionals/dashboard'
+            : '/professionals/activate?token=' + inviteToken;
           setTimeout(function () {
-            location.replace('/professionals/login?next=' + encodeURIComponent(
-              '/professionals/activate?token=' + inviteToken
-            ));
+            location.replace('/professionals/login?next=' + encodeURIComponent(nextAfterLogin));
           }, 1500);
           return;
         }
 
         EP.setStatus(status, 'Wachtwoord ingesteld. Je wordt doorgestuurd…', 'ok');
         redirecting = true;
+        var claimed = !!(setupRes.body && setupRes.body.claimed);
         setTimeout(function () {
-          redirectAfterPasswordUpdate(inviteToken, next);
+          redirectAfterPasswordUpdate(inviteToken, next, claimed);
         }, 800);
         return;
       }
@@ -198,7 +205,7 @@
       EP.setStatus(status, 'Wachtwoord bijgewerkt. Je kunt nu inloggen.', 'ok');
       redirecting = true;
       setTimeout(function () {
-        redirectAfterPasswordUpdate(null, next);
+        redirectAfterPasswordUpdate(null, next, false);
       }, 1200);
     } catch (err) {
       console.error('reset_password_exception', err);

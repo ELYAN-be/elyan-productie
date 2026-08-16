@@ -6,7 +6,8 @@ var { createAdminClient } = require('./supabase');
 var {
   normalizeEmail,
   findInviteByRawToken,
-  inviteFailureCode
+  inviteFailureCode,
+  acceptInviteForUser
 } = require('./invites');
 var { writeAudit } = require('./audit');
 
@@ -118,12 +119,35 @@ async function setupPasswordForInvite(opts) {
     meta: { inviteId: invite.id, email: email }
   });
 
+  // Claim membership in the same BFF step so the happy path does not depend on
+  // a second browser click on /professionals/activate after password setup.
+  var claimed = false;
+  var claim = null;
+  var { data: userData, error: userErr } = await admin.auth.admin.getUserById(userId);
+  if (userErr || !userData || !userData.user) {
+    console.error('setup_password_claim_user_lookup_failed', userErr && userErr.message);
+  } else {
+    claim = await acceptInviteForUser({
+      rawToken: rawToken,
+      user: userData.user,
+      req: opts.req
+    });
+    claimed = !!(claim && claim.ok);
+    if (!claimed) {
+      console.error('setup_password_claim_failed', claim && claim.code);
+    }
+  }
+
   return {
     ok: true,
     email: email,
     userId: userId,
     inviteToken: rawToken,
-    partnerId: invite.partner_id
+    partnerId: invite.partner_id,
+    claimed: claimed,
+    membershipId: claim && claim.ok ? claim.membershipId : null,
+    role: claim && claim.ok ? claim.role : null,
+    partner: claim && claim.ok ? claim.partner : null
   };
 }
 

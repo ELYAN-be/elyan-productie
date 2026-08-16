@@ -184,13 +184,19 @@ async function runCase(mode, expectDashboard) {
     await page.goto(ORIGIN + '/professionals/activate?token=' + encodeURIComponent(TOKEN), {
       waitUntil: 'networkidle'
     });
-    await page.waitForSelector('#claimBtn', { timeout: 10000 });
-    await page.click('#claimBtn');
+    // Session is present in the mock → activate.js auto-claims without requiring a click.
     if (expectDashboard) {
       await page.waitForURL(/\/professionals\/dashboard/, { timeout: 15000 });
       console.log('CLAIM_E2E_PASS', mode, page.url());
     } else {
-      await page.waitForTimeout(1500);
+      await page.waitForSelector('#activateStatus', { timeout: 10000 });
+      await page.waitForFunction(
+        function () {
+          var el = document.querySelector('#activateStatus');
+          return el && String(el.textContent || '').indexOf('Er ging iets mis. Probeer het later opnieuw.') >= 0;
+        },
+        { timeout: 15000 }
+      );
       var msg = await page.locator('#activateStatus').textContent();
       if (String(msg).indexOf('Er ging iets mis. Probeer het later opnieuw.') < 0) {
         throw new Error('expected server_error message, got: ' + msg);

@@ -59,7 +59,12 @@ async function listActiveMemberships(userId) {
     .eq('user_id', userId)
     .eq('member_status', 'active');
 
-  if (!error && data) {
+  if (error) {
+    console.error('memberships_lookup_failed', error.message);
+  } else {
+    // Only short-circuit on a non-empty result. An empty [] must fall through to
+    // partner_invites / app_metadata — production may have SELECT but not INSERT
+    // on partner_members, so claims land in metadata while this query returns [].
     var memberships = (data || [])
       .filter(function (row) {
         return row.partners && row.partners.account_status === 'active';
@@ -77,11 +82,9 @@ async function listActiveMemberships(userId) {
           }
         };
       });
-    return { memberships: memberships, error: null, source: 'partner_members' };
-  }
-
-  if (error) {
-    console.error('memberships_lookup_failed', error.message);
+    if (memberships.length) {
+      return { memberships: memberships, error: null, source: 'partner_members' };
+    }
   }
 
   var { data: invites, error: iErr } = await admin
