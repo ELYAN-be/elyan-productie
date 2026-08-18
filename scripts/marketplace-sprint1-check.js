@@ -128,8 +128,15 @@ test('files exist for public API + snapshot modules', function () {
   assert.ok(fs.existsSync(path.join(root, 'server/public-snapshot.js')));
   assert.ok(fs.existsSync(path.join(root, 'server/marketplace-public.js')));
   assert.ok(fs.existsSync(path.join(root, 'server/marketplace-ranking.js')));
-  assert.ok(fs.existsSync(path.join(root, 'api/public/v1/[[...path]].js')));
+  assert.ok(fs.existsSync(path.join(root, 'api/public/v1.js')));
   assert.ok(fs.existsSync(path.join(root, 'supabase/migrations/20260818_marketplace_public_snapshot.sql')));
+  var vercel = JSON.parse(fs.readFileSync(path.join(root, 'vercel.json'), 'utf8'));
+  assert.ok(
+    (vercel.rewrites || []).some(function (r) {
+      return r.source === '/api/public/v1/:path*' && /path=:path\*/.test(r.destination || '');
+    }),
+    'vercel rewrite must forward nested /api/public/v1/* to handler'
+  );
 });
 
 test('PublicSnapshot allowlist omits private fields', function () {
@@ -328,7 +335,7 @@ test('control publish wires public snapshot rebuild export', function () {
 });
 
 test('no service_role in public API bundle', function () {
-  var src = fs.readFileSync(path.join(root, 'api/public/v1/[[...path]].js'), 'utf8');
+  var src = fs.readFileSync(path.join(root, 'api/public/v1.js'), 'utf8');
   assert.ok(!/SERVICE_ROLE|service_role_key/i.test(src));
 });
 

@@ -10,6 +10,10 @@
   ],
   "rewrites": [
     {
+      "source": "/api/public/v1/:path*",
+      "destination": "/api/public/v1?path=:path*"
+    },
+    {
       "source": "/professionals/set-password/:payload",
       "destination": "/professionals/reset-password"
     },

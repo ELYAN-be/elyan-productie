@@ -2,7 +2,8 @@
  * GET /api/public/v1/* — Marketplace public API (Design Freeze V3).
  * No auth. Fail closed. No private debug in production responses.
  *
- * Routes via ?path= or URL path after /api/public/v1/
+ * Non-Next Vercel does not support multi-segment catch-all filesystem routes.
+ * Nested paths are rewritten in vercel.json to this function with ?path=.
  */
 'use strict';
 
@@ -11,9 +12,9 @@ var {
   listProblems,
   getProfessionalBySlug,
   searchProfessionals
-} = require('../../../server/marketplace-public');
-var { methodNotAllowed } = require('../../../server/http');
-var { rateLimit, clientKey } = require('../../../server/rate-limit');
+} = require('../../server/marketplace-public');
+var { methodNotAllowed } = require('../../server/http');
+var { rateLimit, clientKey } = require('../../server/rate-limit');
 
 function statusForCode(code) {
   if (code === 'not_found') return 404;
@@ -40,8 +41,22 @@ function userMessage(code) {
   return map[code] || 'Verzoek mislukt.';
 }
 
+function normalizePathValue(raw) {
+  if (raw == null || raw === '') return '';
+  if (Array.isArray(raw)) {
+    return raw
+      .map(String)
+      .filter(Boolean)
+      .join('/')
+      .replace(/^\/+|\/+$/g, '');
+  }
+  return String(raw).replace(/^\/+|\/+$/g, '');
+}
+
 function parsePath(req) {
-  if (req.query && req.query.path) return String(req.query.path).replace(/^\/+|\/+$/g, '');
+  if (req.query && req.query.path != null && req.query.path !== '') {
+    return normalizePathValue(req.query.path);
+  }
   try {
     var u = new URL(req.url, 'http://localhost');
     var p = u.pathname || '';

@@ -40,6 +40,19 @@ var SORTS = ['relevance', 'distance', 'newest'];
 var DEFAULT_PAGE_SIZE = 12;
 var MAX_PAGE_SIZE = 24;
 
+/** Schema not ready (migration pending). Never expose DB details to clients. */
+function schemaFailureCode(error) {
+  var msg = error && error.message ? String(error.message) : '';
+  if (
+    /public_snapshot/i.test(msg) &&
+    /(does not exist|Could not find the|schema cache)/i.test(msg)
+  ) {
+    console.error('public_api_migration_needed', 'public_snapshot');
+    return 'missing_env';
+  }
+  return null;
+}
+
 function engine() {
   return CI.PartnerOnboardingEngine || CI;
 }
@@ -85,6 +98,8 @@ async function getProfessionalBySlug(slug) {
     .maybeSingle();
 
   if (error) {
+    var schemaCode = schemaFailureCode(error);
+    if (schemaCode) return { ok: false, code: schemaCode };
     console.error('public_profile_lookup_failed', error.message);
     return { ok: false, code: 'server_error' };
   }
@@ -169,6 +184,8 @@ async function searchProfessionals(query) {
     .eq('primary_category_id', category);
 
   if (error) {
+    var searchSchemaCode = schemaFailureCode(error);
+    if (searchSchemaCode) return { ok: false, code: searchSchemaCode };
     console.error('public_search_failed', error.message);
     return { ok: false, code: 'server_error' };
   }
