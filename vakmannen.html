@@ -3,33 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vakmannen | ELYAN</title>
-<meta name="description" content="Vind gecontroleerde renovatievakbedrijven via ELYAN. Vergelijk specialisatie, prijsindicatie en beschikbaarheid.">
-<link rel="canonical" href="https://elyan.vercel.app/vakmannen">
+<title>Vakmannen | Nagekeken vakbedrijven via ELYAN</title>
+<meta name="description" content="Vind een nagekeken vakbedrijf voor jouw renovatie in Vlaanderen en Brussel. Kies een categorie, bekijk wat mogelijk is en ga verder via ELYAN.">
+<link rel="canonical" href="https://www.elyan.be/vakmannen">
 <meta name="theme-color" content="#3F4A32">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ELYAN">
-<meta property="og:title" content="Vakmannen | ELYAN">
-<meta property="og:description" content="Vind gecontroleerde renovatievakbedrijven via ELYAN.">
-<meta property="og:url" content="https://elyan.vercel.app/vakmannen">
-<meta property="og:image" content="https://elyan.vercel.app/assets/og-image.png">
+<meta property="og:title" content="Vakmannen | Nagekeken vakbedrijven via ELYAN">
+<meta property="og:description" content="Vind een nagekeken vakbedrijf voor jouw renovatie in Vlaanderen en Brussel.">
+<meta property="og:url" content="https://www.elyan.be/vakmannen">
+<meta property="og:image" content="https://www.elyan.be/assets/og-image.png">
+<meta property="og:locale" content="nl_BE">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="alternate icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
-<link rel="stylesheet" href="/css/partner-lab.css">
-<link rel="stylesheet" href="/css/vakmannen.css">
+<link rel="stylesheet" href="/css/marketplace.css">
 </head>
-<body class="page-partner-lab page-vakmannen">
+<body class="page-mp">
 <a href="#main" class="skip-link">Ga naar inhoud</a>
 
 <svg style="display:none" aria-hidden="true"><defs>
 <symbol id="i-logo" viewBox="0 0 32 32"><rect x="4" y="14" width="6" height="14" rx="2" fill="currentColor"/><rect x="13" y="8" width="6" height="20" rx="2" fill="currentColor"/><rect x="22" y="2" width="6" height="26" rx="2" fill="currentColor"/></symbol>
 <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.6 7.2 18.1l.9-5.4L4.2 8.9l5.4-.8L12 3.2z" fill="currentColor"/></symbol>
-<symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
 </defs></svg>
 
 <header class="site-header" id="siteHeader">
@@ -45,31 +45,100 @@
   </div>
 </header>
 
-<main id="main" class="vk-site-main">
-  <div id="vk-app"></div>
-</main>
-
-<div class="lab-lightbox" id="labLightbox" hidden aria-hidden="true">
-  <div class="lab-lightbox-backdrop" data-close-lightbox></div>
-  <button type="button" class="lab-lightbox-close" data-close-lightbox aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
-  <button type="button" class="vk-lb-nav vk-lb-prev" id="vkLbPrev" aria-label="Vorige foto" hidden>‹</button>
-  <button type="button" class="vk-lb-nav vk-lb-next" id="vkLbNext" aria-label="Volgende foto" hidden>›</button>
-  <div class="vk-lb-stage" id="vkLbStage">
-    <img id="labLightboxImg" src="" alt="Projectfoto">
-  </div>
-  <div class="vk-lb-counter" id="vkLbCounter" hidden></div>
-</div>
-
-<div class="lab-drawer" id="filtersDrawer" hidden>
-  <div class="lab-drawer-backdrop" data-close-drawer></div>
-  <div class="lab-drawer-panel" role="dialog" aria-modal="true" aria-label="Filters">
-    <div class="lab-drawer-head">
-      <strong>Filters</strong>
-      <button type="button" class="lab-modal-close" data-close-drawer aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
+<main id="main" class="mp-main">
+  <!-- 1. Hero -->
+  <section class="mp-hero" aria-labelledby="mp-hero-title">
+    <div class="container">
+      <div class="mp-hero-inner">
+        <h1 id="mp-hero-title">Vind een nagekeken vakbedrijf voor jouw renovatie</h1>
+        <p class="lead">Voor woningeigenaars in Vlaanderen en Brussel. ELYAN bekijkt profielen vooraf; aanvragen lopen via het platform. Geen garantie op uitvoeringskwaliteit — wel een kalme, duidelijke start.</p>
+        <div class="mp-hero-ctas">
+          <a class="btn btn-primary" href="#categorieen">Bekijk categorieën <svg class="icon" aria-hidden="true"><use href="#i-arrow"></use></svg></a>
+          <a class="btn btn-ghost" href="#probleemgids">Naar probleemgids</a>
+        </div>
+      </div>
     </div>
-    <div id="filtersDrawerBody"></div>
-  </div>
-</div>
+  </section>
+
+  <!-- 2. Trust strip -->
+  <section class="mp-trust" aria-label="Waarom via ELYAN">
+    <div class="container">
+      <ul class="mp-trust-row">
+        <li class="mp-trust-item"><span class="mp-trust-mark" aria-hidden="true"></span>Profielen nagekeken door ELYAN</li>
+        <li class="mp-trust-item"><span class="mp-trust-mark" aria-hidden="true"></span>Aanvragen lopen via ELYAN</li>
+        <li class="mp-trust-item"><span class="mp-trust-mark" aria-hidden="true"></span>Richtprijzen waar beschikbaar</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. Categories -->
+  <section class="mp-section" id="categorieen" aria-labelledby="mp-cat-title">
+    <div class="container">
+      <div class="mp-section-head">
+        <h2 id="mp-cat-title">Kies een categorie</h2>
+        <p>Twaalf renovatievakgebieden. Kies wat past bij jouw project.</p>
+      </div>
+      <div id="mp-categories" aria-live="polite">
+        <div class="mp-cat-grid" aria-hidden="true">
+          <div class="mp-cat-skel"></div><div class="mp-cat-skel"></div>
+          <div class="mp-cat-skel"></div><div class="mp-cat-skel"></div>
+          <div class="mp-cat-skel"></div><div class="mp-cat-skel"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Probleemgids -->
+  <section class="mp-section mp-section--band" id="probleemgids" aria-labelledby="mp-problem-title">
+    <div class="container">
+      <div class="mp-section-head">
+        <h2 id="mp-problem-title">Probleemgids</h2>
+        <p>Weet je vooral wat er speelt, niet welke categorie? Start hier.</p>
+      </div>
+      <div id="mp-problems" aria-live="polite">
+        <p class="mp-loc-hint">Problemen laden…</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Hoe het werkt -->
+  <section class="mp-section" id="hoe-het-werkt" aria-labelledby="mp-how-title">
+    <div class="container">
+      <div class="mp-section-head">
+        <h2 id="mp-how-title">Hoe het werkt</h2>
+        <p>Drie stappen. Het bedrijf krijgt geen rechtstreeks contact of lead buiten ELYAN.</p>
+      </div>
+      <ol class="mp-steps">
+        <li class="mp-step">
+          <div class="mp-step-num">01</div>
+          <h3>Kies wat je wilt renoveren</h3>
+          <p>Selecteer een categorie of start vanuit de probleemgids.</p>
+        </li>
+        <li class="mp-step">
+          <div class="mp-step-num">02</div>
+          <h3>Bekijk geschikte vakbedrijven</h3>
+          <p>Bekijk nagekeken profielen die passen bij jouw categorie en locatie.</p>
+        </li>
+        <li class="mp-step">
+          <div class="mp-step-num">03</div>
+          <h3>Vraag een bedrijf aan via ELYAN</h3>
+          <p>Je aanvraag loopt via ELYAN. Partners ontvangen geen rechtstreeks telefoon- of mailcontact via deze flow.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 6. SEO -->
+  <section class="mp-section mp-section--band" aria-labelledby="mp-seo-title">
+    <div class="container">
+      <div class="mp-seo">
+        <h2 id="mp-seo-title">Vakbedrijven vinden via ELYAN</h2>
+        <p>ELYAN helpt woningeigenaars in Vlaanderen en Brussel om een nagekeken vakbedrijf te vinden voor renovatie. Je start met een categorie of een herkenbaar probleem, bekijkt wat bij die categorie hoort, en geeft daarna je locatie door.</p>
+        <p>Profielen worden vooraf nagekeken. Richtprijzen verschijnen waar beschikbaar. Aanvragen lopen via ELYAN — niet als openbare telefoon- of mail-CTA op deze pagina’s.</p>
+      </div>
+    </div>
+  </section>
+</main>
 
 <footer class="site-footer">
   <div class="container">
@@ -102,14 +171,9 @@
   </div>
 </footer>
 
-<script src="/shared/vakmannen/categories.js"></script>
-<script src="/shared/vakmannen/intelligence.js"></script>
-<script src="/shared/vakmannen/locations-be.js"></script>
-<script src="/shared/vakmannen/core.js"></script>
-<script src="/shared/vakmannen/partners-data.js"></script>
-<script src="/shared/vakmannen/qa-seeds.js"></script>
+<script src="/shared/vakmannen/marketplace-ui.js"></script>
 <script src="/js/site.js" defer></script>
-<script src="/js/vakmannen-public.js" defer></script>
+<script src="/js/marketplace-landing.js" defer></script>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
 </html>
