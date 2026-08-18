@@ -3,7 +3,8 @@
  * Reuses Phase A staff_users / requireStaff. No partner membership path.
  *
  * Actions:
- *   session | list | review | request-changes | approve | publish | pause | hide | restore
+ *   session | list | review | request-changes | approve | publish |
+ *   rebuild-public-snapshot | pause | hide | restore
  */
 var { requireStaff, isStaff, requireUser } = require('../server/tenancy');
 var {
@@ -12,6 +13,7 @@ var {
   requestChanges,
   approvePartner,
   publishPartner,
+  rebuildPublicSnapshot,
   pausePartner,
   hidePartner,
   restorePartner
@@ -171,6 +173,18 @@ module.exports = async function handler(req, res) {
           req: req
         });
         return respond(res, published);
+      }
+
+      if (action === 'rebuild-public-snapshot') {
+        if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+        var rlRb = rateLimit(clientKey(req, 'control_rebuild_public'), 30, 60 * 1000);
+        if (!rlRb.ok) return errorJson(res, 429, 'rate_limited');
+        var rebuilt = await rebuildPublicSnapshot({
+          partnerId: getPartnerId(req, body),
+          staffUserId: staff.user.id,
+          req: req
+        });
+        return respond(res, rebuilt);
       }
 
       if (action === 'pause') {

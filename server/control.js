@@ -23,6 +23,7 @@ var {
   buildMarketplacePreview,
   validateReviewItemInput
 } = require('./control-model');
+var { buildPublicSnapshotV1 } = require('./public-snapshot');
 
 async function loadPartnerBundle(admin, partnerId) {
   var { data: partner, error: pErr } = await admin
@@ -484,9 +485,19 @@ async function publishPartner(opts) {
   var bundle = await loadPartnerBundle(admin, partnerId);
   if (!bundle.ok) return bundle;
 
-  // Idempotent published
+  // Idempotent published — ensure PublicSnapshot exists (fail-closed for marketplace).
   if (bundle.profile.profile_status === 'published' && bundle.profile.slug) {
-    return buildReviewPayload(bundle);
+    var existingPublic = bundle.profile.public_snapshot;
+    if (
+      existingPublic &&
+      typeof existingPublic === 'object' &&
+      existingPublic.publicSnapshotVersion
+    ) {
+      return buildReviewPayload(bundle);
+    }
+    var repaired = await rebuildPublicSnapshot(opts);
+    if (!repaired.ok) return repaired;
+    return repaired;
   }
 
   if (!canProfileAction('publish', bundle.profile.profile_status)) {
@@ -522,6 +533,7 @@ async function publishPartner(opts) {
     slug = allocated.slug;
   }
 
+  // Internal snapshot (Control/ops) — may contain richer fields; never served publicly.
   var snapshot = buildPublishedSnapshot({
     partnerId: partnerId,
     draft: bundle.onboarding.draft,
@@ -535,6 +547,34 @@ async function publishPartner(opts) {
     publishedAt: now
   });
 
+  var nextPublicVersion = 1;
+  var publicBuilt = buildPublicSnapshotV1({
+    draft: bundle.onboarding.draft,
+    assets: bundle.assets,
+    coverAssetId: bundle.profile.cover_asset_id,
+    displayName: bundle.partner.display_name,
+    legalName: bundle.partner.legal_name,
+    specialtyLine: bundle.profile.specialty_line,
+    primaryCategoryId:
+      (bundle.onboarding.draft &&
+        bundle.onboarding.draft.craft &&
+        bundle.onboarding.draft.craft.primary_category_id) ||
+      bundle.profile.primary_category_id,
+    slug: slug,
+    publishedAt: now,
+    publicSnapshotVersion: nextPublicVersion
+  });
+  if (!publicBuilt.ok) {
+    return {
+      ok: false,
+      code: 'publication_gate_failed',
+      missing: [{ code: publicBuilt.code || 'public_snapshot_invalid', message: 'PublicSnapshot v1 kon niet worden gebouwd.' }]
+    };
+  }
+
+  var primaryCategoryId =
+    publicBuilt.snapshot.primaryCategoryId || bundle.profile.primary_category_id || null;
+
   var { data: updated, error: pErr } = await admin
     .from('partner_profiles')
     .update({
@@ -543,7 +583,10 @@ async function publishPartner(opts) {
       paused_at: null,
       hidden_at: null,
       slug: slug,
-      published_snapshot: snapshot
+      primary_category_id: primaryCategoryId,
+      published_snapshot: snapshot,
+      public_snapshot: publicBuilt.snapshot,
+      public_snapshot_version: nextPublicVersion
     })
     .eq('partner_id', partnerId)
     .eq('profile_status', 'ready')
@@ -633,6 +676,97 @@ async function transitionProfile(opts, action, auditAction, patchBuilder) {
   return buildReviewPayload(refreshed);
 }
 
+async function rebuildPublicSnapshot(opts) {
+  var partnerId = opts.partnerId ? String(opts.partnerId).trim() : '';
+  if (!partnerId) return { ok: false, code: 'missing_fields' };
+
+  var admin = createAdminClient();
+  var bundle = await loadPartnerBundle(admin, partnerId);
+  if (!bundle.ok) return bundle;
+
+  if (bundle.profile.profile_status !== 'published' || !bundle.profile.slug) {
+    return { ok: false, code: 'invalid_status_transition' };
+  }
+
+  var prevVersion = Number(bundle.profile.public_snapshot_version) || 0;
+  var nextVersion = prevVersion + 1;
+  var publishedAt = bundle.profile.published_at || new Date().toISOString();
+
+  // Keep previous public_snapshot intact until this update succeeds (atomic row update).
+  var publicBuilt = buildPublicSnapshotV1({
+    draft: bundle.onboarding.draft,
+    assets: bundle.assets,
+    coverAssetId: bundle.profile.cover_asset_id,
+    displayName: bundle.partner.display_name,
+    legalName: bundle.partner.legal_name,
+    specialtyLine: bundle.profile.specialty_line,
+    primaryCategoryId:
+      (bundle.onboarding.draft &&
+        bundle.onboarding.draft.craft &&
+        bundle.onboarding.draft.craft.primary_category_id) ||
+      bundle.profile.primary_category_id,
+    slug: bundle.profile.slug,
+    publishedAt: publishedAt,
+    publicSnapshotVersion: nextVersion
+  });
+  if (!publicBuilt.ok) {
+    return {
+      ok: false,
+      code: 'publication_gate_failed',
+      missing: [{ code: publicBuilt.code || 'public_snapshot_invalid', message: 'PublicSnapshot v1 rebuild mislukt.' }]
+    };
+  }
+
+  var internal = buildPublishedSnapshot({
+    partnerId: partnerId,
+    draft: bundle.onboarding.draft,
+    assets: bundle.assets,
+    coverAssetId: bundle.profile.cover_asset_id,
+    displayName: bundle.partner.display_name,
+    legalName: bundle.partner.legal_name,
+    specialtyLine: bundle.profile.specialty_line,
+    primaryCategoryId: publicBuilt.snapshot.primaryCategoryId,
+    slug: bundle.profile.slug,
+    publishedAt: publishedAt
+  });
+
+  var { data: updated, error } = await admin
+    .from('partner_profiles')
+    .update({
+      published_snapshot: internal,
+      public_snapshot: publicBuilt.snapshot,
+      public_snapshot_version: nextVersion,
+      primary_category_id: publicBuilt.snapshot.primaryCategoryId
+    })
+    .eq('partner_id', partnerId)
+    .eq('profile_status', 'published')
+    .select('*')
+    .maybeSingle();
+
+  if (error) {
+    console.error('control_rebuild_public_snapshot_failed', error.message);
+    return { ok: false, code: 'server_error' };
+  }
+  if (!updated) return { ok: false, code: 'invalid_status_transition' };
+
+  await writeAudit({
+    req: opts.req,
+    actorUserId: opts.staffUserId,
+    actorType: 'staff',
+    partnerId: partnerId,
+    action: 'control_rebuild_public_snapshot',
+    meta: {
+      fromVersion: prevVersion,
+      toVersion: nextVersion,
+      slug: bundle.profile.slug
+    }
+  });
+
+  var refreshed = await loadPartnerBundle(admin, partnerId);
+  if (!refreshed.ok) return refreshed;
+  return buildReviewPayload(refreshed);
+}
+
 async function pausePartner(opts) {
   return transitionProfile(opts, 'pause', 'control_pause', function (now) {
     return { paused_at: now };
@@ -657,6 +791,7 @@ module.exports = {
   requestChanges,
   approvePartner,
   publishPartner,
+  rebuildPublicSnapshot,
   pausePartner,
   hidePartner,
   restorePartner,
