@@ -34,6 +34,10 @@
       "destination": "/vakmannen"
     },
     {
+      "source": "/vakmannen/p/:slug/aanvraag",
+      "destination": "/vakmannen-aanvraag.html"
+    },
+    {
       "source": "/vakmannen/:slug",
       "destination": "/vakmannen-detail"
     }

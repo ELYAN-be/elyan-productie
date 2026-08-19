@@ -122,6 +122,7 @@ test('public JS wires modern API into lab shell', function () {
   assert.ok(js.indexOf('renderQuote') < 0, 'no full quote wizard');
   assert.ok(js.indexOf('vk-next-step') >= 0 || js.indexOf('aanvraag-note') >= 0);
   assert.ok(js.indexOf('Offerte aanvragen') >= 0);
+  assert.ok(js.indexOf('buildAanvraagPath') >= 0 || js.indexOf('/vakmannen/p/') >= 0);
 });
 
 test('category routes rewrite to SPA shell (one UI)', function () {

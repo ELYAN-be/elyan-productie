@@ -74,12 +74,13 @@ test('results UI uses lab-list / lab-row (baseline shell)', function () {
   assert.ok(publicJs.indexOf('mp-result-card') < 0);
 });
 
-test('profile chrome + public API, CTA stub without wizard', function () {
+test('profile chrome + public API, CTA to interest intake (no wizard)', function () {
   assert.ok(detailHtml.indexOf('vakmannen-public.js') >= 0);
   assert.ok(detailHtml.indexOf('partner-lab.css') >= 0);
   assert.ok(detailHtml.indexOf('id="vk-app"') >= 0);
   assert.ok(publicJs.indexOf('/api/public/v1/professionals/') >= 0);
   assert.ok(publicJs.indexOf('Offerte aanvragen') >= 0);
+  assert.ok(publicJs.indexOf('buildAanvraagPath') >= 0 || publicJs.indexOf('/vakmannen/p/') >= 0);
   assert.ok(publicJs.indexOf('vk-next-step') >= 0 || publicJs.indexOf('aanvraag-note') >= 0);
   assert.ok(publicJs.indexOf('renderDetailQuestions') < 0);
   assert.ok(publicJs.indexOf('renderQuote') < 0);

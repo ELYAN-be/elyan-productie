@@ -315,6 +315,25 @@
     return { ok: true, slug: slug };
   }
 
+  /** Interest intake route: /vakmannen/p/{slug}/aanvraag (prefix avoids category collision). */
+  function parseAanvraagRoute(pathname) {
+    var path = String(pathname || '').replace(/\/$/, '') || '';
+    var m = path.match(/^\/vakmannen\/p\/([^/]+)\/aanvraag$/);
+    if (!m) return { ok: false };
+    var slug = decodeURIComponent(m[1]).toLowerCase();
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return { ok: false };
+    if (isCategoryId(slug)) return { ok: false, isCategory: true, slug: slug };
+    return { ok: true, slug: slug };
+  }
+
+  function buildAanvraagPath(slug) {
+    slug = String(slug || '')
+      .trim()
+      .toLowerCase();
+    if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return '/vakmannen';
+    return '/vakmannen/p/' + encodeURIComponent(slug) + '/aanvraag';
+  }
+
   return {
     CATEGORY_IDS: CATEGORY_IDS,
     CATEGORY_LABELS: CATEGORY_LABELS,
@@ -333,6 +352,8 @@
     buildSearchPath: buildSearchPath,
     parseCategoryRoute: parseCategoryRoute,
     parseProfileSlug: parseProfileSlug,
+    parseAanvraagRoute: parseAanvraagRoute,
+    buildAanvraagPath: buildAanvraagPath,
     escapeHtml: escapeHtml,
     safeHttpsUrl: safeHttpsUrl,
     resultRowHtml: resultRowHtml,

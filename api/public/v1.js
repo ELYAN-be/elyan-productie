@@ -1,5 +1,5 @@
 /**
- * GET /api/public/v1/* — Marketplace public API (Design Freeze V3).
+ * GET|POST /api/public/v1/* — Marketplace public API (Design Freeze V3).
  * No auth. Fail closed. No private debug in production responses.
  *
  * Non-Next Vercel does not support multi-segment catch-all filesystem routes.
@@ -13,7 +13,8 @@ var {
   getProfessionalBySlug,
   searchProfessionals
 } = require('../../server/marketplace-public');
-var { methodNotAllowed } = require('../../server/http');
+var { submitInterest } = require('../../server/interest-intake');
+var { methodNotAllowed, readJson } = require('../../server/http');
 var { rateLimit, clientKey } = require('../../server/rate-limit');
 
 function statusForCode(code) {
@@ -24,6 +25,9 @@ function statusForCode(code) {
   if (code === 'category_required') return 400;
   if (code === 'location_invalid') return 400;
   if (code === 'validation_error') return 400;
+  if (code === 'missing_fields') return 400;
+  if (code === 'invalid_email') return 400;
+  if (code === 'consent_required') return 400;
   if (code === 'method_not_allowed') return 405;
   return 400;
 }
@@ -34,6 +38,9 @@ function userMessage(code) {
     category_required: 'Kies een categorie.',
     location_invalid: 'Ongeldige locatie.',
     validation_error: 'Ongeldige parameters.',
+    missing_fields: 'Vul alle verplichte velden in.',
+    invalid_email: 'Ongeldig e-mailadres.',
+    consent_required: 'Bevestig het privacy-akkoord om verder te gaan.',
     rate_limited: 'Te veel verzoeken. Probeer later opnieuw.',
     server_error: 'Er ging iets mis.',
     missing_env: 'Dienst tijdelijk niet beschikbaar.'
@@ -88,6 +95,14 @@ function queryObject(req) {
   return out;
 }
 
+function clientIp(req) {
+  var ip =
+    (req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) ||
+    '';
+  if (typeof ip === 'string' && ip.indexOf(',') >= 0) ip = ip.split(',')[0].trim();
+  return String(ip || '').trim();
+}
+
 function sendJson(res, status, body, cacheKind) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -108,13 +123,29 @@ function sendError(res, status, code) {
   return sendJson(res, status, { error: code, message: userMessage(code) }, null);
 }
 
-module.exports = async function handler(req, res) {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-
-  if (req.method !== 'GET' && req.method !== 'HEAD') {
-    return methodNotAllowed(res, 'GET, HEAD');
+async function handleInterestPost(req, res) {
+  var rl = rateLimit('public_interest:' + clientKey(req, 'interest'), 8, 10 * 60 * 1000);
+  if (!rl.ok) {
+    return sendError(res, 429, 'rate_limited');
   }
 
+  var body = await readJson(req);
+  var result = await submitInterest(body, {
+    ip: clientIp(req),
+    userAgent: req.headers && req.headers['user-agent']
+  });
+
+  if (!result.ok) {
+    return sendError(res, statusForCode(result.code), result.code);
+  }
+
+  // Never expose PII or internal ids in the public response.
+  var payload = { ok: true };
+  if (result.duplicate) payload.duplicate = true;
+  return sendJson(res, 200, payload, null);
+}
+
+async function handleGet(req, res) {
   var rl = rateLimit('public_v1:' + clientKey(req, 'public'), 120, 60 * 1000);
   if (!rl.ok) {
     return sendError(res, 429, 'rate_limited');
@@ -123,33 +154,57 @@ module.exports = async function handler(req, res) {
   var path = parsePath(req);
   var q = queryObject(req);
 
+  if (path === 'categories') {
+    return sendJson(res, 200, { ok: true, categories: listCategories() }, 'meta');
+  }
+
+  if (path === 'problems') {
+    return sendJson(res, 200, { ok: true, problems: listProblems() }, 'meta');
+  }
+
+  if (path === 'search') {
+    var result = await searchProfessionals(q);
+    if (!result.ok) {
+      return sendError(res, statusForCode(result.code), result.code);
+    }
+    return sendJson(res, 200, result, 'search');
+  }
+
+  var profMatch = path.match(/^professionals\/([a-z0-9]+(?:-[a-z0-9]+)*)$/);
+  if (profMatch) {
+    var got = await getProfessionalBySlug(profMatch[1]);
+    if (!got.ok) {
+      return sendError(res, statusForCode(got.code), got.code);
+    }
+    return sendJson(res, 200, { ok: true, professional: got.professional }, 'profile');
+  }
+
+  return sendError(res, 404, 'not_found');
+}
+
+module.exports = async function handler(req, res) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+
+  var path = parsePath(req);
+
+  if (req.method === 'POST') {
+    if (path === 'interest') {
+      try {
+        return await handleInterestPost(req, res);
+      } catch (e) {
+        console.error('public_v1_interest_failed', e && e.message ? e.message : e);
+        return sendError(res, 500, 'server_error');
+      }
+    }
+    return methodNotAllowed(res, 'GET, HEAD');
+  }
+
+  if (req.method !== 'GET' && req.method !== 'HEAD') {
+    return methodNotAllowed(res, 'GET, HEAD, POST');
+  }
+
   try {
-    if (path === 'categories') {
-      return sendJson(res, 200, { ok: true, categories: listCategories() }, 'meta');
-    }
-
-    if (path === 'problems') {
-      return sendJson(res, 200, { ok: true, problems: listProblems() }, 'meta');
-    }
-
-    if (path === 'search') {
-      var result = await searchProfessionals(q);
-      if (!result.ok) {
-        return sendError(res, statusForCode(result.code), result.code);
-      }
-      return sendJson(res, 200, result, 'search');
-    }
-
-    var profMatch = path.match(/^professionals\/([a-z0-9]+(?:-[a-z0-9]+)*)$/);
-    if (profMatch) {
-      var got = await getProfessionalBySlug(profMatch[1]);
-      if (!got.ok) {
-        return sendError(res, statusForCode(got.code), got.code);
-      }
-      return sendJson(res, 200, { ok: true, professional: got.professional }, 'profile');
-    }
-
-    return sendError(res, 404, 'not_found');
+    return await handleGet(req, res);
   } catch (e) {
     console.error('public_v1_handler_failed', e && e.message ? e.message : e);
     return sendError(res, 500, 'server_error');

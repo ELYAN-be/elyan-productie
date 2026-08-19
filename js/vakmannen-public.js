@@ -645,8 +645,7 @@
           '<h3>Volgende stap</h3>' +
           '<p>Vertel wat je wilt laten uitvoeren. ELYAN begeleidt je aanvraag — zonder rechtstreeks contact met het vakbedrijf.</p>' +
           '<button type="button" class="btn btn-primary btn-block" id="startQuoteSide">Offerte aanvragen</button>' +
-          '<p class="lab-hint" id="vk-aanvraag-note" ' + (state.aanvraagNote ? '' : 'hidden') +
-          '>Je aanvraag loopt via ELYAN. De volledige aanvraagflow volgt; er wordt geen telefoon of e-mail van het vakbedrijf gedeeld.</p>' +
+          '<p class="lab-hint" id="vk-aanvraag-note" hidden>Je aanvraag loopt via ELYAN. Er wordt geen telefoon of e-mail van het vakbedrijf gedeeld.</p>' +
         '</aside></div></div>'
     );
   }
@@ -813,19 +812,18 @@
       }, { passive: true });
     }
 
-    function showAanvraagStub() {
-      state.aanvraagNote = true;
-      var note = $('#vk-aanvraag-note');
-      var aside = $('#vk-next-step');
-      if (note) note.hidden = false;
-      if (aside && aside.scrollIntoView) {
-        aside.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
+    function goAanvraag() {
+      var slug = state.profile && state.profile.slug;
+      if (!slug) return;
+      var href = UI && UI.buildAanvraagPath
+        ? UI.buildAanvraagPath(slug)
+        : '/vakmannen/p/' + encodeURIComponent(slug) + '/aanvraag';
+      window.location.href = href;
     }
     var sq = $('#startQuote');
     var sqs = $('#startQuoteSide');
-    if (sq) sq.addEventListener('click', showAanvraagStub);
-    if (sqs) sqs.addEventListener('click', showAanvraagStub);
+    if (sq) sq.addEventListener('click', goAanvraag);
+    if (sqs) sqs.addEventListener('click', goAanvraag);
   }
 
   function apiSort() {
