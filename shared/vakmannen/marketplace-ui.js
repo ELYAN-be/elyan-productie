@@ -226,6 +226,95 @@
       .replace(/'/g, '&#39;');
   }
 
+  function safeHttpsUrl(raw) {
+    var value = String(raw || '').trim();
+    return /^https:\/\//i.test(value) ? value : '';
+  }
+
+  /**
+   * Compact result row (baseline lab-row density) from a public search card.
+   * No demo Google ratings — only real snapshot fields when present.
+   */
+  function resultRowHtml(card) {
+    card = card || {};
+    var slug = String(card.slug || '').trim();
+    if (!slug) return '';
+    var href = '/vakmannen/' + encodeURIComponent(slug);
+    var image = safeHttpsUrl(card.coverUrl);
+    var badge = 'Gecontroleerd door ELYAN';
+    var name = card.displayName || 'Vakbedrijf';
+    var tagline = card.specialtyLine || '';
+    var area = card.serviceAreaText || '';
+    var avail = card.availabilityLabel || '';
+    var metaBits = [];
+    if (area) metaBits.push('<strong>' + escapeHtml(area) + '</strong>');
+    if (avail) metaBits.push(escapeHtml(avail));
+    var price = card.priceLine || 'Prijs op aanvraag';
+    var media = image
+      ? '<img src="' + escapeHtml(image) + '" alt="" loading="lazy">'
+      : '<span class="mp-row-placeholder" aria-hidden="true">ELYAN</span>';
+    var google = '';
+    var g = card.google;
+    if (
+      g &&
+      g.show &&
+      g.status === 'live' &&
+      g.rating != null &&
+      g.count != null
+    ) {
+      google =
+        '<div class="mp-row-stars" data-review-state="live">' +
+        '<svg class="icon" aria-hidden="true"><use href="#i-star"></use></svg> ' +
+        escapeHtml(String(g.rating).replace('.', ',')) +
+        ' <span>· ' +
+        escapeHtml(String(g.count)) +
+        ' Google-beoordelingen</span></div>';
+    }
+    return (
+      '<a class="mp-row" href="' +
+      href +
+      '">' +
+      '<div class="mp-row-media">' +
+      media +
+      '</div>' +
+      '<div class="mp-row-main">' +
+      '<div class="mp-row-badges"><span class="mp-chip is-ok">' +
+      escapeHtml(badge) +
+      '</span></div>' +
+      '<h3>' +
+      escapeHtml(name) +
+      '</h3>' +
+      (tagline ? '<p class="mp-row-tagline">' + escapeHtml(tagline) + '</p>' : '') +
+      google +
+      '</div>' +
+      '<div class="mp-row-meta">' +
+      (metaBits.length
+        ? '<div>' + metaBits.join('<span class="mp-row-sep"> · </span>') + '</div>'
+        : '') +
+      '</div>' +
+      '<div class="mp-row-footer">' +
+      '<div class="mp-row-price">' +
+      '<div class="val">' +
+      escapeHtml(price) +
+      '</div>' +
+      '<div class="ctx">Prijsindicatie</div>' +
+      '</div>' +
+      '<span class="btn btn-primary btn-sm">Bekijk vakman</span>' +
+      '</div>' +
+      '</a>'
+    );
+  }
+
+  function parseProfileSlug(pathname) {
+    var path = String(pathname || '').replace(/\/$/, '') || '';
+    var m = path.match(/^\/vakmannen\/([^/]+)$/);
+    if (!m) return { ok: false };
+    var slug = decodeURIComponent(m[1]).toLowerCase();
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) return { ok: false };
+    if (isCategoryId(slug)) return { ok: false, isCategory: true, slug: slug };
+    return { ok: true, slug: slug };
+  }
+
   return {
     CATEGORY_IDS: CATEGORY_IDS,
     CATEGORY_LABELS: CATEGORY_LABELS,
@@ -243,7 +332,10 @@
     filterVlaanderenBrussel: filterVlaanderenBrussel,
     buildSearchPath: buildSearchPath,
     parseCategoryRoute: parseCategoryRoute,
+    parseProfileSlug: parseProfileSlug,
     escapeHtml: escapeHtml,
+    safeHttpsUrl: safeHttpsUrl,
+    resultRowHtml: resultRowHtml,
     SITE_ORIGIN: 'https://www.elyan.be'
   };
 });

@@ -27,11 +27,15 @@
     },
     {
       "source": "/vakmannen/:category(dakwerken|badkamer|keuken|ramen-deuren|isolatie|verwarming|elektriciteit|gevel|vloeren|schilderwerken|ventilatie|zonnepanelen)/:regio",
-      "destination": "/vakmannen-categorie"
+      "destination": "/vakmannen"
     },
     {
       "source": "/vakmannen/:category(dakwerken|badkamer|keuken|ramen-deuren|isolatie|verwarming|elektriciteit|gevel|vloeren|schilderwerken|ventilatie|zonnepanelen)",
-      "destination": "/vakmannen-categorie"
+      "destination": "/vakmannen"
+    },
+    {
+      "source": "/vakmannen/:slug",
+      "destination": "/vakmannen-detail"
     }
   ]
 }

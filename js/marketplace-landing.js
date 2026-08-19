@@ -1,5 +1,5 @@
 /**
- * Marketplace Phase 1 Sprint 2 — /vakmannen landing (V3 D1).
+ * Marketplace Phase 1 — /vakmannen landing (V3 D1 + featured restore).
  */
 (function () {
   'use strict';
@@ -10,6 +10,17 @@
   var esc = UI.escapeHtml;
   var catRoot = document.getElementById('mp-categories');
   var problemRoot = document.getElementById('mp-problems');
+  var featuredRoot = document.getElementById('mp-featured');
+
+  /** Limited multi-fetch across categories — reuses search API only. */
+  var FEATURED_CATEGORIES = [
+    'dakwerken',
+    'badkamer',
+    'keuken',
+    'ramen-deuren',
+    'isolatie',
+    'verwarming'
+  ];
 
   function fetchJson(url) {
     return fetch(url, { credentials: 'omit', headers: { Accept: 'application/json' } }).then(function (res) {
@@ -48,7 +59,9 @@
         '" role="listitem" href="/vakmannen/' +
         encodeURIComponent(c.id) +
         '">' +
-        '<span class="mp-cat-tile__visual" aria-hidden="true"></span>' +
+        '<span class="mp-cat-tile__visual" aria-hidden="true"><svg viewBox="0 0 48 48"><use href="#i-cat-' +
+        esc(c.id) +
+        '"></use></svg></span>' +
         '<h3>' +
         esc(c.label) +
         '</h3>' +
@@ -131,6 +144,74 @@
       });
   }
 
+  function diversifyFeatured(pool) {
+    var featured = [];
+    var seenCat = {};
+    var seenSlug = {};
+    (pool || []).forEach(function (card) {
+      if (!card || !card.slug || seenSlug[card.slug]) return;
+      if (featured.length >= 6) return;
+      var cat = card.primaryCategoryId || '';
+      if (cat && !seenCat[cat]) {
+        seenCat[cat] = true;
+        seenSlug[card.slug] = true;
+        featured.push(card);
+      }
+    });
+    (pool || []).forEach(function (card) {
+      if (!card || !card.slug || seenSlug[card.slug]) return;
+      if (featured.length >= 6) return;
+      seenSlug[card.slug] = true;
+      featured.push(card);
+    });
+    return featured.slice(0, 6);
+  }
+
+  function renderFeatured(cards) {
+    if (!featuredRoot) return;
+    if (!cards || !cards.length) {
+      featuredRoot.innerHTML =
+        '<div class="mp-featured-empty"><p>Nog geen gepubliceerde vakbedrijven om uit te lichten. Kies een categorie om te starten.</p></div>';
+      return;
+    }
+    var html = '<div class="mp-featured-rail">';
+    cards.forEach(function (card) {
+      html += UI.resultRowHtml(card);
+    });
+    html += '</div>';
+    featuredRoot.innerHTML = html;
+  }
+
+  function loadFeatured() {
+    if (!featuredRoot) return;
+    featuredRoot.innerHTML =
+      '<div class="mp-list" aria-hidden="true"><div class="mp-row-skel"></div><div class="mp-row-skel"></div></div>';
+
+    var requests = FEATURED_CATEGORIES.map(function (catId) {
+      var url =
+        '/api/public/v1/search?category=' +
+        encodeURIComponent(catId) +
+        '&page=1&pageSize=2&sort=relevance&includeUnpriced=true';
+      return fetchJson(url)
+        .then(function (data) {
+          if (!data || !data.ok || !Array.isArray(data.results)) return [];
+          return data.results;
+        })
+        .catch(function () {
+          return [];
+        });
+    });
+
+    Promise.all(requests).then(function (batches) {
+      var pool = [];
+      batches.forEach(function (batch) {
+        pool = pool.concat(batch || []);
+      });
+      renderFeatured(diversifyFeatured(pool));
+    });
+  }
+
+  loadFeatured();
   loadCategories();
   loadProblems();
 })();

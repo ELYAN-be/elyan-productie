@@ -24,7 +24,14 @@
     activeIndex: -1,
     listOpen: false,
     status: '',
-    statusKind: ''
+    statusKind: '',
+    resultStatus: 'loading',
+    resultMessage: '',
+    results: [],
+    total: 0,
+    page: 1,
+    pageSize: 12,
+    filters: { dienst: '', availability: '', sort: 'relevance', includeUnpriced: true }
   };
 
   function engine() {
@@ -131,6 +138,100 @@
     });
     html += '</div>';
     return html;
+  }
+
+  function categoryServices() {
+    var eng = engine();
+    var cat = eng && eng.getCategory ? eng.getCategory(state.categoryId) : null;
+    return (cat && cat.services) || [];
+  }
+
+  function readSearchFilters() {
+    var params = new URLSearchParams(window.location.search);
+    var dienst = (params.get('dienst') || '').trim();
+    var availability = (params.get('beschikbaarheid') || '').trim();
+    var sort = (params.get('sort') || 'relevance').trim();
+    var validServices = categoryServices().some(function (s) { return s.id === dienst; });
+    state.filters.dienst = validServices ? dienst : '';
+    state.filters.availability = ['available', 'limited', 'full'].indexOf(availability) >= 0 ? availability : '';
+    state.filters.sort = ['relevance', 'distance', 'newest'].indexOf(sort) >= 0 ? sort : 'relevance';
+    state.filters.includeUnpriced = params.get('met_prijs') !== 'true';
+  }
+
+  function syncSearchFiltersToUrl() {
+    var url = new URL(window.location.href);
+    ['dienst', 'beschikbaarheid', 'sort', 'met_prijs', 'page'].forEach(function (key) {
+      url.searchParams.delete(key);
+    });
+    if (state.filters.dienst) url.searchParams.set('dienst', state.filters.dienst);
+    if (state.filters.availability) url.searchParams.set('beschikbaarheid', state.filters.availability);
+    if (state.filters.sort !== 'relevance') url.searchParams.set('sort', state.filters.sort);
+    if (!state.filters.includeUnpriced) url.searchParams.set('met_prijs', 'true');
+    history.replaceState({ mpSearch: true }, '', url.pathname + (url.search ? url.search : ''));
+  }
+
+  function filterOptionsHtml() {
+    var serviceOptions = '<option value="">Alle diensten</option>';
+    categoryServices().forEach(function (service) {
+      serviceOptions += '<option value="' + esc(service.id) + '"' +
+        (state.filters.dienst === service.id ? ' selected' : '') + '>' + esc(service.label) + '</option>';
+    });
+    return '<div class="mp-filters" aria-label="Filter vakbedrijven">' +
+      '<label>Dienst<select id="mp-filter-service">' + serviceOptions + '</select></label>' +
+      '<label>Beschikbaarheid<select id="mp-filter-availability">' +
+      '<option value="">Alle</option><option value="available"' + (state.filters.availability === 'available' ? ' selected' : '') + '>Nieuwe projecten mogelijk</option>' +
+      '<option value="limited"' + (state.filters.availability === 'limited' ? ' selected' : '') + '>Beperkt beschikbaar</option>' +
+      '<option value="full"' + (state.filters.availability === 'full' ? ' selected' : '') + '>Momenteel volzet</option></select></label>' +
+      '<label>Sortering<select id="mp-filter-sort">' +
+      '<option value="relevance"' + (state.filters.sort === 'relevance' ? ' selected' : '') + '>Meest relevant</option>' +
+      '<option value="distance"' + (state.filters.sort === 'distance' ? ' selected' : '') + '>Beste locatiematch</option>' +
+      '<option value="newest"' + (state.filters.sort === 'newest' ? ' selected' : '') + '>Nieuwste profielen</option></select></label>' +
+      '<label class="mp-check"><input id="mp-filter-priced" type="checkbox"' + (!state.filters.includeUnpriced ? ' checked' : '') + '> Alleen met richtprijs</label>' +
+      '</div>';
+  }
+
+  function resultBodyHtml() {
+    if (state.resultStatus === 'loading') {
+      return (
+        '<div class="mp-list" aria-hidden="true">' +
+        '<div class="mp-row-skel"></div><div class="mp-row-skel"></div><div class="mp-row-skel"></div>' +
+        '</div><p class="sr-only" role="status">Vakbedrijven laden…</p>'
+      );
+    }
+    if (state.resultStatus === 'error') {
+      return (
+        '<div class="mp-state" role="alert"><p>' +
+        esc(state.resultMessage || 'Vakbedrijven konden niet geladen worden.') +
+        '</p><button class="btn btn-primary btn-sm" type="button" id="mp-results-retry">Opnieuw proberen</button></div>'
+      );
+    }
+    if (!state.results.length) {
+      return (
+        '<div class="mp-empty"><h3>Geen vakbedrijven gevonden</h3>' +
+        '<p>Wis een filter of probeer een andere locatie. We tonen nooit verzonnen profielen.</p>' +
+        '<button class="btn btn-ghost btn-sm" type="button" id="mp-filters-reset">Wis filters</button></div>'
+      );
+    }
+    var html =
+      '<p class="mp-result-count" role="status">' +
+      esc(state.total) +
+      (state.total === 1 ? ' vakbedrijf' : ' vakbedrijven') +
+      ' gevonden</p><div class="mp-list">';
+    state.results.forEach(function (card) {
+      html += UI.resultRowHtml(card);
+    });
+    html += '</div>';
+    if (state.results.length < state.total) {
+      html +=
+        '<div class="mp-more"><button class="btn btn-ghost" type="button" id="mp-results-more">Meer laden</button></div>';
+    }
+    return html;
+  }
+
+  function resultsSectionHtml() {
+    return '<section class="mp-section mp-results-section" aria-labelledby="mp-results-title"><div class="container">' +
+      '<div class="mp-section-head"><h2 id="mp-results-title">Beschikbare vakbedrijven</h2><p>Resultaten uit nagekeken, gepubliceerde profielen.</p></div>' +
+      filterOptionsHtml() + '<div id="mp-results" aria-live="polite">' + resultBodyHtml() + '</div></div></section>';
   }
 
   function provinceLinksHtml() {
@@ -245,6 +346,7 @@
           : '') +
       '</p>' +
       '</div></div></section>' +
+      resultsSectionHtml() +
       '<section class="mp-section" aria-labelledby="mp-prov-title">' +
       '<div class="container">' +
       '<div class="mp-section-head"><h2 id="mp-prov-title">Provincies</h2>' +
@@ -262,6 +364,7 @@
       '</div></div></section>';
 
     bindLocation();
+    bindResults();
   }
 
   function setStatus(msg, kind) {
@@ -288,6 +391,7 @@
     state.statusKind = 'ok';
     applyLocationToUrl(loc, true);
     render();
+    loadResults(true);
   }
 
   function confirmFromInput() {
@@ -415,6 +519,92 @@
     }
   }
 
+  function searchUrl() {
+    var params = new URLSearchParams();
+    params.set('category', state.categoryId);
+    params.set('page', String(state.page));
+    params.set('pageSize', String(state.pageSize));
+    params.set('sort', state.filters.sort);
+    params.set('includeUnpriced', String(state.filters.includeUnpriced));
+    if (state.location && state.location.postcode) params.set('postcode', state.location.postcode);
+    if (state.location && state.location.name) params.set('gemeente', state.location.name);
+    if (!state.location && state.regioSlug) params.set('provincie', state.regioSlug);
+    if (state.filters.dienst) params.set('dienst', state.filters.dienst);
+    if (state.filters.availability) params.set('availability', state.filters.availability);
+    return '/api/public/v1/search?' + params.toString();
+  }
+
+  function paintResults() {
+    var root = document.getElementById('mp-results');
+    if (!root) return;
+    root.innerHTML = resultBodyHtml();
+    bindResultActions();
+  }
+
+  function loadResults(reset) {
+    if (reset) {
+      state.page = 1;
+      state.results = [];
+    }
+    state.resultStatus = 'loading';
+    state.resultMessage = '';
+    paintResults();
+    fetch(searchUrl(), { credentials: 'omit', headers: { Accept: 'application/json' } })
+      .then(function (res) {
+        if (!res.ok) return res.json().catch(function () { return {}; }).then(function (body) {
+          var err = new Error(body.message || 'Vakbedrijven konden niet geladen worden.');
+          err.status = res.status;
+          throw err;
+        });
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data || !data.ok || !Array.isArray(data.results)) throw new Error('Ongeldig antwoord van de zoekdienst.');
+        state.results = reset ? data.results : state.results.concat(data.results);
+        state.total = Number(data.total) || 0;
+        state.resultStatus = 'ready';
+        paintResults();
+      })
+      .catch(function (err) {
+        state.resultStatus = 'error';
+        state.resultMessage = err && err.message ? err.message : 'Vakbedrijven konden niet geladen worden.';
+        paintResults();
+      });
+  }
+
+  function bindResultActions() {
+    var retry = document.getElementById('mp-results-retry');
+    if (retry) retry.addEventListener('click', function () { loadResults(true); });
+    var reset = document.getElementById('mp-filters-reset');
+    if (reset) reset.addEventListener('click', function () {
+      state.filters = { dienst: '', availability: '', sort: 'relevance', includeUnpriced: true };
+      syncSearchFiltersToUrl();
+      render();
+      loadResults(true);
+    });
+    var more = document.getElementById('mp-results-more');
+    if (more) more.addEventListener('click', function () { state.page += 1; loadResults(false); });
+  }
+
+  function bindResults() {
+    var service = document.getElementById('mp-filter-service');
+    var availability = document.getElementById('mp-filter-availability');
+    var sort = document.getElementById('mp-filter-sort');
+    var priced = document.getElementById('mp-filter-priced');
+    function changed() {
+      state.filters.dienst = service ? service.value : '';
+      state.filters.availability = availability ? availability.value : '';
+      state.filters.sort = sort ? sort.value : 'relevance';
+      state.filters.includeUnpriced = priced ? !priced.checked : true;
+      syncSearchFiltersToUrl();
+      loadResults(true);
+    }
+    [service, availability, sort, priced].forEach(function (control) {
+      if (control) control.addEventListener('change', changed);
+    });
+    bindResultActions();
+  }
+
   document.addEventListener('click', function (e) {
     if (!state.listOpen) return;
     var combo = e.target.closest && e.target.closest('.mp-loc-combo');
@@ -476,6 +666,8 @@
     state.regioSlug = route.regioSlug || null;
     state.label = label;
 
+    readSearchFilters();
+
     var fromQuery = readQueryLocation();
     if (fromQuery) {
       state.location = fromQuery;
@@ -487,6 +679,7 @@
     setMeta(state.categoryId, state.label);
     renderBreadcrumb();
     render();
+    loadResults(true);
 
     window.addEventListener('popstate', function () {
       var r = UI.parseCategoryRoute(window.location.pathname);
@@ -497,8 +690,10 @@
       state.locationQuery = loc ? loc.name + (loc.postcode ? ' (' + loc.postcode + ')' : '') : '';
       state.status = loc ? 'Locatie: ' + loc.name + (loc.postcode ? ' (' + loc.postcode + ')' : '') : '';
       state.statusKind = loc ? 'ok' : '';
+      readSearchFilters();
       renderBreadcrumb();
       render();
+      loadResults(true);
     });
   }
 

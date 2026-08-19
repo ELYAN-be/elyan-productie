@@ -166,7 +166,8 @@ async function searchProfessionals(query) {
 
   var locNorm = normalizeLocation({
     postcode: query.postcode,
-    gemeente: query.gemeente
+    gemeente: query.gemeente,
+    provincieId: query.provincie
   });
   if (!locNorm.ok) return locNorm;
   var searchLoc = locNorm.location;

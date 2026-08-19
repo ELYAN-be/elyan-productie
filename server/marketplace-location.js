@@ -32,6 +32,12 @@ function normalizeLocation(input) {
   input = input || {};
   var postcode = input.postcode ? String(input.postcode).replace(/\s+/g, '').trim() : '';
   var gemeente = input.gemeente ? String(input.gemeente).trim() : '';
+  var provincieId = input.provincieId ? String(input.provincieId).trim().replace(/-/g, '_') : '';
+  var publicProvinces = ['antwerpen', 'oost_vlaanderen', 'west_vlaanderen', 'vlaams_brabant', 'limburg', 'brussel'];
+
+  if (provincieId && publicProvinces.indexOf(provincieId) < 0) {
+    return { ok: false, code: 'location_invalid' };
+  }
 
   if (postcode) {
     if (!/^[1-9][0-9]{3}$/.test(postcode)) {
@@ -90,6 +96,18 @@ function normalizeLocation(input) {
         gemeente: gemeente,
         provincieId: null,
         gewestId: null
+      }
+    };
+  }
+
+  if (provincieId) {
+    return {
+      ok: true,
+      location: {
+        postcode: null,
+        gemeente: null,
+        provincieId: provincieId,
+        gewestId: provincieId === 'brussel' ? 'brussel' : 'vlaanderen'
       }
     };
   }

@@ -1,17 +1,22 @@
 /* ============================================================
-   ELYAN public Vakmannen surface (/vakmannen + /vakmannen/:slug)
-   Design baseline = Partner Lab visual language.
+   ELYAN public Vakmannen surface — Partner Lab shell (760d6fd)
+   Data: /api/public/v1/* (Sprint 1–3). Live API only; no seed data / no quote wizard.
    ============================================================ */
 (function () {
   'use strict';
 
   var EV = window.ElyanVakmannen;
+  var UI = window.ElyanMarketplaceUi;
   if (!EV) {
     console.error('[ELYAN] Shared vakmannen modules missing');
     return;
   }
 
   var esc = EV.escapeHtml;
+  var FEATURED_CATEGORIES = [
+    'dakwerken', 'badkamer', 'keuken', 'ramen-deuren', 'isolatie', 'verwarming'
+  ];
+
   var state = {
     mode: 'landing',
     category: 'dakwerken',
@@ -19,21 +24,93 @@
     location: { name: 'Antwerpen', postcode: '2000', province: 'Antwerpen' },
     locationQuery: 'Antwerpen',
     provinceBrowse: null,
+    regioSlug: null,
     customerTiming: 'alle',
-    projectContext: null,
     sort: 'aanbevolen',
-    quote: null,
+    featured: [],
+    results: [],
+    resultsTotal: 0,
+    resultsStatus: 'idle',
+    resultsMessage: '',
+    profile: null,
+    profileStatus: 'idle',
+    profileMessage: '',
     galleryImages: [],
-    galleryIndex: 0
+    galleryIndex: 0,
+    aanvraagNote: false
   };
 
   var lbScrollY = 0;
   var lbTouch = { active: false, x: 0, y: 0, moved: false };
   var lbBound = false;
   var lbIgnoreClose = false;
+  var bootDone = false;
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $all(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
+
+  function safeUrl(raw) {
+    if (UI && UI.safeHttpsUrl) return UI.safeHttpsUrl(raw);
+    var v = String(raw || '').trim();
+    return /^https:\/\//i.test(v) ? v : '';
+  }
+
+  function fetchJson(url) {
+    var ctrl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timer = null;
+    if (ctrl) {
+      timer = setTimeout(function () { try { ctrl.abort(); } catch (e) { /* ignore */ } }, 12000);
+    }
+    return fetch(url, {
+      credentials: 'omit',
+      headers: { Accept: 'application/json' },
+      signal: ctrl ? ctrl.signal : undefined
+    }).then(function (res) {
+      if (!res.ok) throw new Error('http_' + res.status);
+      return res.json();
+    }).finally(function () {
+      if (timer) clearTimeout(timer);
+    });
+  }
+
+  function cat(id) {
+    var c = EV.getCategory(id);
+    if (c) return c;
+    if (UI && UI.labelFor) {
+      return { id: id || '', label: UI.labelFor(id), plural: UI.labelFor(id), subtypes: [] };
+    }
+    return { id: id || '', label: 'Vakgebied', plural: 'Vakmannen', subtypes: [] };
+  }
+
+  function categoryList() {
+    return EV.CATEGORY_LIST || [];
+  }
+
+  function provinces() {
+    return EV.PROVINCES || [];
+  }
+
+  function provinceSlugFor(name) {
+    if (UI && UI.PROVINCE_TO_SLUG && UI.PROVINCE_TO_SLUG[name]) return UI.PROVINCE_TO_SLUG[name];
+    var map = {
+      Antwerpen: 'antwerpen',
+      'Oost-Vlaanderen': 'oost-vlaanderen',
+      'West-Vlaanderen': 'west-vlaanderen',
+      Limburg: 'limburg',
+      'Vlaams-Brabant': 'vlaams-brabant',
+      'Brussels Hoofdstedelijk Gewest': 'brussel',
+      Brussel: 'brussel'
+    };
+    return map[name] || null;
+  }
+
+  function provinceLabelFromSlug(slug) {
+    if (UI && UI.provinceBySlug) {
+      var p = UI.provinceBySlug(slug);
+      return p ? p.label : null;
+    }
+    return null;
+  }
 
   function lockLightboxScroll() {
     lbScrollY = window.scrollY || window.pageYOffset || 0;
@@ -44,11 +121,8 @@
     var y = lbScrollY || 0;
     document.body.classList.remove('lock-scroll', 'vk-lb-open');
     document.body.style.top = '';
-    /* Safari/iOS often resets scroll when leaving position:fixed — restore after layout */
     window.scrollTo(0, y);
-    requestAnimationFrame(function () {
-      window.scrollTo(0, y);
-    });
+    requestAnimationFrame(function () { window.scrollTo(0, y); });
   }
 
   function paintLightbox() {
@@ -102,24 +176,10 @@
     var box = $('#labLightbox');
     if (!box) return;
     var stage = $('#vkLbStage') || box;
-
     var prev = $('#vkLbPrev');
     var next = $('#vkLbNext');
-    if (prev) {
-      prev.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        stepLightbox(-1);
-      });
-    }
-    if (next) {
-      next.addEventListener('click', function (e) {
-        e.preventDefault();
-        e.stopPropagation();
-        stepLightbox(1);
-      });
-    }
-
+    if (prev) prev.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); stepLightbox(-1); });
+    if (next) next.addEventListener('click', function (e) { e.preventDefault(); e.stopPropagation(); stepLightbox(1); });
     $all('[data-close-lightbox]', box).forEach(function (el) {
       el.addEventListener('click', function (e) {
         e.preventDefault();
@@ -128,7 +188,6 @@
         closeLightbox();
       });
     });
-
     function onSwipeStart(e) {
       if (box.hidden || !e.touches || !e.touches.length) return;
       if (e.target.closest && (e.target.closest('.vk-lb-nav') || e.target.closest('[data-close-lightbox]'))) return;
@@ -158,11 +217,9 @@
       setTimeout(function () { lbIgnoreClose = false; }, 400);
       stepLightbox(dx < 0 ? 1 : -1);
     }
-
     stage.addEventListener('touchstart', onSwipeStart, { passive: true });
     stage.addEventListener('touchmove', onSwipeMove, { passive: false });
     stage.addEventListener('touchend', onSwipeEnd, { passive: true });
-
     document.addEventListener('keydown', function (e) {
       if (box.hidden) return;
       if (e.key === 'Escape') closeLightbox();
@@ -172,103 +229,133 @@
   }
 
   function parseRoute() {
-    var path = location.pathname.replace(/\/$/, '');
+    var path = location.pathname.replace(/\/$/, '') || '';
     var params = new URLSearchParams(location.search);
-    if (params.get('slug')) return { page: 'profile', slug: decodeURIComponent(params.get('slug')) };
-    var m = path.match(/\/vakmannen\/([^/]+)$/);
-    if (m && m[1] && m[1] !== 'vakmannen-detail') {
-      return { page: 'profile', slug: decodeURIComponent(m[1]) };
+    if (params.get('slug')) {
+      return { page: 'profile', slug: decodeURIComponent(params.get('slug')) };
     }
-    if (path === '/vakmannen' || path.indexOf('/vakmannen') === 0) return { page: 'list', slug: null };
+    if (UI && UI.parseCategoryRoute) {
+      var cr = UI.parseCategoryRoute(path);
+      if (cr.ok) {
+        return {
+          page: 'results',
+          categoryId: cr.categoryId,
+          regioSlug: cr.regioSlug || null,
+          regioInvalid: !!cr.regioInvalid
+        };
+      }
+    }
+    var catMatch = path.match(/^\/vakmannen\/([^/]+)(?:\/([^/]+))?$/);
+    if (catMatch) {
+      var id = decodeURIComponent(catMatch[1]);
+      var known = categoryList().some(function (c) { return c.id === id; });
+      if (known) {
+        return { page: 'results', categoryId: id, regioSlug: catMatch[2] ? decodeURIComponent(catMatch[2]) : null };
+      }
+      return { page: 'profile', slug: id };
+    }
+    if (path === '/vakmannen' || path === '/vakmannen.html') {
+      return { page: 'list', slug: null };
+    }
     return { page: 'list', slug: null };
   }
 
-  function cat(id) {
-    var c = EV.getCategory(id);
-    if (c) return c;
-    return { id: id || '', label: 'Vakgebied', plural: 'Vakmannen', subtypes: [] };
+  function syncUrl(replace) {
+    var route = parseRoute();
+    if (route.page === 'profile') return;
+    var path;
+    if (state.mode === 'results') {
+      path = UI && UI.buildSearchPath
+        ? UI.buildSearchPath(state.category, state.location, state.regioSlug || provinceSlugFor(state.provinceBrowse || (state.location && state.location.province)))
+        : '/vakmannen/' + encodeURIComponent(state.category);
+    } else {
+      path = '/vakmannen';
+    }
+    if (path === location.pathname + (location.search || '')) return;
+    if (replace) history.replaceState(null, '', path);
+    else history.pushState(null, '', path);
   }
-  function capacityLabel(p) {
-    return EV.capacityPublicLabel(p.capacity) || 'Beschikbaarheid op aanvraag';
+
+  function applySearchParamsFromUrl() {
+    var params = new URLSearchParams(location.search);
+    var postcode = (params.get('postcode') || '').trim();
+    var gemeente = (params.get('gemeente') || '').trim();
+    if (!postcode && !gemeente) return;
+    var items = EV.suggestLocations ? EV.suggestLocations(postcode || gemeente, 12) : [];
+    for (var i = 0; i < items.length; i++) {
+      var l = items[i];
+      if (postcode && String(l.postcode) === postcode) {
+        if (!gemeente || l.name.toLowerCase() === gemeente.toLowerCase()) {
+          state.location = l;
+          state.locationQuery = l.name;
+          return;
+        }
+      }
+    }
+    if (gemeente) {
+      state.locationQuery = gemeente;
+      state.location = {
+        name: gemeente,
+        postcode: postcode || '',
+        province: provinceLabelFromSlug(state.regioSlug) || state.location.province
+      };
+    }
   }
-  function visitLabel(p) {
-    return EV.visitPublicLabel(p.visitSpeed) || 'op afspraak';
-  }
-  function stars(g, opts) {
+
+  /* —— Google: live snapshot only (no demo) —— */
+  function starsLive(g, opts) {
     opts = opts || {};
-    var rating = null;
-    var count = null;
-    var state = 'pending';
-    if (g && g.show && g.status === 'live' && g.rating != null && g.count != null) {
-      rating = g.rating;
-      count = g.count;
-      state = 'live';
-    } else if (opts.partner && opts.partner.google && opts.partner.google.enabled && opts.partner.google.consent
-        && opts.partner.google.rating != null && opts.partner.google.count != null) {
-      /* Compact trust line may use demo numbers until live Google is connected */
-      rating = opts.partner.google.rating;
-      count = opts.partner.google.count;
-      state = 'demo';
-    } else if (g && g.show && g.status === 'demo' && g.rating != null && g.count != null) {
-      rating = g.rating;
-      count = g.count;
-      state = 'demo';
+    if (!(g && g.show && g.status === 'live' && g.rating != null && g.count != null)) {
+      return '';
     }
-    if (rating != null && count != null) {
-      return '<div class="lab-stars lab-stars-' + state + '" data-review-state="' + state + '">' +
-        '<svg class="icon" aria-hidden="true"><use href="#i-star"></use></svg> ' +
-        esc(String(rating).replace('.', ',')) +
-        ' <span>• ' + esc(String(count)) + ' Google-beoordelingen</span></div>';
-    }
-    if (!g || !g.show) return '';
-    var pendingLabel = opts.compact
-      ? 'Google-beoordelingen binnenkort'
-      : 'Google-beoordelingen binnenkort beschikbaar';
-    return '<div class="lab-stars lab-stars-pending" data-review-state="pending">' +
-      '<span>' + pendingLabel + '</span></div>';
+    return '<div class="lab-stars lab-stars-live" data-review-state="live">' +
+      '<svg class="icon" aria-hidden="true"><use href="#i-star"></use></svg> ' +
+      esc(String(g.rating).replace('.', ',')) +
+      ' <span>• ' + esc(String(g.count)) + ' Google-beoordelingen</span></div>';
   }
 
-  function filtered() {
-    return EV.publishedPartners().filter(function (p) {
-      if (p.category !== state.category) return false;
-      if (state.subtype !== 'alle' && p.subtypes.indexOf(state.subtype) < 0) return false;
-      if (!EV.matchesCustomerTiming(p.startMonth, state.customerTiming)) return false;
-      if (state.provinceBrowse && p.province !== state.provinceBrowse) return false;
-      return true;
-    }).sort(function (a, b) {
-      if (state.sort === 'beschikbaar') {
-        return (EV.MONTH_ORDER[a.startMonth] || 99) - (EV.MONTH_ORDER[b.startMonth] || 99);
-      }
-      if (state.sort === 'google') {
-        var ga = (a.google && a.google.live === true && a.google.rating) || 0;
-        var gb = (b.google && b.google.live === true && b.google.rating) || 0;
-        return gb - ga;
-      }
-      return 0;
-    });
+  function googleSection(g) {
+    if (!(g && g.show && g.status === 'live' && g.rating != null && g.count != null)) return '';
+    return (
+      '<section class="lab-section"><h2>Google-beoordelingen</h2><div class="lab-google">' +
+        '<div class="lab-google-head"><div><div class="lab-google-score">' + esc(String(g.rating).replace('.', ',')) + ' / 5</div>' +
+        '<div class="lab-hint">' + esc(String(g.count)) + ' beoordelingen</div></div>' +
+        (safeUrl(g.url) ? '<a class="btn btn-ghost btn-sm" href="' + esc(safeUrl(g.url)) + '" target="_blank" rel="noopener noreferrer">Bekijk op Google</a>' : '') +
+        '</div>' +
+        (g.reviews || []).map(function (r) {
+          return '<div class="lab-review"><strong>' + esc(r.author || '') + '</strong>' + esc(r.text || '') + '</div>';
+        }).join('') +
+        (g.attribution ? '<p class="lab-attr">' + esc(g.attribution) + '</p>' : '') +
+      '</div></section>'
+    );
   }
 
-  function rowHtml(p) {
-    var price = EV.formatPrice(EV.serviceForSubtype(p, state.subtype));
-    var g = EV.GoogleReviews.resolveForPartner(p);
-    var startShort = String(p.startMonth || '').replace(/^Vanaf\s+/i, '');
-    var href = '/vakmannen/' + encodeURIComponent(p.slug);
+  function rowHtml(card) {
+    if (!card || !card.slug) return '';
+    var href = '/vakmannen/' + encodeURIComponent(card.slug);
+    var img = safeUrl(card.coverUrl);
+    var media = img
+      ? '<img src="' + esc(img) + '" alt="" loading="lazy">'
+      : '<span class="lab-row-placeholder" aria-hidden="true">ELYAN</span>';
+    var meta = '';
+    if (card.serviceAreaText) meta += '<strong>' + esc(card.serviceAreaText) + '</strong>';
+    if (card.availabilityLabel) {
+      meta += (meta ? '<span class="lab-row-sep"> · </span>' : '') + esc(card.availabilityLabel);
+    }
     return (
       '<a class="lab-row" href="' + href + '">' +
-        '<div class="lab-row-media"><img src="' + p.image + '" alt="" style="object-position:' + (p.objectPos || '50% 50%') + '" loading="lazy"></div>' +
+        '<div class="lab-row-media">' + media + '</div>' +
         '<div class="lab-row-main">' +
           '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
-          '<h3>' + esc(p.name) + '</h3>' +
-          '<p class="tagline">' + esc(p.specialtyLine) + '</p>' +
-          stars(g, { compact: true, partner: p }) +
+          '<h3>' + esc(card.displayName || 'Vakbedrijf') + '</h3>' +
+          (card.specialtyLine ? '<p class="tagline">' + esc(card.specialtyLine) + '</p>' : '') +
+          starsLive(card.google, { compact: true }) +
         '</div>' +
-        '<div class="lab-row-meta">' +
-          '<div><strong>' + esc(p.radius) + '</strong><span class="lab-row-sep"> · </span>Start ' + esc(startShort) + '</div>' +
-        '</div>' +
+        '<div class="lab-row-meta"><div>' + meta + '</div></div>' +
         '<div class="lab-row-footer">' +
           '<div class="lab-row-price">' +
-            '<div class="val">' + esc(price.display) + '</div>' +
-            '<div class="ctx">' + esc(price.context || 'Prijsindicatie') + '</div>' +
+            '<div class="val">' + esc(card.priceLine || 'Prijs op aanvraag') + '</div>' +
+            '<div class="ctx">Prijsindicatie</div>' +
           '</div>' +
           '<span class="btn btn-primary btn-sm">Bekijk vakman</span>' +
         '</div>' +
@@ -276,47 +363,12 @@
     );
   }
 
-  function gallerySources(p) {
-    var base = [p.image, '/assets/photos/why.jpg', '/assets/photos/editorial.jpg', '/assets/photos/about.jpg', '/assets/photos/hero.jpg'];
-    var imgs = (p.gallery && p.gallery.length) ? p.gallery.slice() : base.slice();
-    /* Keep partner order, then fill up to 5 for swipe affordance */
-    var seen = {};
-    var out = [];
-    imgs.concat(base).forEach(function (src) {
-      if (!src || seen[src]) return;
-      seen[src] = true;
-      out.push(src);
-    });
-    return out.slice(0, 5);
-  }
-
-  function galleryHtml(p) {
-    var imgs = gallerySources(p);
-    if (!imgs.length) return '';
-    var desktop = '<div class="lab-gallery vk-gallery-desktop">' +
-      imgs.slice(0, 3).map(function (src, i) {
-        return '<button type="button" data-gallery-open="' + i + '"><img src="' + src + '" alt="Projectfoto ' + (i + 1) + '" loading="lazy" style="object-position:' + (p.objectPos || '50% 40%') + '"></button>';
-      }).join('') +
-      '</div>';
-    var mobile = '<div class="vk-gallery-mobile" data-gallery-root>' +
-      '<div class="vk-gallery-scroller" id="vkGalleryScroll">' +
-        imgs.map(function (src, i) {
-          return '<button type="button" data-gallery-open="' + i + '"><img src="' + src + '" alt="Projectfoto ' + (i + 1) + '" loading="lazy" style="object-position:' + (p.objectPos || '50% 40%') + '"></button>';
-        }).join('') +
-      '</div>' +
-      '<div class="vk-gallery-bar">' +
-        '<span class="vk-gallery-count" id="vkGalleryCount">1 / ' + imgs.length + '</span>' +
-        '<button type="button" class="lab-link" id="vkGalleryAll">Bekijk alle foto’s</button>' +
-      '</div></div>';
-    return desktop + mobile;
-  }
-
   function filtersHtml() {
-    var subtypes = cat(state.category).subtypes;
+    var subtypes = cat(state.category).subtypes || [];
     return (
       '<h2>Filters</h2>' +
       '<label>Vakgebied<select id="filterCategory">' +
-        EV.CATEGORY_LIST.map(function (c) {
+        categoryList().map(function (c) {
           return '<option value="' + c.id + '"' + (c.id === state.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
         }).join('') +
       '</select></label>' +
@@ -327,40 +379,47 @@
         }).join('') +
       '</select></label>' +
       '<label>Wanneer wil je starten?<select id="filterTiming">' +
-        EV.CUSTOMER_TIMING.map(function (t) {
-          return '<option value="' + t.id + '"' + (state.customerTiming === t.id ? ' selected' : '') + '>' + esc(t.label) + '</option>';
+        (EV.CUSTOMER_TIMING || []).map(function (t) {
+          return '<option value="' + t.id + '"' + (t.id === state.customerTiming ? ' selected' : '') + '>' + esc(t.label) + '</option>';
         }).join('') +
       '</select></label>'
     );
   }
 
-  function renderLanding() {
-    var all = EV.publishedPartners();
-    /* Diverse featured set: prefer one per category when available */
+  function diversifyFeatured(pool) {
     var featured = [];
     var seenCat = {};
-    all.forEach(function (p) {
-      if (featured.length >= 6) return;
-      if (!seenCat[p.category]) {
-        seenCat[p.category] = true;
-        featured.push(p);
+    var seenSlug = {};
+    (pool || []).forEach(function (card) {
+      if (!card || !card.slug || seenSlug[card.slug] || featured.length >= 6) return;
+      var c = card.primaryCategoryId || '';
+      if (c && !seenCat[c]) {
+        seenCat[c] = true;
+        seenSlug[card.slug] = true;
+        featured.push(card);
       }
     });
-    if (featured.length < 4) {
-      all.forEach(function (p) {
-        if (featured.length >= 4) return;
-        if (featured.indexOf(p) < 0) featured.push(p);
-      });
-    }
+    (pool || []).forEach(function (card) {
+      if (!card || !card.slug || seenSlug[card.slug] || featured.length >= 6) return;
+      seenSlug[card.slug] = true;
+      featured.push(card);
+    });
+    return featured.slice(0, 6);
+  }
+
+  function renderLanding() {
+    var featured = state.featured || [];
+    var featuredBlock = featured.length
+      ? '<div class="lab-feature-rail">' + featured.map(rowHtml).join('') + '</div>'
+      : '<p class="lab-hint">Nog geen gepubliceerde vakbedrijven om uit te lichten. Kies een categorie om te starten.</p>';
     return (
-      /* 1–2 Hero + gericht zoeken */
       '<section class="lab-disc-hero"><div class="lab-wrap">' +
         '<p class="lab-kicker">Vakmannen</p>' +
         '<h1>Vind de juiste vakman<br>voor je renovatie.</h1>' +
         '<p class="lead">Ontdek gecontroleerde vakbedrijven, begrijp prijs en timing, en vraag een offerte aan wanneer het past.</p>' +
         '<form class="lab-search" id="vkSearch" autocomplete="off">' +
           '<label>Wat wil je laten uitvoeren?<select name="category">' +
-            EV.CATEGORY_LIST.map(function (c) {
+            categoryList().map(function (c) {
               return '<option value="' + c.id + '"' + (c.id === state.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
             }).join('') +
           '</select></label>' +
@@ -371,34 +430,28 @@
           '<button type="submit" class="btn btn-primary">Vind vakmannen</button>' +
         '</form>' +
       '</div></section>' +
-
-      /* 3 Uitgelichte vakbedrijven — browse without searching */
       '<section class="lab-featured"><div class="lab-wrap">' +
         '<div class="lab-featured-head">' +
           '<div><h2>Uitgelichte vakbedrijven</h2><p class="lab-hint">Ontdek gecontroleerde vakbedrijven op ELYAN.</p></div>' +
           '<button type="button" class="lab-link" id="seeAll">Alle resultaten <svg class="icon"><use href="#i-arrow"></use></svg></button>' +
         '</div>' +
-        '<div class="lab-feature-rail">' + featured.map(rowHtml).join('') + '</div>' +
+        featuredBlock +
       '</div></section>' +
-
-      /* 4 Ontdek per vakgebied */
       '<section class="lab-disc-band vk-discover"><div class="lab-wrap">' +
         '<h2>Ontdek per vakgebied</h2>' +
         '<p class="lab-hint">Bekijk gecontroleerde vakbedrijven per specialisatie.</p>' +
         '<div class="lab-cat-mosaic">' +
-          EV.CATEGORY_LIST.map(function (c) {
+          categoryList().map(function (c) {
             return '<button type="button" class="lab-cat' + (state.category === c.id ? ' is-active' : '') + '" data-browse-cat="' + c.id + '">' +
               '<strong>' + esc(c.label) + '</strong></button>';
           }).join('') +
         '</div>' +
       '</div></section>' +
-
-      /* 5 Provincies — secondary discovery */
       '<section class="vk-regions"><div class="lab-wrap">' +
         '<h2>Bekijk per provincie</h2>' +
         '<p class="lab-hint">Browse vakmannen in jouw regio. Voor een gerichte zoekactie gebruik je gemeente of postcode hierboven.</p>' +
         '<div class="lab-prov">' +
-          EV.PROVINCES.map(function (p) {
+          provinces().map(function (p) {
             return '<button type="button" data-browse-prov="' + esc(p) + '">' + esc(p) + '</button>';
           }).join('') +
         '</div>' +
@@ -407,9 +460,17 @@
   }
 
   function renderResults() {
-    var list = filtered();
+    var list = state.results || [];
     var empty = '';
-    if (!list.length) {
+    var status = state.resultsStatus;
+    if (status === 'loading') {
+      empty = '<div class="vk-empty"><p class="lab-hint">Vakbedrijven laden…</p></div>';
+    } else if (status === 'error') {
+      empty = '<div class="vk-empty">' +
+        '<h2>Kon resultaten niet laden</h2>' +
+        '<p>' + esc(state.resultsMessage || 'Probeer het opnieuw.') + '</p>' +
+        '<button type="button" class="btn btn-primary" id="retryResults">Opnieuw proberen</button></div>';
+    } else if (!list.length) {
       empty = '<div class="vk-empty">' +
         '<p class="vk-pill-note">' + esc(cat(state.category).label) + '</p>' +
         '<h2>Nog geen vakbedrijven in deze selectie</h2>' +
@@ -418,257 +479,175 @@
         ' hebben we momenteel nog geen gepubliceerd profiel dat aan je filters voldoet.</p>' +
         '<button type="button" class="btn btn-ghost" id="backLanding">Andere categorie bekijken</button></div>';
     }
+    var locLabel = state.location && state.location.name ? state.location.name : 'jouw regio';
+    var locHint = '';
+    if (state.location && state.location.postcode) {
+      locHint = esc(state.location.postcode) + (state.location.province ? ' · ' + esc(state.location.province) : '');
+    } else if (state.provinceBrowse) {
+      locHint = esc(state.provinceBrowse);
+    }
     return (
       '<div class="lab-wrap lab-results">' +
         '<button type="button" class="lab-link" id="backLanding">← Terug naar ontdekken</button>' +
         '<div class="lab-results-head">' +
-          '<h1>' + esc(cat(state.category).plural) + ' rond ' + esc(state.location.name) + '</h1>' +
-          '<p class="lab-hint">' + esc(state.location.postcode) + ' · ' + esc(state.location.province) + '</p>' +
+          '<h1>' + esc(cat(state.category).plural || cat(state.category).label) + ' rond ' + esc(locLabel) + '</h1>' +
+          (locHint ? '<p class="lab-hint">' + locHint + '</p>' : '') +
         '</div>' +
         '<div class="lab-mobile-filters"><button type="button" class="btn btn-ghost btn-sm" id="toggleFilters">Filters</button></div>' +
         '<div class="lab-results-layout">' +
           '<aside class="lab-filters lab-filters-desktop">' + filtersHtml() + '</aside>' +
           '<div>' +
             '<div class="lab-toolbar">' +
-              '<p><strong>' + list.length + '</strong> passende vakmannen</p>' +
+              '<p><strong>' + (status === 'ready' ? list.length : '—') + '</strong> passende vakmannen</p>' +
               '<select id="filterSort">' +
-                '<option value="aanbevolen">Aanbevolen</option>' +
+                '<option value="aanbevolen"' + (state.sort === 'aanbevolen' ? ' selected' : '') + '>Aanbevolen</option>' +
                 '<option value="beschikbaar"' + (state.sort === 'beschikbaar' ? ' selected' : '') + '>Eerst beschikbaar</option>' +
                 '<option value="google"' + (state.sort === 'google' ? ' selected' : '') + '>Google-beoordeling</option>' +
               '</select>' +
             '</div>' +
             empty +
-            '<div class="lab-list">' + list.map(rowHtml).join('') + '</div>' +
+            (list.length ? '<div class="lab-list">' + list.map(rowHtml).join('') + '</div>' : '') +
           '</div>' +
         '</div>' +
       '</div>'
     );
   }
 
+  function gallerySources(p) {
+    var out = [];
+    var seen = {};
+    function push(url) {
+      var safe = safeUrl(url);
+      if (!safe || seen[safe]) return;
+      seen[safe] = true;
+      out.push(safe);
+    }
+    push(p.coverUrl);
+    (p.assets || []).forEach(function (a) { push(a && a.url); });
+    return out.slice(0, 5);
+  }
+
+  function galleryHtml(p) {
+    var imgs = gallerySources(p);
+    if (!imgs.length) return '';
+    var desktop = '<div class="lab-gallery vk-gallery-desktop">' +
+      imgs.slice(0, 3).map(function (src, i) {
+        return '<button type="button" data-gallery-open="' + i + '"><img src="' + esc(src) + '" alt="Projectfoto ' + (i + 1) + '" loading="lazy"></button>';
+      }).join('') +
+      '</div>';
+    var mobile = '<div class="vk-gallery-mobile" data-gallery-root>' +
+      '<div class="vk-gallery-scroller" id="vkGalleryScroll">' +
+        imgs.map(function (src, i) {
+          return '<button type="button" data-gallery-open="' + i + '"><img src="' + esc(src) + '" alt="Projectfoto ' + (i + 1) + '" loading="lazy"></button>';
+        }).join('') +
+      '</div>' +
+      '<div class="vk-gallery-bar">' +
+        '<span class="vk-gallery-count" id="vkGalleryCount">1 / ' + imgs.length + '</span>' +
+        '<button type="button" class="lab-link" id="vkGalleryAll">Bekijk alle foto’s</button>' +
+      '</div></div>';
+    return desktop + mobile;
+  }
+
+  function introText(p) {
+    var story = p.story || {};
+    if (story.whyChoose) return story.whyChoose;
+    if (story.care) return story.care;
+    if (p.specialtyLine) return (p.displayName || 'Dit vakbedrijf') + ' is gespecialiseerd in ' + p.specialtyLine + '.';
+    return (p.displayName || 'Dit vakbedrijf') + ' is een nagekeken vakbedrijf op ELYAN.';
+  }
+
+  function priceDisplay(p) {
+    if (p.pricing && p.pricing.length && p.pricing[0].displayString) return p.pricing[0].displayString;
+    return 'Prijs op aanvraag';
+  }
+
   function renderProfile(p) {
-    if (!p || p.status !== 'published') {
-      return '<div class="lab-wrap" style="padding:48px 20px;"><div class="vk-empty"><h2>Vakman niet gevonden</h2><p>Dit profiel bestaat niet of is nog niet gepubliceerd.</p><a class="btn btn-primary" href="/vakmannen">Naar vakmannen</a></div></div>';
+    if (state.profileStatus === 'loading') {
+      return '<div class="lab-wrap" style="padding:48px 20px;"><p class="lab-hint">Profiel laden…</p></div>';
     }
-    document.title = p.name + ' | ELYAN';
-    var price = EV.formatPrice(EV.serviceForSubtype(p, state.subtype));
-    var g = EV.GoogleReviews.resolveForPartner(p);
-    var match = EV.timingMatch(p.startMonth, state.projectContext ? state.projectContext.timing : null, state.projectContext && state.projectContext.month);
-    var intro = EV.generateIntro(p);
+    if (state.profileStatus === 'error' || !p) {
+      return '<div class="lab-wrap" style="padding:48px 20px;"><div class="vk-empty"><h2>Vakman niet gevonden</h2><p>' +
+        esc(state.profileMessage || 'Dit profiel bestaat niet of is nog niet gepubliceerd.') +
+        '</p><a class="btn btn-primary" href="/vakmannen">Naar vakmannen</a></div></div>';
+    }
 
+    document.title = (p.displayName || 'Vakman') + ' | ELYAN';
+    var cover = safeUrl(p.coverUrl);
+    var place = (p.location && (p.location.gemeente || p.location.provincieLabel)) || '';
+    var area = (p.serviceArea && p.serviceArea.publicText) || '—';
+    var start = (p.availability && p.availability.startMonthLabel) || 'Op aanvraag';
+    var visit = (p.availability && p.availability.visitLabel) || 'Op afspraak';
+    var capacity = (p.availability && p.availability.capacityLabel) || '';
+    var story = p.story || {};
+    var strengths = [story.strength, story.prefer].filter(Boolean);
+    var priceRows = (p.pricing || []).map(function (row) {
+      return '<div class="lab-price-row"><span>' + esc(row.serviceLabel || row.serviceId || 'Dienst') +
+        '</span><strong>' + esc(row.displayString || 'Op aanvraag') + '</strong></div>';
+    }).join('');
+    if (p.projectMinimum) {
+      priceRows += '<div class="lab-price-row"><span>Minimum project</span><strong>' + esc(p.projectMinimum) + '</strong></div>';
+    }
     var optionalFacts = '';
-    if (EV.publicVisibility(p, 'years') && p.years) {
-      optionalFacts += '<div class="lab-fact"><span>Jaren actief</span><strong>' + esc(String(p.years)) + ' jaar</strong></div>';
+    if (story.yearsActive) {
+      optionalFacts += '<div class="lab-fact"><span>Jaren actief</span><strong>' + esc(String(story.yearsActive)) + '</strong></div>';
     }
-    if (EV.publicVisibility(p, 'teamSize') && p.teamSize) {
-      optionalFacts += '<div class="lab-fact"><span>Team</span><strong>' + esc(p.teamSize) + ' personen</strong></div>';
+    if (story.teamSize) {
+      optionalFacts += '<div class="lab-fact"><span>Team</span><strong>' + esc(String(story.teamSize)) + '</strong></div>';
     }
-
-    var googleBlock = '';
-    if (g.show && g.status === 'live') {
-      googleBlock =
-        '<section class="lab-section"><h2>Google-beoordelingen</h2><div class="lab-google">' +
-          '<div class="lab-google-head"><div><div class="lab-google-score">' + esc(String(g.rating).replace('.', ',')) + ' / 5</div>' +
-          '<div class="lab-hint">' + esc(String(g.count)) + ' beoordelingen</div></div>' +
-          (g.url ? '<a class="btn btn-ghost btn-sm" href="' + esc(g.url) + '" target="_blank" rel="noopener noreferrer">Bekijk op Google</a>' : '') +
-          '</div>' +
-          (g.reviews || []).map(function (r) {
-            return '<div class="lab-review"><strong>' + esc(r.author) + '</strong>' + esc(r.text) + '</div>';
-          }).join('') +
-          '<p class="lab-attr">' + esc(g.attribution) + '</p>' +
-        '</div></section>';
-    } else if (g.show && g.status === 'pending') {
-      googleBlock =
-        '<section class="lab-section"><h2>Google-beoordelingen</h2><div class="lab-google">' +
-          '<p class="lab-hint" style="margin:0 0 8px;">' + esc(g.message || 'Google-beoordelingen worden getoond zodra de live Google-koppeling actief is.') + '</p>' +
-          '<p class="lab-attr">' + esc(g.attribution) + '</p>' +
-        '</div></section>';
-    }
-
-    var timingBlock = '';
-    if (match.mode === 'match') {
-      timingBlock =
-        '<section class="lab-section"><h2>Projecttiming</h2><div class="lab-timing-match">' +
-          '<div><span>Jouw gewenste start</span><strong>' + esc(match.wish) + '</strong></div>' +
-          '<div><span>Deze vakman</span><strong>Beschikbaar vanaf ' + esc(match.partner) + '</strong></div>' +
-          '<div><span class="lab-match-pill' + (match.ok ? '' : ' is-warn') + '">' + esc(match.label) + '</span></div>' +
-        '</div></section>';
-    }
+    var media = cover
+      ? '<img src="' + esc(cover) + '" alt="">'
+      : '<span class="lab-row-placeholder" aria-hidden="true">ELYAN</span>';
 
     return (
       '<div class="lab-wrap lab-profile">' +
         '<a class="lab-link vk-back" href="/vakmannen">← Terug naar vakmannen</a>' +
         '<header class="lab-identity">' +
-          '<div class="lab-identity-visual"><img src="' + p.image + '" alt="" style="object-position:' + (p.objectPos || '') + '"></div>' +
+          '<div class="lab-identity-visual">' + media + '</div>' +
           '<div class="lab-identity-copy">' +
             '<div class="lab-identity-trust">' +
               '<p class="lab-kicker">ELYAN vakman</p>' +
               '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
             '</div>' +
-            '<h1>' + esc(p.name) + '</h1>' +
-            (p.city ? '<p class="lab-identity-place">' + esc(p.city) + '</p>' : '') +
-            stars(g, { partner: p }) +
+            '<h1>' + esc(p.displayName || 'Vakbedrijf') + '</h1>' +
+            (place ? '<p class="lab-identity-place">' + esc(place) + '</p>' : '') +
+            starsLive(p.google) +
           '</div>' +
           '<div class="lab-identity-actions">' +
             '<button type="button" class="btn btn-primary" id="startQuote">Offerte aanvragen</button>' +
           '</div>' +
         '</header>' +
         '<div class="lab-glance">' +
-          '<div><span>Werkgebied</span><strong>' + esc(p.radius) + '</strong></div>' +
-          '<div><span>Eerste mogelijke start</span><strong>' + esc(p.startMonth) + '</strong></div>' +
-          '<div class="is-price"><span>Prijsindicatie</span><strong>' + esc(price.display) + '</strong></div>' +
-          '<div><span>Plaatsbezoek</span><strong>' + esc(visitLabel(p)) + '</strong></div>' +
+          '<div><span>Werkgebied</span><strong>' + esc(area) + '</strong></div>' +
+          '<div><span>Eerste mogelijke start</span><strong>' + esc(start) + '</strong></div>' +
+          '<div class="is-price"><span>Prijsindicatie</span><strong>' + esc(priceDisplay(p)) + '</strong></div>' +
+          '<div><span>Plaatsbezoek</span><strong>' + esc(visit) + '</strong></div>' +
         '</div>' +
         galleryHtml(p) +
         '<div class="lab-profile-grid"><div>' +
-          '<section class="lab-section"><h2>Over ' + esc(p.name) + '</h2><p>' + esc(intro) + '</p></section>' +
-          '<section class="lab-section"><h2>Waar ze sterk in zijn</h2><div class="lab-strengths">' +
-            [p.strength, p.prefer].filter(Boolean).map(function (s) {
-              return '<span class="lab-strength">' + esc(s) + '</span>';
-            }).join('') +
-          '</div></section>' +
-          timingBlock +
+          '<section class="lab-section"><h2>Over ' + esc(p.displayName || 'dit vakbedrijf') + '</h2><p>' + esc(introText(p)) + '</p></section>' +
+          (strengths.length
+            ? '<section class="lab-section"><h2>Waar ze sterk in zijn</h2><div class="lab-strengths">' +
+              strengths.map(function (s) { return '<span class="lab-strength">' + esc(s) + '</span>'; }).join('') +
+              '</div></section>'
+            : '') +
           '<section class="lab-section"><h2>Prijzen</h2><div class="lab-price-table">' +
-            (p.services || []).map(function (s) {
-              var fp = EV.formatPrice(s);
-              return '<div class="lab-price-row"><span>' + esc(s.label) + '</span><strong>' + esc(fp.display) + '</strong></div>';
-            }).join('') +
-            (p.minProject ? '<div class="lab-price-row"><span>Minimum project</span><strong>' + esc(p.minProject) + '</strong></div>' : '') +
+            (priceRows || '<div class="lab-price-row"><span>Richtprijs</span><strong>Prijs op aanvraag</strong></div>') +
           '</div><p class="lab-hint" style="margin-top:10px;">Prijzen zijn indicaties van het vakbedrijf. De uiteindelijke prijs hangt af van het concrete project en de offerte.</p></section>' +
-          '<section class="lab-section"><h2>Beschikbaarheid</h2>' +
-            '<div class="lab-facts">' +
-              '<div class="lab-fact"><span>Eerste mogelijkheid</span><strong>' + esc(p.startMonth) + '</strong></div>' +
-              (capacityLabel(p) ? '<div class="lab-fact"><span>Capaciteit</span><strong>' + esc(capacityLabel(p)) + '</strong></div>' : '') +
-              '<div class="lab-fact"><span>Plaatsbezoek</span><strong>' + esc(visitLabel(p)) + '</strong></div>' +
-            '</div></section>' +
-          googleBlock +
+          '<section class="lab-section"><h2>Beschikbaarheid</h2><div class="lab-facts">' +
+            '<div class="lab-fact"><span>Eerste mogelijkheid</span><strong>' + esc(start) + '</strong></div>' +
+            (capacity ? '<div class="lab-fact"><span>Capaciteit</span><strong>' + esc(capacity) + '</strong></div>' : '') +
+            '<div class="lab-fact"><span>Plaatsbezoek</span><strong>' + esc(visit) + '</strong></div>' +
+          '</div></section>' +
+          googleSection(p.google) +
           (optionalFacts ? '<section class="lab-section"><h2>Extra</h2><div class="lab-facts">' + optionalFacts + '</div></section>' : '') +
         '</div>' +
-        '<aside class="lab-side-sticky"><h3>Volgende stap</h3>' +
-          '<p>Vertel wat je wilt laten uitvoeren. ELYAN begeleidt je aanvraag stap voor stap.</p>' +
+        '<aside class="lab-side-sticky" id="vk-next-step">' +
+          '<h3>Volgende stap</h3>' +
+          '<p>Vertel wat je wilt laten uitvoeren. ELYAN begeleidt je aanvraag — zonder rechtstreeks contact met het vakbedrijf.</p>' +
           '<button type="button" class="btn btn-primary btn-block" id="startQuoteSide">Offerte aanvragen</button>' +
+          '<p class="lab-hint" id="vk-aanvraag-note" ' + (state.aanvraagNote ? '' : 'hidden') +
+          '>Je aanvraag loopt via ELYAN. De volledige aanvraagflow volgt; er wordt geen telefoon of e-mail van het vakbedrijf gedeeld.</p>' +
         '</aside></div></div>'
-    );
-  }
-
-  function renderDetailQuestions(questions, answers) {
-    answers = answers || {};
-    return (questions || []).map(function (qq) {
-      if (qq.type === 'info') {
-        return '<p class="lab-hint" style="margin:10px 0;">' + esc(qq.label) + '</p>';
-      }
-      if (qq.type === 'multi') {
-        var selected = answers[qq.key] || [];
-        if (!Array.isArray(selected)) selected = [];
-        return '<p class="lab-hint" style="margin:14px 0 8px;">' + esc(qq.label) + '</p><div class="lab-choice-grid is-2">' +
-          (qq.options || []).map(function (opt) {
-            var oid = typeof opt === 'string' ? opt : opt.id;
-            var olab = typeof opt === 'string' ? opt : opt.label;
-            return '<button type="button" class="lab-choice' + (selected.indexOf(oid) >= 0 ? ' is-selected' : '') + '" data-q-answer-multi="' + esc(qq.key) + '" data-val="' + esc(oid) + '">' + esc(olab) + '</button>';
-          }).join('') + '</div>';
-      }
-      if (qq.type === 'single' || qq.type === 'select') {
-        var cur = answers[qq.key] || '';
-        return '<p class="lab-hint" style="margin:14px 0 8px;">' + esc(qq.label) + '</p><div class="lab-choice-grid is-2">' +
-          (qq.options || []).map(function (opt) {
-            var oid = typeof opt === 'string' ? opt : opt.id;
-            var olab = typeof opt === 'string' ? opt : opt.label;
-            return '<button type="button" class="lab-choice' + (cur === oid ? ' is-selected' : '') + '" data-q-answer-single="' + esc(qq.key) + '" data-val="' + esc(oid) + '">' + esc(olab) + '</button>';
-          }).join('') + '</div>';
-      }
-      return '<label class="lab-field">' + esc(qq.label) +
-        '<input data-q-answer-field="' + esc(qq.key) + '" type="text" value="' + esc(answers[qq.key] == null ? '' : answers[qq.key]) + '"' +
-        (qq.placeholder ? ' placeholder="' + esc(qq.placeholder) + '"' : '') + '></label>' +
-        (qq.allowUnknown
-          ? '<button type="button" class="lab-choice' + (answers[qq.key + 'Unknown'] ? ' is-selected' : '') + '" data-q-answer-single="' + esc(qq.key + 'Unknown') + '" data-val="1">Ik weet het niet</button>'
-          : '');
-    }).join('');
-  }
-
-  function renderQuote(p) {
-    var q = state.quote;
-    if (!q || !p) return '';
-    var catMeta = cat(p.category);
-    var RE = EV.Intelligence && EV.Intelligence.CustomerRequestEngine;
-    var detailQs = RE ? RE.getDetailQuestions(p.category) : (catMeta.customerQuestions || []);
-    var stepDefs = RE ? RE.getSteps(p.category) : [
-      { id: 'service', label: 'Type werk' },
-      { id: 'details', label: 'Projectdetails' },
-      { id: 'timing', label: 'Timing' },
-      { id: 'contact', label: 'Contact' },
-      { id: 'review', label: 'Overzicht' }
-    ];
-    /* Public quote uses compact flow without separate photos/budget steps */
-    stepDefs = stepDefs.filter(function (s) {
-      return s.id === 'service' || s.id === 'details' || s.id === 'timing' || s.id === 'contact' || s.id === 'review';
-    });
-
-    if (q.sent) {
-      return '<div class="lab-quote"><div class="lab-quote-shell"><div class="lab-success">' +
-        '<div class="mark"><svg class="icon"><use href="#i-check"></use></svg></div>' +
-        '<p class="lab-kicker">Aanvraag verzonden</p>' +
-        '<h1>Je aanvraag is doorgestuurd.</h1>' +
-        '<p class="lab-hint">' + esc(p.name) + ' heeft je projectgegevens ontvangen. Je krijgt bericht zodra er een reactie is.</p>' +
-        '<p class="lab-hint" style="margin-top:8px;">Persoonsgegevens worden privacygericht gedeeld. Demo: geen echte verzending.</p>' +
-        '<div class="lab-quote-actions" style="justify-content:center;">' +
-          '<a class="btn btn-primary" href="/vakmannen/' + encodeURIComponent(p.slug) + '">Terug naar profiel</a>' +
-        '</div></div></div></div>';
-    }
-
-    var progress = stepDefs.map(function (_, i) {
-      return '<span class="' + (i < q.step ? 'is-done' : (i === q.step ? 'is-current' : '')) + '"></span>';
-    }).join('');
-    var stepId = (stepDefs[q.step] && stepDefs[q.step].id) || 'service';
-    var subtypes = catMeta.subtypes || [];
-    var body = '';
-
-    if (stepId === 'service') {
-      body = '<h1>Wat wil je laten uitvoeren?</h1><p class="step-lead">Kies wat het best past bij ' + esc(catMeta.label) + '.</p><div class="lab-choice-grid is-2">' +
-        subtypes.map(function (s) {
-          return '<button type="button" class="lab-choice' + (q.workType === s.id ? ' is-selected' : '') + '" data-q-set="workType" data-val="' + s.id + '">' + esc(s.label) + '</button>';
-        }).join('') + '</div>';
-    } else if (stepId === 'details') {
-      body = '<h1>Projectdetails</h1><p class="step-lead">Alleen relevante vragen voor ' + esc(catMeta.label.toLowerCase()) + '. Weet je iets niet? Kies “Ik weet het niet”.</p>' +
-        renderDetailQuestions(detailQs, q.answers || {});
-    } else if (stepId === 'timing') {
-      body = '<h1>Wanneer wil je starten?</h1><div class="lab-choice-grid is-2">' +
-        EV.CUSTOMER_TIMING.filter(function (t) { return t.id !== 'alle'; }).map(function (t) {
-          return '<button type="button" class="lab-choice' + (q.timing === t.id ? ' is-selected' : '') + '" data-q-set="timing" data-val="' + t.id + '">' + esc(t.label) + '</button>';
-        }).join('') + '</div>';
-    } else if (stepId === 'contact') {
-      body = '<h1>Jouw gegevens</h1><p class="step-lead">Voor opvolging. Contactgegevens worden gericht gedeeld.</p>' +
-        '<label class="lab-field">Naam<input data-q-field="name" value="' + esc(q.name || '') + '" required></label>' +
-        '<label class="lab-field">E-mail<input data-q-field="email" type="email" value="' + esc(q.email || '') + '" required></label>' +
-        '<label class="lab-field">Telefoon<input data-q-field="phone" value="' + esc(q.phone || '') + '"></label>' +
-        '<label class="lab-field">Projectlocatie<input data-q-field="address" value="' + esc(q.address || state.location.name) + '"></label>';
-    } else {
-      var subLabel = subtypes.filter(function (s) { return s.id === q.workType; })[0];
-      var answerRows = Object.keys(q.answers || {}).map(function (k) {
-        var v = q.answers[k];
-        if (Array.isArray(v)) v = v.join(', ');
-        if (v === true) v = 'Ik weet het niet';
-        return '<div class="lab-summary-row"><span>' + esc(k) + '</span><strong>' + esc(String(v || '—')) + '</strong></div>';
-      }).join('');
-      body = '<h1>Jouw aanvraag</h1><div class="lab-summary">' +
-        '<div class="lab-summary-row"><span>Categorie</span><strong>' + esc(catMeta.label) + '</strong></div>' +
-        '<div class="lab-summary-row"><span>Werk</span><strong>' + esc(subLabel ? subLabel.label : q.workType) + '</strong></div>' +
-        answerRows +
-        '<div class="lab-summary-row"><span>Locatie</span><strong>' + esc(q.address || '') + '</strong></div>' +
-        '<div class="lab-summary-row"><span>Timing</span><strong>' + esc(q.timing || '') + '</strong></div>' +
-        '<div class="lab-summary-row"><span>Naar</span><strong>' + esc(p.name) + '</strong></div>' +
-      '</div><p class="lab-hint">Je kunt later tot 3 zelfgekozen vakmannen kiezen. Nu: één partner.</p>';
-    }
-
-    state._quoteStepCount = stepDefs.length;
-    return (
-      '<div class="lab-quote"><div class="lab-quote-shell">' +
-        '<button type="button" class="lab-link" id="cancelQuote" style="margin-bottom:12px;">← Terug naar profiel</button>' +
-        '<div class="lab-quote-progress">' + progress + '</div>' +
-        '<p class="lab-kicker">Offerteaanvraag · ' + esc(p.name) + ' · ' + esc(catMeta.label) + '</p>' +
-        '<div class="lab-quote-card">' + body +
-          '<div class="lab-quote-actions">' +
-            (q.step > 0 ? '<button type="button" class="btn btn-ghost" id="quoteBack">Terug</button>' : '') +
-            '<button type="button" class="btn btn-primary" id="quoteNext">' + (q.step >= stepDefs.length - 1 ? 'Aanvraag versturen' : 'Verder') + '</button>' +
-          '</div></div></div></div>'
     );
   }
 
@@ -677,7 +656,8 @@
     var box = $('#locSuggest');
     if (!input || !box) return;
     function update() {
-      var items = EV.suggestLocations(input.value, 8);
+      var items = EV.suggestLocations ? EV.suggestLocations(input.value, 8) : [];
+      if (UI && UI.filterVlaanderenBrussel) items = UI.filterVlaanderenBrussel(items);
       if (!items.length || document.activeElement !== input) { box.hidden = true; return; }
       box.hidden = false;
       box.innerHTML = items.map(function (l, i) {
@@ -699,6 +679,27 @@
     input.addEventListener('blur', function () { setTimeout(function () { box.hidden = true; }, 150); });
   }
 
+  function goResults(opts) {
+    opts = opts || {};
+    state.mode = 'results';
+    if (opts.category) state.category = opts.category;
+    if (opts.provinceBrowse != null) state.provinceBrowse = opts.provinceBrowse;
+    if (opts.regioSlug != null) state.regioSlug = opts.regioSlug;
+    if (opts.pushUrl !== false) syncUrl(!!opts.replaceUrl);
+    render();
+    loadResults();
+  }
+
+  function goLanding(opts) {
+    opts = opts || {};
+    state.mode = 'landing';
+    state.provinceBrowse = null;
+    state.regioSlug = null;
+    if (opts.pushUrl !== false) syncUrl(!!opts.replaceUrl);
+    render();
+    loadFeatured();
+  }
+
   function bindCommon() {
     var search = $('#vkSearch');
     if (search) {
@@ -706,35 +707,37 @@
         e.preventDefault();
         state.category = search.category.value;
         state.subtype = 'alle';
-        var match = EV.suggestLocations(($('#locInput') || {}).value || '', 1)[0];
+        var match = EV.suggestLocations ? EV.suggestLocations(($('#locInput') || {}).value || '', 1)[0] : null;
         if (match) state.location = match;
         state.locationQuery = state.location.name;
         state.provinceBrowse = null;
-        state.mode = 'results';
-        render();
+        state.regioSlug = provinceSlugFor(state.location.province);
+        goResults({ replaceUrl: false });
       });
     }
     bindLoc();
     $all('[data-browse-cat]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        state.category = btn.getAttribute('data-browse-cat');
-        state.subtype = 'alle';
-        state.provinceBrowse = null;
-        state.mode = 'results';
-        render();
+        goResults({
+          category: btn.getAttribute('data-browse-cat'),
+          provinceBrowse: null,
+          regioSlug: null
+        });
       });
     });
     $all('[data-browse-prov]').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        state.provinceBrowse = btn.getAttribute('data-browse-prov');
-        state.mode = 'results';
-        render();
+        var prov = btn.getAttribute('data-browse-prov');
+        goResults({ provinceBrowse: prov, regioSlug: provinceSlugFor(prov) });
       });
     });
     var seeAll = $('#seeAll');
-    if (seeAll) seeAll.addEventListener('click', function () { state.mode = 'results'; render(); });
+    if (seeAll) seeAll.addEventListener('click', function () { goResults({}); });
     var back = $('#backLanding');
-    if (back) back.addEventListener('click', function () { state.mode = 'landing'; state.provinceBrowse = null; render(); });
+    if (back) back.addEventListener('click', function () { goLanding({}); });
+    var retry = $('#retryResults');
+    if (retry) retry.addEventListener('click', function () { loadResults(); });
+
     ['filterCategory', 'filterSubtype', 'filterTiming', 'filterSort'].forEach(function (id) {
       var el = $('#' + id);
       if (!el) return;
@@ -743,9 +746,11 @@
         if (id === 'filterSubtype') state.subtype = el.value;
         if (id === 'filterTiming') state.customerTiming = el.value;
         if (id === 'filterSort') state.sort = el.value;
-        render();
+        syncUrl(true);
+        loadResults();
       });
     });
+
     var toggle = $('#toggleFilters');
     if (toggle) {
       toggle.addEventListener('click', function () {
@@ -764,7 +769,8 @@
             if (id === 'filterTiming') state.customerTiming = el.value;
             d.hidden = true;
             document.body.classList.remove('lock-scroll');
-            render();
+            syncUrl(true);
+            loadResults();
           });
         });
       });
@@ -776,21 +782,13 @@
         document.body.classList.remove('lock-scroll');
       });
     });
-    $all('[data-lightbox]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        openLightbox([btn.getAttribute('data-lightbox')], 0);
-      });
-    });
 
-    /* Profile gallery → lightbox (controller is bound once; only open hooks here) */
     var routeNow = parseRoute();
     var profileGallery = [];
-    if (routeNow.page === 'profile') {
-      var partnerNow = EV.partnerBySlug(routeNow.slug);
-      if (partnerNow) profileGallery = gallerySources(partnerNow);
+    if (routeNow.page === 'profile' && state.profile) {
+      profileGallery = gallerySources(state.profile);
     }
     state.galleryImages = profileGallery.slice();
-
     $all('[data-gallery-open]').forEach(function (btn) {
       btn.addEventListener('click', function () {
         openLightbox(profileGallery, Number(btn.getAttribute('data-gallery-open')) || 0);
@@ -815,90 +813,93 @@
       }, { passive: true });
     }
 
-    function startQuote() {
-      var route = parseRoute();
-      var p = EV.partnerBySlug(route.slug);
-      if (!p) return;
-      state.quote = {
-        step: 0, sent: false, partnerId: p.id, category: p.category,
-        workType: (p.subtypes && p.subtypes[0]) || '',
-        answers: {},
-        notes: '', size: '', timing: '3m',
-        name: '', email: '', phone: '', address: state.location.name
-      };
-      render();
+    function showAanvraagStub() {
+      state.aanvraagNote = true;
+      var note = $('#vk-aanvraag-note');
+      var aside = $('#vk-next-step');
+      if (note) note.hidden = false;
+      if (aside && aside.scrollIntoView) {
+        aside.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
     }
     var sq = $('#startQuote');
     var sqs = $('#startQuoteSide');
-    if (sq) sq.addEventListener('click', startQuote);
-    if (sqs) sqs.addEventListener('click', startQuote);
+    if (sq) sq.addEventListener('click', showAanvraagStub);
+    if (sqs) sqs.addEventListener('click', showAanvraagStub);
+  }
 
-    var cancel = $('#cancelQuote');
-    if (cancel) cancel.addEventListener('click', function () { state.quote = null; render(); });
-    $all('[data-q-set]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        state.quote[btn.getAttribute('data-q-set')] = btn.getAttribute('data-val');
+  function apiSort() {
+    if (state.sort === 'beschikbaar') return 'availability';
+    if (state.sort === 'google') return 'relevance';
+    return 'relevance';
+  }
+
+  function loadFeatured() {
+    var requests = FEATURED_CATEGORIES.map(function (catId) {
+      var url = '/api/public/v1/search?category=' + encodeURIComponent(catId) +
+        '&page=1&pageSize=2&sort=relevance&includeUnpriced=true';
+      return fetchJson(url).then(function (data) {
+        if (!data || !data.ok || !Array.isArray(data.results)) return [];
+        return data.results;
+      }).catch(function () { return []; });
+    });
+    Promise.all(requests).then(function (batches) {
+      var pool = [];
+      batches.forEach(function (b) { pool = pool.concat(b || []); });
+      state.featured = diversifyFeatured(pool);
+      if (state.mode === 'landing' && parseRoute().page === 'list') render();
+    });
+  }
+
+  function loadResults() {
+    state.resultsStatus = 'loading';
+    state.resultsMessage = '';
+    render();
+    var params = new URLSearchParams();
+    params.set('category', state.category);
+    params.set('page', '1');
+    params.set('pageSize', '24');
+    params.set('sort', apiSort());
+    params.set('includeUnpriced', 'true');
+    if (state.subtype && state.subtype !== 'alle') params.set('dienst', state.subtype);
+    if (state.location && state.location.postcode) params.set('postcode', state.location.postcode);
+    if (state.location && state.location.name) params.set('gemeente', state.location.name);
+    var regio = state.regioSlug || provinceSlugFor(state.provinceBrowse);
+    if (regio) params.set('provincie', regio);
+    fetchJson('/api/public/v1/search?' + params.toString())
+      .then(function (data) {
+        if (!data || !data.ok || !Array.isArray(data.results)) throw new Error('bad_payload');
+        state.results = data.results;
+        state.resultsTotal = data.total != null ? data.total : data.results.length;
+        state.resultsStatus = 'ready';
+        render();
+      })
+      .catch(function () {
+        state.results = [];
+        state.resultsStatus = 'error';
+        state.resultsMessage = 'Resultaten konden niet geladen worden.';
         render();
       });
-    });
-    $all('[data-q-answer-single]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!state.quote.answers) state.quote.answers = {};
-        var key = btn.getAttribute('data-q-answer-single');
-        var val = btn.getAttribute('data-val');
-        state.quote.answers[key] = val === '1' ? true : val;
+  }
+
+  function loadProfile(slug) {
+    state.profileStatus = 'loading';
+    state.profile = null;
+    state.aanvraagNote = false;
+    render();
+    fetchJson('/api/public/v1/professionals/' + encodeURIComponent(slug))
+      .then(function (data) {
+        if (!data || !data.ok || !data.professional) throw new Error('not_found');
+        state.profile = data.professional;
+        state.profileStatus = 'ready';
+        render();
+      })
+      .catch(function () {
+        state.profile = null;
+        state.profileStatus = 'error';
+        state.profileMessage = 'Dit profiel bestaat niet of is nog niet gepubliceerd.';
         render();
       });
-    });
-    $all('[data-q-answer-multi]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!state.quote.answers) state.quote.answers = {};
-        var key = btn.getAttribute('data-q-answer-multi');
-        if (!Array.isArray(state.quote.answers[key])) state.quote.answers[key] = [];
-        var val = btn.getAttribute('data-val');
-        var ix = state.quote.answers[key].indexOf(val);
-        if (ix >= 0) state.quote.answers[key].splice(ix, 1);
-        else state.quote.answers[key].push(val);
-        render();
-      });
-    });
-    var qNext = $('#quoteNext');
-    if (qNext) qNext.addEventListener('click', function () {
-      $all('[data-q-field]').forEach(function (input) {
-        state.quote[input.getAttribute('data-q-field')] = input.value;
-      });
-      if (!state.quote.answers) state.quote.answers = {};
-      $all('[data-q-answer-field]').forEach(function (input) {
-        state.quote.answers[input.getAttribute('data-q-answer-field')] = input.value;
-      });
-      var last = (state._quoteStepCount || 5) - 1;
-      if (state.quote.step >= last) {
-        state.quote.sent = true;
-        state.projectContext = { timing: state.quote.timing, month: null };
-        try {
-          var store = JSON.parse(localStorage.getItem('elyan_requests') || '[]');
-          store.unshift({
-            id: 'req_' + Date.now(),
-            partnerId: state.quote.partnerId,
-            category: state.quote.category,
-            status: EV.REQUEST_STATUS.NEW,
-            createdAt: new Date().toISOString(),
-            workType: state.quote.workType,
-            answers: state.quote.answers,
-            timing: state.quote.timing,
-            contact: { name: state.quote.name, email: state.quote.email, phone: state.quote.phone, address: state.quote.address },
-            recipients: [state.quote.partnerId]
-          });
-          localStorage.setItem('elyan_requests', JSON.stringify(store.slice(0, 50)));
-        } catch (err) { /* ignore */ }
-      } else state.quote.step += 1;
-      render();
-    });
-    var qBack = $('#quoteBack');
-    if (qBack) qBack.addEventListener('click', function () {
-      state.quote.step = Math.max(0, state.quote.step - 1);
-      render();
-    });
   }
 
   function render() {
@@ -906,16 +907,46 @@
     if (!host) return;
     var route = parseRoute();
     if (route.page === 'profile') {
-      var p = EV.partnerBySlug(route.slug);
-      host.innerHTML = state.quote ? renderQuote(p) : renderProfile(p);
+      host.innerHTML = renderProfile(state.profile);
+    } else if (state.mode === 'results' || route.page === 'results') {
+      host.innerHTML = renderResults();
     } else {
-      host.innerHTML = state.mode === 'results' ? renderResults() : renderLanding();
+      host.innerHTML = renderLanding();
     }
     bindLightboxOnce();
     bindCommon();
-    window.scrollTo(0, 0);
   }
 
+  function bootFromRoute() {
+    var route = parseRoute();
+    applySearchParamsFromUrl();
+    if (route.page === 'profile') {
+      state.mode = 'landing';
+      loadProfile(route.slug);
+      return;
+    }
+    if (route.page === 'results') {
+      state.category = route.categoryId || state.category;
+      state.regioSlug = route.regioSlug || null;
+      if (route.regioSlug) {
+        var label = provinceLabelFromSlug(route.regioSlug);
+        if (label) state.provinceBrowse = label;
+      }
+      state.mode = 'results';
+      render();
+      loadResults();
+      return;
+    }
+    state.mode = 'landing';
+    render();
+    loadFeatured();
+  }
+
+  window.addEventListener('popstate', function () {
+    bootFromRoute();
+  });
+
   bindLightboxOnce();
-  render();
+  bootFromRoute();
+  bootDone = true;
 })();
