@@ -296,7 +296,7 @@ function buildRequestFromInterest(intakeRow) {
 
 /**
  * Create internal request after successful interest insert.
- * Idempotent on interest_intake_id (unique) — duplicate intake path never calls this.
+ * Idempotent on interest_intake_id (unique) — races resolve to the existing row.
  */
 async function createRequestFromInterest(intakeRow) {
   var payload = buildRequestFromInterest(intakeRow);
@@ -340,6 +340,227 @@ async function createRequestFromInterest(intakeRow) {
   });
 
   return { ok: true, request: mapRequestRow(data), duplicate: false };
+}
+
+var INTAKE_ENSURE_FIELDS =
+  'id, partner_id, partner_slug, category_id, name, email, phone, location_text, description, consent_at, created_at, status';
+
+/**
+ * Ensure exactly one customer_request exists for an accepted interest_intake.
+ * Safe for retries, duplicate-intake ensure, and staff orphan recovery.
+ */
+async function ensureRequestForIntakeId(intakeId) {
+  intakeId = intakeId ? String(intakeId).trim() : '';
+  if (!intakeId) return { ok: false, code: 'missing_fields' };
+
+  var admin = createAdminClient();
+  var existing = await admin
+    .from('customer_requests')
+    .select('*')
+    .eq('interest_intake_id', intakeId)
+    .maybeSingle();
+
+  if (existing.error) {
+    var sc = schemaFailureCode(existing.error);
+    if (sc) return { ok: false, code: sc };
+    console.error('customer_request_ensure_lookup_failed', existing.error.message);
+    return { ok: false, code: 'server_error' };
+  }
+  if (existing.data) {
+    return {
+      ok: true,
+      request: mapRequestRow(existing.data),
+      duplicate: true,
+      ensured: false
+    };
+  }
+
+  var { data: intake, error } = await admin
+    .from('interest_intakes')
+    .select(INTAKE_ENSURE_FIELDS)
+    .eq('id', intakeId)
+    .maybeSingle();
+
+  if (error) {
+    var msg = error.message || '';
+    if (
+      /interest_intakes/i.test(msg) &&
+      /(does not exist|Could not find the|schema cache)/i.test(msg)
+    ) {
+      console.error('customer_requests_migration_needed');
+      return { ok: false, code: 'missing_env' };
+    }
+    var sc2 = schemaFailureCode(error);
+    if (sc2) return { ok: false, code: sc2 };
+    console.error('customer_request_ensure_intake_failed', msg);
+    return { ok: false, code: 'server_error' };
+  }
+  if (!intake) return { ok: false, code: 'not_found' };
+
+  var created = await createRequestFromInterest(intake);
+  if (!created.ok) return created;
+  return {
+    ok: true,
+    request: created.request,
+    duplicate: !!created.duplicate,
+    ensured: !created.duplicate
+  };
+}
+
+/**
+ * Detect accepted interest_intakes with no customer_request.
+ * Privacy-safe: returns ids/timestamps/partner refs only — never customer PII.
+ */
+async function listOrphanIntakes(opts) {
+  opts = opts || {};
+  var scanLimit = Math.min(Math.max(Number(opts.scanLimit) || 500, 1), 2000);
+  var limit = Math.min(Math.max(Number(opts.limit) || 100, 1), 200);
+
+  var admin = createAdminClient();
+  var { data: intakes, error } = await admin
+    .from('interest_intakes')
+    .select('id, created_at, partner_id, partner_slug, status')
+    .order('created_at', { ascending: false })
+    .limit(scanLimit);
+
+  if (error) {
+    var msg = error.message || '';
+    if (
+      /interest_intakes/i.test(msg) &&
+      /(does not exist|Could not find the|schema cache)/i.test(msg)
+    ) {
+      return { ok: false, code: 'missing_env' };
+    }
+    var sc = schemaFailureCode(error);
+    if (sc) return { ok: false, code: sc };
+    console.error('orphan_intakes_list_failed', msg);
+    return { ok: false, code: 'server_error' };
+  }
+
+  var intakeRows = intakes || [];
+  if (!intakeRows.length) {
+    return { ok: true, count: 0, scanned: 0, scanLimit: scanLimit, items: [] };
+  }
+
+  var ids = intakeRows.map(function (row) {
+    return row.id;
+  });
+  var { data: linked, error: lErr } = await admin
+    .from('customer_requests')
+    .select('interest_intake_id')
+    .in('interest_intake_id', ids);
+
+  if (lErr) {
+    var sc2 = schemaFailureCode(lErr);
+    if (sc2) return { ok: false, code: sc2 };
+    console.error('orphan_intakes_link_lookup_failed', lErr.message);
+    return { ok: false, code: 'server_error' };
+  }
+
+  var linkedMap = {};
+  (linked || []).forEach(function (row) {
+    if (row && row.interest_intake_id) linkedMap[row.interest_intake_id] = true;
+  });
+
+  var orphans = intakeRows
+    .filter(function (row) {
+      return !linkedMap[row.id];
+    })
+    .slice(0, limit)
+    .map(function (row) {
+      return {
+        intakeId: row.id,
+        createdAt: row.created_at,
+        partnerId: row.partner_id,
+        partnerSlug: row.partner_slug,
+        status: row.status
+      };
+    });
+
+  return {
+    ok: true,
+    count: orphans.length,
+    scanned: intakeRows.length,
+    scanLimit: scanLimit,
+    items: orphans
+  };
+}
+
+/**
+ * Staff/system recovery: create missing customer_requests for orphan intakes.
+ * Idempotent — repeated runs never create duplicates (unique interest_intake_id).
+ */
+async function recoverOrphanRequests(opts) {
+  opts = opts || {};
+  var staffUserId = opts.staffUserId ? String(opts.staffUserId) : null;
+  var intakeId = opts.intakeId ? String(opts.intakeId).trim() : '';
+  var limit = Math.min(Math.max(Number(opts.limit) || 50, 1), 100);
+
+  var targets = [];
+  if (intakeId) {
+    targets = [{ intakeId: intakeId }];
+  } else {
+    var listed = await listOrphanIntakes({
+      limit: limit,
+      scanLimit: opts.scanLimit
+    });
+    if (!listed.ok) return listed;
+    targets = listed.items;
+  }
+
+  var recovered = 0;
+  var skipped = 0;
+  var failed = 0;
+  var items = [];
+
+  for (var i = 0; i < targets.length; i++) {
+    var targetId = targets[i].intakeId;
+    var result = await ensureRequestForIntakeId(targetId);
+    if (!result.ok) {
+      failed += 1;
+      items.push({ intakeId: targetId, status: 'failed', code: result.code });
+      continue;
+    }
+    if (result.ensured) {
+      recovered += 1;
+      items.push({
+        intakeId: targetId,
+        requestId: result.request && result.request.id,
+        status: 'recovered'
+      });
+    } else {
+      skipped += 1;
+      items.push({
+        intakeId: targetId,
+        requestId: result.request && result.request.id,
+        status: 'already_linked'
+      });
+    }
+  }
+
+  if (staffUserId && recovered > 0) {
+    await writeAudit({
+      req: opts.req,
+      actorUserId: staffUserId,
+      actorType: 'staff',
+      partnerId: null,
+      action: 'customer_request_orphans_recovered',
+      meta: {
+        recovered: recovered,
+        skipped: skipped,
+        failed: failed,
+        mode: intakeId ? 'single' : 'batch'
+      }
+    });
+  }
+
+  return {
+    ok: true,
+    recovered: recovered,
+    skipped: skipped,
+    failed: failed,
+    items: items
+  };
 }
 
 function passesListFilters(row, opts, now) {
@@ -890,6 +1111,9 @@ module.exports = {
   computeAttention: computeAttention,
   buildRequestFromInterest: buildRequestFromInterest,
   createRequestFromInterest: createRequestFromInterest,
+  ensureRequestForIntakeId: ensureRequestForIntakeId,
+  listOrphanIntakes: listOrphanIntakes,
+  recoverOrphanRequests: recoverOrphanRequests,
   listRequests: listRequests,
   getRequest: getRequest,
   setRequestStatus: setRequestStatus,

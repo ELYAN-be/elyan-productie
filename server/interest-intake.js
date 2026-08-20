@@ -7,7 +7,7 @@
 var crypto = require('crypto');
 var { createAdminClient } = require('./supabase');
 var { getProfessionalBySlug } = require('./marketplace-public');
-var { createRequestFromInterest } = require('./customer-requests');
+var { createRequestFromInterest, ensureRequestForIntakeId } = require('./customer-requests');
 
 var DEDUPE_WINDOW_MS = 5 * 60 * 1000;
 var MAX = {
@@ -184,6 +184,13 @@ async function submitInterest(body, meta) {
   var dup = await findRecentDuplicate(admin, dedupeKey);
   if (!dup.ok) return dup;
   if (dup.duplicate) {
+    // Partial-failure recovery: intake may exist without customer_request.
+    // Never return customer-facing success until the canonical request is ensured.
+    var ensured = await ensureRequestForIntakeId(dup.id);
+    if (!ensured.ok) {
+      console.error('interest_duplicate_ensure_failed', ensured.code);
+      return { ok: false, code: ensured.code || 'server_error' };
+    }
     return { ok: true, duplicate: true, id: dup.id };
   }
 

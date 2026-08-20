@@ -7,6 +7,7 @@
  *   rebuild-public-snapshot | pause | hide | restore |
  *   requests-list | requests-get | requests-set-status |
  *   requests-set-owner | requests-set-follow-up | requests-add-note |
+ *   requests-orphans | requests-recover-orphans |
  *   ops-attention | customers-list | customers-get | reporting
  */
 var { requireStaff, isStaff, requireUser } = require('../server/tenancy');
@@ -27,7 +28,9 @@ var {
   setRequestStatus,
   setRequestOwner,
   setRequestFollowUp,
-  addRequestNote
+  addRequestNote,
+  listOrphanIntakes,
+  recoverOrphanRequests
 } = require('../server/customer-requests');
 var {
   getOperationsAttention,
@@ -360,6 +363,33 @@ module.exports = async function handler(req, res) {
           req: req
         });
         return respond(res, addNote);
+      }
+
+      if (action === 'requests-orphans') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlOr = rateLimit(clientKey(req, 'control_requests_orphans'), 20, 60 * 1000);
+        if (!rlOr.ok) return errorJson(res, 429, 'rate_limited');
+        var orphans = await listOrphanIntakes({
+          limit: getQueryParam(req, body, 'limit') || null,
+          scanLimit: getQueryParam(req, body, 'scanLimit') || null
+        });
+        return respond(res, orphans);
+      }
+
+      if (action === 'requests-recover-orphans') {
+        if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+        var rlRr = rateLimit(clientKey(req, 'control_requests_recover'), 10, 60 * 1000);
+        if (!rlRr.ok) return errorJson(res, 429, 'rate_limited');
+        var recovered = await recoverOrphanRequests({
+          intakeId: getQueryParam(req, body, 'intakeId') || null,
+          limit: getQueryParam(req, body, 'limit') || null,
+          scanLimit: getQueryParam(req, body, 'scanLimit') || null,
+          staffUserId: staff.user.id,
+          req: req
+        });
+        return respond(res, recovered);
       }
 
       // --- Control Customers · Data · Reporting V1 (staff-only) ---

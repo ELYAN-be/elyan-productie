@@ -160,21 +160,29 @@ test('Control API wires staff-only request actions (core + automation)', functio
   assert.ok(api.indexOf('requests-set-owner') >= 0);
   assert.ok(api.indexOf('requests-set-follow-up') >= 0);
   assert.ok(api.indexOf('requests-add-note') >= 0);
+  assert.ok(api.indexOf('requests-orphans') >= 0);
+  assert.ok(api.indexOf('requests-recover-orphans') >= 0);
   assert.ok(api.indexOf('listRequests') >= 0);
   assert.ok(api.indexOf('setRequestStatus') >= 0);
   assert.ok(api.indexOf('setRequestOwner') >= 0);
   assert.ok(api.indexOf('setRequestFollowUp') >= 0);
   assert.ok(api.indexOf('addRequestNote') >= 0);
+  assert.ok(api.indexOf('listOrphanIntakes') >= 0);
+  assert.ok(api.indexOf('recoverOrphanRequests') >= 0);
   assert.ok(api.indexOf('requireStaff') >= 0);
   assert.ok(api.indexOf('withStaff') >= 0);
   var idxList = api.indexOf("action === 'requests-list'");
   var idxStaff = api.indexOf('withStaff');
   assert.ok(idxList > idxStaff, 'requests-list after withStaff');
+  var idxOrphans = api.indexOf("action === 'requests-orphans'");
+  assert.ok(idxOrphans > idxStaff, 'requests-orphans after withStaff');
 });
 
 test('interest intake creates request after successful insert', function () {
   var src = source('server/interest-intake.js');
   assert.ok(src.indexOf('createRequestFromInterest') >= 0);
+  assert.ok(src.indexOf('ensureRequestForIntakeId') >= 0);
+  assert.ok(src.indexOf('interest_duplicate_ensure_failed') >= 0);
   assert.ok(src.indexOf('requestId') >= 0);
 });
 
@@ -239,6 +247,9 @@ function makeDb() {
       return filters.every(function (f) {
         if (f.op === 'eq') return row[f.col] === f.val;
         if (f.op === 'gte') return row[f.col] >= f.val;
+        if (f.op === 'in') {
+          return Array.isArray(f.val) && f.val.indexOf(row[f.col]) >= 0;
+        }
         return true;
       });
     }
@@ -277,6 +288,10 @@ function makeDb() {
         filters.push({ op: 'gte', col: col, val: val });
         return api;
       },
+      in: function (col, vals) {
+        filters.push({ op: 'in', col: col, val: vals || [] });
+        return api;
+      },
       order: function (col, opts) {
         orderCol = col;
         orderAsc = !(opts && opts.ascending === false);
@@ -301,6 +316,10 @@ function makeDb() {
             var inserted = [];
             mutate.forEach(function (row) {
               if (table === 'customer_requests') {
+                if (store._failCustomerRequestInserts > 0) {
+                  store._failCustomerRequestInserts -= 1;
+                  throw new Error('simulated customer_request insert failure');
+                }
                 var id = row.id || 'req-' + Object.keys(store.customer_requests).length + 1;
                 var clash = Object.keys(store.customer_requests).some(function (k) {
                   return store.customer_requests[k].interest_intake_id === row.interest_intake_id;
@@ -920,6 +939,157 @@ async function main() {
       });
     });
   }
+
+  await testAsync('request creation failure returns server_error (no false success)', async function () {
+    await withHarness(async function (cr, ii, db) {
+      db.store._failCustomerRequestInserts = 1;
+      var result = await ii.submitInterest(
+        {
+          partnerSlug: 'acme-dak',
+          name: 'Jan Peeters',
+          email: 'fail-create@example.be',
+          location: '9000 Gent',
+          description: 'Nieuw dak voor rijhuis, hellend.',
+          consent: true
+        },
+        { ip: '203.0.113.40' }
+      );
+      assert.strictEqual(result.ok, false);
+      assert.strictEqual(result.code, 'server_error');
+      assert.strictEqual(Object.keys(db.store.interest_intakes).length, 1);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 0);
+    });
+  });
+
+  await testAsync('retry after partial failure ensures exactly one request', async function () {
+    await withHarness(async function (cr, ii, db) {
+      var payload = {
+        partnerSlug: 'acme-dak',
+        name: 'Jan Peeters',
+        email: 'retry-partial@example.be',
+        location: '9000 Gent',
+        description: 'Nieuw dak voor rijhuis, hellend.',
+        consent: true
+      };
+      db.store._failCustomerRequestInserts = 1;
+      var first = await ii.submitInterest(payload, { ip: '203.0.113.41' });
+      assert.strictEqual(first.ok, false);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 0);
+
+      var second = await ii.submitInterest(payload, { ip: '203.0.113.41' });
+      assert.ok(second.ok, second.code);
+      assert.strictEqual(second.duplicate, true);
+      assert.strictEqual(Object.keys(db.store.interest_intakes).length, 1);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 1);
+      var reqId = Object.keys(db.store.customer_requests)[0];
+      assert.strictEqual(
+        db.store.customer_requests[reqId].interest_intake_id,
+        Object.keys(db.store.interest_intakes)[0]
+      );
+    });
+  });
+
+  await testAsync('orphan detection is privacy-safe (no customer PII fields)', async function () {
+    await withHarness(async function (cr, ii, db) {
+      db.store._failCustomerRequestInserts = 1;
+      await ii.submitInterest(
+        {
+          partnerSlug: 'acme-dak',
+          name: 'Secret Person',
+          email: 'orphan-detect@example.be',
+          phone: '+32479999999',
+          location: '9000 Gent',
+          description: 'Secret orphan project text.',
+          consent: true
+        },
+        { ip: '203.0.113.42' }
+      );
+      var orphans = await cr.listOrphanIntakes({});
+      assert.ok(orphans.ok);
+      assert.strictEqual(orphans.count, 1);
+      var item = orphans.items[0];
+      assert.ok(item.intakeId);
+      assert.ok(item.createdAt);
+      assert.strictEqual(item.partnerSlug, 'acme-dak');
+      assert.ok(!('customerName' in item));
+      assert.ok(!('customerEmail' in item));
+      assert.ok(!('email' in item));
+      assert.ok(!('name' in item));
+      assert.ok(!('phone' in item));
+      assert.ok(!('description' in item));
+      assert.ok(!('message' in item));
+      assert.ok(!('locationText' in item));
+    });
+  });
+
+  await testAsync('orphan recovery + repeated recovery are idempotent', async function () {
+    await withHarness(async function (cr, ii, db) {
+      db.store._failCustomerRequestInserts = 1;
+      await ii.submitInterest(
+        {
+          partnerSlug: 'acme-dak',
+          name: 'Jan Peeters',
+          email: 'orphan-recover@example.be',
+          location: '9000 Gent',
+          description: 'Nieuw dak voor rijhuis, hellend.',
+          consent: true
+        },
+        { ip: '203.0.113.43' }
+      );
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 0);
+
+      var first = await cr.recoverOrphanRequests({
+        staffUserId: 'staff-1',
+        req: {}
+      });
+      assert.ok(first.ok);
+      assert.strictEqual(first.recovered, 1);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 1);
+
+      var second = await cr.recoverOrphanRequests({
+        staffUserId: 'staff-1',
+        req: {}
+      });
+      assert.ok(second.ok);
+      assert.strictEqual(second.recovered, 0);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 1);
+
+      var intakeId = Object.keys(db.store.interest_intakes)[0];
+      var third = await cr.recoverOrphanRequests({
+        intakeId: intakeId,
+        staffUserId: 'staff-1',
+        req: {}
+      });
+      assert.ok(third.ok);
+      assert.strictEqual(third.recovered, 0);
+      assert.strictEqual(third.skipped, 1);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 1);
+      assert.ok(
+        db.store.audit_logs.some(function (a) {
+          return a.action === 'customer_request_orphans_recovered';
+        })
+      );
+    });
+  });
+
+  await testAsync('concurrent/repeated createRequestFromInterest stays 1:1', async function () {
+    await withHarness(async function (cr, ii, db) {
+      var created = await seedRequest(ii, 'concurrent@example.be');
+      var intake = db.store.interest_intakes[created.id];
+      var again = await cr.createRequestFromInterest(intake);
+      assert.ok(again.ok);
+      assert.strictEqual(again.duplicate, true);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 1);
+
+      var ensuredA = await cr.ensureRequestForIntakeId(created.id);
+      var ensuredB = await cr.ensureRequestForIntakeId(created.id);
+      assert.ok(ensuredA.ok && ensuredB.ok);
+      assert.strictEqual(ensuredA.ensured, false);
+      assert.strictEqual(ensuredB.ensured, false);
+      assert.strictEqual(ensuredA.request.id, ensuredB.request.id);
+      assert.strictEqual(Object.keys(db.store.customer_requests).length, 1);
+    });
+  });
 
   await testAsync('no PII public leak on interest success (honeypot)', async function () {
     var res = await runPublic({
