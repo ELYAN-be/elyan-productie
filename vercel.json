@@ -26,6 +26,10 @@
       "destination": "/professionals/aanvragen"
     },
     {
+      "source": "/professionals/klanten/:customerKey",
+      "destination": "/professionals/klanten"
+    },
+    {
       "source": "/professionals/control/:partnerId",
       "destination": "/professionals/control"
     },

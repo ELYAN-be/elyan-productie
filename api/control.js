@@ -6,7 +6,8 @@
  *   session | list | review | request-changes | approve | publish |
  *   rebuild-public-snapshot | pause | hide | restore |
  *   requests-list | requests-get | requests-set-status |
- *   requests-set-owner | requests-set-follow-up | requests-add-note
+ *   requests-set-owner | requests-set-follow-up | requests-add-note |
+ *   ops-attention | customers-list | customers-get | reporting
  */
 var { requireStaff, isStaff, requireUser } = require('../server/tenancy');
 var {
@@ -28,6 +29,12 @@ var {
   setRequestFollowUp,
   addRequestNote
 } = require('../server/customer-requests');
+var {
+  getOperationsAttention,
+  listCustomers,
+  getCustomer,
+  getReporting
+} = require('../server/control-data');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
 var { rateLimit, clientKey } = require('../server/rate-limit');
 
@@ -353,6 +360,58 @@ module.exports = async function handler(req, res) {
           req: req
         });
         return respond(res, addNote);
+      }
+
+      // --- Control Customers · Data · Reporting V1 (staff-only) ---
+      if (action === 'ops-attention') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlOa = rateLimit(clientKey(req, 'control_ops_attention'), 60, 60 * 1000);
+        if (!rlOa.ok) return errorJson(res, 429, 'rate_limited');
+        var opsAtt = await getOperationsAttention({});
+        return respond(res, opsAtt);
+      }
+
+      if (action === 'customers-list') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlCl = rateLimit(clientKey(req, 'control_customers_list'), 40, 60 * 1000);
+        if (!rlCl.ok) return errorJson(res, 429, 'rate_limited');
+        var custList = await listCustomers({
+          limit: getQueryParam(req, body, 'limit') || null
+        });
+        return respond(res, custList);
+      }
+
+      if (action === 'customers-get') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlCg = rateLimit(clientKey(req, 'control_customers_get'), 60, 60 * 1000);
+        if (!rlCg.ok) return errorJson(res, 429, 'rate_limited');
+        var custGet = await getCustomer({
+          customerKey: getQueryParam(req, body, 'customerKey') || getQueryParam(req, body, 'email')
+        });
+        return respond(res, custGet);
+      }
+
+      if (action === 'reporting') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlRp = rateLimit(clientKey(req, 'control_reporting'), 30, 60 * 1000);
+        if (!rlRp.ok) return errorJson(res, 429, 'rate_limited');
+        var reported = await getReporting({
+          period: getQueryParam(req, body, 'period') || '30',
+          createdFrom: getQueryParam(req, body, 'createdFrom') || null,
+          createdTo: getQueryParam(req, body, 'createdTo') || null,
+          categoryId: getQueryParam(req, body, 'categoryId') || null,
+          partnerId: getQueryParam(req, body, 'partnerId') || null,
+          partnerSlug: getQueryParam(req, body, 'partnerSlug') || null
+        });
+        return respond(res, reported);
       }
 
       return errorJson(res, 400, 'missing_fields', { message: 'Onbekende of ontbrekende action.' });

@@ -684,6 +684,22 @@
     });
   }
 
+  function applyQueryBootstrap() {
+    try {
+      var params = new URLSearchParams(location.search || '');
+      var st = params.get('status');
+      if (st && ['all', 'new', 'contacted', 'qualified', 'closed_won', 'closed_lost'].indexOf(st) >= 0) {
+        state.status = st;
+      }
+      if (params.get('attention') === '1' || params.get('attentionOnly') === '1') {
+        state.attentionOnly = true;
+        var att = EP.$('#ctrlFilterAttention');
+        if (att) att.checked = true;
+      }
+      renderFilters();
+    } catch (e) { /* ignore */ }
+  }
+
   async function boot() {
     bind();
     var session = await EP.requireStaffOrRedirect();
@@ -698,6 +714,7 @@
       userEl.hidden = false;
       userEl.textContent = session.user.email;
     }
+    applyQueryBootstrap();
     var id = parseRequestFromPath();
     if (id) await loadDetail(id);
     else await loadList();

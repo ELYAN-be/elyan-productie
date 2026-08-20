@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELYAN Control | Rapportage</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#3F4A32">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/partner-lab.css">
+<link rel="stylesheet" href="/css/professionals.css">
+</head>
+<body class="page-partner-lab page-professionals page-control page-control-reporting">
+<a href="#ctrlMain" class="skip-link">Ga naar inhoud</a>
+
+<header class="ctrl-top">
+  <div class="ctrl-top-inner">
+    <div class="ctrl-brand">
+      <p class="lab-kicker">ELYAN Control</p>
+      <h1 class="ctrl-title">Rapportage</h1>
+      <nav class="ctrl-mode-nav" aria-label="Control-onderdelen">
+        <a href="/professionals/overzicht">Overzicht</a>
+        <a href="/professionals/control">Partners</a>
+        <a href="/professionals/aanvragen">Aanvragen</a>
+        <a href="/professionals/klanten">Klanten</a>
+        <a href="/professionals/rapportage" aria-current="page">Rapportage</a>
+      </nav>
+    </div>
+    <div class="ctrl-top-actions">
+      <span id="ctrlUser" class="ctrl-user" hidden></span>
+      <button type="button" class="btn btn-ghost btn-sm" id="ctrlLogout">Uitloggen</button>
+    </div>
+  </div>
+</header>
+
+<main id="ctrlMain" class="ctrl-shell">
+  <p id="ctrlGate" class="prof-status is-info" hidden>Laden…</p>
+
+  <div id="ctrlReportView" class="ctrl-view" hidden>
+    <div class="ctrl-toolbar ctrl-toolbar-secondary">
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Periode</span>
+        <select id="ctrlPeriod" class="ctrl-input">
+          <option value="7">7 dagen</option>
+          <option value="30" selected>30 dagen</option>
+          <option value="90">90 dagen</option>
+          <option value="custom">Aangepast</option>
+        </select>
+      </label>
+      <label class="ctrl-field" id="ctrlCustomFromWrap" hidden>
+        <span class="ctrl-field-label">Van</span>
+        <input type="date" id="ctrlCreatedFrom" class="ctrl-input">
+      </label>
+      <label class="ctrl-field" id="ctrlCustomToWrap" hidden>
+        <span class="ctrl-field-label">Tot</span>
+        <input type="date" id="ctrlCreatedTo" class="ctrl-input">
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Categorie</span>
+        <input type="text" id="ctrlFilterCategory" class="ctrl-input" placeholder="bijv. dakwerken" autocomplete="off">
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Professional (slug)</span>
+        <input type="text" id="ctrlFilterPartner" class="ctrl-input" placeholder="bijv. acme-dak" autocomplete="off">
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Regio / provincie</span>
+        <input type="text" class="ctrl-input" value="Niet beschikbaar" disabled aria-disabled="true" title="Geen gestructureerde regio op aanvragen">
+      </label>
+      <button type="button" class="btn btn-ghost btn-sm" id="ctrlApplyFilters">Toepassen</button>
+    </div>
+
+    <p id="ctrlReportMeta" class="ctrl-list-meta"></p>
+    <p id="ctrlReportStatus" class="prof-status" hidden></p>
+
+    <section class="ctrl-section" aria-labelledby="funnelTitle">
+      <h2 id="funnelTitle" class="ctrl-section-title">Funnel</h2>
+      <p class="lab-hint">Ontvangen → Gecontacteerd → Gekwalificeerd → Succesvolle introductie (closed_won). Geen omzet.</p>
+      <div id="ctrlFunnel" class="ctrl-report-rows"></div>
+    </section>
+
+    <section class="ctrl-section" aria-labelledby="opsTitle">
+      <h2 id="opsTitle" class="ctrl-section-title">Operaties</h2>
+      <p class="lab-hint">Momentopname actieve aanvragen + first-contact metrics over de filterperiode.</p>
+      <div id="ctrlOpsMetrics" class="ctrl-report-rows"></div>
+    </section>
+
+    <section class="ctrl-section" aria-labelledby="lossTitle">
+      <h2 id="lossTitle" class="ctrl-section-title">Verliesredenen</h2>
+      <p class="lab-hint">Frozen reason keys. “Andere”-detail wordt niet als nieuwe categorie geteld.</p>
+      <div id="ctrlLoss" class="ctrl-report-rows"></div>
+    </section>
+
+    <section class="ctrl-section" aria-labelledby="supplyTitle">
+      <h2 id="supplyTitle" class="ctrl-section-title">Aanbod / marketplace</h2>
+      <div id="ctrlSupply" class="ctrl-report-rows"></div>
+    </section>
+
+    <section class="ctrl-section" aria-labelledby="proTitle">
+      <h2 id="proTitle" class="ctrl-section-title">Professional (intern)</h2>
+      <p class="lab-hint">Geen publieke score of ranking. Lage volumes voorzichtig lezen.</p>
+      <div id="ctrlPros" class="ctrl-report-rows"></div>
+    </section>
+
+    <section class="ctrl-section" aria-labelledby="defTitle">
+      <h2 id="defTitle" class="ctrl-section-title">Definities</h2>
+      <div id="ctrlDefs" class="ctrl-report-defs"></div>
+    </section>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/professionals/core.js"></script>
+<script src="/js/professionals/control-reporting.js"></script>
+</body>
+</html>

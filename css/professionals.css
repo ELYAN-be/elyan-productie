@@ -1090,6 +1090,123 @@
   color:var(--e-ink-soft, #5B5D4F);
 }
 
+/* Control Customers · Data · Reporting V1 */
+.page-control .ctrl-ops-block{ margin-bottom:18px; }
+.page-control .ctrl-ops-buckets{
+  display:grid;
+  gap:14px;
+  margin-top:12px;
+}
+.page-control .ctrl-ops-bucket{
+  border:1px solid var(--e-line, rgba(63,74,50,.12));
+  border-radius:12px;
+  padding:12px 14px;
+  background:rgba(63,74,50,.02);
+}
+.page-control .ctrl-ops-bucket-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:8px;
+}
+.page-control .ctrl-ops-bucket-title{
+  margin:0;
+  font-size:.95rem;
+}
+.page-control .ctrl-ops-list{
+  margin:0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:6px;
+}
+.page-control .ctrl-ops-list a{
+  display:grid;
+  gap:2px;
+  text-decoration:none;
+  color:inherit;
+  padding:8px 10px;
+  border-radius:10px;
+  border:1px solid transparent;
+}
+.page-control .ctrl-ops-list a:hover,
+.page-control .ctrl-ops-list a:focus-visible{
+  border-color:var(--e-line, rgba(63,74,50,.18));
+  background:#FFFEFA;
+  outline:none;
+}
+.page-control .ctrl-ops-name{
+  font-weight:650;
+  font-size:.9rem;
+}
+.page-control .ctrl-ops-meta{
+  font-size:.8rem;
+  color:var(--e-faint, #6E7062);
+}
+.page-control .ctrl-queue-links{
+  margin:0;
+  padding-left:1.1em;
+  display:grid;
+  gap:6px;
+  font-size:.92rem;
+}
+.page-control .ctrl-report-rows{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+}
+.page-control .ctrl-report-row{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px 16px;
+  padding:10px 12px;
+  border:1px solid var(--e-line, rgba(63,74,50,.12));
+  border-radius:10px;
+  background:#FFFEFA;
+}
+.page-control .ctrl-report-row-main{
+  display:grid;
+  gap:2px;
+  min-width:0;
+}
+.page-control .ctrl-report-label{
+  font-weight:650;
+  font-size:.9rem;
+}
+.page-control .ctrl-report-hint{
+  font-size:.78rem;
+  color:var(--e-faint, #6E7062);
+}
+.page-control .ctrl-report-value{
+  font-size:.9rem;
+  font-weight:700;
+  color:var(--e-green, #3F4A32);
+  white-space:nowrap;
+}
+.page-control .ctrl-report-subhead{
+  margin:12px 0 4px;
+  font-size:.82rem;
+  font-weight:700;
+  letter-spacing:.03em;
+  text-transform:uppercase;
+  color:var(--e-faint, #6E7062);
+}
+.page-control .ctrl-report-defs{
+  display:grid;
+  gap:10px;
+  margin-top:10px;
+}
+.page-control .ctrl-report-def{
+  font-size:.85rem;
+  color:var(--e-ink-soft, #5B5D4F);
+}
+.page-control .ctrl-report-def p{
+  margin:4px 0 0;
+}
+
 @media (max-width:900px){
   .page-control .ctrl-review-grid{
     grid-template-columns:1fr;
