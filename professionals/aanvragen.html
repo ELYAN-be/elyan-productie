@@ -55,6 +55,39 @@
         <span class="ctrl-field-label">Partner-slug</span>
         <input type="text" id="ctrlFilterPartner" class="ctrl-input" placeholder="bijv. acme-dak" autocomplete="off">
       </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Eigenaar</span>
+        <select id="ctrlFilterOwner" class="ctrl-input">
+          <option value="">Alles</option>
+          <option value="unassigned">Niet toegewezen</option>
+          <option value="me">Van mij</option>
+        </select>
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Opvolging</span>
+        <select id="ctrlFilterFollowUp" class="ctrl-input">
+          <option value="">Alles</option>
+          <option value="overdue">Achterstallig</option>
+          <option value="due">Gepland</option>
+          <option value="none">Geen</option>
+        </select>
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Leeftijd (min. uren)</span>
+        <input type="number" id="ctrlFilterMinAge" class="ctrl-input" min="0" step="1" placeholder="bijv. 48" autocomplete="off">
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Aangemaakt vanaf</span>
+        <input type="date" id="ctrlFilterCreatedFrom" class="ctrl-input">
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Aangemaakt tot</span>
+        <input type="date" id="ctrlFilterCreatedTo" class="ctrl-input">
+      </label>
+      <label class="ctrl-field ctrl-field-check">
+        <input type="checkbox" id="ctrlFilterAttention">
+        <span class="ctrl-field-label">Alleen aandacht</span>
+      </label>
       <button type="button" class="btn btn-ghost btn-sm" id="ctrlApplyFilters">Filteren</button>
     </div>
     <div id="ctrlList" class="ctrl-list" role="list"></div>
@@ -84,6 +117,21 @@
           <p class="ctrl-message" id="ctrlMessage"></p>
         </div>
         <div class="ctrl-section">
+          <h3 class="ctrl-section-title">Interne notities</h3>
+          <div id="ctrlNotes" class="ctrl-review-items"></div>
+          <div class="ctrl-note-form">
+            <label class="ctrl-field">
+              <span class="ctrl-field-label">Nieuwe notitie</span>
+              <textarea id="ctrlNoteInput" class="ctrl-input ctrl-textarea" rows="3" maxlength="4000" placeholder="Korte interne notitie…"></textarea>
+            </label>
+            <button type="button" class="btn btn-ghost btn-sm" id="ctrlAddNote">Notitie toevoegen</button>
+          </div>
+        </div>
+        <div class="ctrl-section">
+          <h3 class="ctrl-section-title">Activiteit</h3>
+          <div id="ctrlActivity" class="ctrl-review-items"></div>
+        </div>
+        <div class="ctrl-section">
           <h3 class="ctrl-section-title">Statusgeschiedenis</h3>
           <div id="ctrlStatusEvents" class="ctrl-review-items"></div>
         </div>
@@ -94,7 +142,32 @@
           <h3 class="ctrl-section-title">Status</h3>
           <p id="ctrlActionHint" class="lab-hint"></p>
           <div class="ctrl-actions" id="ctrlActions"></div>
+          <div id="ctrlLostReasonBox" class="ctrl-lost-box" hidden>
+            <label class="ctrl-field">
+              <span class="ctrl-field-label">Reden verloren</span>
+              <select id="ctrlLostReason" class="ctrl-input"></select>
+            </label>
+            <label class="ctrl-field" id="ctrlLostDetailWrap" hidden>
+              <span class="ctrl-field-label">Toelichting (verplicht bij Andere)</span>
+              <input type="text" id="ctrlLostDetail" class="ctrl-input" maxlength="500" autocomplete="off">
+            </label>
+          </div>
           <p id="ctrlActionStatus" class="prof-status" hidden></p>
+        </div>
+        <div class="ctrl-panel">
+          <h3 class="ctrl-section-title">Eigenaar &amp; opvolging</h3>
+          <dl class="ctrl-dl" id="ctrlOpsFields"></dl>
+          <div class="ctrl-actions" id="ctrlOpsActions"></div>
+          <div class="ctrl-followup-form">
+            <label class="ctrl-field">
+              <span class="ctrl-field-label">Volgende opvolging</span>
+              <input type="datetime-local" id="ctrlFollowUpInput" class="ctrl-input">
+            </label>
+            <div class="ctrl-actions">
+              <button type="button" class="btn btn-ghost btn-sm" id="ctrlSaveFollowUp">Opvolging bewaren</button>
+              <button type="button" class="btn btn-ghost btn-sm" id="ctrlClearFollowUp">Wissen</button>
+            </div>
+          </div>
         </div>
         <div class="ctrl-panel">
           <h3 class="ctrl-section-title">Context</h3>

@@ -77,7 +77,14 @@ var USER_MESSAGES = {
   open_review_items: 'Er staan nog open aanpassingspunten. Los die eerst op of vraag wijzigingen.',
   publication_gate_failed: 'Publicatiecriteria zijn niet vervuld.',
   invalid_review_item: 'Voeg minstens één duidelijke feedbacktekst toe.',
-  invalid_filter: 'Ongeldige filter.'
+  invalid_filter: 'Ongeldige filter.',
+  closed_lost_reason_required: 'Kies een reden voor afgesloten — verloren.',
+  closed_lost_detail_required: 'Vul een toelichting in bij “Andere”.',
+  not_staff_owner: 'Eigenaar moet een ELYAN-medewerker zijn.',
+  invalid_owner_on_closed: 'Gesloten aanvragen krijgen geen nieuwe eigenaar.',
+  invalid_follow_up: 'Ongeldige opvolgdatum.',
+  invalid_follow_up_on_closed: 'Gesloten aanvragen hebben geen actieve opvolging.',
+  invalid_note: 'Notitie is ongeldig of te lang.'
 };
 
 function userMessage(code) {

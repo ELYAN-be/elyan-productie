@@ -1046,6 +1046,49 @@
   gap:6px 12px;
   font-size:.88rem;
 }
+.page-control .ctrl-list-item.is-attention{
+  border-color:rgba(139,58,47,.28);
+  background:rgba(139,58,47,.03);
+}
+.page-control .ctrl-list-item-side{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.page-control .ctrl-badge-attention{
+  background:rgba(139,58,47,.1);
+  color:#8B3A2F;
+}
+.page-control .ctrl-field-check{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  min-width:auto;
+  padding-top:18px;
+}
+.page-control .ctrl-field-check .ctrl-field-label{
+  text-transform:none;
+  letter-spacing:0;
+  font-size:.88rem;
+}
+.page-control .ctrl-textarea{
+  min-width:100%;
+  max-width:100%;
+  resize:vertical;
+}
+.page-control .ctrl-note-form,
+.page-control .ctrl-followup-form,
+.page-control .ctrl-lost-box{
+  display:grid;
+  gap:10px;
+  margin-top:12px;
+}
+.page-control .ctrl-note-body{
+  margin:6px 0 0;
+  white-space:pre-wrap;
+  color:var(--e-ink-soft, #5B5D4F);
+}
 
 @media (max-width:900px){
   .page-control .ctrl-review-grid{

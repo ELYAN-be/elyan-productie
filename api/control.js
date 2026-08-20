@@ -5,7 +5,8 @@
  * Actions:
  *   session | list | review | request-changes | approve | publish |
  *   rebuild-public-snapshot | pause | hide | restore |
- *   requests-list | requests-get | requests-set-status
+ *   requests-list | requests-get | requests-set-status |
+ *   requests-set-owner | requests-set-follow-up | requests-add-note
  */
 var { requireStaff, isStaff, requireUser } = require('../server/tenancy');
 var {
@@ -22,7 +23,10 @@ var {
 var {
   listRequests,
   getRequest,
-  setRequestStatus
+  setRequestStatus,
+  setRequestOwner,
+  setRequestFollowUp,
+  addRequestNote
 } = require('../server/customer-requests');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
 var { rateLimit, clientKey } = require('../server/rate-limit');
@@ -82,7 +86,14 @@ function getQueryParam(req, body, key) {
 
 function statusForCode(code) {
   if (code === 'missing_token' || code === 'invalid_token') return 401;
-  if (code === 'forbidden' || code === 'not_staff' || code === 'no_membership') return 403;
+  if (
+    code === 'forbidden' ||
+    code === 'not_staff' ||
+    code === 'no_membership' ||
+    code === 'not_staff_owner'
+  ) {
+    return 403;
+  }
   if (code === 'not_found') return 404;
   if (code === 'rate_limited') return 429;
   if (code === 'missing_env') return 503;
@@ -255,7 +266,15 @@ module.exports = async function handler(req, res) {
           status: getQueryParam(req, body, 'status') || 'all',
           categoryId: getQueryParam(req, body, 'categoryId') || null,
           partnerId: getQueryParam(req, body, 'partnerId') || null,
-          partnerSlug: getQueryParam(req, body, 'partnerSlug') || null
+          partnerSlug: getQueryParam(req, body, 'partnerSlug') || null,
+          ownerFilter: getQueryParam(req, body, 'ownerFilter') || null,
+          ownerUserId: getQueryParam(req, body, 'ownerUserId') || null,
+          staffUserId: staff.user.id,
+          followUpFilter: getQueryParam(req, body, 'followUpFilter') || null,
+          attentionOnly: getQueryParam(req, body, 'attentionOnly') || null,
+          createdFrom: getQueryParam(req, body, 'createdFrom') || null,
+          createdTo: getQueryParam(req, body, 'createdTo') || null,
+          minAgeHours: getQueryParam(req, body, 'minAgeHours') || null
         });
         return respond(res, listedReq);
       }
@@ -279,10 +298,61 @@ module.exports = async function handler(req, res) {
         var setReq = await setRequestStatus({
           requestId: getQueryParam(req, body, 'requestId'),
           status: getQueryParam(req, body, 'status'),
+          closedLostReason: getQueryParam(req, body, 'closedLostReason'),
+          closedLostDetail: getQueryParam(req, body, 'closedLostDetail'),
           staffUserId: staff.user.id,
           req: req
         });
         return respond(res, setReq);
+      }
+
+      if (action === 'requests-set-owner') {
+        if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+        var rlRo = rateLimit(clientKey(req, 'control_requests_owner'), 30, 60 * 1000);
+        if (!rlRo.ok) return errorJson(res, 429, 'rate_limited');
+        var clearOwner =
+          getQueryParam(req, body, 'clear') === true ||
+          getQueryParam(req, body, 'clear') === '1' ||
+          getQueryParam(req, body, 'clear') === 'true';
+        var setOwner = await setRequestOwner({
+          requestId: getQueryParam(req, body, 'requestId'),
+          ownerUserId: clearOwner ? null : getQueryParam(req, body, 'ownerUserId') || staff.user.id,
+          clear: clearOwner,
+          staffUserId: staff.user.id,
+          req: req
+        });
+        return respond(res, setOwner);
+      }
+
+      if (action === 'requests-set-follow-up') {
+        if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+        var rlRf = rateLimit(clientKey(req, 'control_requests_followup'), 30, 60 * 1000);
+        if (!rlRf.ok) return errorJson(res, 429, 'rate_limited');
+        var clearFu =
+          getQueryParam(req, body, 'clear') === true ||
+          getQueryParam(req, body, 'clear') === '1' ||
+          getQueryParam(req, body, 'clear') === 'true';
+        var setFu = await setRequestFollowUp({
+          requestId: getQueryParam(req, body, 'requestId'),
+          nextFollowUpAt: clearFu ? null : getQueryParam(req, body, 'nextFollowUpAt'),
+          clear: clearFu,
+          staffUserId: staff.user.id,
+          req: req
+        });
+        return respond(res, setFu);
+      }
+
+      if (action === 'requests-add-note') {
+        if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+        var rlRn = rateLimit(clientKey(req, 'control_requests_note'), 40, 60 * 1000);
+        if (!rlRn.ok) return errorJson(res, 429, 'rate_limited');
+        var addNote = await addRequestNote({
+          requestId: getQueryParam(req, body, 'requestId'),
+          content: getQueryParam(req, body, 'content'),
+          staffUserId: staff.user.id,
+          req: req
+        });
+        return respond(res, addNote);
       }
 
       return errorJson(res, 400, 'missing_fields', { message: 'Onbekende of ontbrekende action.' });

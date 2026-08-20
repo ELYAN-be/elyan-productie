@@ -1,16 +1,33 @@
-/* ELYAN Control — Customer Requests / Aanvragen */
+/* ELYAN Control — Customer Requests / Aanvragen (Core + Automation V1) */
 (function () {
   'use strict';
 
   var EP = window.ElyanProfessionals;
   if (!EP) return;
 
+  var ACTIVITY_LABELS = {
+    created: 'Aangemaakt',
+    owner_changed: 'Eigenaar gewijzigd',
+    status_changed: 'Status gewijzigd',
+    follow_up_changed: 'Opvolging gezet',
+    follow_up_cleared: 'Opvolging gewist',
+    note_added: 'Notitie toegevoegd',
+    closed: 'Afgesloten'
+  };
+
   var state = {
     status: 'all',
     categoryId: '',
     partnerSlug: '',
+    ownerFilter: '',
+    followUpFilter: '',
+    attentionOnly: false,
+    minAgeHours: '',
+    createdFrom: '',
+    createdTo: '',
     requestId: null,
     detail: null,
+    staffUserId: null,
     busy: false
   };
 
@@ -37,6 +54,32 @@
     } catch (e) {
       return String(iso);
     }
+  }
+
+  function toLocalInputValue(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    var pad = function (n) {
+      return n < 10 ? '0' + n : String(n);
+    };
+    return (
+      d.getFullYear() +
+      '-' +
+      pad(d.getMonth() + 1) +
+      '-' +
+      pad(d.getDate()) +
+      'T' +
+      pad(d.getHours()) +
+      ':' +
+      pad(d.getMinutes())
+    );
+  }
+
+  function shortId(id) {
+    if (!id) return '—';
+    var s = String(id);
+    return s.length > 8 ? s.slice(0, 8) + '…' : s;
   }
 
   function parseRequestFromPath() {
@@ -96,6 +139,11 @@
     });
   }
 
+  function attentionBadge(row) {
+    if (!row.attention) return '';
+    return '<span class="ctrl-badge ctrl-badge-attention">Aandacht</span>';
+  }
+
   function renderList(items) {
     var host = EP.$('#ctrlList');
     var meta = EP.$('#ctrlListMeta');
@@ -105,25 +153,44 @@
       host.innerHTML = '<p class="lab-hint">Geen aanvragen in deze filter.</p>';
       return;
     }
-    host.innerHTML = items.map(function (row) {
-      return (
-        '<article class="ctrl-list-item" role="listitem">' +
+    host.innerHTML = items
+      .map(function (row) {
+        return (
+          '<article class="ctrl-list-item' +
+          (row.attention ? ' is-attention' : '') +
+          '" role="listitem">' +
           '<div class="ctrl-list-item-main">' +
-            '<strong>' + esc(row.customerName) + '</strong>' +
-            '<span class="ctrl-list-meta-line">' +
-              esc(row.statusLabel || row.status) +
-              ' · ' + esc(row.partnerSlug || '—') +
-              (row.categoryId ? ' · ' + esc(row.categoryId) : '') +
-            '</span>' +
-            '<span class="ctrl-list-meta-line">' +
-              esc(row.locationText || '') + ' · ' + esc(fmtDate(row.createdAt)) +
-            '</span>' +
+          '<strong>' +
+          esc(row.customerName) +
+          '</strong>' +
+          '<span class="ctrl-list-meta-line">' +
+          esc(row.statusLabel || row.status) +
+          ' · ' +
+          esc(row.partnerSlug || '—') +
+          (row.categoryId ? ' · ' + esc(row.categoryId) : '') +
+          ' · ' +
+          esc(row.locationText || '—') +
+          '</span>' +
+          '<span class="ctrl-list-meta-line">' +
+          'Eigenaar: ' +
+          esc(row.ownerUserId ? shortId(row.ownerUserId) : 'niet toegewezen') +
+          ' · Leeftijd: ' +
+          esc(row.ageLabel || '—') +
+          ' · Opvolging: ' +
+          esc(row.nextFollowUpAt ? fmtDate(row.nextFollowUpAt) : '—') +
+          (row.attention ? ' · Aandacht: ja' : ' · Aandacht: nee') +
+          '</span>' +
           '</div>' +
+          '<div class="ctrl-list-item-side">' +
+          attentionBadge(row) +
           '<button type="button" class="btn btn-primary btn-sm" data-open-request="' +
-            esc(row.id) + '">Openen</button>' +
-        '</article>'
-      );
-    }).join('');
+          esc(row.id) +
+          '">Openen</button>' +
+          '</div>' +
+          '</article>'
+        );
+      })
+      .join('');
   }
 
   async function loadList() {
@@ -132,6 +199,12 @@
     var query = { status: state.status };
     if (state.categoryId) query.categoryId = state.categoryId;
     if (state.partnerSlug) query.partnerSlug = state.partnerSlug;
+    if (state.ownerFilter) query.ownerFilter = state.ownerFilter;
+    if (state.followUpFilter) query.followUpFilter = state.followUpFilter;
+    if (state.attentionOnly) query.attentionOnly = '1';
+    if (state.minAgeHours) query.minAgeHours = state.minAgeHours;
+    if (state.createdFrom) query.createdFrom = state.createdFrom + 'T00:00:00.000Z';
+    if (state.createdTo) query.createdTo = state.createdTo + 'T23:59:59.999Z';
     var res = await EP.controlFetch('requests-list', {
       method: 'GET',
       query: query
@@ -150,14 +223,66 @@
   }
 
   function dlRows(pairs) {
-    return pairs.map(function (p) {
-      return (
-        '<div class="ctrl-dl-row">' +
-          '<dt>' + esc(p[0]) + '</dt>' +
-          '<dd>' + (p[2] ? p[1] : esc(p[1])) + '</dd>' +
-        '</div>'
-      );
-    }).join('');
+    return pairs
+      .map(function (p) {
+        return (
+          '<div class="ctrl-dl-row">' +
+          '<dt>' +
+          esc(p[0]) +
+          '</dt>' +
+          '<dd>' +
+          (p[2] ? p[1] : esc(p[1])) +
+          '</dd>' +
+          '</div>'
+        );
+      })
+      .join('');
+  }
+
+  function fillLostReasons(req) {
+    var sel = EP.$('#ctrlLostReason');
+    if (!sel) return;
+    var reasons = req.closedLostReasons || [];
+    sel.innerHTML =
+      '<option value="">Kies reden…</option>' +
+      reasons
+        .map(function (r) {
+          return '<option value="' + esc(r.reason) + '">' + esc(r.label) + '</option>';
+        })
+        .join('');
+  }
+
+  function activityLine(ev) {
+    var label = ACTIVITY_LABELS[ev.action] || ev.action;
+    var meta = ev.meta || {};
+    var detail = '';
+    if (ev.action === 'status_changed') {
+      detail = (meta.from || '—') + ' → ' + (meta.to || '—');
+    } else if (ev.action === 'owner_changed') {
+      detail =
+        (meta.from ? shortId(meta.from) : 'geen') +
+        ' → ' +
+        (meta.to ? shortId(meta.to) : 'geen');
+    } else if (ev.action === 'follow_up_changed' || ev.action === 'follow_up_cleared') {
+      detail = meta.to ? fmtDate(meta.to) : 'gewist';
+    } else if (ev.action === 'closed') {
+      detail = (meta.outcome || '') + (meta.reason ? ' · ' + meta.reason : '');
+    } else if (ev.action === 'note_added') {
+      detail = meta.noteId ? 'ref ' + shortId(meta.noteId) : '';
+    }
+    return (
+      '<div class="ctrl-ri">' +
+      '<div class="ctrl-ri-head">' +
+      '<strong>' +
+      esc(label) +
+      (detail ? ' — ' + esc(detail) : '') +
+      '</strong>' +
+      '<span>' +
+      esc(fmtDate(ev.createdAt)) +
+      '</span>' +
+      '</div>' +
+      '</div>'
+    );
   }
 
   function renderDetail(payload) {
@@ -165,9 +290,13 @@
     state.detail = payload;
     EP.$('#ctrlDetailName').textContent = req.customerName || 'Aanvraag';
     EP.$('#ctrlDetailSub').textContent =
-      (req.statusLabel || req.status) + ' · ' + fmtDate(req.createdAt);
-    EP.$('#ctrlBadges').innerHTML =
-      '<span class="ctrl-badge">' + esc(req.statusLabel || req.status) + '</span>';
+      (req.statusLabel || req.status) + ' · ' + fmtDate(req.createdAt) + ' · ' + (req.ageLabel || '');
+
+    var badges = '<span class="ctrl-badge">' + esc(req.statusLabel || req.status) + '</span>';
+    if (req.attention) badges += '<span class="ctrl-badge ctrl-badge-attention">Aandacht</span>';
+    if (req.newSlaOverdue) badges += '<span class="ctrl-badge ctrl-badge-attention">SLA nieuw</span>';
+    if (req.followUpOverdue) badges += '<span class="ctrl-badge ctrl-badge-attention">Opvolging</span>';
+    EP.$('#ctrlBadges').innerHTML = badges;
 
     EP.$('#ctrlCustomerFields').innerHTML = dlRows([
       ['Naam', req.customerName],
@@ -179,45 +308,126 @@
 
     EP.$('#ctrlMessage').textContent = req.message || '';
 
+    EP.$('#ctrlOpsFields').innerHTML = dlRows([
+      ['Eigenaar', req.ownerUserId ? shortId(req.ownerUserId) : 'Niet toegewezen'],
+      ['Toegewezen op', fmtDate(req.ownerAssignedAt)],
+      ['Volgende opvolging', fmtDate(req.nextFollowUpAt)],
+      ['SLA-deadline (nieuw)', fmtDate(req.newSlaDeadlineAt)],
+      ['Aandacht', req.attention ? 'Ja' : 'Nee']
+    ]);
+
+    var followInput = EP.$('#ctrlFollowUpInput');
+    if (followInput) followInput.value = toLocalInputValue(req.nextFollowUpAt);
+
+    var ops = EP.$('#ctrlOpsActions');
+    if (ops) {
+      var closed = req.status === 'closed_won' || req.status === 'closed_lost';
+      if (closed) {
+        ops.innerHTML = '<p class="lab-hint">Gesloten aanvraag — geen actieve toewijzing/opvolging nodig.</p>';
+      } else {
+        ops.innerHTML =
+          '<button type="button" class="btn btn-ghost btn-sm" data-assign-me>Toewijzen aan mij</button>' +
+          '<button type="button" class="btn btn-ghost btn-sm" data-unassign>Eigenaar wissen</button>';
+      }
+    }
+
     EP.$('#ctrlContextFields').innerHTML = dlRows([
       ['Bron', req.source === 'marketplace_interest' ? 'Marketplace-interesse' : req.source],
       ['Partner', req.partnerSlug || '—'],
       ['Categorie', req.categoryId || '—'],
       ['Aangemaakt', fmtDate(req.createdAt)],
-      ['Laatste statuswijziging', fmtDate(req.statusChangedAt)]
+      ['Laatste statuswijziging', fmtDate(req.statusChangedAt)],
+      [
+        'Afsluitreden',
+        req.closedLostReasonLabel
+          ? req.closedLostReasonLabel + (req.closedLostDetail ? ' — ' + req.closedLostDetail : '')
+          : '—'
+      ],
+      ['Afgesloten op', fmtDate(req.closedAt)]
     ]);
+
+    fillLostReasons(req);
+    var lostBox = EP.$('#ctrlLostReasonBox');
+    if (lostBox) lostBox.hidden = true;
+
+    var notes = payload.notes || [];
+    var notesHost = EP.$('#ctrlNotes');
+    if (!notes.length) {
+      notesHost.innerHTML = '<p class="lab-hint">Nog geen notities.</p>';
+    } else {
+      notesHost.innerHTML = notes
+        .map(function (n) {
+          return (
+            '<div class="ctrl-ri">' +
+            '<div class="ctrl-ri-head">' +
+            '<strong>' +
+            esc(shortId(n.authorUserId)) +
+            '</strong>' +
+            '<span>' +
+            esc(fmtDate(n.createdAt)) +
+            '</span>' +
+            '</div>' +
+            '<p class="ctrl-note-body">' +
+            esc(n.content) +
+            '</p>' +
+            '</div>'
+          );
+        })
+        .join('');
+    }
+
+    var activity = payload.activity || [];
+    var actHost = EP.$('#ctrlActivity');
+    if (!activity.length) {
+      actHost.innerHTML = '<p class="lab-hint">Nog geen activiteit.</p>';
+    } else {
+      actHost.innerHTML = activity.map(activityLine).join('');
+    }
 
     var events = payload.statusEvents || [];
     var eventsHost = EP.$('#ctrlStatusEvents');
     if (!events.length) {
       eventsHost.innerHTML = '<p class="lab-hint">Nog geen statuswijzigingen.</p>';
     } else {
-      eventsHost.innerHTML = events.map(function (ev) {
-        return (
-          '<div class="ctrl-ri">' +
+      eventsHost.innerHTML = events
+        .map(function (ev) {
+          return (
+            '<div class="ctrl-ri">' +
             '<div class="ctrl-ri-head">' +
-              '<strong>' + esc(ev.fromLabel || '—') + ' → ' + esc(ev.toLabel || ev.toStatus) + '</strong>' +
-              '<span>' + esc(fmtDate(ev.createdAt)) + '</span>' +
+            '<strong>' +
+            esc(ev.fromLabel || '—') +
+            ' → ' +
+            esc(ev.toLabel || ev.toStatus) +
+            '</strong>' +
+            '<span>' +
+            esc(fmtDate(ev.createdAt)) +
+            '</span>' +
             '</div>' +
-          '</div>'
-        );
-      }).join('');
+            '</div>'
+          );
+        })
+        .join('');
     }
 
     var next = req.allowedNextStatuses || [];
     EP.$('#ctrlActionHint').textContent = next.length
-      ? 'Kies de volgende status. Ongeldige overgangen worden server-side geweigerd.'
+      ? 'Kies de volgende status. Ongeldige overgangen worden server-side geweigerd. Gewonnen = succesvolle intro/match door ELYAN.'
       : 'Deze aanvraag is afgesloten.';
     var actions = EP.$('#ctrlActions');
     if (!next.length) {
       actions.innerHTML = '<p class="lab-hint">Geen verdere statusacties.</p>';
     } else {
-      actions.innerHTML = next.map(function (s) {
-        return (
-          '<button type="button" class="btn btn-primary btn-sm" data-set-status="' +
-            esc(s.status) + '">' + esc(s.label) + '</button>'
-        );
-      }).join('');
+      actions.innerHTML = next
+        .map(function (s) {
+          return (
+            '<button type="button" class="btn btn-primary btn-sm" data-set-status="' +
+            esc(s.status) +
+            '">' +
+            esc(s.label) +
+            '</button>'
+          );
+        })
+        .join('');
     }
   }
 
@@ -246,17 +456,36 @@
     next.forEach(function (s) {
       if (s.status === toStatus) label = s.label;
     });
-    var ok = await confirmAction(
-      'Status wijzigen',
-      'Zet deze aanvraag op "' + label + '"?'
-    );
+
+    var body = { requestId: state.requestId, status: toStatus };
+    if (toStatus === 'closed_lost') {
+      var box = EP.$('#ctrlLostReasonBox');
+      if (box) box.hidden = false;
+      var reason = EP.$('#ctrlLostReason');
+      var detail = EP.$('#ctrlLostDetail');
+      if (!reason || !reason.value) {
+        setActionStatus('Kies eerst een reden voor verloren.', 'error');
+        return;
+      }
+      body.closedLostReason = reason.value;
+      if (reason.value === 'other') {
+        var d = detail && detail.value ? detail.value.trim() : '';
+        if (!d) {
+          setActionStatus('Toelichting is verplicht bij “Andere”.', 'error');
+          return;
+        }
+        body.closedLostDetail = d;
+      }
+    }
+
+    var ok = await confirmAction('Status wijzigen', 'Zet deze aanvraag op "' + label + '"?');
     if (!ok) return;
     state.busy = true;
     setActionStatus('Bezig…', 'info');
     try {
       var res = await EP.controlFetch('requests-set-status', {
         method: 'POST',
-        body: { requestId: state.requestId, status: toStatus }
+        body: body
       });
       if (!res.ok) {
         setActionStatus((res.body && res.body.message) || 'Status wijzigen mislukt.', 'error');
@@ -267,6 +496,105 @@
     } finally {
       state.busy = false;
     }
+  }
+
+  async function assignOwner(clear) {
+    if (state.busy || !state.requestId) return;
+    state.busy = true;
+    setActionStatus('Bezig…', 'info');
+    try {
+      var res = await EP.controlFetch('requests-set-owner', {
+        method: 'POST',
+        body: clear
+          ? { requestId: state.requestId, clear: true }
+          : { requestId: state.requestId, ownerUserId: state.staffUserId }
+      });
+      if (!res.ok) {
+        setActionStatus((res.body && res.body.message) || 'Eigenaar wijzigen mislukt.', 'error');
+        return;
+      }
+      setActionStatus(clear ? 'Eigenaar gewist.' : 'Toegewezen aan jou.', 'ok');
+      await loadDetail(state.requestId);
+    } finally {
+      state.busy = false;
+    }
+  }
+
+  async function saveFollowUp(clear) {
+    if (state.busy || !state.requestId) return;
+    var body = { requestId: state.requestId };
+    if (clear) {
+      body.clear = true;
+    } else {
+      var input = EP.$('#ctrlFollowUpInput');
+      if (!input || !input.value) {
+        setActionStatus('Kies een opvolgdatum.', 'error');
+        return;
+      }
+      body.nextFollowUpAt = new Date(input.value).toISOString();
+    }
+    state.busy = true;
+    setActionStatus('Bezig…', 'info');
+    try {
+      var res = await EP.controlFetch('requests-set-follow-up', {
+        method: 'POST',
+        body: body
+      });
+      if (!res.ok) {
+        setActionStatus((res.body && res.body.message) || 'Opvolging opslaan mislukt.', 'error');
+        return;
+      }
+      setActionStatus(clear ? 'Opvolging gewist.' : 'Opvolging bewaard.', 'ok');
+      await loadDetail(state.requestId);
+    } finally {
+      state.busy = false;
+    }
+  }
+
+  async function addNote() {
+    if (state.busy || !state.requestId) return;
+    var input = EP.$('#ctrlNoteInput');
+    var content = input && input.value ? input.value.trim() : '';
+    if (!content) {
+      setActionStatus('Schrijf eerst een notitie.', 'error');
+      return;
+    }
+    state.busy = true;
+    setActionStatus('Bezig…', 'info');
+    try {
+      var res = await EP.controlFetch('requests-add-note', {
+        method: 'POST',
+        body: { requestId: state.requestId, content: content }
+      });
+      if (!res.ok) {
+        setActionStatus((res.body && res.body.message) || 'Notitie toevoegen mislukt.', 'error');
+        return;
+      }
+      if (input) input.value = '';
+      setActionStatus('Notitie toegevoegd.', 'ok');
+      await loadDetail(state.requestId);
+    } finally {
+      state.busy = false;
+    }
+  }
+
+  function readSecondaryFilters() {
+    var cat = EP.$('#ctrlFilterCategory');
+    var partner = EP.$('#ctrlFilterPartner');
+    var owner = EP.$('#ctrlFilterOwner');
+    var fu = EP.$('#ctrlFilterFollowUp');
+    var age = EP.$('#ctrlFilterMinAge');
+    var from = EP.$('#ctrlFilterCreatedFrom');
+    var to = EP.$('#ctrlFilterCreatedTo');
+    var att = EP.$('#ctrlFilterAttention');
+    state.categoryId = cat && cat.value ? cat.value.trim() : '';
+    state.partnerSlug = partner && partner.value ? partner.value.trim().toLowerCase() : '';
+    state.ownerFilter = owner && owner.value ? owner.value : '';
+    state.followUpFilter = fu && fu.value ? fu.value : '';
+    state.minAgeHours = age && age.value ? String(age.value).trim() : '';
+    state.createdFrom = from && from.value ? from.value : '';
+    state.createdTo = to && to.value ? to.value : '';
+    state.attentionOnly = !!(att && att.checked);
   }
 
   function bind() {
@@ -283,10 +611,7 @@
     var apply = EP.$('#ctrlApplyFilters');
     if (apply) {
       apply.addEventListener('click', function () {
-        var cat = EP.$('#ctrlFilterCategory');
-        var partner = EP.$('#ctrlFilterPartner');
-        state.categoryId = cat && cat.value ? cat.value.trim() : '';
-        state.partnerSlug = partner && partner.value ? partner.value.trim().toLowerCase() : '';
+        readSecondaryFilters();
         loadList();
       });
     }
@@ -312,9 +637,38 @@
       actions.addEventListener('click', function (e) {
         var btn = e.target.closest('[data-set-status]');
         if (!btn) return;
-        setStatus(btn.getAttribute('data-set-status'));
+        var st = btn.getAttribute('data-set-status');
+        if (st === 'closed_lost') {
+          var box = EP.$('#ctrlLostReasonBox');
+          if (box) box.hidden = false;
+        }
+        setStatus(st);
       });
     }
+
+    var lostReason = EP.$('#ctrlLostReason');
+    if (lostReason) {
+      lostReason.addEventListener('change', function () {
+        var wrap = EP.$('#ctrlLostDetailWrap');
+        if (wrap) wrap.hidden = lostReason.value !== 'other';
+      });
+    }
+
+    var ops = EP.$('#ctrlOpsActions');
+    if (ops) {
+      ops.addEventListener('click', function (e) {
+        if (e.target.closest('[data-assign-me]')) assignOwner(false);
+        if (e.target.closest('[data-unassign]')) assignOwner(true);
+      });
+    }
+
+    var saveFu = EP.$('#ctrlSaveFollowUp');
+    if (saveFu) saveFu.addEventListener('click', function () { saveFollowUp(false); });
+    var clearFu = EP.$('#ctrlClearFollowUp');
+    if (clearFu) clearFu.addEventListener('click', function () { saveFollowUp(true); });
+
+    var addNoteBtn = EP.$('#ctrlAddNote');
+    if (addNoteBtn) addNoteBtn.addEventListener('click', addNote);
 
     var logout = EP.$('#ctrlLogout');
     if (logout) {
@@ -338,12 +692,12 @@
       showGate('Je hebt geen ELYAN Control-rechten.', 'error');
       return;
     }
+    state.staffUserId = session.user && session.user.id ? session.user.id : null;
     var userEl = EP.$('#ctrlUser');
     if (userEl && session.user && session.user.email) {
       userEl.hidden = false;
       userEl.textContent = session.user.email;
     }
-    // Redirect next for this page
     var id = parseRequestFromPath();
     if (id) await loadDetail(id);
     else await loadList();
