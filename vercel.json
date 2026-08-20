@@ -22,6 +22,10 @@
       "destination": "/professionals/onboarding"
     },
     {
+      "source": "/professionals/aanvragen/:requestId",
+      "destination": "/professionals/aanvragen"
+    },
+    {
       "source": "/professionals/control/:partnerId",
       "destination": "/professionals/control"
     },

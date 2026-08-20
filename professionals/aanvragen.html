@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ELYAN Control | Partners beoordelen</title>
+<title>ELYAN Control | Aanvragen</title>
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#3F4A32">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -11,17 +11,17 @@
 <link rel="stylesheet" href="/css/partner-lab.css">
 <link rel="stylesheet" href="/css/professionals.css">
 </head>
-<body class="page-partner-lab page-professionals page-control">
+<body class="page-partner-lab page-professionals page-control page-control-requests">
 <a href="#ctrlMain" class="skip-link">Ga naar inhoud</a>
 
 <header class="ctrl-top">
   <div class="ctrl-top-inner">
     <div class="ctrl-brand">
       <p class="lab-kicker">ELYAN Control</p>
-      <h1 class="ctrl-title">Partnerbeoordeling</h1>
+      <h1 class="ctrl-title">Aanvragen</h1>
       <nav class="ctrl-mode-nav" aria-label="Control-onderdelen">
-        <a href="/professionals/control" aria-current="page">Partners</a>
-        <a href="/professionals/aanvragen">Aanvragen</a>
+        <a href="/professionals/control">Partners</a>
+        <a href="/professionals/aanvragen" aria-current="page">Aanvragen</a>
       </nav>
     </div>
     <div class="ctrl-top-actions">
@@ -37,26 +37,37 @@
   <section id="ctrlListView" class="ctrl-view" hidden>
     <div class="ctrl-toolbar">
       <nav class="ctrl-filters" aria-label="Statusfilter" id="ctrlFilters">
-        <button type="button" class="ctrl-filter is-active" data-filter="submitted">Ingediend</button>
-        <button type="button" class="ctrl-filter" data-filter="changes_requested">Wijzigingen</button>
-        <button type="button" class="ctrl-filter" data-filter="ready">Klaar</button>
-        <button type="button" class="ctrl-filter" data-filter="published">Gepubliceerd</button>
-        <button type="button" class="ctrl-filter" data-filter="paused">Gepauzeerd</button>
-        <button type="button" class="ctrl-filter" data-filter="hidden">Verborgen</button>
+        <button type="button" class="ctrl-filter is-active" data-status="all">Alles</button>
+        <button type="button" class="ctrl-filter" data-status="new">Nieuw</button>
+        <button type="button" class="ctrl-filter" data-status="contacted">Gecontacteerd</button>
+        <button type="button" class="ctrl-filter" data-status="qualified">Gekwalificeerd</button>
+        <button type="button" class="ctrl-filter" data-status="closed_won">Gewonnen</button>
+        <button type="button" class="ctrl-filter" data-status="closed_lost">Verloren</button>
       </nav>
       <p id="ctrlListMeta" class="ctrl-list-meta"></p>
+    </div>
+    <div class="ctrl-toolbar ctrl-toolbar-secondary">
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Categorie</span>
+        <input type="text" id="ctrlFilterCategory" class="ctrl-input" placeholder="bijv. dakwerken" autocomplete="off">
+      </label>
+      <label class="ctrl-field">
+        <span class="ctrl-field-label">Partner-slug</span>
+        <input type="text" id="ctrlFilterPartner" class="ctrl-input" placeholder="bijv. acme-dak" autocomplete="off">
+      </label>
+      <button type="button" class="btn btn-ghost btn-sm" id="ctrlApplyFilters">Filteren</button>
     </div>
     <div id="ctrlList" class="ctrl-list" role="list"></div>
   </section>
 
-  <section id="ctrlReviewView" class="ctrl-view" hidden>
+  <section id="ctrlDetailView" class="ctrl-view" hidden>
     <div class="ctrl-review-top">
       <button type="button" class="btn btn-ghost btn-sm" id="ctrlBackList">← Terug naar lijst</button>
       <div class="ctrl-review-head">
         <div>
-          <p class="lab-kicker" id="ctrlReviewKicker">Beoordeling</p>
-          <h2 class="ctrl-review-name" id="ctrlReviewName"></h2>
-          <p class="ctrl-review-sub" id="ctrlReviewSub"></p>
+          <p class="lab-kicker" id="ctrlDetailKicker">Klantaanvraag</p>
+          <h2 class="ctrl-review-name" id="ctrlDetailName"></h2>
+          <p class="ctrl-review-sub" id="ctrlDetailSub"></p>
         </div>
         <div class="ctrl-badges" id="ctrlBadges"></div>
       </div>
@@ -64,35 +75,30 @@
 
     <div class="ctrl-review-grid">
       <div class="ctrl-review-main">
-        <div id="ctrlSections" class="ctrl-sections"></div>
-        <div class="ctrl-preview-block">
-          <h3 class="ctrl-section-title">Marketplace-voorbeeld</h3>
-          <p class="lab-hint">Zo zou dit profiel later publiek verschijnen (geen live marketplace).</p>
-          <div id="ctrlPreview" class="ctrl-preview"></div>
+        <div class="ctrl-section">
+          <h3 class="ctrl-section-title">Klantgegevens</h3>
+          <dl class="ctrl-dl" id="ctrlCustomerFields"></dl>
+        </div>
+        <div class="ctrl-section">
+          <h3 class="ctrl-section-title">Bericht</h3>
+          <p class="ctrl-message" id="ctrlMessage"></p>
+        </div>
+        <div class="ctrl-section">
+          <h3 class="ctrl-section-title">Statusgeschiedenis</h3>
+          <div id="ctrlStatusEvents" class="ctrl-review-items"></div>
         </div>
       </div>
 
       <aside class="ctrl-aside">
         <div class="ctrl-panel">
-          <h3 class="ctrl-section-title">Acties</h3>
+          <h3 class="ctrl-section-title">Status</h3>
           <p id="ctrlActionHint" class="lab-hint"></p>
           <div class="ctrl-actions" id="ctrlActions"></div>
           <p id="ctrlActionStatus" class="prof-status" hidden></p>
         </div>
-
-        <div class="ctrl-panel" id="ctrlChangesPanel" hidden>
-          <h3 class="ctrl-section-title">Wijzigingen vragen</h3>
-          <p class="lab-hint">Voeg één of meer concrete feedbackpunten toe. De partner ziet ze in Review Hub.</p>
-          <div id="ctrlChangeItems" class="ctrl-change-items"></div>
-          <button type="button" class="btn btn-ghost btn-sm" id="ctrlAddChangeItem">+ Feedbackpunt</button>
-          <div class="ctrl-actions" style="margin-top:12px">
-            <button type="button" class="btn btn-primary" id="ctrlSubmitChanges">Wijzigingen bevestigen</button>
-          </div>
-        </div>
-
         <div class="ctrl-panel">
-          <h3 class="ctrl-section-title">Aanpassingspunten</h3>
-          <div id="ctrlReviewItems" class="ctrl-review-items"></div>
+          <h3 class="ctrl-section-title">Context</h3>
+          <dl class="ctrl-dl" id="ctrlContextFields"></dl>
         </div>
       </aside>
     </div>
@@ -112,6 +118,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/js/professionals/core.js"></script>
-<script src="/js/professionals/control.js"></script>
+<script src="/js/professionals/control-requests.js"></script>
 </body>
 </html>

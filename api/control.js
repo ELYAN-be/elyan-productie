@@ -4,7 +4,8 @@
  *
  * Actions:
  *   session | list | review | request-changes | approve | publish |
- *   rebuild-public-snapshot | pause | hide | restore
+ *   rebuild-public-snapshot | pause | hide | restore |
+ *   requests-list | requests-get | requests-set-status
  */
 var { requireStaff, isStaff, requireUser } = require('../server/tenancy');
 var {
@@ -18,6 +19,11 @@ var {
   hidePartner,
   restorePartner
 } = require('../server/control');
+var {
+  listRequests,
+  getRequest,
+  setRequestStatus
+} = require('../server/customer-requests');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
 var { rateLimit, clientKey } = require('../server/rate-limit');
 
@@ -57,6 +63,21 @@ function getFilter(req, body) {
     } catch (e) { /* ignore */ }
   }
   return 'submitted';
+}
+
+function getQueryParam(req, body, key) {
+  if (body && body[key] != null && String(body[key]).trim()) return String(body[key]).trim();
+  if (req.query && req.query[key] != null && String(req.query[key]).trim()) {
+    return String(req.query[key]).trim();
+  }
+  if (req.url) {
+    try {
+      var u = new URL(req.url, 'http://localhost');
+      var q = u.searchParams.get(key);
+      if (q) return String(q).trim();
+    } catch (e) { /* ignore */ }
+  }
+  return '';
 }
 
 function statusForCode(code) {
@@ -221,6 +242,47 @@ module.exports = async function handler(req, res) {
           req: req
         });
         return respond(res, restored);
+      }
+
+      // --- Customer Requests (staff-only; partners have no path) ---
+      if (action === 'requests-list') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlRl = rateLimit(clientKey(req, 'control_requests_list'), 60, 60 * 1000);
+        if (!rlRl.ok) return errorJson(res, 429, 'rate_limited');
+        var listedReq = await listRequests({
+          status: getQueryParam(req, body, 'status') || 'all',
+          categoryId: getQueryParam(req, body, 'categoryId') || null,
+          partnerId: getQueryParam(req, body, 'partnerId') || null,
+          partnerSlug: getQueryParam(req, body, 'partnerSlug') || null
+        });
+        return respond(res, listedReq);
+      }
+
+      if (action === 'requests-get') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlRg = rateLimit(clientKey(req, 'control_requests_get'), 60, 60 * 1000);
+        if (!rlRg.ok) return errorJson(res, 429, 'rate_limited');
+        var gotReq = await getRequest({
+          requestId: getQueryParam(req, body, 'requestId')
+        });
+        return respond(res, gotReq);
+      }
+
+      if (action === 'requests-set-status') {
+        if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+        var rlRs = rateLimit(clientKey(req, 'control_requests_status'), 30, 60 * 1000);
+        if (!rlRs.ok) return errorJson(res, 429, 'rate_limited');
+        var setReq = await setRequestStatus({
+          requestId: getQueryParam(req, body, 'requestId'),
+          status: getQueryParam(req, body, 'status'),
+          staffUserId: staff.user.id,
+          req: req
+        });
+        return respond(res, setReq);
       }
 
       return errorJson(res, 400, 'missing_fields', { message: 'Onbekende of ontbrekende action.' });

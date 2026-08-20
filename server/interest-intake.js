@@ -7,6 +7,7 @@
 var crypto = require('crypto');
 var { createAdminClient } = require('./supabase');
 var { getProfessionalBySlug } = require('./marketplace-public');
+var { createRequestFromInterest } = require('./customer-requests');
 
 var DEDUPE_WINDOW_MS = 5 * 60 * 1000;
 var MAX = {
@@ -208,7 +209,7 @@ async function submitInterest(body, meta) {
   var { data: inserted, error } = await admin
     .from('interest_intakes')
     .insert(row)
-    .select('id')
+    .select('id, partner_id, partner_slug, category_id, name, email, phone, location_text, description, consent_at, created_at')
     .maybeSingle();
 
   if (error) {
@@ -218,7 +219,24 @@ async function submitInterest(body, meta) {
     return { ok: false, code: 'server_error' };
   }
 
-  return { ok: true, id: inserted && inserted.id ? inserted.id : null };
+  if (!inserted || !inserted.id) {
+    return { ok: false, code: 'server_error' };
+  }
+
+  // One internal Control request per successful intake (dedupe path never reaches here).
+  var reqCreated = await createRequestFromInterest(inserted);
+  if (!reqCreated.ok) {
+    // Intake exists; request create failed — surface as server error so ops notice.
+    // Unique race still returns ok from createRequestFromInterest.
+    console.error('interest_request_create_failed', reqCreated.code);
+    return { ok: false, code: reqCreated.code || 'server_error' };
+  }
+
+  return {
+    ok: true,
+    id: inserted.id,
+    requestId: reqCreated.request && reqCreated.request.id ? reqCreated.request.id : null
+  };
 }
 
 module.exports = {

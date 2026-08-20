@@ -125,16 +125,18 @@
   }
 
   async function requireStaffOrRedirect() {
+    var nextPath = location.pathname + location.search;
+    if (nextPath.indexOf('/professionals/') !== 0) nextPath = '/professionals/control';
     var sb = await getSupabase();
     var { data } = await sb.auth.getSession();
     if (!data || !data.session) {
-      location.replace('/professionals/login?next=' + encodeURIComponent('/professionals/control'));
+      location.replace('/professionals/login?next=' + encodeURIComponent(nextPath));
       return null;
     }
     var sessionRes = await controlFetch('session');
     if (sessionRes.status === 401) {
       await sb.auth.signOut();
-      location.replace('/professionals/login?next=' + encodeURIComponent('/professionals/control'));
+      location.replace('/professionals/login?next=' + encodeURIComponent(nextPath));
       return null;
     }
     if (sessionRes.status === 403 || !sessionRes.ok) {
