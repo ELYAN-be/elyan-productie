@@ -219,18 +219,53 @@ async function withAssetHarness(fn) {
     filename: blobPath,
     loaded: true,
     exports: Object.assign({}, realBlob.exports, {
-      putObject: async function (storageKey, buf, contentType) {
-        var url = 'https://blob.test/' + storageKey;
-        db.store.blobs[storageKey] = { buf: buf, contentType: contentType, url: url };
+      putPrivateObject: async function (storageKey, buf, contentType) {
+        db.store.blobs[storageKey] = {
+          buf: buf,
+          contentType: contentType,
+          access: 'private'
+        };
+        return { storageKey: storageKey, url: null };
+      },
+      putPublicObject: async function (storageKey, buf, contentType) {
+        var url = 'https://blob.test/public/' + storageKey;
+        db.store.blobs[storageKey] = {
+          buf: buf,
+          contentType: contentType,
+          access: 'public',
+          url: url
+        };
         return { storageKey: storageKey, publicUrl: url };
       },
-      deleteObject: async function (ref) {
+      getPrivateBuffer: async function (storageKeyOrUrl) {
+        var hit = db.store.blobs[storageKeyOrUrl];
+        if (!hit || hit.access !== 'private') return { ok: false, code: 'not_found' };
+        return { ok: true, buffer: hit.buf, contentType: hit.contentType };
+      },
+      deletePrivateObject: async function (ref) {
         Object.keys(db.store.blobs).forEach(function (k) {
-          if (k === ref || db.store.blobs[k].url === ref) delete db.store.blobs[k];
+          if (k === ref) delete db.store.blobs[k];
         });
         return { ok: true };
       },
-      getBlobToken: function () { return 'test-token'; }
+      deletePublicObject: async function (ref) {
+        Object.keys(db.store.blobs).forEach(function (k) {
+          var b = db.store.blobs[k];
+          if (k === ref || (b && b.url === ref)) delete db.store.blobs[k];
+        });
+        return { ok: true };
+      },
+      putObject: async function (storageKey, buf, contentType) {
+        return this.putPrivateObject(storageKey, buf, contentType).then(function (u) {
+          return { storageKey: u.storageKey, publicUrl: null };
+        });
+      },
+      deleteObject: async function (ref) {
+        return this.deletePrivateObject(ref);
+      },
+      getBlobToken: function () { return 'test-public-token'; },
+      getPublicToken: function () { return 'test-public-token'; },
+      getPrivateToken: function () { return 'test-private-token'; }
     })
   };
 
@@ -334,11 +369,16 @@ async function run() {
     assert.ok(Portfolio.validateSourceFile({ type: 'image/jpeg', size: 9 * 1024 * 1024 }).code === 'file_too_large');
   });
 
-  await test('storage keys are partner-scoped and unique', function () {
-    var k1 = blob.buildStorageKey('partner-a', 'asset-1', 'jpg');
-    var k2 = blob.buildStorageKey('partner-a', 'asset-1', 'jpg');
-    assert.ok(k1.indexOf('partners/partner-a/') >= 0);
+  await test('storage keys are non-identifying drafts and unique', function () {
+    var k1 = blob.buildPrivateStorageKey('asset-1', 'jpg');
+    var k2 = blob.buildPrivateStorageKey('asset-1', 'jpg');
+    assert.ok(k1.indexOf('elyan/drafts/') === 0);
+    assert.ok(k1.indexOf('partner') < 0);
+    assert.ok(k1.indexOf('@') < 0);
     assert.notStrictEqual(k1, k2);
+    var pub = blob.buildPublicStorageKey('asset-1', 'jpg');
+    assert.ok(pub.indexOf('elyan/live/') === 0);
+    assert.ok(pub.indexOf('partner') < 0);
   });
 
   await test('upload valid JPEG auto-cover; change cover; reorder; delete cover rule', async function () {
@@ -375,9 +415,17 @@ async function run() {
       assert.ok(up1.ok, up1.code || up1.message);
       assert.strictEqual(up1.assets.length, 1);
       assert.ok(up1.assets[0].isCover);
+      assert.strictEqual(up1.assets[0].publicUrl, null);
+      assert.ok(up1.assets[0].previewUrl);
+      assert.ok(up1.assets[0].previewUrl.indexOf('/api/professionals/asset-preview') === 0);
       assert.strictEqual(up1.coverAssetId, up1.assets[0].id);
       assert.strictEqual(db.store.partner_profiles[partnerId].cover_asset_id, up1.assets[0].id);
       var firstId = up1.assets[0].id;
+      var row1 = db.store.partner_profile_assets[firstId];
+      assert.ok(row1.private_storage_key);
+      assert.ok(!row1.public_url);
+      assert.ok(db.store.blobs[row1.private_storage_key]);
+      assert.strictEqual(db.store.blobs[row1.private_storage_key].access, 'private');
 
       var up2 = await assets.uploadAsset({
         partnerId: partnerId,
@@ -621,6 +669,7 @@ async function run() {
       assert.ok(t.indexOf('SERVICE_ROLE') < 0, f);
       assert.ok(t.indexOf('service_role') < 0, f);
       assert.ok(t.indexOf('BLOB_READ_WRITE_TOKEN') < 0, f);
+      assert.ok(t.indexOf('BLOB_PRIVATE_READ_WRITE_TOKEN') < 0, f);
     });
   });
 

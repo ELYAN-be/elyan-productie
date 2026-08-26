@@ -23,7 +23,9 @@
     "test:customer-requests": "node scripts/customer-requests-check.js",
     "test:control-data": "node scripts/control-data-check.js",
     "test:professionals": "npm run test:phase-a && npm run test:phase-b",
-    "test:marketplace": "npm run test:marketplace-sprint1 && npm run test:marketplace-sprint2 && npm run test:marketplace-sprint3 && npm run test:marketplace-interest && npm run test:customer-requests && npm run test:control-data",
+    "test:security-hardening": "node scripts/security-hardening-check.js && node scripts/private-assets-check.js",
+    "test:private-assets": "node scripts/private-assets-check.js",
+    "test:marketplace": "npm run test:marketplace-sprint1 && npm run test:marketplace-sprint2 && npm run test:marketplace-sprint3 && npm run test:marketplace-interest && npm run test:customer-requests && npm run test:control-data && npm run test:security-hardening",
     "test:all-elyan": "npm run test:professionals && npm run test:marketplace",
     "test:invite-e2e": "node scripts/invite-password-browser-e2e.js",
     "test:claim-e2e": "node scripts/invite-claim-browser-e2e.js",
@@ -47,7 +49,8 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",
     "@vercel/blob": "^2.8.0",
-    "pdfkit": "^0.19.1"
+    "pdfkit": "^0.19.1",
+    "sharp": "^0.35.4"
   },
   "devDependencies": {
     "playwright": "^1.49.1"

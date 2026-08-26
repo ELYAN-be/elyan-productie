@@ -4,6 +4,8 @@
    Geen account, geen login, geen betaling.
    ============================================================ */
 
+var { rateLimit, clientKey } = require('../server/rate-limit');
+
 var FROM_ADDRESS = 'ELYAN <rapport@elyan.be>';
 var TO_ADDRESS = 'elyan.info@gmail.com';
 
@@ -27,11 +29,22 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'method_not_allowed' });
   }
 
+  var rl = rateLimit(clientKey(req, 'partner_interest'), 8, 10 * 60 * 1000);
+  if (!rl.ok) {
+    return res.status(429).json({ error: 'rate_limited' });
+  }
+
   var body = req.body;
   if (typeof body === 'string') {
     try { body = JSON.parse(body); } catch (e) { body = {}; }
   }
   body = body || {};
+
+  // Honeypot — unused form fields; silent OK (no email).
+  var honeypot = clean(body.url || body.fax || body.hp_company, 200);
+  if (honeypot) {
+    return res.status(200).json({ ok: true });
+  }
 
   var companyName = clean(body.companyName, 120);
   var contactName = clean(body.contactName, 80);
@@ -108,7 +121,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('partner-interest exception', err);
+    console.error('partner-interest exception', err && err.message ? err.message : 'error');
     return res.status(500).json({ error: 'server_error' });
   }
 };

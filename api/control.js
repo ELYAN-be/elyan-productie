@@ -114,7 +114,14 @@ function statusForCode(code) {
 function respond(res, result) {
   if (!result.ok) {
     var extra = {};
-    if (result.message) extra.detail = result.message;
+    // Never echo internal/server messages; keep structured validation only.
+    if (
+      result.message &&
+      result.code !== 'server_error' &&
+      result.code !== 'missing_env'
+    ) {
+      extra.detail = result.message;
+    }
     if (result.missing) extra.missing = result.missing;
     return errorJson(res, statusForCode(result.code), result.code, extra);
   }

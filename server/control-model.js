@@ -228,6 +228,38 @@ function buildMarketplacePreview(opts) {
       maxPrice: sp.max_price != null ? sp.max_price : null
     };
   });
+
+  // Control staff preview only: fall back to authenticated preview route when no public derivative.
+  // Never used for PublicSnapshot / Marketplace delivery (those use publicUrl only).
+  function staffPreviewUrl(raw) {
+    if (!raw) return null;
+    var pub = raw.public_url || raw.publicUrl || null;
+    if (pub) return pub;
+    if (raw.previewUrl) return raw.previewUrl;
+    if (raw.private_storage_key || (raw.storage_key && !pub)) {
+      var pid = raw.partner_id || raw.partnerId || opts.partnerId;
+      if (raw.id && pid) {
+        return (
+          '/api/professionals/asset-preview?assetId=' +
+          encodeURIComponent(raw.id) +
+          '&partnerId=' +
+          encodeURIComponent(pid)
+        );
+      }
+    }
+    return null;
+  }
+
+  var coverRaw = (opts.assets || []).filter(function (a) {
+    if (!a) return false;
+    if (opts.coverAssetId) return a.id === opts.coverAssetId;
+    return !!(a.is_cover || a.isCover);
+  })[0] || (opts.assets || [])[0] || null;
+
+  var gallery = (opts.assets || [])
+    .map(staffPreviewUrl)
+    .filter(Boolean);
+
   return {
     slug: snap.slug,
     status: opts.profileStatus || 'ready',
@@ -237,14 +269,14 @@ function buildMarketplacePreview(opts) {
     categoryLabel: cat ? cat.label : catId,
     city: snap.company.gemeente || null,
     area: (snap.serviceArea && snap.serviceArea.public_text) || null,
-    image: snap.coverUrl,
+    image: snap.coverUrl || staffPreviewUrl(coverRaw),
     strength: snap.story && snap.story.strength,
     prefer: snap.story && snap.story.prefer,
     capacity: snap.offer && snap.offer.capacity,
     startMonth: snap.offer && snap.offer.start_month,
     visitSpeed: snap.offer && snap.offer.visit_speed,
     services: services,
-    gallery: snap.assets.map(function (a) { return a.publicUrl; }).filter(Boolean)
+    gallery: gallery.length ? gallery : snap.assets.map(function (a) { return a.publicUrl; }).filter(Boolean)
   };
 }
 

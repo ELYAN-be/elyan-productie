@@ -1,14 +1,13 @@
 /**
  * Partner portfolio assets — BFF service (service_role after membership authZ).
  *
+ * Private drafts → authorized preview → publish creates public derivatives only.
+ *
  * COVER DELETE RULE (deterministic, client + server):
  * When the cover asset is deleted:
  *   1. Remaining assets sorted by sort_order ASC, created_at ASC, id ASC
  *   2. If any remain → promote remaining[0] as sole cover; sync partner_profiles.cover_asset_id
  *   3. Else → clear cover_asset_id; no is_cover rows
- * Deleting a non-cover asset does not change cover.
- * First successful upload when no cover → auto-cover that asset.
- * Changing cover → sole is_cover=true on chosen asset; sync cover_asset_id.
  */
 var crypto = require('crypto');
 var { createAdminClient } = require('./supabase');
@@ -38,20 +37,51 @@ function canMutateAssets(status) {
   );
 }
 
+function privateKeyOf(row) {
+  if (!row) return null;
+  return row.private_storage_key || null;
+}
+
+function publicKeyOf(row) {
+  if (!row) return null;
+  return row.public_storage_key || null;
+}
+
+/**
+ * Client-safe asset projection.
+ * Never exposes private Blob URLs, private pathnames, or storage credentials.
+ */
 function mapAsset(row) {
   if (!row) return null;
+  var hasPrivate = !!privateKeyOf(row);
+  var publicUrl = row.public_url || null;
+  var previewUrl = null;
+  if (hasPrivate || (!publicUrl && row.storage_key && !row.public_url)) {
+    // Prefer authenticated preview for private originals.
+    if (hasPrivate) {
+      previewUrl =
+        '/api/professionals/asset-preview?assetId=' +
+        encodeURIComponent(row.id) +
+        '&partnerId=' +
+        encodeURIComponent(row.partner_id);
+    }
+  }
+  // Legacy public-only assets (no private key): preview via public URL until republished.
+  if (!previewUrl && publicUrl) previewUrl = publicUrl;
+
   return {
     id: row.id,
     partnerId: row.partner_id,
-    storageKey: row.storage_key || null,
-    publicUrl: row.public_url || null,
+    previewUrl: previewUrl,
+    publicUrl: publicUrl,
     title: row.title || '',
     contentType: row.content_type || null,
     byteSize: row.byte_size == null ? null : row.byte_size,
     assetStatus: row.asset_status,
     isCover: !!row.is_cover,
     sortOrder: row.sort_order == null ? 0 : row.sort_order,
-    createdBy: row.created_by || null,
+    hasPrivateOriginal: hasPrivate,
+    hasPublicDerivative: !!(publicUrl || publicKeyOf(row)),
     createdAt: row.created_at || null,
     updatedAt: row.updated_at || null
   };
@@ -78,7 +108,7 @@ async function listAssets(admin, partnerId) {
     console.error('assets_list_failed', error.message);
     return { ok: false, code: 'server_error' };
   }
-  return { ok: true, assets: sortAssets(data || []).map(mapAsset) };
+  return { ok: true, assets: sortAssets(data || []).map(mapAsset), rows: sortAssets(data || []) };
 }
 
 async function getProfile(admin, partnerId) {
@@ -138,9 +168,6 @@ async function setSoleCover(admin, partnerId, assetId) {
   return { ok: true, asset: data };
 }
 
-/**
- * Apply cover-delete promotion rule after removing cover asset.
- */
 async function promoteNextCover(admin, partnerId) {
   var listed = await listAssets(admin, partnerId);
   if (!listed.ok) return listed;
@@ -203,13 +230,13 @@ async function uploadAsset(opts) {
   if (!checked.ok) return checked;
 
   var assetId = crypto.randomUUID();
-  var storageKey = blob.buildStorageKey(opts.partnerId, assetId, checked.ext);
+  var privateKey = blob.buildPrivateStorageKey(assetId, checked.ext);
   var uploaded;
   try {
-    uploaded = await blob.putObject(storageKey, buf, checked.contentType);
+    uploaded = await blob.putPrivateObject(privateKey, buf, checked.contentType);
   } catch (e) {
     if (e && e.code === 'missing_env') return { ok: false, code: 'missing_env' };
-    console.error('blob_put_failed', e && e.message);
+    console.error('blob_private_put_failed', e && e.message);
     return { ok: false, code: 'upload_failed', message: 'Upload mislukt. Probeer opnieuw.' };
   }
 
@@ -225,7 +252,7 @@ async function uploadAsset(opts) {
 
   var profile = await getProfile(admin, opts.partnerId);
   if (!profile.ok) {
-    await blob.deleteObject(uploaded.publicUrl || uploaded.storageKey);
+    await blob.deletePrivateObject(uploaded.storageKey);
     return profile;
   }
 
@@ -236,7 +263,9 @@ async function uploadAsset(opts) {
     id: assetId,
     partner_id: opts.partnerId,
     storage_key: uploaded.storageKey,
-    public_url: uploaded.publicUrl,
+    private_storage_key: uploaded.storageKey,
+    public_storage_key: null,
+    public_url: null,
     title: title,
     content_type: checked.contentType,
     byte_size: checked.byteSize,
@@ -254,7 +283,7 @@ async function uploadAsset(opts) {
 
   if (iErr || !inserted) {
     console.error('asset_insert_failed', iErr && iErr.message);
-    await blob.deleteObject(uploaded.publicUrl || uploaded.storageKey);
+    await blob.deletePrivateObject(uploaded.storageKey);
     return { ok: false, code: 'server_error' };
   }
 
@@ -272,7 +301,7 @@ async function uploadAsset(opts) {
     actorType: 'user',
     partnerId: opts.partnerId,
     action: 'portfolio_asset_uploaded',
-    meta: { assetId: assetId, bytes: checked.byteSize }
+    meta: { assetId: assetId, bytes: checked.byteSize, private: true }
   });
 
   var refreshed = await getAssets(opts);
@@ -299,6 +328,36 @@ async function loadOwnedAsset(admin, partnerId, assetId) {
     return { ok: false, code: 'forbidden' };
   }
   return { ok: true, asset: data };
+}
+
+/**
+ * Authorized private preview — owning membership or staff.
+ */
+async function loadPrivatePreviewBuffer(opts) {
+  var admin = createAdminClient();
+  var owned = await loadOwnedAsset(admin, opts.partnerId, opts.assetId);
+  if (!owned.ok) return owned;
+  var key = privateKeyOf(owned.asset);
+  if (!key) {
+    // Legacy public-only: no private original to stream
+    if (owned.asset.public_url) {
+      return { ok: false, code: 'legacy_public_only', publicUrl: owned.asset.public_url };
+    }
+    return { ok: false, code: 'not_found' };
+  }
+  try {
+    var got = await blob.getPrivateBuffer(key);
+    if (!got.ok) return { ok: false, code: 'not_found' };
+    return {
+      ok: true,
+      buffer: got.buffer,
+      contentType: got.contentType || owned.asset.content_type || 'application/octet-stream'
+    };
+  } catch (e) {
+    if (e && e.code === 'missing_env') return { ok: false, code: 'missing_env' };
+    console.error('asset_preview_failed', e && e.message);
+    return { ok: false, code: 'server_error' };
+  }
 }
 
 async function updateAsset(opts) {
@@ -416,7 +475,9 @@ async function deleteAsset(opts) {
   if (!owned.ok) return owned;
 
   var wasCover = !!owned.asset.is_cover;
-  var storageRef = owned.asset.public_url || owned.asset.storage_key;
+  var priv = privateKeyOf(owned.asset);
+  var pubKey = publicKeyOf(owned.asset);
+  var pubUrl = owned.asset.public_url || null;
 
   var { error: dErr } = await admin
     .from('partner_profile_assets')
@@ -429,8 +490,12 @@ async function deleteAsset(opts) {
     return { ok: false, code: 'server_error' };
   }
 
-  // Best-effort blob cleanup (avoid orphans where reasonable)
-  await blob.deleteObject(storageRef);
+  if (priv) await blob.deletePrivateObject(priv);
+  if (pubKey || pubUrl) await blob.deletePublicObject(pubUrl || pubKey);
+  // Legacy: storage_key without private_storage_key may still point at public store
+  if (!priv && owned.asset.storage_key && owned.asset.public_url) {
+    await blob.deletePublicObject(owned.asset.public_url || owned.asset.storage_key);
+  }
 
   if (wasCover) {
     var promoted = await promoteNextCover(admin, opts.partnerId);
@@ -454,6 +519,136 @@ async function deleteAsset(opts) {
   return getAssets(opts);
 }
 
+/**
+ * Create/refresh public derivatives from private originals.
+ * Idempotent: skips assets that already have public_url + public_storage_key
+ * unless opts.forceRefresh.
+ * Fail-closed: Blob puts complete before any DB write; on failure delete all
+ * newly created public objects and leave profile unpublished / unrestored.
+ */
+async function promoteAssetsToPublic(opts) {
+  var admin = opts.admin || createAdminClient();
+  var partnerId = opts.partnerId;
+  var listed = await listAssets(admin, partnerId);
+  if (!listed.ok) return listed;
+
+  var pending = [];
+  var rows = listed.rows || [];
+
+  try {
+    for (var i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var priv = privateKeyOf(row);
+      if (!priv) {
+        // Legacy public-only: keep existing public_url for snapshot; do not invent private.
+        continue;
+      }
+      if (row.public_url && row.public_storage_key && !opts.forceRefresh) {
+        continue;
+      }
+
+      if (opts.forceRefresh && (row.public_url || row.public_storage_key)) {
+        await blob.deletePublicObject(row.public_url || row.public_storage_key);
+      }
+
+      var got = await blob.getPrivateBuffer(priv);
+      if (!got.ok) {
+        throw Object.assign(new Error('private_read_failed'), { code: 'upload_failed' });
+      }
+      var encoded = await blob.encodePublicDerivative(
+        got.buffer,
+        got.contentType || row.content_type
+      );
+      if (!encoded.ok) {
+        throw Object.assign(new Error('public_encode_failed'), {
+          code: encoded.code || 'upload_failed'
+        });
+      }
+      var pubKey = blob.buildPublicStorageKey(row.id, encoded.ext);
+      var put = await blob.putPublicObject(pubKey, encoded.buffer, encoded.contentType);
+      pending.push({
+        id: row.id,
+        storageKey: put.storageKey,
+        publicUrl: put.publicUrl,
+        priv: priv
+      });
+    }
+
+    for (var u = 0; u < pending.length; u++) {
+      var item = pending[u];
+      var { error: uErr } = await admin
+        .from('partner_profile_assets')
+        .update({
+          public_storage_key: item.storageKey,
+          public_url: item.publicUrl,
+          storage_key: item.priv
+        })
+        .eq('id', item.id)
+        .eq('partner_id', partnerId);
+      if (uErr) {
+        throw Object.assign(new Error('public_meta_update_failed'), { code: 'server_error' });
+      }
+    }
+  } catch (e) {
+    for (var j = 0; j < pending.length; j++) {
+      await blob.deletePublicObject(pending[j].publicUrl || pending[j].storageKey);
+      // Clear any DB rows updated before the failure (fail closed; no dangling public refs).
+      try {
+        await admin
+          .from('partner_profile_assets')
+          .update({ public_storage_key: null, public_url: null })
+          .eq('id', pending[j].id)
+          .eq('partner_id', partnerId);
+      } catch (clearErr) {
+        console.error('promote_rollback_meta_failed', clearErr && clearErr.message);
+      }
+    }
+    if (e && e.code === 'missing_env') return { ok: false, code: 'missing_env' };
+    console.error('promote_assets_failed', e && e.message);
+    return { ok: false, code: e && e.code ? e.code : 'upload_failed' };
+  }
+
+  var refreshed = await listAssets(admin, partnerId);
+  if (!refreshed.ok) return refreshed;
+  return { ok: true, assets: refreshed.rows, mapped: refreshed.assets };
+}
+
+/**
+ * Revoke public derivatives while preserving private originals.
+ * Legacy assets without private_storage_key: leave Blob object; clear only if private exists.
+ */
+async function revokePublicDerivatives(opts) {
+  var admin = opts.admin || createAdminClient();
+  var partnerId = opts.partnerId;
+  var listed = await listAssets(admin, partnerId);
+  if (!listed.ok) return listed;
+  var rows = listed.rows || [];
+
+  for (var i = 0; i < rows.length; i++) {
+    var row = rows[i];
+    var priv = privateKeyOf(row);
+    var pubKey = publicKeyOf(row);
+    var pubUrl = row.public_url || null;
+    if (!pubKey && !pubUrl) continue;
+
+    if (priv) {
+      await blob.deletePublicObject(pubUrl || pubKey);
+      var { error } = await admin
+        .from('partner_profile_assets')
+        .update({ public_storage_key: null, public_url: null })
+        .eq('id', row.id)
+        .eq('partner_id', partnerId);
+      if (error) {
+        console.error('revoke_public_meta_failed', error.message);
+        return { ok: false, code: 'server_error' };
+      }
+    }
+    // Legacy without private: keep blob (restore/compat); Marketplace fail-closed via profile status.
+  }
+
+  return { ok: true };
+}
+
 module.exports = {
   mapAsset,
   sortAssets,
@@ -464,7 +659,11 @@ module.exports = {
   deleteAsset,
   setSoleCover,
   promoteNextCover,
-  // exported for tests
+  loadOwnedAsset,
+  loadPrivatePreviewBuffer,
+  promoteAssetsToPublic,
+  revokePublicDerivatives,
+  listAssets,
   COVER_DELETE_RULE:
     'When cover deleted: promote next by sort_order ASC, created_at ASC, id ASC; else clear cover_asset_id.'
 };

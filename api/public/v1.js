@@ -15,7 +15,7 @@ var {
 } = require('../../server/marketplace-public');
 var { submitInterest } = require('../../server/interest-intake');
 var { methodNotAllowed, readJson } = require('../../server/http');
-var { rateLimit, clientKey } = require('../../server/rate-limit');
+var { rateLimit, clientKey, clientIp } = require('../../server/rate-limit');
 
 function statusForCode(code) {
   if (code === 'not_found') return 404;
@@ -95,22 +95,15 @@ function queryObject(req) {
   return out;
 }
 
-function clientIp(req) {
-  var ip =
-    (req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) ||
-    '';
-  if (typeof ip === 'string' && ip.indexOf(',') >= 0) ip = ip.split(',')[0].trim();
-  return String(ip || '').trim();
-}
-
 function sendJson(res, status, body, cacheKind) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Short TTLs so pause/hide/suspend leave CDN/browser caches quickly.
   if (cacheKind === 'profile') {
-    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
   } else if (cacheKind === 'search') {
-    res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=120');
+    res.setHeader('Cache-Control', 'public, max-age=30, stale-while-revalidate=60');
   } else if (cacheKind === 'meta') {
     res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
   } else {

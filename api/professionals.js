@@ -85,7 +85,14 @@ function respondOnboarding(res, result) {
     var extra = {};
     if (result.currentVersion != null) extra.currentVersion = result.currentVersion;
     if (result.onboardingStatus) extra.onboardingStatus = result.onboardingStatus;
-    if (result.message) extra.detail = result.message;
+    if (
+      result.message &&
+      result.code !== 'server_error' &&
+      result.code !== 'missing_env' &&
+      result.code !== 'upload_failed'
+    ) {
+      extra.detail = result.message;
+    }
     if (result.missing) extra.missing = result.missing;
     return errorJson(res, statusForCode(result.code), result.code, extra);
   }

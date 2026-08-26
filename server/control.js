@@ -10,7 +10,7 @@ var {
   mapReviewItem,
   draftHelpers
 } = require('./onboarding-model');
-var { mapAsset, sortAssets } = require('./assets');
+var { mapAsset, sortAssets, promoteAssetsToPublic, revokePublicDerivatives } = require('./assets');
 var {
   isListFilter,
   canApproveOnboarding,
@@ -485,15 +485,19 @@ async function publishPartner(opts) {
   var bundle = await loadPartnerBundle(admin, partnerId);
   if (!bundle.ok) return bundle;
 
-  // Idempotent published — ensure PublicSnapshot exists (fail-closed for marketplace).
+  // Idempotent published — ensure PublicSnapshot + public derivatives exist.
   if (bundle.profile.profile_status === 'published' && bundle.profile.slug) {
+    var ensured = await promoteAssetsToPublic({ admin: admin, partnerId: partnerId });
+    if (!ensured.ok) return ensured;
     var existingPublic = bundle.profile.public_snapshot;
     if (
       existingPublic &&
       typeof existingPublic === 'object' &&
       existingPublic.publicSnapshotVersion
     ) {
-      return buildReviewPayload(bundle);
+      var reloaded = await loadPartnerBundle(admin, partnerId);
+      if (!reloaded.ok) return reloaded;
+      return buildReviewPayload(reloaded);
     }
     var repaired = await rebuildPublicSnapshot(opts);
     if (!repaired.ok) return repaired;
@@ -519,6 +523,12 @@ async function publishPartner(opts) {
     };
   }
 
+  // Promote private drafts → public derivatives before any profile status flip.
+  var promoted = await promoteAssetsToPublic({ admin: admin, partnerId: partnerId });
+  if (!promoted.ok) return promoted;
+  bundle = await loadPartnerBundle(admin, partnerId);
+  if (!bundle.ok) return bundle;
+
   var now = new Date().toISOString();
   var existingSlug = bundle.profile.slug;
   var slug = existingSlug;
@@ -529,7 +539,10 @@ async function publishPartner(opts) {
       legalName: bundle.partner.legal_name
     });
     var allocated = await allocateSlug(admin, partnerId, base);
-    if (!allocated.ok) return allocated;
+    if (!allocated.ok) {
+      await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
+      return allocated;
+    }
     slug = allocated.slug;
   }
 
@@ -565,6 +578,8 @@ async function publishPartner(opts) {
     publicSnapshotVersion: nextPublicVersion
   });
   if (!publicBuilt.ok) {
+    // Do not leave a ready profile with a partial/unused public gallery from a failed publish.
+    await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
     return {
       ok: false,
       code: 'publication_gate_failed',
@@ -595,6 +610,7 @@ async function publishPartner(opts) {
 
   if (pErr) {
     console.error('control_publish_failed', pErr.message);
+    await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
     return { ok: false, code: 'server_error' };
   }
   if (!updated) {
@@ -602,6 +618,7 @@ async function publishPartner(opts) {
     if (again.ok && again.profile.profile_status === 'published') {
       return buildReviewPayload(again);
     }
+    await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
     return { ok: false, code: 'invalid_status_transition' };
   }
 
@@ -692,6 +709,11 @@ async function rebuildPublicSnapshot(opts) {
   var nextVersion = prevVersion + 1;
   var publishedAt = bundle.profile.published_at || new Date().toISOString();
 
+  var promoted = await promoteAssetsToPublic({ admin: admin, partnerId: partnerId });
+  if (!promoted.ok) return promoted;
+  bundle = await loadPartnerBundle(admin, partnerId);
+  if (!bundle.ok) return bundle;
+
   // Keep previous public_snapshot intact until this update succeeds (atomic row update).
   var publicBuilt = buildPublicSnapshotV1({
     draft: bundle.onboarding.draft,
@@ -768,21 +790,97 @@ async function rebuildPublicSnapshot(opts) {
 }
 
 async function pausePartner(opts) {
-  return transitionProfile(opts, 'pause', 'control_pause', function (now) {
+  var result = await transitionProfile(opts, 'pause', 'control_pause', function (now) {
     return { paused_at: now };
   });
+  if (!result.ok) return result;
+  var admin = createAdminClient();
+  var partnerId = opts.partnerId ? String(opts.partnerId).trim() : '';
+  var revoked = await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
+  if (!revoked.ok) return revoked;
+  await stripPublicSnapshotAssets(admin, partnerId);
+  var refreshed = await loadPartnerBundle(admin, partnerId);
+  if (!refreshed.ok) return refreshed;
+  return buildReviewPayload(refreshed);
 }
 
 async function hidePartner(opts) {
-  return transitionProfile(opts, 'hide', 'control_hide', function (now) {
+  var result = await transitionProfile(opts, 'hide', 'control_hide', function (now) {
     return { hidden_at: now };
   });
+  if (!result.ok) return result;
+  var admin = createAdminClient();
+  var partnerId = opts.partnerId ? String(opts.partnerId).trim() : '';
+  var revoked = await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
+  if (!revoked.ok) return revoked;
+  await stripPublicSnapshotAssets(admin, partnerId);
+  var refreshed = await loadPartnerBundle(admin, partnerId);
+  if (!refreshed.ok) return refreshed;
+  return buildReviewPayload(refreshed);
 }
 
 async function restorePartner(opts) {
-  return transitionProfile(opts, 'restore', 'control_restore', function () {
+  var partnerId = opts.partnerId ? String(opts.partnerId).trim() : '';
+  if (!partnerId) return { ok: false, code: 'missing_fields' };
+
+  var admin = createAdminClient();
+  var bundle = await loadPartnerBundle(admin, partnerId);
+  if (!bundle.ok) return bundle;
+  if (!canProfileAction('restore', bundle.profile.profile_status)) {
+    return { ok: false, code: 'invalid_status_transition' };
+  }
+
+  // Recreate public derivatives before flipping to published (fail closed).
+  var promoted = await promoteAssetsToPublic({ admin: admin, partnerId: partnerId });
+  if (!promoted.ok) return promoted;
+
+  var result = await transitionProfile(opts, 'restore', 'control_restore', function () {
     return { paused_at: null, hidden_at: null };
   });
+  if (!result.ok) {
+    await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
+    return result;
+  }
+
+  bundle = await loadPartnerBundle(admin, partnerId);
+  if (!bundle.ok) return bundle;
+  if (bundle.profile.profile_status === 'published' && bundle.profile.slug) {
+    var rebuilt = await rebuildPublicSnapshot(opts);
+    if (!rebuilt.ok) {
+      // Do not leave a published profile with empty/stale PublicSnapshot after failed restore.
+      await transitionProfile(opts, 'pause', 'control_restore_rollback', function (now) {
+        return { paused_at: now };
+      });
+      await revokePublicDerivatives({ admin: admin, partnerId: partnerId });
+      await stripPublicSnapshotAssets(admin, partnerId);
+      return rebuilt;
+    }
+    return rebuilt;
+  }
+  return buildReviewPayload(bundle);
+}
+
+async function stripPublicSnapshotAssets(admin, partnerId) {
+  var { data: profile } = await admin
+    .from('partner_profiles')
+    .select('public_snapshot, public_snapshot_version')
+    .eq('partner_id', partnerId)
+    .maybeSingle();
+  if (!profile || !profile.public_snapshot || typeof profile.public_snapshot !== 'object') {
+    return { ok: true };
+  }
+  var snap = Object.assign({}, profile.public_snapshot);
+  snap.assets = [];
+  snap.coverUrl = null;
+  var { error } = await admin
+    .from('partner_profiles')
+    .update({ public_snapshot: snap })
+    .eq('partner_id', partnerId);
+  if (error) {
+    console.error('strip_public_snapshot_assets_failed', error.message);
+    return { ok: false, code: 'server_error' };
+  }
+  return { ok: true };
 }
 
 module.exports = {

@@ -583,9 +583,21 @@
       var cover = (state.assets || []).filter(function (a) {
         return a.isCover || a.id === state.coverAssetId;
       })[0];
-      if (cover && cover.publicUrl) {
+      var rawCover = cover && (cover.previewUrl || cover.publicUrl);
+      if (rawCover) {
         media.classList.add('has-cover');
-        media.style.backgroundImage = 'url("' + String(cover.publicUrl).replace(/"/g, '') + '")';
+        if (EP.resolveMediaUrl && EP.isPrivatePreviewPath && EP.isPrivatePreviewPath(rawCover)) {
+          media.style.backgroundImage = '';
+          EP.resolveMediaUrl(rawCover).then(function (resolved) {
+            if (resolved) {
+              media.style.backgroundImage =
+                'url("' + String(resolved).replace(/"/g, '') + '")';
+            }
+          });
+        } else {
+          media.style.backgroundImage =
+            'url("' + String(rawCover).replace(/"/g, '') + '")';
+        }
       } else {
         media.classList.remove('has-cover');
         media.style.backgroundImage = '';
@@ -1120,7 +1132,7 @@
       var p = state.pendingUploads[localId];
       return '<li class="prof-portfolio-item is-uploading" data-local-id="' + escapeHtml(localId) + '">' +
         '<div class="prof-portfolio-thumb">' +
-        (p.previewUrl ? '<img src="' + escapeHtml(p.previewUrl) + '" alt="">' : '') +
+        (p.previewUrl ? '<img data-local-preview="1" src="' + escapeHtml(p.previewUrl) + '" alt="">' : '') +
         '<div class="prof-upload-bar"><span style="width:' + Math.round((p.progress || 0) * 100) + '%"></span></div>' +
         '</div>' +
         '<div class="prof-portfolio-body">' +
@@ -1135,10 +1147,13 @@
 
     grid.innerHTML = items.map(function (a) {
       var isCover = !!a.isCover || a.id === state.coverAssetId;
+      var src = a.previewUrl || a.publicUrl || '';
       return '<li class="prof-portfolio-item" draggable="' + (state.canEdit ? 'true' : 'false') +
         '" data-asset-id="' + escapeHtml(a.id) + '">' +
         '<div class="prof-portfolio-thumb" data-drag-handle="1">' +
-        (a.publicUrl ? '<img src="' + escapeHtml(a.publicUrl) + '" alt="">' : '') +
+        (src
+          ? '<img data-asset-img="' + escapeHtml(a.id) + '" data-src="' + escapeHtml(src) + '" alt="">'
+          : '') +
         (isCover ? '<span class="prof-cover-badge">Cover</span>' : '') +
         '</div>' +
         '<div class="prof-portfolio-body">' +
@@ -1159,6 +1174,19 @@
     updatePortfolioSoftNudge();
     var drop = EP.$('#portfolioDropzone');
     if (drop) drop.hidden = !state.canEdit || state.assets.length >= Draft.PORTFOLIO_MAX_ASSETS;
+    hydrateAuthorizedImages(grid);
+  }
+
+  function hydrateAuthorizedImages(rootEl) {
+    if (!rootEl || !EP.resolveMediaUrl) return;
+    var imgs = rootEl.querySelectorAll('img[data-src]');
+    Array.prototype.forEach.call(imgs, function (img) {
+      var raw = img.getAttribute('data-src');
+      if (!raw) return;
+      EP.resolveMediaUrl(raw).then(function (resolved) {
+        if (resolved) img.src = resolved;
+      });
+    });
   }
 
   function hydratePortfolioFromPayload() {

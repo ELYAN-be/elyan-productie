@@ -190,7 +190,7 @@
       return;
     }
     var img = preview.image
-      ? '<img class="ctrl-preview-img" src="' + esc(preview.image) + '" alt="">'
+      ? '<img class="ctrl-preview-img" data-src="' + esc(preview.image) + '" alt="">'
       : '<div class="ctrl-preview-img is-empty" aria-hidden="true"></div>';
     host.innerHTML =
       '<article class="ctrl-preview-card">' +
@@ -217,6 +217,14 @@
             : '') +
         '</div>' +
       '</article>';
+
+    var imgEl = host.querySelector('img[data-src]');
+    if (imgEl && EP.resolveMediaUrl) {
+      var raw = imgEl.getAttribute('data-src');
+      EP.resolveMediaUrl(raw).then(function (resolved) {
+        if (resolved) imgEl.src = resolved;
+      });
+    }
   }
 
   function renderReviewItems(items) {

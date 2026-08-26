@@ -7,6 +7,7 @@
 var pricing = require('./lib/pricing');
 var questions = require('./lib/questions');
 var buildReportPdf = require('./lib/pdf-report').buildReportPdf;
+var { rateLimit, clientKey } = require('../server/rate-limit');
 
 var FROM_ADDRESS = 'ELYAN <rapport@elyan.be>';
 var REPLY_TO = 'elyan.info@gmail.com';
@@ -73,6 +74,11 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'method_not_allowed' });
+  }
+
+  var rl = rateLimit(clientKey(req, 'send_report'), 5, 10 * 60 * 1000);
+  if (!rl.ok) {
+    return res.status(429).json({ error: 'rate_limited' });
   }
 
   var body = req.body;

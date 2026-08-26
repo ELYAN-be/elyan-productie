@@ -177,6 +177,45 @@
     location.replace('/professionals/login');
   }
 
+  /** Cache of object URLs for authorized private draft previews (Bearer cannot ride on <img src>). */
+  var previewObjectUrls = {};
+
+  function isPrivatePreviewPath(url) {
+    return typeof url === 'string' && url.indexOf('/api/professionals/asset-preview') === 0;
+  }
+
+  /**
+   * Resolve a media URL for display. Public CDN URLs pass through.
+   * Private preview routes are fetched with Authorization and returned as blob: URLs.
+   */
+  async function resolveMediaUrl(url) {
+    if (!url) return '';
+    if (!isPrivatePreviewPath(url)) return url;
+    if (previewObjectUrls[url]) return previewObjectUrls[url];
+    var token = await getAccessToken();
+    if (!token) return '';
+    var res = await fetch(url, {
+      method: 'GET',
+      headers: { Authorization: 'Bearer ' + token },
+      credentials: 'same-origin',
+      cache: 'no-store'
+    });
+    if (!res.ok) return '';
+    var blob = await res.blob();
+    var obj = URL.createObjectURL(blob);
+    previewObjectUrls[url] = obj;
+    return obj;
+  }
+
+  function revokePreviewMediaCache() {
+    Object.keys(previewObjectUrls).forEach(function (k) {
+      try {
+        URL.revokeObjectURL(previewObjectUrls[k]);
+      } catch (e) { /* ignore */ }
+    });
+    previewObjectUrls = {};
+  }
+
   global.ElyanProfessionals = {
     $,
     showEl,
@@ -190,6 +229,9 @@
     apiControl,
     requireSessionOrRedirect,
     requireStaffOrRedirect,
-    logout
+    logout,
+    resolveMediaUrl,
+    revokePreviewMediaCache,
+    isPrivatePreviewPath
   };
 })(window);

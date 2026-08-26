@@ -73,6 +73,23 @@ test('rate limit trips', function () {
   assert.ok(!rl.rateLimit(key, 2, 60000).ok);
 });
 
+test('clientIp prefers platform / rightmost hop', function () {
+  var rl = require('../server/rate-limit');
+  assert.strictEqual(
+    rl.clientIp({ headers: { 'x-forwarded-for': '8.8.8.8, 203.0.113.1' } }),
+    '203.0.113.1'
+  );
+  assert.strictEqual(
+    rl.clientIp({ headers: { 'x-vercel-forwarded-for': '203.0.113.2', 'x-forwarded-for': '1.1.1.1' } }),
+    '203.0.113.2'
+  );
+  assert.strictEqual(rl.clientIp({ headers: {} }), 'unknown');
+  assert.strictEqual(
+    rl.clientIp({ headers: { 'x-forwarded-for': ['1.1.1.1, 203.0.113.9'] } }),
+    '203.0.113.9'
+  );
+});
+
 test('audit scrub removes tokens', function () {
   var audit = require('../server/audit');
   var scrubbed = audit.scrubMeta({ token: 'secret', email: 'a@b.be', token_hash: 'x' });

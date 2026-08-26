@@ -2,6 +2,7 @@
  * Audit logging — never store raw tokens or secrets in meta.
  */
 var { createAdminClient } = require('./supabase');
+var { clientIp } = require('./rate-limit');
 
 var SENSITIVE_KEYS = {
   token: true,
@@ -27,11 +28,12 @@ function scrubMeta(meta) {
 }
 
 function clientMeta(req) {
-  var ip =
-    (req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) ||
-    (req.socket && req.socket.remoteAddress) ||
-    null;
-  if (typeof ip === 'string' && ip.indexOf(',') >= 0) ip = ip.split(',')[0].trim();
+  var ip = clientIp(req);
+  if (ip === 'unknown') {
+    ip =
+      (req.socket && req.socket.remoteAddress) ||
+      null;
+  }
   var ua = (req.headers && req.headers['user-agent']) || null;
   return { ip: ip, user_agent: ua ? String(ua).slice(0, 300) : null };
 }
