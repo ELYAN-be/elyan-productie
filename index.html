@@ -194,12 +194,12 @@
             <source
               type="image/jpeg"
               media="(max-width:959px)"
-              srcset="/assets/photos/elyan-hero-craftsman-desktop-now.jpg?v=hero3">
+              srcset="/assets/photos/elyan-hero-craftsman-workbench.jpg?v=hero4">
             <img
-              src="/assets/photos/elyan-hero-craftsman-desktop-now.jpg?v=hero3"
+              src="/assets/photos/elyan-hero-craftsman-workbench.jpg?v=hero4"
               alt=""
-              width="2048"
-              height="1152"
+              width="1024"
+              height="684"
               fetchpriority="high"
               decoding="async">
           </picture>
@@ -278,31 +278,26 @@
   </div>
 </section>
 
-<section class="hp-section hp-featured" id="vakgebieden" aria-labelledby="hpProTitle">
+<section class="hp-section hp-featured" id="vakgebieden" aria-labelledby="hpProTitle" hidden>
   <div class="hp-container">
     <div class="hp-featured-head">
       <div>
         <h2 id="hpProTitle">Uitgelichte vakbedrijven</h2>
-        <p class="hp-lead">Ontdek gecontroleerde vakbedrijven op ELYAN.</p>
+        <p class="hp-lead">Bekijk nagekeken vakbedrijven met duidelijke informatie over specialisatie, regio en prijscontext.</p>
       </div>
       <a class="hp-market-pros-link" href="/vakmannen">Bekijk alle vakmannen <span aria-hidden="true">→</span></a>
     </div>
     <div id="hpProfessionals">
-      <p class="hp-pro-preview-note" id="hpProPreviewNote" hidden>Voorbeeldrijen · alleen lokaal voor visuele review</p>
+      <p class="hp-pro-preview-note" id="hpProPreviewNote" hidden>DEMO DATA · lokale visuele preview · geen productiedata</p>
       <div id="hpProLoading" class="hp-pro-list" hidden>
-        <div class="hp-pro-skeleton"></div>
-        <div class="hp-pro-skeleton"></div>
-        <div class="hp-pro-skeleton"></div>
-      </div>
-      <div id="hpProError" class="hp-pro-error" hidden>
-        <p>We konden de vakbedrijven niet laden. Probeer het opnieuw.</p>
-        <button type="button" class="btn btn-primary" id="hpProRetry">Opnieuw proberen</button>
-      </div>
-      <div id="hpProEmpty" class="hp-pro-empty" hidden>
-        <p>Er zijn momenteel nog geen gepubliceerde vakbedrijven om hier te tonen.</p>
-        <a class="btn btn-primary" href="/vakmannen">Ga naar Vakmannen</a>
+        <div class="hp-pro-skeleton" aria-hidden="true"></div>
+        <div class="hp-pro-skeleton" aria-hidden="true"></div>
+        <div class="hp-pro-skeleton" aria-hidden="true"></div>
       </div>
       <div id="hpProGrid" class="hp-pro-list" hidden></div>
+      <div class="hp-featured-foot" id="hpProFoot" hidden>
+        <a class="hp-market-pros-link" href="/vakmannen">Bekijk alle vakmannen <span aria-hidden="true">→</span></a>
+      </div>
     </div>
   </div>
 </section>
@@ -691,6 +686,7 @@
 <script defer src="/_vercel/speed-insights/script.js"></script>
 
 <script src="/js/site.js" defer></script>
+<script src="/js/demo-professionals.js" defer></script>
 <script src="/js/homepage-v3.js" defer></script>
 <script src="/shared/market-data-2026.js" defer></script>
 <script src="/shared/pricing.js" defer></script>

@@ -2,7 +2,8 @@
  * Homepage V6 — search, mobile nav, featured professional rows, subtle motion.
  * Homepage-only. Does not touch Marketplace shell or calculator logic.
  *
- * Local preview fixtures (localhost / 127.0.0.1 only) never run on production hosts.
+ * Demo professionals: only via js/demo-professionals.js when
+ * localhost + ?demoProfessionals=1. Never on production hosts.
  */
 (function () {
   'use strict';
@@ -23,53 +24,7 @@
   ];
 
   var FEATURE_CATS = ['dakwerken', 'badkamer', 'keuken', 'ramen-deuren', 'isolatie', 'verwarming'];
-
-  /**
-   * Local-only fixtures for founder visual review.
-   * Gated by isLocalPreviewHost() — never used on production hosts.
-   * Demo pricing / ratings exist only here; production cards never invent them.
-   */
-  var LOCAL_PREVIEW_CARDS = [
-    {
-      slug: 'preview-dakwerken-noord',
-      displayName: 'Dakwerken Noord',
-      specialtyLine: 'Dakwerken · Isolatie',
-      serviceAreaText: 'Antwerpen · 30 km',
-      availabilityLabel: 'Eerste beschikbaarheid: april',
-      priceLine: '€ 160 – € 230 / m²',
-      priceContext: 'Richtprijs dakrenovatie',
-      ratingLabel: '4,8 · 42 Google reviews',
-      coverUrl: '/assets/photos/hero.jpg',
-      publishedAt: '2099-01-03T00:00:00.000Z',
-      _localPreview: true
-    },
-    {
-      slug: 'preview-badkamer-atelier',
-      displayName: 'Atelier Badkamer',
-      specialtyLine: 'Badkamer · Sanitair',
-      serviceAreaText: 'Oost-Vlaanderen · 35 km',
-      availabilityLabel: 'Eerste beschikbaarheid: mei',
-      priceLine: '€ 6.500 – € 18.000',
-      priceContext: 'Indicatieve projectrange',
-      ratingLabel: '4,7 · 28 Google reviews',
-      coverUrl: '/assets/photos/editorial.jpg',
-      publishedAt: '2099-01-02T00:00:00.000Z',
-      _localPreview: true
-    },
-    {
-      slug: 'preview-keuken-studio',
-      displayName: 'Studio Keuken',
-      specialtyLine: 'Keuken · Interieur',
-      serviceAreaText: 'Vlaams-Brabant · Brussel',
-      availabilityLabel: 'Eerste beschikbaarheid: juni',
-      priceLine: '€ 8.000 – € 22.000',
-      priceContext: 'Indicatieve projectrange',
-      ratingLabel: '4,9 · 61 Google reviews',
-      coverUrl: '/assets/photos/why.jpg',
-      publishedAt: '2099-01-01T00:00:00.000Z',
-      _localPreview: true
-    }
-  ];
+  var MAX_FEATURED = 3;
 
   function $(sel, root) {
     return (root || document).querySelector(sel);
@@ -396,35 +351,60 @@
   }
 
   /**
-   * Booking-like horizontal list row.
+   * Marketplace row for featured professionals.
    * Never invents price/rating for production API cards.
-   * ratingLabel / priceContext only render when present on the card object.
+   * Demo ratings/availability only exist on is_demo fixtures.
    */
+  function resolvePriceDisplay(card) {
+    var rawLine = String((card && card.priceLine) || '').trim();
+    var rawContext = String((card && card.priceContext) || '').trim();
+    var isDemo = !!(card && (card.is_demo || card._localPreview));
+
+    if (isDemo && rawLine) {
+      return { price: rawLine, context: rawContext };
+    }
+
+    if (rawLine && rawLine !== 'Prijs op aanvraag') {
+      return {
+        price: rawLine,
+        context: rawContext || 'Prijsindicatie · geen offerte'
+      };
+    }
+
+    return {
+      price: 'Prijsinformatie beschikbaar',
+      context: 'Bekijk prijscontext →'
+    };
+  }
+
   function cardHtml(card) {
     card = card || {};
     var slug = String(card.slug || '').trim();
     if (!slug) return '';
     var href = '/vakmannen/' + encodeURIComponent(slug);
-    var name = escapeHtml(card.displayName || 'Vakbedrijf');
+    var nameRaw = String(card.displayName || 'Vakbedrijf').trim();
+    var name = escapeHtml(nameRaw);
     var specialty = escapeHtml(card.specialtyLine || '');
     var area = escapeHtml(card.serviceAreaText || '');
     var avail = escapeHtml(card.availabilityLabel || '');
-    var price = escapeHtml(card.priceLine || 'Prijs op aanvraag');
-    var priceContext = escapeHtml(card.priceContext || '');
     var rating = escapeHtml(card.ratingLabel || '');
+    var priced = resolvePriceDisplay(card);
+    var price = escapeHtml(priced.price);
+    var priceContext = escapeHtml(priced.context);
     var image = safeCoverUrl(card.coverUrl);
+    var alt = escapeHtml('Foto van ' + nameRaw);
     var media = image
-      ? '<img src="' + escapeHtml(image) + '" alt="" loading="lazy" decoding="async" width="160" height="140">'
+      ? '<img src="' + escapeHtml(image) + '" alt="' + alt + '" loading="lazy" decoding="async" width="160" height="140">'
       : '<span aria-hidden="true">ELYAN</span>';
 
-    var metaBits = [];
-    if (specialty) metaBits.push('<p class="hp-pro-meta">' + specialty + '</p>');
-    if (rating) metaBits.push('<p class="hp-pro-rating">' + rating + '</p>');
-    if (area) metaBits.push('<p class="hp-pro-meta">' + area + '</p>');
-    if (avail) metaBits.push('<p class="hp-pro-meta">' + avail + '</p>');
+    var metaSecondary = [];
+    if (area) metaSecondary.push('<p class="hp-pro-meta hp-pro-loc">' + area + '</p>');
+    if (rating) metaSecondary.push('<p class="hp-pro-rating">' + rating + '</p>');
+    if (avail) metaSecondary.push('<p class="hp-pro-meta hp-pro-avail">' + avail + '</p>');
 
     return (
-      '<a class="hp-pro-row" href="' +
+      '<article class="hp-pro-row">' +
+      '<a class="hp-pro-row-link" href="' +
       escapeHtml(href) +
       '">' +
       '<div class="hp-pro-thumb">' +
@@ -432,10 +412,11 @@
       '</div>' +
       '<div class="hp-pro-body">' +
       '<span class="hp-pro-badge">Gecontroleerd door ELYAN</span>' +
-      '<div class="hp-pro-name">' +
+      '<h3 class="hp-pro-name">' +
       name +
-      '</div>' +
-      metaBits.join('') +
+      '</h3>' +
+      (specialty ? '<p class="hp-pro-meta hp-pro-specialty">' + specialty + '</p>' : '') +
+      (metaSecondary.length ? '<div class="hp-pro-secondary">' + metaSecondary.join('') + '</div>' : '') +
       '</div>' +
       '<div class="hp-pro-aside">' +
       '<div class="hp-pro-price-block">' +
@@ -444,9 +425,10 @@
       '</span>' +
       (priceContext ? '<span class="hp-pro-price-context">' + priceContext + '</span>' : '') +
       '</div>' +
-      '<span class="hp-pro-cta">Bekijk vakman</span>' +
+      '<span class="hp-pro-cta">Bekijk vakman <span aria-hidden="true">→</span></span>' +
       '</div>' +
-      '</a>'
+      '</a>' +
+      '</article>'
     );
   }
 
@@ -455,25 +437,43 @@
     if (note) note.hidden = !visible;
   }
 
+  function setFeaturedSectionVisible(visible) {
+    var block = $('.hp-featured');
+    if (block) block.hidden = !visible;
+  }
+
+  function setFootVisible(visible) {
+    var foot = $('#hpProFoot');
+    if (foot) foot.hidden = !visible;
+  }
+
   function showProState(section, state, html, isPreview) {
     var loading = $('#hpProLoading', section);
-    var error = $('#hpProError', section);
-    var empty = $('#hpProEmpty', section);
     var grid = $('#hpProGrid', section);
     if (loading) loading.hidden = state !== 'loading';
-    if (error) error.hidden = state !== 'error';
-    if (empty) empty.hidden = state !== 'empty';
     if (grid) {
       grid.hidden = state !== 'ready';
       if (state === 'ready') grid.innerHTML = html || '';
+      else if (state === 'hidden') grid.innerHTML = '';
     }
     setPreviewNote(!!(isPreview && state === 'ready'));
+    setFootVisible(state === 'ready');
+    setFeaturedSectionVisible(state === 'loading' || state === 'ready');
   }
 
-  function renderPreviewCards(section) {
-    var html = LOCAL_PREVIEW_CARDS.map(cardHtml).filter(Boolean).join('');
+  function getDemoCardsSafe() {
+    var api = window.ElyanDemoProfessionals;
+    if (!api || typeof api.getDemoCards !== 'function') return [];
+    if (typeof api.isDemoModeEnabled === 'function' && !api.isDemoModeEnabled()) return [];
+    return api.getDemoCards() || [];
+  }
+
+  function renderDemoCards(section) {
+    var cards = getDemoCardsSafe();
+    var html = cards.map(cardHtml).filter(Boolean).join('');
     if (!html) {
-      showProState(section, 'empty');
+      showProState(section, 'hidden');
+      setFeaturedSectionVisible(false);
       return;
     }
     showProState(section, 'ready', html, true);
@@ -489,7 +489,12 @@
   function loadProfessionals() {
     var section = $('#hpProfessionals');
     if (!section) return;
-    var allowLocalPreview = isLocalPreviewHost();
+
+    var demoApi = window.ElyanDemoProfessionals;
+    if (demoApi && typeof demoApi.isDemoModeEnabled === 'function' && demoApi.isDemoModeEnabled()) {
+      renderDemoCards(section);
+      return;
+    }
 
     showProState(section, 'loading');
 
@@ -531,36 +536,20 @@
         return String((a && a.slug) || '').localeCompare(String((b && b.slug) || ''));
       });
 
-      if (cards.length >= 3) {
-        var html = cards
-          .slice(0, 3)
-          .map(cardHtml)
-          .filter(Boolean)
-          .join('');
-        if (html) {
-          showProState(section, 'ready', html, false);
-          return;
-        }
-      }
-
-      if (allowLocalPreview) {
-        renderPreviewCards(section);
+      var selected = cards.slice(0, MAX_FEATURED);
+      var html = selected.map(cardHtml).filter(Boolean).join('');
+      if (html) {
+        showProState(section, 'ready', html, false);
         return;
       }
 
-      showProState(section, emptyStateFallback(failedAll));
+      /* Fail closed: hide section. No empty/error UI for visitors. */
+      if (failedAll && typeof console !== 'undefined' && console.warn) {
+        console.warn('[ELYAN] Featured professionals unavailable');
+      }
+      showProState(section, 'hidden');
+      setFeaturedSectionVisible(false);
     });
-
-    var retry = $('#hpProRetry', section);
-    if (retry) {
-      retry.addEventListener('click', function () {
-        loadProfessionals();
-      });
-    }
-  }
-
-  function emptyStateFallback(failedAll) {
-    return failedAll ? 'empty' : 'empty';
   }
 
   function initReportVisual() {
@@ -659,6 +648,6 @@
     buildMarketplaceSearchUrl: buildMarketplaceSearchUrl,
     CATEGORIES: CATEGORIES,
     isLocalPreviewHost: isLocalPreviewHost,
-    LOCAL_PREVIEW_CARDS: LOCAL_PREVIEW_CARDS
+    MAX_FEATURED: MAX_FEATURED
   };
 })();
