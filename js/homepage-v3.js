@@ -1,6 +1,8 @@
 /**
- * Homepage V4 — search form, mobile nav, optional public professionals strip.
+ * Homepage V6 — search, mobile nav, featured professional rows, subtle motion.
  * Homepage-only. Does not touch Marketplace shell or calculator logic.
+ *
+ * Local preview fixtures (localhost / 127.0.0.1 only) never run on production hosts.
  */
 (function () {
   'use strict';
@@ -22,6 +24,53 @@
 
   var FEATURE_CATS = ['dakwerken', 'badkamer', 'keuken', 'ramen-deuren', 'isolatie', 'verwarming'];
 
+  /**
+   * Local-only fixtures for founder visual review.
+   * Gated by isLocalPreviewHost() — never used on production hosts.
+   * Demo pricing / ratings exist only here; production cards never invent them.
+   */
+  var LOCAL_PREVIEW_CARDS = [
+    {
+      slug: 'preview-dakwerken-noord',
+      displayName: 'Dakwerken Noord',
+      specialtyLine: 'Dakwerken · Isolatie',
+      serviceAreaText: 'Antwerpen · 30 km',
+      availabilityLabel: 'Eerste beschikbaarheid: april',
+      priceLine: '€ 160 – € 230 / m²',
+      priceContext: 'Richtprijs dakrenovatie',
+      ratingLabel: '4,8 · 42 Google reviews',
+      coverUrl: '/assets/photos/hero.jpg',
+      publishedAt: '2099-01-03T00:00:00.000Z',
+      _localPreview: true
+    },
+    {
+      slug: 'preview-badkamer-atelier',
+      displayName: 'Atelier Badkamer',
+      specialtyLine: 'Badkamer · Sanitair',
+      serviceAreaText: 'Oost-Vlaanderen · 35 km',
+      availabilityLabel: 'Eerste beschikbaarheid: mei',
+      priceLine: '€ 6.500 – € 18.000',
+      priceContext: 'Indicatieve projectrange',
+      ratingLabel: '4,7 · 28 Google reviews',
+      coverUrl: '/assets/photos/editorial.jpg',
+      publishedAt: '2099-01-02T00:00:00.000Z',
+      _localPreview: true
+    },
+    {
+      slug: 'preview-keuken-studio',
+      displayName: 'Studio Keuken',
+      specialtyLine: 'Keuken · Interieur',
+      serviceAreaText: 'Vlaams-Brabant · Brussel',
+      availabilityLabel: 'Eerste beschikbaarheid: juni',
+      priceLine: '€ 8.000 – € 22.000',
+      priceContext: 'Indicatieve projectrange',
+      ratingLabel: '4,9 · 61 Google reviews',
+      coverUrl: '/assets/photos/why.jpg',
+      publishedAt: '2099-01-01T00:00:00.000Z',
+      _localPreview: true
+    }
+  ];
+
   function $(sel, root) {
     return (root || document).querySelector(sel);
   }
@@ -39,9 +88,20 @@
       .replace(/'/g, '&#39;');
   }
 
-  function safeHttpsUrl(raw) {
+  function isLocalPreviewHost() {
+    var host = String((window.location && window.location.hostname) || '').toLowerCase();
+    return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
+  }
+
+  function prefersReducedMotion() {
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  }
+
+  function safeCoverUrl(raw) {
     var value = String(raw || '').trim();
-    return /^https:\/\//i.test(value) ? value : '';
+    if (/^https:\/\//i.test(value)) return value;
+    if (/^\/assets\/photos\/[a-z0-9._-]+\.(jpg|jpeg|png|webp|avif)$/i.test(value)) return value;
+    return '';
   }
 
   function isCategoryId(id) {
@@ -50,11 +110,6 @@
     });
   }
 
-  /**
-   * Marketplace URL contract:
-   * /vakmannen/{categoryId}?postcode= | ?gemeente=
-   * (regio path omitted when only free-text location is known)
-   */
   function buildMarketplaceSearchUrl(categoryId, locationRaw) {
     if (!isCategoryId(categoryId)) return null;
     var path = '/vakmannen/' + encodeURIComponent(categoryId);
@@ -148,7 +203,6 @@
     var cat = $('#hpCategory');
     var loc = $('#hpLocation');
 
-    // Clean first paint: never show invalid styling before interaction/submit
     clearFieldInvalid(catField);
     clearFieldInvalid(locField);
 
@@ -195,6 +249,11 @@
     }
   }
 
+  /**
+   * Booking-like horizontal list row.
+   * Never invents price/rating for production API cards.
+   * ratingLabel / priceContext only render when present on the card object.
+   */
   function cardHtml(card) {
     card = card || {};
     var slug = String(card.slug || '').trim();
@@ -203,47 +262,75 @@
     var name = escapeHtml(card.displayName || 'Vakbedrijf');
     var specialty = escapeHtml(card.specialtyLine || '');
     var area = escapeHtml(card.serviceAreaText || '');
-    var price = escapeHtml(card.priceLine || '');
-    var image = safeHttpsUrl(card.coverUrl);
+    var avail = escapeHtml(card.availabilityLabel || '');
+    var price = escapeHtml(card.priceLine || 'Prijs op aanvraag');
+    var priceContext = escapeHtml(card.priceContext || '');
+    var rating = escapeHtml(card.ratingLabel || '');
+    var image = safeCoverUrl(card.coverUrl);
     var media = image
-      ? '<img src="' + escapeHtml(image) + '" alt="" loading="lazy" decoding="async" width="300" height="200">'
+      ? '<img src="' + escapeHtml(image) + '" alt="" loading="lazy" decoding="async" width="160" height="140">'
       : '<span aria-hidden="true">ELYAN</span>';
-    var meta = [];
-    if (specialty) meta.push('<p class="hp-pro-meta">' + specialty + '</p>');
-    if (area) meta.push('<p class="hp-pro-meta">' + area + '</p>');
-    if (price) meta.push('<p class="hp-pro-meta">' + price + '</p>');
+
+    var metaBits = [];
+    if (specialty) metaBits.push('<p class="hp-pro-meta">' + specialty + '</p>');
+    if (rating) metaBits.push('<p class="hp-pro-rating">' + rating + '</p>');
+    if (area) metaBits.push('<p class="hp-pro-meta">' + area + '</p>');
+    if (avail) metaBits.push('<p class="hp-pro-meta">' + avail + '</p>');
+
     return (
-      '<a class="hp-pro-card" href="' +
+      '<a class="hp-pro-row" href="' +
       escapeHtml(href) +
       '">' +
-      '<div class="hp-pro-media">' +
+      '<div class="hp-pro-thumb">' +
       media +
       '</div>' +
-      '<div>' +
+      '<div class="hp-pro-body">' +
+      '<span class="hp-pro-badge">Gecontroleerd door ELYAN</span>' +
       '<div class="hp-pro-name">' +
       name +
       '</div>' +
-      meta.join('') +
-      '<span class="hp-pro-badge">Gecontroleerd door ELYAN</span>' +
+      metaBits.join('') +
+      '</div>' +
+      '<div class="hp-pro-aside">' +
+      '<div class="hp-pro-price-block">' +
+      '<span class="hp-pro-price">' +
+      price +
+      '</span>' +
+      (priceContext ? '<span class="hp-pro-price-context">' + priceContext + '</span>' : '') +
+      '</div>' +
+      '<span class="hp-pro-cta">Bekijk vakman</span>' +
       '</div>' +
       '</a>'
     );
   }
 
-  function showProState(section, state, html) {
+  function setPreviewNote(visible) {
+    var note = $('#hpProPreviewNote');
+    if (note) note.hidden = !visible;
+  }
+
+  function showProState(section, state, html, isPreview) {
     var loading = $('#hpProLoading', section);
     var error = $('#hpProError', section);
+    var empty = $('#hpProEmpty', section);
     var grid = $('#hpProGrid', section);
     if (loading) loading.hidden = state !== 'loading';
     if (error) error.hidden = state !== 'error';
+    if (empty) empty.hidden = state !== 'empty';
     if (grid) {
       grid.hidden = state !== 'ready';
       if (state === 'ready') grid.innerHTML = html || '';
     }
+    setPreviewNote(!!(isPreview && state === 'ready'));
   }
 
-  function hideProSection(section) {
-    if (section) section.hidden = true;
+  function renderPreviewCards(section) {
+    var html = LOCAL_PREVIEW_CARDS.map(cardHtml).filter(Boolean).join('');
+    if (!html) {
+      showProState(section, 'empty');
+      return;
+    }
+    showProState(section, 'ready', html, true);
   }
 
   function fetchJson(url) {
@@ -256,6 +343,7 @@
   function loadProfessionals() {
     var section = $('#hpProfessionals');
     if (!section) return;
+    var allowLocalPreview = isLocalPreviewHost();
 
     showProState(section, 'loading');
 
@@ -277,11 +365,6 @@
       var failedAll = batches.every(function (b) {
         return b === null;
       });
-      if (failedAll) {
-        // Soft-fail: do not invent supply or interrupt the homepage with an error strip.
-        hideProSection(section);
-        return;
-      }
 
       var seen = Object.create(null);
       var cards = [];
@@ -295,7 +378,6 @@
         });
       });
 
-      // Deterministic: newest publishedAt desc, then slug
       cards.sort(function (a, b) {
         var at = String((a && a.publishedAt) || '');
         var bt = String((b && b.publishedAt) || '');
@@ -303,22 +385,24 @@
         return String((a && a.slug) || '').localeCompare(String((b && b.slug) || ''));
       });
 
-      if (cards.length < 3) {
-        hideProSection(section);
+      if (cards.length >= 3) {
+        var html = cards
+          .slice(0, 3)
+          .map(cardHtml)
+          .filter(Boolean)
+          .join('');
+        if (html) {
+          showProState(section, 'ready', html, false);
+          return;
+        }
+      }
+
+      if (allowLocalPreview) {
+        renderPreviewCards(section);
         return;
       }
 
-      section.hidden = false;
-      var html = cards
-        .slice(0, 3)
-        .map(cardHtml)
-        .filter(Boolean)
-        .join('');
-      if (!html) {
-        hideProSection(section);
-        return;
-      }
-      showProState(section, 'ready', html);
+      showProState(section, emptyStateFallback(failedAll));
     });
 
     var retry = $('#hpProRetry', section);
@@ -327,6 +411,10 @@
         loadProfessionals();
       });
     }
+  }
+
+  function emptyStateFallback(failedAll) {
+    return failedAll ? 'empty' : 'empty';
   }
 
   function initReportVisual() {
@@ -364,11 +452,54 @@
     });
   }
 
+  function initHeroParallax() {
+    if (prefersReducedMotion()) return;
+    var hero = $('.hp-hero');
+    var photoImg = $('.hp-hero-photo img');
+    if (!hero || !photoImg) return;
+    if (window.matchMedia && !window.matchMedia('(min-width: 768px)').matches) return;
+
+    var ticking = false;
+    function update() {
+      ticking = false;
+      var rect = hero.getBoundingClientRect();
+      if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+      var progress = Math.max(-1, Math.min(1, (window.innerHeight * 0.35 - rect.top) / window.innerHeight));
+      var y = Math.round(progress * -8);
+      hero.classList.add('is-parallax');
+      hero.style.setProperty('--hp-parallax-y', y + 'px');
+    }
+
+    window.addEventListener(
+      'scroll',
+      function () {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(update);
+      },
+      { passive: true }
+    );
+    update();
+  }
+
+  function initHeroReveal() {
+    var hero = $('.hp-hero');
+    if (!hero) return;
+    if (prefersReducedMotion() || !(window.matchMedia && window.matchMedia('(min-width: 960px)').matches)) {
+      hero.classList.add('is-ready');
+      return;
+    }
+    window.requestAnimationFrame(function () {
+      hero.classList.add('is-ready');
+    });
+  }
+
   function init() {
     if (!document.body.classList.contains('hp-v3')) return;
     initMobileNav();
     initSearchForm();
     initReportVisual();
+    initHeroReveal();
     loadProfessionals();
   }
 
@@ -378,9 +509,10 @@
     init();
   }
 
-  // Export for focused checks
   window.ElyanHomepageV3 = {
     buildMarketplaceSearchUrl: buildMarketplaceSearchUrl,
-    CATEGORIES: CATEGORIES
+    CATEGORIES: CATEGORIES,
+    isLocalPreviewHost: isLocalPreviewHost,
+    LOCAL_PREVIEW_CARDS: LOCAL_PREVIEW_CARDS
   };
 })();
