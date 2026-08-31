@@ -229,7 +229,7 @@
       if (!ok) {
         if (catField && catField.classList.contains('is-invalid')) {
           var trigger = $('#hpCategoryTrigger');
-          if (trigger && window.matchMedia && window.matchMedia('(min-width: 960px)').matches) {
+          if (trigger) {
             trigger.focus();
           } else if (cat) {
             cat.focus();
@@ -271,20 +271,10 @@
     var options = Array.prototype.slice.call(list.querySelectorAll('[role="option"]'));
     var activeIndex = -1;
 
-    function isDesktop() {
-      return !!(window.matchMedia && window.matchMedia('(min-width: 960px)').matches);
-    }
-
     function syncDesktopMode() {
-      if (isDesktop()) {
-        select.setAttribute('aria-hidden', 'true');
-        select.setAttribute('tabindex', '-1');
-        trigger.removeAttribute('aria-hidden');
-      } else {
-        select.removeAttribute('aria-hidden');
-        select.removeAttribute('tabindex');
-        closeList();
-      }
+      select.setAttribute('aria-hidden', 'true');
+      select.setAttribute('tabindex', '-1');
+      trigger.removeAttribute('aria-hidden');
     }
 
     function setActiveIndex(index) {
@@ -311,7 +301,6 @@
     }
 
     function openList() {
-      if (!isDesktop()) return;
       list.hidden = false;
       trigger.setAttribute('aria-expanded', 'true');
       var selectedIdx = options.findIndex(function (opt) {
@@ -341,13 +330,11 @@
     }
 
     trigger.addEventListener('click', function () {
-      if (!isDesktop()) return;
       if (list.hidden) openList();
       else closeList(true);
     });
 
     trigger.addEventListener('keydown', function (e) {
-      if (!isDesktop()) return;
       if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         openList();
@@ -355,7 +342,6 @@
     });
 
     list.addEventListener('keydown', function (e) {
-      if (!isDesktop()) return;
       if (e.key === 'Escape') {
         e.preventDefault();
         closeList(true);
@@ -645,7 +631,7 @@
   function initHeroReveal() {
     var hero = $('.hp-hero');
     if (!hero) return;
-    if (prefersReducedMotion() || !(window.matchMedia && window.matchMedia('(min-width: 960px)').matches)) {
+    if (prefersReducedMotion()) {
       hero.classList.add('is-ready');
       return;
     }
