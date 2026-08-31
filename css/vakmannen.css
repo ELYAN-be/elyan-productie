@@ -765,3 +765,407 @@ body.vk-lb-open.lock-scroll{
   max-width:1120px;
   width:100%;
 }
+
+/* ============================================================
+   Desktop Marketplace premium polish (composition / depth)
+   Mobile layout intentionally untouched beyond graceful stack.
+   ============================================================ */
+
+/* Kill stock half-bleed ::after photo on public marketplace */
+.page-vakmannen .lab-disc-hero::after{
+  content:none !important;
+  display:none !important;
+}
+
+.page-vakmannen .lab-disc-hero{
+  background:
+    linear-gradient(165deg, rgba(63,74,50,.06) 0%, transparent 42%),
+    linear-gradient(180deg, #F3F0E8 0%, #F7F6F3 100%);
+  border-bottom:1px solid rgba(63,74,50,.1);
+  position:relative;
+  overflow:hidden;
+}
+
+.page-vakmannen .lab-disc-hero::before{
+  content:"";
+  position:absolute;
+  inset:auto -12% -40% auto;
+  width:min(52vw, 520px);
+  height:min(52vw, 520px);
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(63,74,50,.09), transparent 68%);
+  pointer-events:none;
+  z-index:0;
+}
+
+.page-vakmannen .vk-disc-compose{
+  position:relative;
+  z-index:1;
+  display:flex;
+  flex-direction:column;
+  gap:1.25rem;
+}
+
+.page-vakmannen .vk-disc-copy{
+  min-width:0;
+}
+
+.page-vakmannen .lab-disc-hero .lab-kicker{
+  color:var(--e-green, #3F4A32);
+  letter-spacing:.12em;
+}
+
+.page-vakmannen .vk-trust-rail{
+  display:flex;
+  flex-wrap:wrap;
+  gap:.55rem .85rem;
+  margin:0 0 1.15rem;
+  padding:0;
+  list-style:none;
+}
+
+.page-vakmannen .vk-trust-rail li{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+  font-size:.78rem;
+  font-weight:600;
+  color:var(--e-ink-soft, #5B5D4F);
+  letter-spacing:.01em;
+}
+
+.page-vakmannen .vk-trust-mark{
+  width:7px;
+  height:7px;
+  border-radius:2px;
+  background:var(--e-green, #3F4A32);
+  box-shadow:0 0 0 3px rgba(63,74,50,.12);
+  flex-shrink:0;
+}
+
+/* Mobile: hide architectural frame — keep photo out of small screens */
+.page-vakmannen .vk-disc-visual{
+  display:none;
+}
+
+.page-vakmannen .lab-search{
+  background:#FBF8F2;
+  border:1px solid rgba(63,74,50,.14);
+  border-radius:16px;
+  box-shadow:
+    0 1px 0 rgba(255,255,255,.7) inset,
+    0 10px 28px rgba(28,29,24,.08);
+  backdrop-filter:none;
+  -webkit-backdrop-filter:none;
+}
+
+.page-vakmannen .lab-search .btn-primary{
+  border-radius:12px;
+  font-weight:650;
+  min-height:48px;
+  transition:background .18s ease, transform .18s var(--e-ease, ease);
+}
+
+.page-vakmannen .lab-search .btn-primary:hover{
+  transform:translateY(-1px);
+}
+
+.page-vakmannen .lab-featured{
+  background:
+    linear-gradient(180deg, #EBE6DA 0%, #F1ECE2 100%);
+  border-top:1px solid rgba(63,74,50,.1);
+}
+
+.page-vakmannen .lab-disc-band,
+.page-vakmannen .vk-regions{
+  background:transparent;
+}
+
+.page-vakmannen .lab-cat{
+  background:#FFFEFA;
+  border-color:rgba(63,74,50,.12);
+}
+
+.page-vakmannen .lab-cat.is-active{
+  background:#E4E9DC;
+  border-color:rgba(63,74,50,.28);
+  box-shadow:inset 0 0 0 1px rgba(63,74,50,.08);
+}
+
+@media (min-width:1024px){
+  .page-vakmannen.page-partner-lab{
+    background:
+      radial-gradient(900px 420px at 6% -8%, rgba(63,74,50,.07), transparent 55%),
+      radial-gradient(700px 360px at 96% 4%, rgba(63,74,50,.045), transparent 50%),
+      #F4F1EA;
+  }
+
+  .page-vakmannen .site-header{
+    background:rgba(246,242,234,.96);
+    box-shadow:0 1px 0 rgba(63,74,50,.12);
+  }
+
+  .page-vakmannen .lab-disc-hero{
+    padding:2.4rem 0 2.6rem;
+  }
+
+  .page-vakmannen .vk-disc-compose{
+    display:grid;
+    grid-template-columns:minmax(0, 1.28fr) minmax(280px, 0.72fr);
+    gap:2.25rem 2.5rem;
+    align-items:center;
+    min-height:0;
+  }
+
+  .page-vakmannen .lab-disc-hero h1{
+    font-size:clamp(2.35rem, 3.1vw, 3.05rem);
+    max-width:14ch;
+    margin-bottom:0.85rem;
+    color:var(--e-ink, #14150F);
+  }
+
+  .page-vakmannen .lab-disc-hero .lead{
+    max-width:38ch;
+    margin-bottom:1rem;
+    font-size:1.02rem;
+    line-height:1.55;
+    color:var(--e-ink-soft, #5B5D4F);
+  }
+
+  .page-vakmannen .vk-trust-rail{
+    gap:.65rem 1.15rem;
+    margin-bottom:1.35rem;
+    padding:.7rem .85rem;
+    border-radius:12px;
+    background:rgba(63,74,50,.06);
+    border:1px solid rgba(63,74,50,.1);
+    width:fit-content;
+    max-width:100%;
+  }
+
+  .page-vakmannen .vk-trust-rail li{
+    font-size:.8rem;
+    color:var(--e-ink, #14150F);
+  }
+
+  /* Premium search object */
+  .page-vakmannen .lab-search{
+    max-width:100%;
+    padding:1rem 1.05rem 1rem 1.15rem;
+    border-radius:18px;
+    border:1px solid rgba(63,74,50,.14);
+    background:#FFFEFA;
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.85) inset,
+      0 14px 36px rgba(28,29,24,.1);
+    gap:0;
+    grid-template-columns:minmax(0,1.2fr) minmax(0,1.05fr) auto;
+    align-items:end;
+  }
+
+  .page-vakmannen .lab-search > label{
+    padding:.15rem .95rem .15rem .15rem;
+    gap:6px;
+    font-size:.7rem;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--e-ink-soft, #5B5D4F);
+  }
+
+  .page-vakmannen .lab-search > label.lab-loc{
+    border-left:1px solid rgba(63,74,50,.12);
+    padding-left:1rem;
+  }
+
+  .page-vakmannen .lab-search input,
+  .page-vakmannen .lab-search select{
+    height:44px;
+    border:0;
+    border-radius:0;
+    background:transparent;
+    padding:0 .15rem 0 0;
+    font-size:.98rem;
+    font-weight:550;
+    color:var(--e-ink, #14150F);
+    box-shadow:none;
+    text-transform:none;
+    letter-spacing:0;
+  }
+
+  .page-vakmannen .lab-search input:focus,
+  .page-vakmannen .lab-search select:focus{
+    outline:none;
+    border:0;
+    box-shadow:inset 0 -2px 0 var(--e-green, #3F4A32);
+  }
+
+  .page-vakmannen .lab-search .btn-primary{
+    margin-left:.35rem;
+    min-height:48px;
+    padding:0 1.35rem;
+    border-radius:12px;
+    box-shadow:0 8px 18px rgba(63,74,50,.22);
+  }
+
+  .page-vakmannen .lab-search .btn-primary:focus-visible{
+    outline:2px solid var(--e-green, #3F4A32);
+    outline-offset:3px;
+  }
+
+  /* Architectural image frame — ~36% of compose, not half-viewport stock */
+  .page-vakmannen .vk-disc-visual{
+    display:block;
+    margin:0;
+    justify-self:end;
+    width:100%;
+    max-width:380px;
+  }
+
+  .page-vakmannen .vk-disc-visual-frame{
+    position:relative;
+    border-radius:18px;
+    overflow:hidden;
+    aspect-ratio:4 / 5;
+    background:#2C3423;
+    border:1px solid rgba(63,74,50,.18);
+    box-shadow:
+      0 1px 0 rgba(255,255,255,.35) inset,
+      0 18px 40px rgba(28,29,24,.16);
+  }
+
+  .page-vakmannen .vk-disc-visual-frame::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+      linear-gradient(180deg, rgba(28,29,24,.08) 0%, transparent 28%, rgba(28,29,24,.28) 100%),
+      linear-gradient(90deg, rgba(63,74,50,.18) 0%, transparent 30%);
+    pointer-events:none;
+  }
+
+  .page-vakmannen .vk-disc-visual-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:58% 40%;
+    transform:none;
+    filter:none;
+  }
+
+  .page-vakmannen .vk-disc-visual-cap{
+    margin:.7rem .15rem 0;
+    font-size:.72rem;
+    font-weight:600;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--e-ink-soft, #5B5D4F);
+  }
+
+  .page-vakmannen .lab-featured{
+    padding:2.25rem 0 2.75rem;
+    background:
+      linear-gradient(180deg, #E8E2D4 0%, #F0EBE1 55%, #F4F1EA 100%);
+  }
+
+  .page-vakmannen .lab-featured-head h2{
+    font-size:1.45rem;
+    letter-spacing:-.02em;
+  }
+
+  .page-vakmannen .lab-disc-band{
+    padding:2.5rem 0 1.75rem;
+  }
+
+  .page-vakmannen .lab-disc-band h2,
+  .page-vakmannen .vk-regions h2{
+    letter-spacing:-.02em;
+  }
+
+  .page-vakmannen .lab-cat{
+    min-height:96px;
+    border-radius:16px;
+    transition:transform .22s var(--e-ease, ease), border-color .2s ease, box-shadow .22s var(--e-ease, ease), background .2s ease;
+  }
+
+  .page-vakmannen .lab-cat:hover{
+    transform:translateY(-3px);
+    border-color:rgba(63,74,50,.26);
+    box-shadow:0 12px 28px rgba(28,29,24,.1);
+  }
+
+  .page-vakmannen .lab-prov button{
+    border-radius:999px;
+    transition:background .18s ease, color .18s ease, border-color .18s ease, transform .18s ease;
+  }
+
+  .page-vakmannen .lab-prov button:hover{
+    transform:translateY(-1px);
+  }
+
+  .page-vakmannen .lab-results-head h1{
+    letter-spacing:-.025em;
+  }
+
+  .page-vakmannen .lab-filters{
+    background:#FFFEFA;
+    border-color:rgba(63,74,50,.12);
+    box-shadow:0 8px 24px rgba(28,29,24,.05);
+  }
+
+  .page-vakmannen .lab-row{
+    border-color:rgba(63,74,50,.12);
+    background:#FFFEFA;
+    transition:border-color .2s ease, box-shadow .22s var(--e-ease, ease), transform .22s var(--e-ease, ease);
+  }
+
+  .page-vakmannen .lab-row:hover{
+    border-color:rgba(63,74,50,.22);
+    box-shadow:0 14px 32px rgba(28,29,24,.09);
+    transform:translateY(-2px);
+  }
+}
+
+@media (min-width:1366px){
+  .page-vakmannen .lab-wrap{
+    max-width:1180px;
+  }
+
+  .page-vakmannen .vk-disc-visual{
+    max-width:400px;
+  }
+
+  .page-vakmannen .lab-disc-hero h1{
+    font-size:3rem;
+  }
+}
+
+@media (min-width:1440px){
+  .page-vakmannen .vk-disc-compose{
+    gap:2.5rem 3rem;
+  }
+
+  .page-vakmannen .vk-disc-visual{
+    max-width:420px;
+  }
+}
+
+@media (min-width:1920px){
+  .page-vakmannen .lab-wrap{
+    max-width:1240px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .page-vakmannen .lab-search .btn-primary,
+  .page-vakmannen .lab-cat,
+  .page-vakmannen .lab-prov button,
+  .page-vakmannen .lab-row{
+    transition:none !important;
+  }
+  .page-vakmannen .lab-search .btn-primary:hover,
+  .page-vakmannen .lab-cat:hover,
+  .page-vakmannen .lab-prov button:hover,
+  .page-vakmannen .lab-row:hover{
+    transform:none !important;
+  }
+}

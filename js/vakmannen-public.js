@@ -413,22 +413,35 @@
       ? '<div class="lab-feature-rail">' + featured.map(rowHtml).join('') + '</div>'
       : '<p class="lab-hint">Nog geen gepubliceerde vakbedrijven om uit te lichten. Kies een categorie om te starten.</p>';
     return (
-      '<section class="lab-disc-hero"><div class="lab-wrap">' +
-        '<p class="lab-kicker">Vakmannen</p>' +
-        '<h1>Vind de juiste vakman<br>voor je renovatie.</h1>' +
-        '<p class="lead">Ontdek gecontroleerde vakbedrijven, begrijp prijs en timing, en vraag een offerte aan wanneer het past.</p>' +
-        '<form class="lab-search" id="vkSearch" autocomplete="off">' +
-          '<label>Wat wil je laten uitvoeren?<select name="category">' +
-            categoryList().map(function (c) {
-              return '<option value="' + c.id + '"' + (c.id === state.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
-            }).join('') +
-          '</select></label>' +
-          '<label class="lab-loc">Waar?' +
-            '<input name="location" id="locInput" value="' + esc(state.locationQuery) + '" placeholder="Gemeente of postcode" aria-autocomplete="list" autocomplete="off">' +
-            '<div class="lab-suggest" id="locSuggest" hidden></div>' +
-          '</label>' +
-          '<button type="submit" class="btn btn-primary">Vind vakmannen</button>' +
-        '</form>' +
+      '<section class="lab-disc-hero"><div class="lab-wrap vk-disc-compose">' +
+        '<div class="vk-disc-copy">' +
+          '<p class="lab-kicker">Renovatieplatform voor Vlaanderen en Brussel</p>' +
+          '<h1>Vind de juiste vakman<br>voor je renovatie.</h1>' +
+          '<p class="lead">Ontdek gecontroleerde vakbedrijven, begrijp prijs en timing, en vraag een offerte aan wanneer het past.</p>' +
+          '<ul class="vk-trust-rail" aria-label="Waarom ELYAN">' +
+            '<li><span class="vk-trust-mark" aria-hidden="true"></span> Gecontroleerde vakbedrijven</li>' +
+            '<li><span class="vk-trust-mark" aria-hidden="true"></span> Richtprijzen met context</li>' +
+            '<li><span class="vk-trust-mark" aria-hidden="true"></span> Aanvragen via ELYAN</li>' +
+          '</ul>' +
+          '<form class="lab-search" id="vkSearch" autocomplete="off">' +
+            '<label>Wat wil je laten uitvoeren?<select name="category">' +
+              categoryList().map(function (c) {
+                return '<option value="' + c.id + '"' + (c.id === state.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
+              }).join('') +
+            '</select></label>' +
+            '<label class="lab-loc">Waar?' +
+              '<input name="location" id="locInput" value="' + esc(state.locationQuery) + '" placeholder="Gemeente of postcode" aria-autocomplete="list" autocomplete="off">' +
+              '<div class="lab-suggest" id="locSuggest" hidden></div>' +
+            '</label>' +
+            '<button type="submit" class="btn btn-primary">Vind vakmannen</button>' +
+          '</form>' +
+        '</div>' +
+        '<figure class="vk-disc-visual" aria-hidden="true">' +
+          '<div class="vk-disc-visual-frame">' +
+            '<img src="/assets/photos/editorial.jpg" alt="" width="900" height="1120" decoding="async" fetchpriority="high">' +
+          '</div>' +
+          '<figcaption class="vk-disc-visual-cap">Nagekeken partners · prijsindicatie vóór je aanvraagt</figcaption>' +
+        '</figure>' +
       '</div></section>' +
       '<section class="lab-featured"><div class="lab-wrap">' +
         '<div class="lab-featured-head">' +
