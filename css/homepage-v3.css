@@ -1186,12 +1186,12 @@ body.hp-v3 .hp-hero-photo img {
 
   body.hp-v3 .hp-hero-photo img {
     object-fit: cover;
-    object-position: 48% 16%;
+    object-position: 60% 16%;
     transform: none;
     opacity: 1;
   }
 
-  /* Cinematic readability gradient — left/bottom only, face stays natural */
+  /* Cinematic mood + readability — left/bottom + soft vignette, face stays natural */
   body.hp-v3 .hp-hero-photo::after {
     content: '';
     position: absolute;
@@ -1201,18 +1201,25 @@ body.hp-v3 .hp-hero-photo img {
     background:
       linear-gradient(
         105deg,
-        rgba(36, 41, 34, 0.78) 0%,
-        rgba(36, 41, 34, 0.55) 28%,
-        rgba(36, 41, 34, 0.18) 52%,
-        transparent 68%
+        rgba(28, 30, 26, 0.86) 0%,
+        rgba(36, 41, 34, 0.68) 22%,
+        rgba(36, 41, 34, 0.34) 46%,
+        rgba(36, 41, 34, 0.1) 60%,
+        transparent 72%
       ),
       linear-gradient(
         180deg,
-        rgba(36, 41, 34, 0.22) 0%,
-        transparent 28%,
-        transparent 48%,
-        rgba(36, 41, 34, 0.45) 72%,
-        rgba(47, 49, 43, 0.72) 100%
+        rgba(36, 41, 34, 0.32) 0%,
+        transparent 24%,
+        transparent 42%,
+        rgba(36, 41, 34, 0.48) 68%,
+        rgba(36, 38, 32, 0.82) 100%
+      ),
+      radial-gradient(
+        ellipse 100% 85% at 78% 26%,
+        transparent 0%,
+        transparent 40%,
+        rgba(24, 26, 22, 0.28) 100%
       );
   }
 
@@ -1228,17 +1235,24 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-eyebrow {
-    margin: 0 0 0.65rem;
-    padding: 0;
-    background: transparent;
-    border: 0;
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    margin: 0 0 0.7rem;
+    padding: 0.3rem 0.62rem;
+    background: rgba(24, 26, 22, 0.28);
+    border: 1px solid rgba(255, 253, 249, 0.12);
     box-shadow: none;
-    border-radius: 0;
-    font-size: 0.6875rem; /* 11px */
-    font-weight: 700;
-    letter-spacing: 0.08em;
+    border-radius: 999px;
+    font-size: 0.625rem; /* 10px */
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    line-height: 1.3;
     text-transform: uppercase;
-    color: rgba(255, 253, 249, 0.92);
+    color: rgba(255, 253, 249, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   body.hp-v3 .hp-hero h1 {
@@ -1258,10 +1272,10 @@ body.hp-v3 .hp-hero-photo img {
   body.hp-v3 .hp-hero-sub {
     margin: 0;
     max-width: 28em;
-    font-size: 1rem; /* 16px */
-    line-height: 1.4;
+    font-size: 0.875rem; /* 14px — secondary to headline */
+    line-height: 1.45;
     font-weight: 450;
-    color: rgba(255, 253, 249, 0.9);
+    color: rgba(255, 253, 249, 0.86);
   }
 
   body.hp-v3 .hp-search {
@@ -1533,7 +1547,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-photo img {
-    object-position: 46% 14%;
+    object-position: 58% 14%;
   }
 }
 
