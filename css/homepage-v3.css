@@ -661,7 +661,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-photo img {
-    object-position: 70% 42%;
+    object-position: 72% 20%;
     transform: scale(1.02);
     transform-origin: 62% 30%;
     transition: transform 1.1s cubic-bezier(0.22, 1, 0.36, 1);
