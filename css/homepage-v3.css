@@ -1186,7 +1186,8 @@ body.hp-v3 .hp-hero-photo img {
 
   body.hp-v3 .hp-hero-photo img {
     object-fit: cover;
-    object-position: 40% 28%;
+    /* Center-right craftsman; less empty left wall; no extra zoom */
+    object-position: 68% 30%;
     transform: none;
     opacity: 1;
     filter: none;
@@ -1551,7 +1552,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-photo img {
-    object-position: 38% 26%;
+    object-position: 66% 28%;
   }
 }
 
