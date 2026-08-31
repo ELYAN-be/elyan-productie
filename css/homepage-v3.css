@@ -1159,12 +1159,12 @@ body.hp-v3 .hp-hero-photo img {
     display: block;
   }
 
-  /* Full-bleed photo plane */
+  /* Full-bleed photo plane — slightly taller for more photo height */
   body.hp-v3 .hp-hero-stage {
     position: relative;
     width: 100%;
-    height: 470px;
-    min-height: 470px;
+    height: 520px;
+    min-height: 520px;
     margin: 0;
     overflow: hidden;
   }
@@ -1186,12 +1186,16 @@ body.hp-v3 .hp-hero-photo img {
 
   body.hp-v3 .hp-hero-photo img {
     object-fit: cover;
-    object-position: 68% 32%;
+    object-position: 62% 40%;
     transform: none;
     opacity: 1;
+    filter: none;
+    image-rendering: auto;
+    -webkit-user-select: none;
+    z-index: 0;
   }
 
-  /* Cinematic mood + readability — left/bottom + soft vignette, face stays natural */
+  /* Overlay stays on ::after only — never baked into the photo */
   body.hp-v3 .hp-hero-photo::after {
     content: '';
     position: absolute;
@@ -1223,13 +1227,13 @@ body.hp-v3 .hp-hero-photo img {
       );
   }
 
-  /* Copy overlaps photo; search rides the lower edge */
+  /* Copy overlaps photo; search rides the lower edge — text Y kept while stage grows */
   body.hp-v3 .hp-hero-copy {
     position: relative;
     z-index: 3;
     max-width: none;
     width: auto;
-    margin-top: -18.5rem; /* +44px upward vs prior -15.75rem */
+    margin-top: -21.625rem;
     padding: 0 1.25rem 0;
     box-sizing: border-box;
   }
@@ -1533,12 +1537,12 @@ body.hp-v3 .hp-hero-photo img {
 
 @media (max-width: 959px) and (min-width: 420px) {
   body.hp-v3 .hp-hero-stage {
-    height: 500px;
-    min-height: 500px;
+    height: 550px;
+    min-height: 550px;
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -19.25rem; /* +44px upward vs prior -16.5rem */
+    margin-top: -22.375rem;
   }
 
   body.hp-v3 .hp-hero h1 {
@@ -1547,18 +1551,18 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-photo img {
-    object-position: 66% 30%;
+    object-position: 60% 38%;
   }
 }
 
 @media (max-width: 959px) and (max-width: 389px) {
   body.hp-v3 .hp-hero-stage {
-    height: 440px;
-    min-height: 440px;
+    height: 490px;
+    min-height: 490px;
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -17.25rem; /* +44px upward vs prior -14.5rem */
+    margin-top: -20.375rem;
     padding: 0 1.1rem;
   }
 

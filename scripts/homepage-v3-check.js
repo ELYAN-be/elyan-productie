@@ -18,7 +18,7 @@ assert.ok(h.indexOf('>Locatie<') >= 0, 'label locatie');
 assert.ok(h.indexOf('Kies een vakgebied') >= 0, 'ph');
 assert.ok(h.indexOf('Gemeente of postcode') >= 0, 'loc ph');
 assert.ok(h.indexOf('elyan-hero-craftsman-desktop-now') >= 0, 'desktop asset');
-assert.ok(h.indexOf('elyan-hero-craftsman-workbench') >= 0, 'mobile asset');
+assert.ok(h.indexOf('elyan-hero-craftsman-workbench-mobile') >= 0, 'mobile asset');
 assert.ok(h.indexOf('desktop-2x') < 0, 'no fake 2x');
 assert.ok(h.indexOf('href="/" class="logo"') >= 0, 'logo');
 assert.ok(h.indexOf('Over ELYAN') >= 0, 'nav about');
