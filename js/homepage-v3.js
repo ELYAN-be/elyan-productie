@@ -227,8 +227,17 @@
       }
 
       if (!ok) {
-        var firstInvalid = form.querySelector('.hp-field.is-invalid select, .hp-field.is-invalid input');
-        if (firstInvalid) firstInvalid.focus();
+        if (catField && catField.classList.contains('is-invalid')) {
+          var trigger = $('#hpCategoryTrigger');
+          if (trigger && window.matchMedia && window.matchMedia('(min-width: 960px)').matches) {
+            trigger.focus();
+          } else if (cat) {
+            cat.focus();
+          }
+        } else {
+          var firstInvalid = form.querySelector('.hp-field.is-invalid input');
+          if (firstInvalid) firstInvalid.focus();
+        }
         return;
       }
 
@@ -247,6 +256,157 @@
         if (String(loc.value || '').trim()) clearFieldInvalid(locField);
       });
     }
+
+    initCategoryDropdown();
+  }
+
+  function initCategoryDropdown() {
+    var field = $('#hpFieldCategory');
+    var select = $('#hpCategory');
+    var trigger = $('#hpCategoryTrigger');
+    var list = $('#hpCategoryList');
+    var triggerText = $('#hpCategoryTriggerText');
+    if (!field || !select || !trigger || !list || !triggerText) return;
+
+    var options = Array.prototype.slice.call(list.querySelectorAll('[role="option"]'));
+    var activeIndex = -1;
+
+    function isDesktop() {
+      return !!(window.matchMedia && window.matchMedia('(min-width: 960px)').matches);
+    }
+
+    function syncDesktopMode() {
+      if (isDesktop()) {
+        select.setAttribute('aria-hidden', 'true');
+        select.setAttribute('tabindex', '-1');
+        trigger.removeAttribute('aria-hidden');
+      } else {
+        select.removeAttribute('aria-hidden');
+        select.removeAttribute('tabindex');
+        closeList();
+      }
+    }
+
+    function setActiveIndex(index) {
+      activeIndex = index;
+      options.forEach(function (opt, i) {
+        if (i === index) opt.classList.add('is-active');
+        else opt.classList.remove('is-active');
+      });
+      if (index >= 0 && options[index]) {
+        options[index].scrollIntoView({ block: 'nearest' });
+      }
+    }
+
+    function syncFromSelect() {
+      var value = String(select.value || '');
+      var matched = null;
+      options.forEach(function (opt) {
+        var selected = opt.getAttribute('data-value') === value && value !== '';
+        opt.setAttribute('aria-selected', selected ? 'true' : 'false');
+        if (selected) matched = opt;
+      });
+      triggerText.textContent = matched ? matched.textContent : 'Kies een vakgebied';
+      if (matched) setActiveIndex(options.indexOf(matched));
+    }
+
+    function openList() {
+      if (!isDesktop()) return;
+      list.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      var selectedIdx = options.findIndex(function (opt) {
+        return opt.getAttribute('aria-selected') === 'true';
+      });
+      setActiveIndex(selectedIdx >= 0 ? selectedIdx : 0);
+      if (activeIndex >= 0 && options[activeIndex]) options[activeIndex].focus();
+    }
+
+    function closeList(focusTrigger) {
+      list.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      options.forEach(function (opt) {
+        opt.classList.remove('is-active');
+      });
+      if (focusTrigger) trigger.focus();
+    }
+
+    function chooseOption(opt) {
+      if (!opt) return;
+      var value = opt.getAttribute('data-value') || '';
+      select.value = value;
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+      syncFromSelect();
+      clearFieldInvalid(field);
+      closeList(true);
+    }
+
+    trigger.addEventListener('click', function () {
+      if (!isDesktop()) return;
+      if (list.hidden) openList();
+      else closeList(true);
+    });
+
+    trigger.addEventListener('keydown', function (e) {
+      if (!isDesktop()) return;
+      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openList();
+      }
+    });
+
+    list.addEventListener('keydown', function (e) {
+      if (!isDesktop()) return;
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        closeList(true);
+        return;
+      }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setActiveIndex(Math.min(options.length - 1, activeIndex + 1));
+        if (options[activeIndex]) options[activeIndex].focus();
+        return;
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActiveIndex(Math.max(0, activeIndex - 1));
+        if (options[activeIndex]) options[activeIndex].focus();
+        return;
+      }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (activeIndex >= 0) chooseOption(options[activeIndex]);
+        return;
+      }
+      if (e.key === 'Home') {
+        e.preventDefault();
+        setActiveIndex(0);
+        if (options[0]) options[0].focus();
+        return;
+      }
+      if (e.key === 'End') {
+        e.preventDefault();
+        setActiveIndex(options.length - 1);
+        if (options[activeIndex]) options[activeIndex].focus();
+      }
+    });
+
+    options.forEach(function (opt, index) {
+      opt.addEventListener('click', function () {
+        chooseOption(opt);
+      });
+      opt.addEventListener('mousemove', function () {
+        setActiveIndex(index);
+      });
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!list.hidden && !field.contains(e.target)) closeList(false);
+    });
+
+    window.addEventListener('resize', syncDesktopMode);
+    syncDesktopMode();
+    syncFromSelect();
   }
 
   /**

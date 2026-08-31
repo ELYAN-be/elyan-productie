@@ -194,16 +194,12 @@
             <source
               type="image/webp"
               media="(max-width:959px)"
-              srcset="/assets/photos/elyan-hero-craftsman-v5-mobile-safe.webp?v=arch1">
+              srcset="/assets/photos/elyan-hero-craftsman-v5-mobile-safe.webp?v=micro1">
             <source
               media="(max-width:959px)"
-              srcset="/assets/photos/elyan-hero-craftsman-v5-mobile-safe.jpg?v=arch1">
-            <source
-              type="image/webp"
-              media="(min-width:960px)"
-              srcset="/assets/photos/elyan-hero-craftsman-desktop-now.webp?v=arch1">
+              srcset="/assets/photos/elyan-hero-craftsman-v5-mobile-safe.jpg?v=micro1">
             <img
-              src="/assets/photos/elyan-hero-craftsman-desktop-now.jpg?v=arch1"
+              src="/assets/photos/elyan-hero-craftsman-desktop-now.jpg?v=micro1"
               alt=""
               width="1024"
               height="576"
@@ -222,8 +218,8 @@
           <div class="hp-search-unit">
             <div class="hp-search-row">
               <div class="hp-field hp-field--category" id="hpFieldCategory">
-                <label for="hpCategory">Vakgebied</label>
-                <select id="hpCategory" name="category" required>
+                <label id="hpCategoryLabel">Vakgebied</label>
+                <select id="hpCategory" name="category" required class="hp-category-native" aria-labelledby="hpCategoryLabel">
                   <option value="">Kies een vakgebied</option>
                   <option value="dakwerken">Dakwerken</option>
                   <option value="badkamer">Badkamer</option>
@@ -238,6 +234,30 @@
                   <option value="ventilatie">Ventilatie</option>
                   <option value="zonnepanelen">Zonnepanelen</option>
                 </select>
+                <button
+                  type="button"
+                  class="hp-category-trigger"
+                  id="hpCategoryTrigger"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                  aria-controls="hpCategoryList"
+                  aria-labelledby="hpCategoryLabel hpCategoryTriggerText">
+                  <span class="hp-category-trigger-text" id="hpCategoryTriggerText">Kies een vakgebied</span>
+                </button>
+                <ul class="hp-category-list" id="hpCategoryList" role="listbox" aria-labelledby="hpCategoryLabel" hidden>
+                  <li role="option" tabindex="-1" data-value="dakwerken" aria-selected="false">Dakwerken</li>
+                  <li role="option" tabindex="-1" data-value="badkamer" aria-selected="false">Badkamer</li>
+                  <li role="option" tabindex="-1" data-value="keuken" aria-selected="false">Keuken</li>
+                  <li role="option" tabindex="-1" data-value="ramen-deuren" aria-selected="false">Ramen &amp; deuren</li>
+                  <li role="option" tabindex="-1" data-value="isolatie" aria-selected="false">Isolatie</li>
+                  <li role="option" tabindex="-1" data-value="verwarming" aria-selected="false">Verwarming</li>
+                  <li role="option" tabindex="-1" data-value="elektriciteit" aria-selected="false">Elektriciteit</li>
+                  <li role="option" tabindex="-1" data-value="gevel" aria-selected="false">Gevel</li>
+                  <li role="option" tabindex="-1" data-value="vloeren" aria-selected="false">Vloeren</li>
+                  <li role="option" tabindex="-1" data-value="schilderwerken" aria-selected="false">Schilderwerken</li>
+                  <li role="option" tabindex="-1" data-value="ventilatie" aria-selected="false">Ventilatie</li>
+                  <li role="option" tabindex="-1" data-value="zonnepanelen" aria-selected="false">Zonnepanelen</li>
+                </ul>
                 <p class="hp-field-error" id="hpCategoryError" role="alert" aria-hidden="true">Kies een vakgebied.</p>
               </div>
               <div class="hp-field hp-field--location" id="hpFieldLocation">
