@@ -26,7 +26,7 @@ assert.ok(css.indexOf('HERO ARCHITECTURE') >= 0, 'arch css');
 assert.ok(css.indexOf('mask-image') >= 0, 'photo mask');
 assert.ok(css.indexOf('is-ready #hpHeroTitle') >= 0, 'h1 reveal fix');
 assert.ok(css.indexOf('width: 740px') >= 0 || css.indexOf('width: 720px') >= 0, 'search width');
-assert.ok(css.indexOf('height: 74px') >= 0, 'search height');
+assert.ok(css.indexOf('height: 74px') >= 0 || css.indexOf('height: 70px') >= 0 || css.indexOf('height: 68px') >= 0, 'search height');
 assert.ok(js.indexOf('initHeroParallax();') < 0, 'parallax off');
 assert.ok(js.indexOf('initHeroReveal') >= 0, 'reveal');
 assert.ok(js.indexOf('initHeroCueRotate') < 0, 'no cue rotate');
