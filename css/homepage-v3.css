@@ -1222,7 +1222,7 @@ body.hp-v3 .hp-hero-photo img {
     z-index: 3;
     max-width: none;
     width: auto;
-    margin-top: -15.75rem;
+    margin-top: -18.5rem; /* +44px upward vs prior -15.75rem */
     padding: 0 1.25rem 0;
     box-sizing: border-box;
   }
@@ -1524,7 +1524,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -16.5rem;
+    margin-top: -19.25rem; /* +44px upward vs prior -16.5rem */
   }
 
   body.hp-v3 .hp-hero h1 {
@@ -1543,7 +1543,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -14.5rem;
+    margin-top: -17.25rem; /* +44px upward vs prior -14.5rem */
     padding: 0 1.1rem;
   }
 
