@@ -1,8 +1,8 @@
 'use strict';
 
-var { listAutopilotCandidates } = require('./partner-autopilot/store');
-var { evaluateAutopilotReadiness } = require('./partner-autopilot/readiness');
-var { createAdminClient } = require('./supabase');
+var { listAutopilotCandidates } = require('./store');
+var { evaluateAutopilotReadiness } = require('./readiness');
+var { createAdminClient } = require('../supabase');
 
 var QUEUE_FILTERS = {
   review_required: 'review_required',

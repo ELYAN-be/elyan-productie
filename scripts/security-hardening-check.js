@@ -17,12 +17,23 @@ function source(rel) {
 
 function test(name, fn) {
   try {
-    fn();
+    var ret = fn();
+    if (ret && typeof ret.then === 'function') {
+      return ret
+        .then(function () { console.log('ok - ' + name); })
+        .catch(function (e) {
+          failed += 1;
+          console.error('FAIL - ' + name);
+          console.error('  ' + (e && e.message ? e.message : e));
+        });
+    }
     console.log('ok - ' + name);
+    return Promise.resolve();
   } catch (e) {
     failed += 1;
     console.error('FAIL - ' + name);
     console.error('  ' + (e && e.message ? e.message : e));
+    return Promise.resolve();
   }
 }
 
@@ -218,8 +229,36 @@ test('package.json wires security-hardening into marketplace suite', function ()
   assert.ok(fs.existsSync(path.join(root, 'scripts/private-assets-check.js')));
 });
 
-if (failed) {
-  console.error('\n' + failed + ' security check(s) failed');
-  process.exit(1);
-}
-console.log('\nAll security hardening checks passed');
+(async function () {
+  try {
+    var handler = require('../api/control');
+    assert.strictEqual(typeof handler, 'function');
+    var res = {
+      statusCode: 0,
+      headers: {},
+      setHeader: function (k, v) { this.headers[k] = v; },
+      end: function (body) { this.body = body; }
+    };
+    await handler({
+      method: 'GET',
+      url: '/api/control?action=list',
+      headers: {},
+      query: { action: 'list' }
+    }, res);
+    assert.strictEqual(res.statusCode, 401, 'unauthenticated control must not 500');
+    var body = JSON.parse(res.body);
+    assert.ok(body.error === 'missing_token' || body.error === 'invalid_token');
+    assert.ok(!/stack|MODULE_NOT_FOUND|Error:/i.test(res.body));
+    console.log('ok - Control module loads and unauthenticated requests return 401 not 500');
+  } catch (e) {
+    failed += 1;
+    console.error('FAIL - Control module loads and unauthenticated requests return 401 not 500');
+    console.error('  ' + (e && e.message ? e.message : e));
+  }
+
+  if (failed) {
+    console.error('\n' + failed + ' security check(s) failed');
+    process.exit(1);
+  }
+  console.log('\nAll security hardening checks passed');
+})();
