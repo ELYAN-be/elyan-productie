@@ -1,0 +1,769 @@
+/* ============================================================
+   ELYAN — Over ELYAN final experience
+   Scoped to .page-about only. Does not affect other pages.
+   ============================================================ */
+
+.page-about {
+  --ab-surface: #F7F7F5;
+  --ab-surface-alt: #F2F2F0;
+  --ab-card: #FAFAF8;
+  --ab-line: rgba(100, 102, 98, 0.16);
+  --ab-ink: var(--hp-ink, #2F312B);
+  --ab-ink-soft: var(--hp-ink-soft, #5C5E56);
+}
+
+.page-about .ab2-main {
+  background: var(--ab-surface);
+}
+
+.page-about .ab2-band {
+  padding: clamp(2.5rem, 5vw, 3.75rem) 0;
+}
+
+.page-about .ab2-band--stone {
+  background: var(--ab-surface-alt);
+}
+
+.page-about .ab2-band--light {
+  background: var(--ab-card);
+}
+
+.page-about .ab2-eyebrow {
+  margin: 0 0 0.55rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark, #2f3626);
+}
+
+.page-about .ab2-h2 {
+  margin: 0 0 1.25rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--ab-ink);
+}
+
+.page-about .ab2-lead {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: var(--ab-ink-soft);
+}
+
+/* ---- Reveal ---- */
+.page-about [data-ab-reveal] {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.page-about [data-ab-reveal].is-inview {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-about [data-ab-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---- Opening ---- */
+.page-about .ab2-opening {
+  padding: clamp(1.75rem, 4vw, 3rem) 0 clamp(2rem, 4vw, 2.75rem);
+}
+
+.page-about .ab2-opening-grid {
+  display: grid;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+.page-about .ab2-opening h1 {
+  margin: 0 0 0.75rem;
+  max-width: 13ch;
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 4.5vw, 2.85rem);
+  letter-spacing: -0.03em;
+  line-height: 1.06;
+  color: var(--ab-ink);
+}
+
+.page-about .ab2-opening .ab2-lead {
+  max-width: 38ch;
+}
+
+.page-about .ab2-opening-photo {
+  margin: 0;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.page-about .ab2-opening-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-opening-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(280px, 0.92fr);
+    gap: 2.5rem;
+    align-items: center;
+  }
+
+  .page-about .ab2-opening h1 {
+    max-width: 11ch;
+  }
+}
+
+/* ---- Problem ---- */
+.page-about .ab2-problem-grid {
+  display: grid;
+  gap: 0;
+}
+
+.page-about .ab2-problem-item {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: 0.85rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-problem-item:first-child {
+  border-top: 0;
+  padding-top: 0.25rem;
+}
+
+.page-about .ab2-num {
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  color: var(--hp-olive, #3f4a32);
+  margin-top: 0.15rem;
+}
+
+.page-about .ab2-problem-item h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.02rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.page-about .ab2-problem-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.48;
+  color: var(--ab-ink-soft);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-problem-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .page-about .ab2-problem-item {
+    grid-template-columns: 1fr;
+    border-top: 0;
+    border-left: 1px solid var(--ab-line);
+    padding: 0 0 0 1.35rem;
+  }
+
+  .page-about .ab2-problem-item:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .page-about .ab2-num {
+    margin-bottom: 0.5rem;
+  }
+}
+
+/* ---- Signature ---- */
+.page-about .ab2-signature {
+  text-align: left;
+}
+
+.page-about .ab2-signature-statement {
+  margin: 0 0 0.85rem;
+  max-width: 14ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4.2vw, 2.65rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.12;
+  color: var(--ab-ink);
+}
+
+.page-about .ab2-signature-support {
+  margin: 0;
+  max-width: 32ch;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--ab-ink-soft);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-signature-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: 2rem;
+    align-items: end;
+  }
+
+  .page-about .ab2-signature-statement {
+    max-width: none;
+  }
+}
+
+/* ---- Journey ---- */
+.page-about .ab2-journey-rail {
+  display: grid;
+  gap: 0;
+}
+
+.page-about .ab2-journey-step {
+  display: grid;
+  grid-template-columns: 1.75rem minmax(0, 1fr);
+  gap: 0.85rem;
+  padding: 1.05rem 0;
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-journey-step:first-child {
+  border-top: 0;
+  padding-top: 0.2rem;
+}
+
+.page-about .ab2-journey-step h3 {
+  margin: 0 0 0.28rem;
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+.page-about .ab2-journey-step p {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.48;
+  color: var(--ab-ink-soft);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-journey-rail {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--ab-line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .page-about .ab2-journey-step {
+    grid-template-columns: 1fr;
+    padding: 1.2rem 1.1rem;
+    border-top: 0;
+    border-left: 1px solid var(--ab-line);
+  }
+
+  .page-about .ab2-journey-step:first-child {
+    border-left: 0;
+  }
+}
+
+/* ---- Product proof ---- */
+.page-about .ab2-proof-intro {
+  margin-bottom: 2rem;
+}
+
+.page-about .ab2-proof-block {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.75rem 0;
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-proof-block:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.page-about .ab2-proof-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.page-about .ab2-proof-block h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.page-about .ab2-proof-block p {
+  margin: 0;
+  max-width: 34ch;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--ab-ink-soft);
+}
+
+.page-about .ab2-report-visual {
+  position: relative;
+  width: min(100%, 200px);
+  margin: 0 auto;
+  aspect-ratio: 595 / 842;
+}
+
+.page-about .ab2-report-visual img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  border: 1px solid rgba(156, 158, 152, 0.22);
+  box-shadow: 0 10px 28px rgba(47, 49, 43, 0.1);
+}
+
+.page-about .ab2-method-flow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem 1rem;
+  margin-top: 1.25rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-method-node strong {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.page-about .ab2-method-node span {
+  display: block;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--ab-ink-soft);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-proof-block {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+    gap: 2.5rem;
+    align-items: center;
+    padding: 2.25rem 0;
+  }
+
+  .page-about .ab2-proof-block--reverse .ab2-proof-copy {
+    order: 2;
+  }
+
+  .page-about .ab2-proof-block--reverse .ab2-proof-visual-wrap {
+    order: 1;
+  }
+
+  .page-about .ab2-report-visual {
+    width: min(100%, 220px);
+    margin: 0;
+    margin-left: auto;
+  }
+
+  .page-about .ab2-method-flow {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+}
+
+/* Marketplace UI mock — structural only, no fake data */
+.page-about .ab2-mock-row {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 0.65rem 0.85rem;
+  padding: 0.85rem;
+  border: 1px solid var(--ab-line);
+  border-radius: 10px;
+  background: var(--ab-card);
+}
+
+.page-about .ab2-mock-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  background: linear-gradient(145deg, #EDECEA 0%, #E4E3E0 100%);
+  border: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-mock-badge {
+  display: inline-block;
+  margin-bottom: 0.3rem;
+  font-size: 0.62rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.page-about .ab2-mock-name {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.92rem;
+  font-weight: 650;
+  color: var(--ab-ink);
+}
+
+.page-about .ab2-mock-meta {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--ab-ink-soft);
+}
+
+.page-about .ab2-mock-price {
+  grid-column: 1 / -1;
+  padding-top: 0.55rem;
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-mock-val {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--ab-ink);
+}
+
+.page-about .ab2-mock-ctx {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.68rem;
+  color: rgba(92, 94, 86, 0.78);
+}
+
+.page-about .ab2-mock-note {
+  margin: 0.65rem 0 0;
+  font-size: 0.72rem;
+  line-height: 1.45;
+  color: rgba(92, 94, 86, 0.72);
+}
+
+@media (min-width: 720px) {
+  .page-about .ab2-mock-row {
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .page-about .ab2-mock-thumb {
+    width: 72px;
+    height: 72px;
+  }
+
+  .page-about .ab2-mock-price {
+    grid-column: auto;
+    padding-top: 0;
+    border-top: 0;
+    text-align: right;
+  }
+}
+
+/* ---- Different ---- */
+.page-about .ab2-different-lead {
+  margin: 0 0 1.5rem;
+  max-width: 36ch;
+  font-size: 1.05rem;
+  font-weight: 550;
+  line-height: 1.45;
+  color: var(--ab-ink);
+}
+
+.page-about .ab2-principle-grid {
+  display: grid;
+  gap: 0;
+}
+
+.page-about .ab2-principle-item {
+  padding: 1rem 0;
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-principle-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.page-about .ab2-principle-item h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.page-about .ab2-principle-item p {
+  margin: 0;
+  max-width: 38ch;
+  font-size: 0.9rem;
+  line-height: 1.48;
+  color: var(--ab-ink-soft);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-principle-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .page-about .ab2-principle-item {
+    border-top: 0;
+    border-left: 1px solid var(--ab-line);
+    padding: 0 0 0 1.25rem;
+  }
+
+  .page-about .ab2-principle-item:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+/* ---- Trust ---- */
+.page-about .ab2-trust-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.page-about .ab2-trust-col h3 {
+  margin: 0 0 0.7rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.page-about .ab2-trust-col ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.page-about .ab2-trust-col li {
+  position: relative;
+  padding-left: 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--ab-ink-soft);
+}
+
+.page-about .ab2-trust-col li + li {
+  margin-top: 0.35rem;
+}
+
+.page-about .ab2-trust-yes li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.52em;
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 999px;
+  background: var(--hp-olive);
+}
+
+.page-about .ab2-trust-no li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.75rem;
+  color: rgba(92, 94, 86, 0.55);
+}
+
+.page-about .ab2-trust-note {
+  margin: 1rem 0 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(92, 94, 86, 0.78);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-trust-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+  }
+}
+
+/* ---- Stand principles ---- */
+.page-about .ab2-stand-grid {
+  display: grid;
+  gap: 0;
+}
+
+.page-about .ab2-stand-item {
+  padding: 1rem 0;
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-stand-item:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.page-about .ab2-stand-item h3 {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.page-about .ab2-stand-item p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.48;
+  color: var(--ab-ink-soft);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-stand-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .page-about .ab2-stand-item {
+    border-top: 0;
+    border-left: 1px solid var(--ab-line);
+    padding: 0 0 0 1.25rem;
+  }
+
+  .page-about .ab2-stand-item:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+}
+
+/* ---- Vision ---- */
+.page-about .ab2-vision-copy {
+  margin: 0 0 1.25rem;
+  max-width: 46ch;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--ab-ink-soft);
+}
+
+.page-about .ab2-vision-tagline {
+  margin: 0;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  color: var(--ab-ink);
+}
+
+@media (min-width: 900px) {
+  .page-about .ab2-vision-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    gap: 2.5rem;
+    align-items: end;
+  }
+}
+
+/* ---- Final CTA ---- */
+.page-about .ab2-cta {
+  padding: clamp(2.75rem, 5vw, 4rem) 0 clamp(3rem, 6vw, 4.5rem);
+  border-top: 1px solid var(--ab-line);
+}
+
+.page-about .ab2-cta h2 {
+  margin: 0 0 1.25rem;
+  max-width: 18ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.025em;
+  line-height: 1.12;
+}
+
+.page-about .ab2-cta-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.85rem;
+}
+
+.page-about .ab2-cta-secondary {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--hp-olive-dark);
+  text-decoration: none;
+}
+
+.page-about .ab2-cta-secondary .ab2-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.page-about .ab2-cta-secondary:hover .ab2-arrow,
+.page-about .ab2-cta-secondary:focus-visible .ab2-arrow {
+  transform: translateX(3px);
+}
+
+.page-about .ab2-cta-contact {
+  margin: 1.25rem 0 0;
+  font-size: 0.84rem;
+  color: var(--ab-ink-soft);
+}
+
+.page-about .ab2-cta-contact a {
+  color: var(--hp-olive-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.page-about .ab2-cta-contact a:hover,
+.page-about .ab2-cta-contact a:focus-visible {
+  text-decoration: underline;
+}
+
+.page-about .btn .ab2-arrow {
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+.page-about .btn:hover .ab2-arrow,
+.page-about .btn:focus-visible .ab2-arrow {
+  transform: translateX(3px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-about .ab2-cta-secondary .ab2-arrow,
+  .page-about .btn .ab2-arrow {
+    transition: none;
+  }
+}
+
+/* ---- Mobile gutters ---- */
+@media (max-width: 899px) {
+  .page-about .hp-container {
+    padding-left: 1.375rem;
+    padding-right: 1.375rem;
+  }
+}
