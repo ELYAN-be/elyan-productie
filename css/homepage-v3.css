@@ -2315,6 +2315,27 @@ body.hp-v3 .hp-how-clarify {
 }
 
 @media (max-width: 899px) {
+  /*
+    Mobile mineral remap of the approved desktop token hierarchy.
+    Desktop hex values remain frozen above 899px.
+    Same roles: page < sand < beige < cappuccino — less yellow chroma on phones.
+  */
+  body.hp-v3 {
+    --hp-warm-page: #F5F4F0;
+    --hp-warm-sand: #EFEEEA;
+    --hp-warm-beige: #E6E5E0;
+    --hp-warm-cappuccino: #DDDCD7;
+    --hp-warm-line: rgba(112, 110, 104, 0.22);
+    --hp-stone: #EFEEEA;
+    --hp-stone-mid: #E6E5E0;
+    --hp-stone-deep: #DDDCD7;
+  }
+
+  body.hp-v3 .hp-mobile-nav {
+    background: #F7F6F2;
+    border-bottom-color: rgba(112, 110, 104, 0.18);
+  }
+
   /* Mobile uses approved desktop neutrals — keep editorial step layout only */
   body.hp-v3 .hp-featured {
     background: var(--hp-warm-page);
