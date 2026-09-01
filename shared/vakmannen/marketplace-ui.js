@@ -299,7 +299,7 @@
       '</div>' +
       '<div class="ctx">Prijsindicatie</div>' +
       '</div>' +
-      '<span class="btn btn-primary btn-sm">Bekijk vakman</span>' +
+      '<span class="btn btn-primary btn-sm">Bekijk profiel <span aria-hidden="true">→</span></span>' +
       '</div>' +
       '</a>'
     );

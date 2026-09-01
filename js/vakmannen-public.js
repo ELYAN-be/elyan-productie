@@ -13,25 +13,24 @@
   }
 
   var esc = EV.escapeHtml;
-  var FEATURED_CATEGORIES = [
-    'dakwerken', 'badkamer', 'keuken', 'ramen-deuren', 'isolatie', 'verwarming'
-  ];
 
   var state = {
-    mode: 'landing',
+    mode: 'marketplace',
     category: 'dakwerken',
+    hasCategoryFilter: false,
     subtype: 'alle',
     location: { name: 'Antwerpen', postcode: '2000', province: 'Antwerpen' },
-    locationQuery: 'Antwerpen',
+    locationQuery: '',
     provinceBrowse: null,
     regioSlug: null,
     customerTiming: 'alle',
     sort: 'aanbevolen',
-    featured: [],
     results: [],
     resultsTotal: 0,
     resultsStatus: 'idle',
     resultsMessage: '',
+    platformHasSupply: null,
+    platformSupplyStatus: 'idle',
     profile: null,
     profileStatus: 'idle',
     profileMessage: '',
@@ -264,16 +263,17 @@
     var route = parseRoute();
     if (route.page === 'profile') return;
     var path;
-    if (state.mode === 'results') {
+    if (state.hasCategoryFilter && state.category) {
       path = UI && UI.buildSearchPath
         ? UI.buildSearchPath(state.category, state.location, state.regioSlug || provinceSlugFor(state.provinceBrowse || (state.location && state.location.province)))
         : '/vakmannen/' + encodeURIComponent(state.category);
     } else {
       path = '/vakmannen';
     }
-    if (path === location.pathname + (location.search || '')) return;
-    if (replace) history.replaceState(null, '', path);
-    else history.pushState(null, '', path);
+    var full = path;
+    if (full === location.pathname + (location.search || '')) return;
+    if (replace) history.replaceState(null, '', full);
+    else history.pushState(null, '', full);
   }
 
   function applySearchParamsFromUrl() {
@@ -357,7 +357,7 @@
             '<div class="val">' + esc(card.priceLine || 'Prijs op aanvraag') + '</div>' +
             '<div class="ctx">Prijsindicatie</div>' +
           '</div>' +
-          '<span class="btn btn-primary btn-sm">Bekijk vakman</span>' +
+          '<span class="btn btn-primary btn-sm">Bekijk profiel <span aria-hidden="true">→</span></span>' +
         '</div>' +
       '</a>'
     );
@@ -386,141 +386,99 @@
     );
   }
 
-  function diversifyFeatured(pool) {
-    var featured = [];
-    var seenCat = {};
-    var seenSlug = {};
-    (pool || []).forEach(function (card) {
-      if (!card || !card.slug || seenSlug[card.slug] || featured.length >= 6) return;
-      var c = card.primaryCategoryId || '';
-      if (c && !seenCat[c]) {
-        seenCat[c] = true;
-        seenSlug[card.slug] = true;
-        featured.push(card);
-      }
-    });
-    (pool || []).forEach(function (card) {
-      if (!card || !card.slug || seenSlug[card.slug] || featured.length >= 6) return;
-      seenSlug[card.slug] = true;
-      featured.push(card);
-    });
-    return featured.slice(0, 6);
-  }
-
-  function renderLanding() {
-    var featured = state.featured || [];
-    var featuredBlock = featured.length
-      ? '<div class="lab-feature-rail">' + featured.map(rowHtml).join('') + '</div>'
-      : '<p class="lab-hint">Nog geen gepubliceerde vakbedrijven om uit te lichten. Kies een categorie om te starten.</p>';
-    return (
-      '<section class="lab-disc-hero"><div class="lab-wrap vk-disc-compose">' +
-        '<div class="vk-disc-copy">' +
-          '<p class="lab-kicker">Renovatieplatform voor Vlaanderen en Brussel</p>' +
-          '<h1>Vind de juiste vakman<br>voor je renovatie.</h1>' +
-          '<p class="lead">Ontdek gecontroleerde vakbedrijven, begrijp prijs en timing, en vraag een offerte aan wanneer het past.</p>' +
-          '<ul class="vk-trust-rail" aria-label="Waarom ELYAN">' +
-            '<li><span class="vk-trust-mark" aria-hidden="true"></span> Gecontroleerde vakbedrijven</li>' +
-            '<li><span class="vk-trust-mark" aria-hidden="true"></span> Richtprijzen met context</li>' +
-            '<li><span class="vk-trust-mark" aria-hidden="true"></span> Aanvragen via ELYAN</li>' +
-          '</ul>' +
-          '<form class="lab-search" id="vkSearch" autocomplete="off">' +
-            '<label>Wat wil je laten uitvoeren?<select name="category">' +
-              categoryList().map(function (c) {
-                return '<option value="' + c.id + '"' + (c.id === state.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
-              }).join('') +
-            '</select></label>' +
-            '<label class="lab-loc">Waar?' +
-              '<input name="location" id="locInput" value="' + esc(state.locationQuery) + '" placeholder="Gemeente of postcode" aria-autocomplete="list" autocomplete="off">' +
-              '<div class="lab-suggest" id="locSuggest" hidden></div>' +
-            '</label>' +
-            '<button type="submit" class="btn btn-primary">Vind vakmannen</button>' +
-          '</form>' +
-        '</div>' +
-        '<figure class="vk-disc-visual" aria-hidden="true">' +
-          '<div class="vk-disc-visual-frame">' +
-            '<img src="/assets/photos/editorial.jpg" alt="" width="900" height="1120" decoding="async" fetchpriority="high">' +
-          '</div>' +
-          '<figcaption class="vk-disc-visual-cap">Nagekeken partners · prijsindicatie vóór je aanvraagt</figcaption>' +
-        '</figure>' +
-      '</div></section>' +
-      '<section class="lab-featured"><div class="lab-wrap">' +
-        '<div class="lab-featured-head">' +
-          '<div><h2>Uitgelichte vakbedrijven</h2><p class="lab-hint">Ontdek gecontroleerde vakbedrijven op ELYAN.</p></div>' +
-          '<button type="button" class="lab-link" id="seeAll">Alle resultaten <svg class="icon"><use href="#i-arrow"></use></svg></button>' +
-        '</div>' +
-        featuredBlock +
-      '</div></section>' +
-      '<section class="lab-disc-band vk-discover"><div class="lab-wrap">' +
-        '<h2>Ontdek per vakgebied</h2>' +
-        '<p class="lab-hint">Bekijk gecontroleerde vakbedrijven per specialisatie.</p>' +
-        '<div class="lab-cat-mosaic">' +
-          categoryList().map(function (c) {
-            return '<button type="button" class="lab-cat' + (state.category === c.id ? ' is-active' : '') + '" data-browse-cat="' + c.id + '">' +
-              '<strong>' + esc(c.label) + '</strong></button>';
-          }).join('') +
-        '</div>' +
-      '</div></section>' +
-      '<section class="vk-regions"><div class="lab-wrap">' +
-        '<h2>Bekijk per provincie</h2>' +
-        '<p class="lab-hint">Browse vakmannen in jouw regio. Voor een gerichte zoekactie gebruik je gemeente of postcode hierboven.</p>' +
-        '<div class="lab-prov">' +
-          provinces().map(function (p) {
-            return '<button type="button" data-browse-prov="' + esc(p) + '">' + esc(p) + '</button>';
-          }).join('') +
-        '</div>' +
-      '</div></section>'
+  function hasActiveFilters() {
+    return !!(
+      state.hasCategoryFilter ||
+      (state.locationQuery && String(state.locationQuery).trim()) ||
+      state.regioSlug ||
+      state.provinceBrowse
     );
   }
 
-  function renderResults() {
+  function emptyPlatformHtml() {
+    return (
+      '<div class="vk-empty vk-empty--platform">' +
+        '<h2>We bouwen ons netwerk zorgvuldig op.</h2>' +
+        '<p>Binnenkort vind je hier gecontroleerde vakbedrijven die passen bij verschillende renovatieprojecten.</p>' +
+      '</div>'
+    );
+  }
+
+  function emptyFilterHtml() {
+    return (
+      '<div class="vk-empty vk-empty--filter">' +
+        '<h2>Geen vakbedrijven gevonden voor deze zoekopdracht.</h2>' +
+        '<p>Pas je vakgebied of locatie aan.</p>' +
+      '</div>'
+    );
+  }
+
+  function searchFormHtml() {
+    var catOptions = '<option value="">Kies vakgebied</option>' +
+      categoryList().map(function (c) {
+        var selected = state.hasCategoryFilter && c.id === state.category;
+        return '<option value="' + c.id + '"' + (selected ? ' selected' : '') + '>' + esc(c.label) + '</option>';
+      }).join('');
+    return (
+      '<form class="lab-search vk-mp-search" id="vkSearch" autocomplete="off">' +
+        '<label>Vakgebied<select name="category">' + catOptions + '</select></label>' +
+        '<label class="lab-loc">Locatie of postcode' +
+          '<input name="location" id="locInput" value="' + esc(state.locationQuery || '') + '" placeholder="Gemeente of postcode" aria-autocomplete="list" autocomplete="off">' +
+          '<div class="lab-suggest" id="locSuggest" hidden></div>' +
+        '</label>' +
+        '<button type="submit" class="btn btn-primary">Zoeken</button>' +
+      '</form>'
+    );
+  }
+
+  function resultsBodyHtml() {
     var list = state.results || [];
-    var empty = '';
     var status = state.resultsStatus;
     if (status === 'loading') {
-      empty = '<div class="vk-empty"><p class="lab-hint">Vakbedrijven laden…</p></div>';
-    } else if (status === 'error') {
-      empty = '<div class="vk-empty">' +
-        '<h2>Kon resultaten niet laden</h2>' +
-        '<p>' + esc(state.resultsMessage || 'Probeer het opnieuw.') + '</p>' +
-        '<button type="button" class="btn btn-primary" id="retryResults">Opnieuw proberen</button></div>';
-    } else if (!list.length) {
-      empty = '<div class="vk-empty">' +
-        '<p class="vk-pill-note">' + esc(cat(state.category).label) + '</p>' +
-        '<h2>Nog geen vakbedrijven in deze selectie</h2>' +
-        '<p>We selecteren gecontroleerde partners per vakgebied. Voor ' + esc(cat(state.category).label.toLowerCase()) +
-        (state.provinceBrowse ? ' in ' + esc(state.provinceBrowse) : '') +
-        ' hebben we momenteel nog geen gepubliceerd profiel dat aan je filters voldoet.</p>' +
-        '<button type="button" class="btn btn-ghost" id="backLanding">Andere categorie bekijken</button></div>';
+      return '<div class="vk-empty"><p class="lab-hint">Vakbedrijven laden…</p></div>';
     }
-    var locLabel = state.location && state.location.name ? state.location.name : 'jouw regio';
-    var locHint = '';
-    if (state.location && state.location.postcode) {
-      locHint = esc(state.location.postcode) + (state.location.province ? ' · ' + esc(state.location.province) : '');
-    } else if (state.provinceBrowse) {
-      locHint = esc(state.provinceBrowse);
+    if (status === 'error') {
+      return (
+        '<div class="vk-empty">' +
+          '<h2>Kon resultaten niet laden</h2>' +
+          '<p>' + esc(state.resultsMessage || 'Probeer het opnieuw.') + '</p>' +
+          '<button type="button" class="btn btn-primary" id="retryResults">Opnieuw proberen</button>' +
+        '</div>'
+      );
+    }
+    if (!list.length) {
+      if (state.platformSupplyStatus === 'ready' && state.platformHasSupply === false) {
+        return emptyPlatformHtml();
+      }
+      if (hasActiveFilters()) return emptyFilterHtml();
+      if (state.platformSupplyStatus === 'ready' && !state.platformHasSupply) {
+        return emptyPlatformHtml();
+      }
+      return emptyFilterHtml();
+    }
+    return '<div class="lab-list">' + list.map(rowHtml).join('') + '</div>';
+  }
+
+  function renderMarketplace() {
+    var context = '';
+    if (state.resultsStatus === 'ready' && state.results.length && state.hasCategoryFilter) {
+      var locLabel = state.location && state.location.name ? ' rond ' + state.location.name : '';
+      context = '<p class="lab-hint vk-mp-context"><strong>' + state.results.length + '</strong> vakbedrijven voor ' +
+        esc(cat(state.category).label.toLowerCase()) + esc(locLabel) + '</p>';
     }
     return (
-      '<div class="lab-wrap lab-results">' +
-        '<button type="button" class="lab-link" id="backLanding">← Terug naar ontdekken</button>' +
-        '<div class="lab-results-head">' +
-          '<h1>' + esc(cat(state.category).plural || cat(state.category).label) + ' rond ' + esc(locLabel) + '</h1>' +
-          (locHint ? '<p class="lab-hint">' + locHint + '</p>' : '') +
-        '</div>' +
+      '<div class="lab-wrap vk-marketplace lab-results">' +
+        '<header class="vk-mp-head" id="vk-search">' +
+          '<p class="lab-kicker">Vakmannen</p>' +
+          '<h1>Vakmannen</h1>' +
+          '<p class="lead">Vind vakbedrijven voor je renovatie en regio.</p>' +
+        '</header>' +
+        searchFormHtml() +
+        context +
         '<div class="lab-mobile-filters"><button type="button" class="btn btn-ghost btn-sm" id="toggleFilters">Filters</button></div>' +
         '<div class="lab-results-layout">' +
           '<aside class="lab-filters lab-filters-desktop">' + filtersHtml() + '</aside>' +
-          '<div>' +
-            '<div class="lab-toolbar">' +
-              '<p><strong>' + (status === 'ready' ? list.length : '—') + '</strong> passende vakmannen</p>' +
-              '<select id="filterSort">' +
-                '<option value="aanbevolen"' + (state.sort === 'aanbevolen' ? ' selected' : '') + '>Aanbevolen</option>' +
-                '<option value="beschikbaar"' + (state.sort === 'beschikbaar' ? ' selected' : '') + '>Eerst beschikbaar</option>' +
-                '<option value="google"' + (state.sort === 'google' ? ' selected' : '') + '>Google-beoordeling</option>' +
-              '</select>' +
-            '</div>' +
-            empty +
-            (list.length ? '<div class="lab-list">' + list.map(rowHtml).join('') + '</div>' : '') +
-          '</div>' +
+          '<div>' + resultsBodyHtml() + '</div>' +
         '</div>' +
       '</div>'
     );
@@ -693,7 +651,8 @@
 
   function goResults(opts) {
     opts = opts || {};
-    state.mode = 'results';
+    state.mode = 'marketplace';
+    state.hasCategoryFilter = true;
     if (opts.category) state.category = opts.category;
     if (opts.provinceBrowse != null) state.provinceBrowse = opts.provinceBrowse;
     if (opts.regioSlug != null) state.regioSlug = opts.regioSlug;
@@ -702,14 +661,15 @@
     loadResults();
   }
 
-  function goLanding(opts) {
+  function goBrowse(opts) {
     opts = opts || {};
-    state.mode = 'landing';
+    state.mode = 'marketplace';
+    state.hasCategoryFilter = false;
     state.provinceBrowse = null;
     state.regioSlug = null;
     if (opts.pushUrl !== false) syncUrl(!!opts.replaceUrl);
     render();
-    loadFeatured();
+    loadBrowseResults();
   }
 
   function bindCommon() {
@@ -717,44 +677,53 @@
     if (search) {
       search.addEventListener('submit', function (e) {
         e.preventDefault();
-        state.category = search.category.value;
+        var catVal = String(search.category.value || '').trim();
+        var locRaw = String(($('#locInput') || {}).value || '').trim();
         state.subtype = 'alle';
-        var match = EV.suggestLocations ? EV.suggestLocations(($('#locInput') || {}).value || '', 1)[0] : null;
-        if (match) state.location = match;
-        state.locationQuery = state.location.name;
-        state.provinceBrowse = null;
-        state.regioSlug = provinceSlugFor(state.location.province);
-        goResults({ replaceUrl: false });
+        if (catVal) {
+          state.category = catVal;
+          state.hasCategoryFilter = true;
+        } else {
+          state.hasCategoryFilter = false;
+        }
+        if (locRaw) {
+          var match = EV.suggestLocations ? EV.suggestLocations(locRaw, 1)[0] : null;
+          if (match) {
+            state.location = match;
+            state.locationQuery = match.name;
+          } else {
+            state.locationQuery = locRaw;
+            state.location = {
+              name: locRaw,
+              postcode: /^\d{4}$/.test(locRaw) ? locRaw : '',
+              province: provinceLabelFromSlug(state.regioSlug) || (state.location && state.location.province)
+            };
+          }
+          state.provinceBrowse = null;
+          state.regioSlug = provinceSlugFor(state.location.province);
+        } else {
+          state.locationQuery = '';
+        }
+        if (state.hasCategoryFilter) goResults({ replaceUrl: false });
+        else goBrowse({ replaceUrl: false });
       });
     }
     bindLoc();
-    $all('[data-browse-cat]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        goResults({
-          category: btn.getAttribute('data-browse-cat'),
-          provinceBrowse: null,
-          regioSlug: null
-        });
-      });
-    });
-    $all('[data-browse-prov]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var prov = btn.getAttribute('data-browse-prov');
-        goResults({ provinceBrowse: prov, regioSlug: provinceSlugFor(prov) });
-      });
-    });
-    var seeAll = $('#seeAll');
-    if (seeAll) seeAll.addEventListener('click', function () { goResults({}); });
-    var back = $('#backLanding');
-    if (back) back.addEventListener('click', function () { goLanding({}); });
     var retry = $('#retryResults');
-    if (retry) retry.addEventListener('click', function () { loadResults(); });
+    if (retry) retry.addEventListener('click', function () {
+      if (state.hasCategoryFilter) loadResults();
+      else loadBrowseResults();
+    });
 
     ['filterCategory', 'filterSubtype', 'filterTiming', 'filterSort'].forEach(function (id) {
       var el = $('#' + id);
       if (!el) return;
       el.addEventListener('change', function () {
-        if (id === 'filterCategory') { state.category = el.value; state.subtype = 'alle'; }
+        if (id === 'filterCategory') {
+          state.category = el.value;
+          state.subtype = 'alle';
+          state.hasCategoryFilter = !!el.value;
+        }
         if (id === 'filterSubtype') state.subtype = el.value;
         if (id === 'filterTiming') state.customerTiming = el.value;
         if (id === 'filterSort') state.sort = el.value;
@@ -776,7 +745,11 @@
           var el = body.querySelector('#' + id);
           if (!el) return;
           el.addEventListener('change', function () {
-            if (id === 'filterCategory') { state.category = el.value; state.subtype = 'alle'; }
+            if (id === 'filterCategory') {
+          state.category = el.value;
+          state.subtype = 'alle';
+          state.hasCategoryFilter = !!el.value;
+        }
             if (id === 'filterSubtype') state.subtype = el.value;
             if (id === 'filterTiming') state.customerTiming = el.value;
             d.hidden = true;
@@ -845,20 +818,60 @@
     return 'relevance';
   }
 
-  function loadFeatured() {
-    var requests = FEATURED_CATEGORIES.map(function (catId) {
-      var url = '/api/public/v1/search?category=' + encodeURIComponent(catId) +
-        '&page=1&pageSize=2&sort=relevance&includeUnpriced=true';
-      return fetchJson(url).then(function (data) {
-        if (!data || !data.ok || !Array.isArray(data.results)) return [];
-        return data.results;
-      }).catch(function () { return []; });
+  function checkPlatformSupply() {
+    state.platformSupplyStatus = 'loading';
+    var requests = categoryList().map(function (c) {
+      return fetchJson('/api/public/v1/search?category=' + encodeURIComponent(c.id) +
+        '&page=1&pageSize=1&sort=relevance&includeUnpriced=true')
+        .then(function (data) {
+          if (!data || !data.ok) return 0;
+          return data.total != null ? data.total : ((data.results || []).length ? 1 : 0);
+        })
+        .catch(function () { return 0; });
+    });
+    return Promise.all(requests).then(function (totals) {
+      var sum = totals.reduce(function (a, b) { return a + b; }, 0);
+      state.platformHasSupply = sum > 0;
+      state.platformSupplyStatus = 'ready';
+    });
+  }
+
+  function loadBrowseResults() {
+    state.resultsStatus = 'loading';
+    state.resultsMessage = '';
+    render();
+    var requests = categoryList().map(function (c) {
+      return fetchJson('/api/public/v1/search?category=' + encodeURIComponent(c.id) +
+        '&page=1&pageSize=4&sort=relevance&includeUnpriced=true')
+        .then(function (data) {
+          if (!data || !data.ok || !Array.isArray(data.results)) return [];
+          return data.results;
+        })
+        .catch(function () { return []; });
     });
     Promise.all(requests).then(function (batches) {
       var pool = [];
-      batches.forEach(function (b) { pool = pool.concat(b || []); });
-      state.featured = diversifyFeatured(pool);
-      if (state.mode === 'landing' && parseRoute().page === 'list') render();
+      var seen = {};
+      batches.forEach(function (batch) {
+        (batch || []).forEach(function (card) {
+          if (!card || !card.slug || seen[card.slug]) return;
+          seen[card.slug] = true;
+          pool.push(card);
+        });
+      });
+      state.results = pool;
+      state.resultsTotal = pool.length;
+      state.resultsStatus = 'ready';
+      if (state.platformSupplyStatus !== 'ready') {
+        state.platformHasSupply = pool.length > 0;
+        state.platformSupplyStatus = 'ready';
+      }
+      render();
+    }).catch(function () {
+      state.results = [];
+      state.resultsStatus = 'error';
+      state.resultsMessage = 'Resultaten konden niet geladen worden.';
+      render();
     });
   }
 
@@ -919,10 +932,8 @@
     var route = parseRoute();
     if (route.page === 'profile') {
       host.innerHTML = renderProfile(state.profile);
-    } else if (state.mode === 'results' || route.page === 'results') {
-      host.innerHTML = renderResults();
     } else {
-      host.innerHTML = renderLanding();
+      host.innerHTML = renderMarketplace();
     }
     bindLightboxOnce();
     bindCommon();
@@ -932,25 +943,31 @@
     var route = parseRoute();
     applySearchParamsFromUrl();
     if (route.page === 'profile') {
-      state.mode = 'landing';
       loadProfile(route.slug);
       return;
     }
     if (route.page === 'results') {
       state.category = route.categoryId || state.category;
+      state.hasCategoryFilter = true;
       state.regioSlug = route.regioSlug || null;
       if (route.regioSlug) {
         var label = provinceLabelFromSlug(route.regioSlug);
         if (label) state.provinceBrowse = label;
       }
-      state.mode = 'results';
-      render();
-      loadResults();
+      state.mode = 'marketplace';
+      checkPlatformSupply().then(function () {
+        render();
+        loadResults();
+      });
       return;
     }
-    state.mode = 'landing';
-    render();
-    loadFeatured();
+    state.mode = 'marketplace';
+    state.hasCategoryFilter = false;
+    state.locationQuery = state.locationQuery || '';
+    checkPlatformSupply().then(function () {
+      render();
+      loadBrowseResults();
+    });
   }
 
   window.addEventListener('popstate', function () {
@@ -959,5 +976,11 @@
 
   bindLightboxOnce();
   bootFromRoute();
+  if (location.hash === '#vk-search') {
+    requestAnimationFrame(function () {
+      var anchor = document.getElementById('vk-search');
+      if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
   bootDone = true;
 })();

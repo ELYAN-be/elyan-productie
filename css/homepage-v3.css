@@ -163,7 +163,7 @@ body.hp-v3 .hp-mobile-nav.is-open {
   display: flex;
 }
 
-body.hp-v3 .hp-mobile-nav a {
+body.hp-v3 .hp-mobile-nav a:not(.btn) {
   padding: 0.7rem 0.2rem;
   color: var(--hp-ink);
   text-decoration: none;
@@ -172,8 +172,14 @@ body.hp-v3 .hp-mobile-nav a {
 }
 
 body.hp-v3 .hp-mobile-nav .btn {
-  margin-top: 0.55rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.75rem;
   text-align: center;
+  color: var(--white);
+  border-bottom: none;
 }
 
 body.hp-v3 .hp-header-actions .btn {
