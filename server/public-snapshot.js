@@ -67,12 +67,21 @@ function visitPublicLabel(id) {
 }
 
 function capacityPublicLabel(id) {
-  if (id === 'full') return 'Momenteel volzet';
+  if (id === 'full') return 'Tijdelijk volzet';
   var opts = engine().capacityOptions || [];
   for (var i = 0; i < opts.length; i++) {
     if (opts[i].id === id) return opts[i].public || opts[i].label;
   }
   return null;
+}
+
+/** Published partner cannot accept new targeted requests when capacity is full. */
+function isPartnerAtCapacity(professional) {
+  if (!professional || typeof professional !== 'object') return false;
+  var avail = professional.availability || {};
+  if (avail.capacityId === 'full') return true;
+  var label = String(avail.capacityLabel || '').toLowerCase();
+  return label.indexOf('volzet') >= 0;
 }
 
 function areaModePublicLabel(mode) {
@@ -329,6 +338,7 @@ function buildPublicSnapshotV1(opts) {
     projectMinimum: projectMinimum,
     clientTypesPublic: clientTypeLabels(offer.client_types),
     availability: {
+      capacityId: offer.capacity || null,
       capacityLabel: capacityLabel,
       startMonthLabel: startLabel,
       visitLabel: visitLabel,
@@ -411,9 +421,15 @@ function toPublicCard(snapshot) {
     var first = snapshot.pricing[0];
     priceLine = first.displayString || priceLine;
   }
-  var chips = (snapshot.services || []).slice(0, 2).map(function (s) {
+  var chips = (snapshot.services || []).slice(0, 3).map(function (s) {
     return s.label;
   });
+  var hasPublicPricing = (snapshot.pricing || []).some(function (p) {
+    return p.priceSource === 'partner' && p.displayString && p.displayString !== 'Prijs op aanvraag';
+  });
+  var capacityId =
+    (snapshot.availability && snapshot.availability.capacityId) ||
+    (isPartnerAtCapacity(snapshot) ? 'full' : null);
   return {
     slug: snapshot.slug,
     displayName: snapshot.displayName,
@@ -423,9 +439,11 @@ function toPublicCard(snapshot) {
     serviceChips: chips,
     serviceAreaText: snapshot.serviceArea && snapshot.serviceArea.publicText,
     priceLine: priceLine,
+    hasPublicPricing: hasPublicPricing,
     availabilityLabel: snapshot.availability && snapshot.availability.capacityLabel,
+    capacityId: capacityId,
+    atCapacity: capacityId === 'full' || isPartnerAtCapacity(snapshot),
     photoCount: (snapshot.assets || []).length,
-    badge: 'Profiel nagekeken door ELYAN',
     publishedAt: snapshot.publishedAt || null
   };
 }
@@ -439,5 +457,6 @@ module.exports = {
   toPublicCard: toPublicCard,
   priceDisplayString: priceDisplayString,
   capacityPublicLabel: capacityPublicLabel,
-  visitPublicLabel: visitPublicLabel
+  visitPublicLabel: visitPublicLabel,
+  isPartnerAtCapacity: isPartnerAtCapacity
 };

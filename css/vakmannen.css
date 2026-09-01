@@ -1212,6 +1212,74 @@ body.vk-menu-open {
 
 .page-vakmannen .lab-wrap.vk-marketplace {
   max-width: 960px;
+  padding-left: 22px;
+  padding-right: 22px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.page-vakmannen .lab-wrap.lab-profile {
+  padding-left: 22px;
+  padding-right: 22px;
+}
+
+.page-vakmannen .lab-row.is-at-capacity {
+  border-color: rgba(47, 49, 43, 0.14);
+}
+
+.page-vakmannen .vk-availability-pill {
+  display: inline-flex;
+  margin: 0.35rem 0 0;
+  padding: 0.2rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  background: rgba(63, 74, 50, 0.08);
+  color: rgba(47, 49, 43, 0.85);
+}
+
+.page-vakmannen .vk-availability-pill.is-full {
+  background: rgba(91, 93, 79, 0.12);
+}
+
+.page-vakmannen .vk-capacity-note {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: rgba(47, 49, 43, 0.78);
+}
+
+.page-vakmannen .vk-price-hint {
+  color: rgba(63, 74, 50, 0.9);
+}
+
+.page-vakmannen .vk-price-source {
+  margin-bottom: 0.65rem;
+}
+
+.page-vakmannen .vk-filter-actions {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 1rem;
+}
+
+.page-vakmannen .lab-row-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+}
+
+.page-vakmannen .vk-empty .btn {
+  margin-top: 0.85rem;
+}
+
+@media (max-width: 859px) {
+  .page-vakmannen .lab-wrap.vk-marketplace,
+  .page-vakmannen .lab-wrap.lab-profile {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }
 
 .page-vakmannen .vk-mp-context {

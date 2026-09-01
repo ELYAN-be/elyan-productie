@@ -15,6 +15,7 @@
 
 var { createAdminClient } = require('./supabase');
 var { writeAudit } = require('./audit');
+var { DECLINE_LABELS } = require('./partner-request-responses');
 
 var REQUEST_STATUSES = ['new', 'contacted', 'qualified', 'closed_won', 'closed_lost'];
 var CLOSED_STATUSES = ['closed_won', 'closed_lost'];
@@ -157,6 +158,34 @@ function formatAgeLabel(ms) {
   return days === 1 ? '1 d' : days + ' d';
 }
 
+var PARTNER_RESPONSE_LABELS = {
+  pending: 'Nog geen reactie',
+  interested: 'Interesse',
+  declined: 'Niet voor mij'
+};
+
+function mapPartnerResponse(row) {
+  if (!row) {
+    return {
+      status: 'pending',
+      statusLabel: PARTNER_RESPONSE_LABELS.pending,
+      declineReason: null,
+      declineReasonLabel: null,
+      respondedAt: null
+    };
+  }
+  var status = row.response_status || 'pending';
+  return {
+    status: status,
+    statusLabel: PARTNER_RESPONSE_LABELS[status] || status,
+    declineReason: row.decline_reason || null,
+    declineReasonLabel: row.decline_reason
+      ? DECLINE_LABELS[row.decline_reason] || row.decline_reason
+      : null,
+    respondedAt: row.responded_at || null
+  };
+}
+
 function mapRequestRow(row, opts) {
   if (!row) return null;
   opts = opts || {};
@@ -164,6 +193,9 @@ function mapRequestRow(row, opts) {
   var att = computeAttention(row, now);
   var deadline = newSlaDeadline(row.created_at);
   var ms = ageMs(row.created_at, now);
+  var partnerResponse = opts.partnerResponse != null
+    ? opts.partnerResponse
+    : mapPartnerResponse(null);
   return {
     id: row.id,
     interestIntakeId: row.interest_intake_id,
@@ -206,7 +238,12 @@ function mapRequestRow(row, opts) {
     }),
     closedLostReasons: CLOSED_LOST_REASONS.map(function (k) {
       return { reason: k, label: CLOSED_LOST_REASON_LABELS_NL[k] || k };
-    })
+    }),
+    partnerResponseStatus: partnerResponse.status,
+    partnerResponseStatusLabel: partnerResponse.statusLabel,
+    partnerDeclineReason: partnerResponse.declineReason,
+    partnerDeclineReasonLabel: partnerResponse.declineReasonLabel,
+    partnerRespondedAt: partnerResponse.respondedAt
   };
 }
 
@@ -720,9 +757,29 @@ async function getRequest(opts) {
     return { ok: false, code: 'server_error' };
   }
 
+  var partnerResponseRow = null;
+  if (data.partner_id) {
+    var { data: prData, error: prErr } = await admin
+      .from('partner_request_responses')
+      .select('response_status, decline_reason, responded_at, created_at')
+      .eq('customer_request_id', requestId)
+      .eq('partner_id', data.partner_id)
+      .maybeSingle();
+    if (prErr) {
+      var sc5 = schemaFailureCode(prErr);
+      if (sc5) return { ok: false, code: sc5 };
+      console.error('customer_request_partner_response_failed', prErr.message);
+    } else {
+      partnerResponseRow = prData;
+    }
+  }
+
   return {
     ok: true,
-    request: mapRequestRow(data, { now: now }),
+    request: mapRequestRow(data, {
+      now: now,
+      partnerResponse: mapPartnerResponse(partnerResponseRow)
+    }),
     statusEvents: (events || []).map(mapStatusEvent),
     notes: (notes || []).map(mapNote),
     activity: (activity || []).map(mapActivity)

@@ -113,15 +113,15 @@ test('public JS wires modern API into lab shell', function () {
   assert.ok(js.indexOf('/api/public/v1/search') >= 0, 'search API');
   assert.ok(js.indexOf('/api/public/v1/professionals/') >= 0, 'profile API');
   assert.ok(js.indexOf('lab-search') >= 0);
-  assert.ok(js.indexOf('lab-featured') >= 0);
+  assert.ok(js.indexOf('vk-marketplace') >= 0 || js.indexOf('lab-featured') >= 0);
   assert.ok(js.indexOf('lab-row') >= 0);
-  assert.ok(js.indexOf('lab-cat-mosaic') >= 0);
+  assert.ok(js.indexOf('lab-results-layout') >= 0 || js.indexOf('lab-cat-mosaic') >= 0);
   assert.ok(js.indexOf('lab-identity') >= 0);
   assert.ok(js.indexOf('qa-seeds') < 0);
   assert.ok(js.indexOf("status === 'demo'") < 0 && js.indexOf('status === "demo"') < 0);
   assert.ok(js.indexOf('renderQuote') < 0, 'no full quote wizard');
   assert.ok(js.indexOf('vk-next-step') >= 0 || js.indexOf('aanvraag-note') >= 0);
-  assert.ok(js.indexOf('Offerte aanvragen') >= 0);
+  assert.ok(js.indexOf('Vraag via ELYAN aan') >= 0);
   assert.ok(js.indexOf('buildAanvraagPath') >= 0 || js.indexOf('/vakmannen/p/') >= 0);
 });
 
@@ -160,7 +160,7 @@ test('profile shell uses Partner Lab + public API (no wizard / qa-seeds)', funct
   assert.ok(html.indexOf('qa-seeds') < 0);
   assert.ok(html.indexOf('partners-data.js') < 0);
   assert.ok(js.indexOf('/api/public/v1/professionals/') >= 0);
-  assert.ok(js.indexOf('Offerte aanvragen') >= 0);
+  assert.ok(js.indexOf('Vraag via ELYAN aan') >= 0);
   assert.ok(js.indexOf('renderDetailQuestions') < 0);
   assert.ok(js.indexOf("status === 'demo'") < 0 && js.indexOf('status === "demo"') < 0);
   assert.ok(!/tel:|mailto:/i.test(html + js));

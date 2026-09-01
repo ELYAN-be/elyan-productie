@@ -6,7 +6,7 @@
 
 var { createAdminClient } = require('./supabase');
 var CI = require('../shared/vakmannen/intelligence');
-var { toPublicCard, assertNoLeaks } = require('./public-snapshot');
+var { toPublicCard, assertNoLeaks, isPartnerAtCapacity } = require('./public-snapshot');
 var {
   geoFit,
   categoryFit,
@@ -15,7 +15,6 @@ var {
   qualityScore,
   relevanceScore,
   applyStaleAvailability,
-  applyColdStartExploration,
   buildCoverageFromDraftArea
 } = require('./marketplace-ranking');
 var { normalizeLocation } = require('./marketplace-location');
@@ -255,10 +254,14 @@ async function searchProfessionals(query) {
     }
 
     var capacityId = 'limited';
-    if (snap.availability && snap.availability.capacityLabel === 'Nieuwe projecten mogelijk') {
-      capacityId = 'available';
-    } else if (snap.availability && snap.availability.capacityLabel === 'Momenteel volzet') {
-      capacityId = 'full';
+    if (snap.availability) {
+      if (snap.availability.capacityId) {
+        capacityId = snap.availability.capacityId;
+      } else if (isPartnerAtCapacity(snap)) {
+        capacityId = 'full';
+      } else if (snap.availability.capacityLabel === 'Nieuwe projecten mogelijk') {
+        capacityId = 'available';
+      }
     }
     if (availability && availability !== 'all' && availability !== capacityId) return;
 
@@ -311,11 +314,8 @@ async function searchProfessionals(query) {
     });
   } else {
     ranked.sort(function (a, b) {
-      return b.score - a.score;
-    });
-    ranked = applyColdStartExploration(ranked, {
-      pageSize: paging.pageSize,
-      nowMs: now
+      if (b.score !== a.score) return b.score - a.score;
+      return String(a.slug || '').localeCompare(String(b.slug || ''));
     });
   }
 

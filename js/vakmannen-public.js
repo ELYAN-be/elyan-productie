@@ -24,6 +24,7 @@
     provinceBrowse: null,
     regioSlug: null,
     customerTiming: 'alle',
+    filterAvailability: '',
     sort: 'aanbevolen',
     results: [],
     resultsTotal: 0,
@@ -69,6 +70,28 @@
       return res.json();
     }).finally(function () {
       if (timer) clearTimeout(timer);
+    });
+  }
+
+  function categoryLabel(id) {
+    return cat(id).label || id || '';
+  }
+
+  function isTemporarilyFull(target) {
+    if (!target) return false;
+    if (target.atCapacity === true) return true;
+    if (target.capacityId === 'full') return true;
+    var avail = target.availability || {};
+    if (avail.capacityId === 'full') return true;
+    var label = String(target.availabilityLabel || avail.capacityLabel || '').toLowerCase();
+    return label.indexOf('volzet') >= 0;
+  }
+
+  function hasPublicPricing(target) {
+    if (!target) return false;
+    if (target.hasPublicPricing === true) return true;
+    return (target.pricing || []).some(function (row) {
+      return row.priceSource === 'partner' && row.displayString && row.displayString !== 'Prijs op aanvraag';
     });
   }
 
@@ -342,20 +365,28 @@
     if (card.availabilityLabel) {
       meta += (meta ? '<span class="lab-row-sep"> · </span>' : '') + esc(card.availabilityLabel);
     }
+    var chips = (card.serviceChips || []).slice(0, 3).map(function (c) {
+      return '<span class="lab-chip">' + esc(c) + '</span>';
+    }).join('');
+    var priceHint = hasPublicPricing(card)
+      ? '<div class="ctx vk-price-hint">Eigen prijsindicaties beschikbaar</div>'
+      : '<div class="ctx">Prijsindicatie</div>';
+    var full = isTemporarilyFull(card);
     return (
-      '<a class="lab-row" href="' + href + '">' +
+      '<a class="lab-row' + (full ? ' is-at-capacity' : '') + '" href="' + href + '">' +
         '<div class="lab-row-media">' + media + '</div>' +
         '<div class="lab-row-main">' +
-          '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
+          '<p class="lab-kicker">' + esc(categoryLabel(card.primaryCategoryId)) + '</p>' +
           '<h3>' + esc(card.displayName || 'Vakbedrijf') + '</h3>' +
           (card.specialtyLine ? '<p class="tagline">' + esc(card.specialtyLine) + '</p>' : '') +
+          (chips ? '<div class="lab-row-chips">' + chips + '</div>' : '') +
           starsLive(card.google, { compact: true }) +
         '</div>' +
         '<div class="lab-row-meta"><div>' + meta + '</div></div>' +
         '<div class="lab-row-footer">' +
           '<div class="lab-row-price">' +
             '<div class="val">' + esc(card.priceLine || 'Prijs op aanvraag') + '</div>' +
-            '<div class="ctx">Prijsindicatie</div>' +
+            priceHint +
           '</div>' +
           '<span class="btn btn-primary btn-sm">Bekijk profiel <span aria-hidden="true">→</span></span>' +
         '</div>' +
@@ -373,17 +404,18 @@
         }).join('') +
       '</select></label>' +
       (subtypes.length
-        ? '<label>Type werk<select id="filterSubtype">' +
-            '<option value="alle"' + (state.subtype === 'alle' ? ' selected' : '') + '>Alle types</option>' +
+        ? '<label>Specialisatie<select id="filterSubtype">' +
+            '<option value="alle"' + (state.subtype === 'alle' ? ' selected' : '') + '>Alle specialisaties</option>' +
             subtypes.map(function (t) {
               return '<option value="' + t.id + '"' + (state.subtype === t.id ? ' selected' : '') + '>' + esc(t.label) + '</option>';
             }).join('') +
           '</select></label>'
         : '') +
-      '<label>Wanneer wil je starten?<select id="filterTiming">' +
-        (EV.CUSTOMER_TIMING || []).map(function (t) {
-          return '<option value="' + t.id + '"' + (t.id === state.customerTiming ? ' selected' : '') + '>' + esc(t.label) + '</option>';
-        }).join('') +
+      '<label>Beschikbaarheid<select id="filterAvailability">' +
+        '<option value=""' + (!state.filterAvailability ? ' selected' : '') + '>Alle</option>' +
+        '<option value="available"' + (state.filterAvailability === 'available' ? ' selected' : '') + '>Nieuwe projecten mogelijk</option>' +
+        '<option value="limited"' + (state.filterAvailability === 'limited' ? ' selected' : '') + '>Beperkt beschikbaar</option>' +
+        '<option value="full"' + (state.filterAvailability === 'full' ? ' selected' : '') + '>Tijdelijk volzet</option>' +
       '</select></label>' +
       '</div>'
     );
@@ -394,9 +426,7 @@
   }
 
   function hasDrawerFilters() {
-    var subtypes = (cat(state.category).subtypes || []).length;
-    var timing = (EV.CUSTOMER_TIMING || []).length > 1;
-    return subtypes > 0 || timing;
+    return true;
   }
 
   function hasActiveFilters() {
@@ -404,15 +434,30 @@
       state.hasCategoryFilter ||
       (state.locationQuery && String(state.locationQuery).trim()) ||
       state.regioSlug ||
-      state.provinceBrowse
+      state.provinceBrowse ||
+      (state.subtype && state.subtype !== 'alle') ||
+      state.filterAvailability
     );
+  }
+
+  function clearFilters() {
+    state.subtype = 'alle';
+    state.filterAvailability = '';
+    state.locationQuery = '';
+    state.location = { name: '', postcode: '', province: '' };
+    state.regioSlug = null;
+    state.provinceBrowse = null;
+    syncUrl(true);
+    if (state.hasCategoryFilter) loadResults();
+    else loadBrowseResults();
   }
 
   function emptyPlatformHtml() {
     return (
       '<div class="vk-empty vk-empty--platform">' +
-        '<h2>We bouwen ons netwerk zorgvuldig op.</h2>' +
-        '<p>Binnenkort vind je hier gecontroleerde vakbedrijven die passen bij verschillende renovatieprojecten.</p>' +
+        '<h2>Vakbedrijven bij ELYAN</h2>' +
+        '<p>We bouwen ons netwerk zorgvuldig op.</p>' +
+        '<p>Binnenkort vind je hier vakbedrijven die passen bij verschillende renovatieprojecten.</p>' +
       '</div>'
     );
   }
@@ -421,7 +466,8 @@
     return (
       '<div class="vk-empty vk-empty--filter">' +
         '<h2>Geen vakbedrijven gevonden voor deze zoekopdracht.</h2>' +
-        '<p>Pas je vakgebied of locatie aan.</p>' +
+        '<p>Pas je locatie of filters aan.</p>' +
+        '<button type="button" class="btn btn-ghost btn-sm" id="clearFilters">Filters wissen</button>' +
       '</div>'
     );
   }
@@ -482,8 +528,8 @@
     return (
       '<div class="lab-wrap vk-marketplace lab-results">' +
         '<header class="vk-mp-head" id="vk-search">' +
-          '<h1>Vakmannen</h1>' +
-          '<p class="lead">Vind vakbedrijven voor je renovatie en regio.</p>' +
+          '<h1>Vind een vakbedrijf voor je renovatie</h1>' +
+          '<p class="lead">Zoek op vakgebied en regio.</p>' +
         '</header>' +
         searchFormHtml() +
         context +
@@ -538,12 +584,35 @@
     if (story.whyChoose) return story.whyChoose;
     if (story.care) return story.care;
     if (p.specialtyLine) return (p.displayName || 'Dit vakbedrijf') + ' is gespecialiseerd in ' + p.specialtyLine + '.';
-    return (p.displayName || 'Dit vakbedrijf') + ' is een nagekeken vakbedrijf op ELYAN.';
+    return (p.displayName || 'Dit vakbedrijf') + ' is actief op ELYAN voor renovatieprojecten in de regio.';
   }
 
   function priceDisplay(p) {
     if (p.pricing && p.pricing.length && p.pricing[0].displayString) return p.pricing[0].displayString;
     return 'Prijs op aanvraag';
+  }
+
+  function partnerPriceSourceLabel(p, row) {
+    if (row && row.priceSourceLabel) return row.priceSourceLabel;
+    return 'Door het vakbedrijf aangeleverde prijsindicatie · geen offerte';
+  }
+
+  function servicesSection(p) {
+    var services = (p.services || []).map(function (s) {
+      return '<span class="lab-strength">' + esc(s.label || s.id) + '</span>';
+    }).join('');
+    if (!services) return '';
+    return '<section class="lab-section"><h2>Diensten & specialisaties</h2><div class="lab-strengths">' + services + '</div></section>';
+  }
+
+  function requestCtaHtml(full) {
+    if (full) {
+      return (
+        '<p class="vk-capacity-note" role="status"><strong>Tijdelijk volzet</strong> — dit vakbedrijf kan momenteel geen nieuwe aanvragen ontvangen.</p>' +
+        '<button type="button" class="btn btn-ghost btn-block" disabled aria-disabled="true">Vraag via ELYAN aan</button>'
+      );
+    }
+    return '<button type="button" class="btn btn-primary btn-block" id="startQuoteSide">Vraag via ELYAN aan <span aria-hidden="true">→</span></button>';
   }
 
   function renderProfile(p) {
@@ -563,15 +632,23 @@
     var start = (p.availability && p.availability.startMonthLabel) || 'Op aanvraag';
     var visit = (p.availability && p.availability.visitLabel) || 'Op afspraak';
     var capacity = (p.availability && p.availability.capacityLabel) || '';
+    var full = isTemporarilyFull(p);
     var story = p.story || {};
     var strengths = [story.strength, story.prefer].filter(Boolean);
-    var priceRows = (p.pricing || []).map(function (row) {
+    var pricedRows = (p.pricing || []).filter(function (row) {
+      return row.priceSource === 'partner' && row.displayString && row.displayString !== 'Prijs op aanvraag';
+    });
+    var priceRows = pricedRows.map(function (row) {
       return '<div class="lab-price-row"><span>' + esc(row.serviceLabel || row.serviceId || 'Dienst') +
         '</span><strong>' + esc(row.displayString || 'Op aanvraag') + '</strong></div>';
     }).join('');
-    if (p.projectMinimum) {
-      priceRows += '<div class="lab-price-row"><span>Minimum project</span><strong>' + esc(p.projectMinimum) + '</strong></div>';
+    if (!priceRows) {
+      priceRows = '<div class="lab-price-row"><span>Richtprijs</span><strong>Prijs op aanvraag</strong></div>';
     }
+    var priceIntro = pricedRows.length
+      ? '<p class="lab-hint vk-price-source">Indicatieve prijs van ' + esc(p.displayName || 'dit vakbedrijf') +
+        ' · ' + esc(partnerPriceSourceLabel(p, pricedRows[0])) + '</p>'
+      : '<p class="lab-hint">Geen publieke prijsindicatie beschikbaar voor dit profiel.</p>';
     var optionalFacts = '';
     if (story.yearsActive) {
       optionalFacts += '<div class="lab-fact"><span>Jaren actief</span><strong>' + esc(String(story.yearsActive)) + '</strong></div>';
@@ -589,16 +666,18 @@
         '<header class="lab-identity">' +
           '<div class="lab-identity-visual">' + media + '</div>' +
           '<div class="lab-identity-copy">' +
-            '<div class="lab-identity-trust">' +
-              '<p class="lab-kicker">ELYAN vakman</p>' +
-              '<div class="lab-row-badges"><span class="lab-chip is-ok">Gecontroleerd door ELYAN</span></div>' +
-            '</div>' +
+            '<p class="lab-kicker">' + esc(categoryLabel(p.primaryCategoryId)) + '</p>' +
             '<h1>' + esc(p.displayName || 'Vakbedrijf') + '</h1>' +
+            (p.specialtyLine ? '<p class="lab-identity-place">' + esc(p.specialtyLine) + '</p>' : '') +
             (place ? '<p class="lab-identity-place">' + esc(place) + '</p>' : '') +
+            (capacity ? '<p class="vk-availability-pill' + (full ? ' is-full' : '') + '" role="status">' + esc(capacity) + '</p>' : '') +
             starsLive(p.google) +
           '</div>' +
           '<div class="lab-identity-actions">' +
-            '<button type="button" class="btn btn-primary" id="startQuote">Offerte aanvragen</button>' +
+            (full
+              ? '<p class="vk-capacity-note" role="status"><strong>Tijdelijk volzet</strong></p>' +
+                '<button type="button" class="btn btn-ghost" disabled aria-disabled="true">Vraag via ELYAN aan</button>'
+              : '<button type="button" class="btn btn-primary" id="startQuote">Vraag via ELYAN aan <span aria-hidden="true">→</span></button>') +
           '</div>' +
         '</header>' +
         '<div class="lab-glance">' +
@@ -615,12 +694,14 @@
               strengths.map(function (s) { return '<span class="lab-strength">' + esc(s) + '</span>'; }).join('') +
               '</div></section>'
             : '') +
-          '<section class="lab-section"><h2>Prijzen</h2><div class="lab-price-table">' +
-            (priceRows || '<div class="lab-price-row"><span>Richtprijs</span><strong>Prijs op aanvraag</strong></div>') +
-          '</div><p class="lab-hint" style="margin-top:10px;">Prijzen zijn indicaties van het vakbedrijf. De uiteindelijke prijs hangt af van het concrete project en de offerte.</p></section>' +
+          servicesSection(p) +
+          '<section class="lab-section"><h2>Werkgebied</h2><p>' + esc(area) + '</p></section>' +
+          '<section class="lab-section"><h2>Prijzen</h2>' + priceIntro + '<div class="lab-price-table">' +
+            priceRows +
+          '</div></section>' +
           '<section class="lab-section"><h2>Beschikbaarheid</h2><div class="lab-facts">' +
             '<div class="lab-fact"><span>Eerste mogelijkheid</span><strong>' + esc(start) + '</strong></div>' +
-            (capacity ? '<div class="lab-fact"><span>Capaciteit</span><strong>' + esc(capacity) + '</strong></div>' : '') +
+            (capacity ? '<div class="lab-fact"><span>Beschikbaarheid</span><strong>' + esc(capacity) + '</strong></div>' : '') +
             '<div class="lab-fact"><span>Plaatsbezoek</span><strong>' + esc(visit) + '</strong></div>' +
           '</div></section>' +
           googleSection(p.google) +
@@ -629,7 +710,7 @@
         '<aside class="lab-side-sticky" id="vk-next-step">' +
           '<h3>Volgende stap</h3>' +
           '<p>Vertel wat je wilt laten uitvoeren. ELYAN begeleidt je aanvraag — zonder rechtstreeks contact met het vakbedrijf.</p>' +
-          '<button type="button" class="btn btn-primary btn-block" id="startQuoteSide">Offerte aanvragen</button>' +
+          requestCtaHtml(full) +
           '<p class="lab-hint" id="vk-aanvraag-note" hidden>Je aanvraag loopt via ELYAN. Er wordt geen telefoon of e-mail van het vakbedrijf gedeeld.</p>' +
         '</aside></div></div>'
     );
@@ -728,8 +809,10 @@
       if (state.hasCategoryFilter) loadResults();
       else loadBrowseResults();
     });
+    var clearBtn = $('#clearFilters');
+    if (clearBtn) clearBtn.addEventListener('click', clearFilters);
 
-    ['filterCategory', 'filterSubtype', 'filterTiming', 'filterSort'].forEach(function (id) {
+    ['filterCategory', 'filterSubtype', 'filterAvailability'].forEach(function (id) {
       var el = $('#' + id);
       if (!el) return;
       el.addEventListener('change', function () {
@@ -739,8 +822,7 @@
           state.hasCategoryFilter = !!el.value;
         }
         if (id === 'filterSubtype') state.subtype = el.value;
-        if (id === 'filterTiming') state.customerTiming = el.value;
-        if (id === 'filterSort') state.sort = el.value;
+        if (id === 'filterAvailability') state.filterAvailability = el.value;
         syncUrl(true);
         loadResults();
       });
@@ -752,26 +834,38 @@
         var d = $('#filtersDrawer');
         var body = $('#filtersDrawerBody');
         if (!d || !body) return;
-        body.innerHTML = filterFieldsHtml();
+        body.innerHTML = filterFieldsHtml() +
+          '<div class="vk-filter-actions"><button type="button" class="btn btn-primary btn-block" id="applyFilters">Toepassen</button>' +
+          '<button type="button" class="btn btn-ghost btn-block" id="resetFilters">Filters wissen</button></div>';
         d.hidden = false;
         document.body.classList.add('lock-scroll');
-        ['filterCategory', 'filterSubtype', 'filterTiming'].forEach(function (id) {
-          var el = body.querySelector('#' + id);
-          if (!el) return;
-          el.addEventListener('change', function () {
-            if (id === 'filterCategory') {
-          state.category = el.value;
-          state.subtype = 'alle';
-          state.hasCategoryFilter = !!el.value;
-        }
-            if (id === 'filterSubtype') state.subtype = el.value;
-            if (id === 'filterTiming') state.customerTiming = el.value;
+        var applyBtn = body.querySelector('#applyFilters');
+        if (applyBtn) {
+          applyBtn.addEventListener('click', function () {
+            var catEl = body.querySelector('#filterCategory');
+            var subEl = body.querySelector('#filterSubtype');
+            var availEl = body.querySelector('#filterAvailability');
+            if (catEl) {
+              state.category = catEl.value;
+              state.subtype = 'alle';
+              state.hasCategoryFilter = !!catEl.value;
+            }
+            if (subEl) state.subtype = subEl.value;
+            if (availEl) state.filterAvailability = availEl.value;
             d.hidden = true;
             document.body.classList.remove('lock-scroll');
             syncUrl(true);
             loadResults();
           });
-        });
+        }
+        var resetBtn = body.querySelector('#resetFilters');
+        if (resetBtn) {
+          resetBtn.addEventListener('click', function () {
+            d.hidden = true;
+            document.body.classList.remove('lock-scroll');
+            clearFilters();
+          });
+        }
       });
     }
     $all('[data-close-drawer]').forEach(function (el) {
@@ -814,7 +908,7 @@
 
     function goAanvraag() {
       var slug = state.profile && state.profile.slug;
-      if (!slug) return;
+      if (!slug || isTemporarilyFull(state.profile)) return;
       var href = UI && UI.buildAanvraagPath
         ? UI.buildAanvraagPath(slug)
         : '/vakmannen/p/' + encodeURIComponent(slug) + '/aanvraag';
@@ -900,6 +994,7 @@
     params.set('sort', apiSort());
     params.set('includeUnpriced', 'true');
     if (state.subtype && state.subtype !== 'alle') params.set('dienst', state.subtype);
+    if (state.filterAvailability) params.set('availability', state.filterAvailability);
     if (state.location && state.location.postcode) params.set('postcode', state.location.postcode);
     if (state.location && state.location.name) params.set('gemeente', state.location.name);
     var regio = state.regioSlug || provinceSlugFor(state.provinceBrowse);

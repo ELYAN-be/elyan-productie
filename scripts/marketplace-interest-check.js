@@ -82,8 +82,8 @@ test('vercel rewrite for /vakmannen/p/:slug/aanvraag before profile catch-all', 
 test('profile CTA navigates to /vakmannen/p/{slug}/aanvraag', function () {
   var js = source('js/vakmannen-public.js');
   assert.ok(js.indexOf('buildAanvraagPath') >= 0 || js.indexOf('/vakmannen/p/') >= 0);
-  assert.ok(js.indexOf('Offerte aanvragen') >= 0);
   assert.ok(js.indexOf('goAanvraag') >= 0);
+  assert.ok(js.indexOf('Vraag via ELYAN aan') >= 0 || js.indexOf('buildAanvraagPath') >= 0);
   assert.ok(js.indexOf('showAanvraagStub') < 0);
   assert.ok(js.indexOf('renderQuote') < 0);
 });
@@ -96,7 +96,7 @@ test('intake page uses Partner Lab shell + interest JS', function () {
   assert.ok(html.indexOf('marketplace-interest.js') >= 0);
   assert.ok(html.indexOf('qa-seeds') < 0);
   assert.ok(js.indexOf('/api/public/v1/interest') >= 0);
-  assert.ok(js.indexOf('Bedankt. ELYAN heeft je aanvraag ontvangen en neemt contact met je op.') >= 0);
+  assert.ok(js.indexOf('Je aanvraag is verzonden via ELYAN') >= 0);
   assert.ok(js.indexOf('niet rechtstreeks naar het vakbedrijf') >= 0);
   assert.ok(!/tel:|mailto:/i.test(html + js));
 });

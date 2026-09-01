@@ -28,6 +28,7 @@ function statusForCode(code) {
   if (code === 'missing_fields') return 400;
   if (code === 'invalid_email') return 400;
   if (code === 'consent_required') return 400;
+  if (code === 'partner_unavailable') return 409;
   if (code === 'method_not_allowed') return 405;
   return 400;
 }
@@ -41,6 +42,8 @@ function userMessage(code) {
     missing_fields: 'Vul alle verplichte velden in.',
     invalid_email: 'Ongeldig e-mailadres.',
     consent_required: 'Bevestig het privacy-akkoord om verder te gaan.',
+    partner_unavailable:
+      'Dit vakbedrijf is tijdelijk volzet en kan momenteel geen nieuwe aanvragen ontvangen.',
     rate_limited: 'Te veel verzoeken. Probeer later opnieuw.',
     server_error: 'Er ging iets mis.',
     missing_env: 'Dienst tijdelijk niet beschikbaar.'

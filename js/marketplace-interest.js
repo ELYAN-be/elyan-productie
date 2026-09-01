@@ -12,6 +12,15 @@
   var app = document.getElementById('vk-aanvraag-app');
   var submitting = false;
   var submitted = false;
+  var profileData = null;
+
+  function isTemporarilyFull(p) {
+    if (!p) return false;
+    var avail = p.availability || {};
+    if (avail.capacityId === 'full') return true;
+    var label = String(avail.capacityLabel || '').toLowerCase();
+    return label.indexOf('volzet') >= 0;
+  }
 
   function go404() {
     window.location.replace('/404');
@@ -27,7 +36,7 @@
 
   function setPageMeta(p) {
     var name = (p && p.displayName) || 'Vakbedrijf';
-    var title = 'Offerte aanvragen · ' + name + ' | ELYAN';
+    var title = 'Vraag via ELYAN aan · ' + name + ' | ELYAN';
     document.title = title;
     var can = document.querySelector('link[rel="canonical"]');
     if (can && p && p.slug) {
@@ -84,21 +93,39 @@
     btn.textContent = on ? 'Bezig…' : 'Aanvraag versturen';
   }
 
-  function renderSuccess(slug) {
+  function renderSuccess(slug, companyName) {
     if (!app) return;
+    var name = companyName || 'Het vakbedrijf';
     app.innerHTML =
       '<div class="lab-quote-shell">' +
       '<div class="lab-success">' +
       '<div class="mark"><svg class="icon"><use href="#i-check"></use></svg></div>' +
-      '<p class="lab-kicker">Aanvraag ontvangen</p>' +
-      '<h1>Bedankt</h1>' +
-      '<p class="lab-hint">Bedankt. ELYAN heeft je aanvraag ontvangen en neemt contact met je op.</p>' +
+      '<p class="lab-kicker">Aanvraag verzonden</p>' +
+      '<h1>Je aanvraag is verzonden via ELYAN.</h1>' +
+      '<p class="lab-hint"><strong>' + esc(name) + '</strong> kan je project nu bekijken.</p>' +
+      '<ol class="lab-success-steps">' +
+      '<li>Het vakbedrijf bekijkt je aanvraag.</li>' +
+      '<li>Het vakbedrijf kan aangeven of het geïnteresseerd is.</li>' +
+      '<li>Verdere afspraken over offerte en uitvoering maak je met het vakbedrijf.</li>' +
+      '</ol>' +
       '<div class="lab-quote-actions" style="justify-content:center;">' +
       '<a class="btn btn-primary" href="' +
       esc(profileHref(slug)) +
       '">Terug naar profiel</a>' +
       '<a class="btn btn-ghost" href="/vakmannen">Verder ontdekken</a>' +
       '</div></div></div>';
+  }
+
+  function renderUnavailable(p) {
+    if (!app) return;
+    app.innerHTML =
+      '<div class="lab-quote-shell"><div class="lab-quote-card">' +
+      '<h1>Tijdelijk volzet</h1>' +
+      '<p class="step-lead">' + esc(p.displayName || 'Dit vakbedrijf') +
+      ' kan momenteel geen nieuwe aanvragen ontvangen.</p>' +
+      '<a class="btn btn-primary" href="' + esc(profileHref(p.slug)) + '">Terug naar profiel</a>' +
+      '<a class="btn btn-ghost" href="/vakmannen">Naar vakmannen</a>' +
+      '</div></div>';
   }
 
   function renderMissing() {
@@ -121,8 +148,8 @@
       '" style="margin-bottom:14px;">← Terug naar profiel</a>' +
       partnerContextHtml(p) +
       '<div class="lab-quote-card">' +
-      '<h1>Offerte aanvragen</h1>' +
-      '<p class="step-lead">Kort en duidelijk. ELYAN neemt contact met je op.</p>' +
+      '<h1>Vraag via ELYAN aan</h1>' +
+      '<p class="step-lead">Kort en duidelijk. Je aanvraag gaat naar dit vakbedrijf via ELYAN.</p>' +
       '<form id="interestForm" novalidate>' +
       '<input type="hidden" name="partnerSlug" value="' +
       esc(slug) +
@@ -238,6 +265,11 @@
           renderMissing();
           return;
         }
+        if (out.status === 409 || (out.data && out.data.error === 'partner_unavailable')) {
+          if (profileData) renderUnavailable(profileData);
+          else fieldError('err-form', 'Dit vakbedrijf is tijdelijk volzet en kan geen nieuwe aanvragen ontvangen.');
+          return;
+        }
         if (out.status === 400) {
           var code = out.data.error;
           if (code === 'consent_required') fieldError('err-consent', out.data.message || 'Bevestig het privacy-akkoord.');
@@ -251,7 +283,7 @@
           return;
         }
         submitted = true;
-        renderSuccess(payload.partnerSlug);
+        renderSuccess(payload.partnerSlug, profileData && profileData.displayName);
       })
       .catch(function () {
         fieldError('err-form', 'Verbinding mislukt. Probeer opnieuw.');
@@ -282,7 +314,12 @@
           renderMissing();
           return;
         }
-        renderForm(data.professional);
+        profileData = data.professional;
+        if (isTemporarilyFull(profileData)) {
+          renderUnavailable(profileData);
+          return;
+        }
+        renderForm(profileData);
       })
       .catch(function () {
         if (!app) return;

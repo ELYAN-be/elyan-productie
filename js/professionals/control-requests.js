@@ -335,6 +335,9 @@
       ['Bron', req.source === 'marketplace_interest' ? 'Marketplace-interesse' : req.source],
       ['Partner', req.partnerSlug || '—'],
       ['Categorie', req.categoryId || '—'],
+      ['Partnerreactie', req.partnerResponseStatusLabel || '—'],
+      ['Afwijzingsreden', req.partnerDeclineReasonLabel || '—'],
+      ['Partner reageerde op', fmtDate(req.partnerRespondedAt)],
       ['Aangemaakt', fmtDate(req.createdAt)],
       ['Laatste statuswijziging', fmtDate(req.statusChangedAt)],
       [

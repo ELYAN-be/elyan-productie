@@ -445,7 +445,7 @@
   var CAPACITY_OPTIONS = [
     { id: 'available', label: 'Nieuwe projecten mogelijk', public: 'Nieuwe projecten mogelijk' },
     { id: 'limited', label: 'Beperkt beschikbaar', public: 'Beperkt beschikbaar' },
-    { id: 'full', label: 'Momenteel volzet', public: null }
+    { id: 'full', label: 'Tijdelijk volzet', public: 'Tijdelijk volzet' }
   ];
 
   /* Partner Lab visit-extra types (optional P4 multi); same options for all categories. */

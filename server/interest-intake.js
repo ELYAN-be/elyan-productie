@@ -7,6 +7,7 @@
 var crypto = require('crypto');
 var { createAdminClient } = require('./supabase');
 var { getProfessionalBySlug } = require('./marketplace-public');
+var { isPartnerAtCapacity } = require('./public-snapshot');
 var { createRequestFromInterest, ensureRequestForIntakeId } = require('./customer-requests');
 
 var DEDUPE_WINDOW_MS = 5 * 60 * 1000;
@@ -127,6 +128,10 @@ async function resolvePublicPartner(slug) {
   }
   if (!profile || !profile.partner_id) {
     return { ok: false, code: 'not_found' };
+  }
+
+  if (isPartnerAtCapacity(snap)) {
+    return { ok: false, code: 'partner_unavailable' };
   }
 
   return {

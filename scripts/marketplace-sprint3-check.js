@@ -81,7 +81,7 @@ test('profile chrome + public API, CTA to interest intake (no wizard)', function
   assert.ok(detailHtml.indexOf('partner-lab.css') >= 0);
   assert.ok(detailHtml.indexOf('id="vk-app"') >= 0);
   assert.ok(publicJs.indexOf('/api/public/v1/professionals/') >= 0);
-  assert.ok(publicJs.indexOf('Offerte aanvragen') >= 0);
+  assert.ok(publicJs.indexOf('Vraag via ELYAN aan') >= 0);
   assert.ok(publicJs.indexOf('buildAanvraagPath') >= 0 || publicJs.indexOf('/vakmannen/p/') >= 0);
   assert.ok(publicJs.indexOf('vk-next-step') >= 0 || publicJs.indexOf('aanvraag-note') >= 0);
   assert.ok(publicJs.indexOf('renderDetailQuestions') < 0);
