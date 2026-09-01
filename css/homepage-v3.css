@@ -1146,8 +1146,15 @@ body.hp-v3 .hp-hero-photo img {
   body.hp-v3 .hp-menu-btn {
     padding: 0.38rem 0.7rem;
     font-size: 0.78rem;
-    background: var(--hp-ivory);
-    border-color: var(--hp-line);
+    background: #F7F7F5;
+    border-color: rgba(100, 102, 98, 0.16);
+  }
+
+  /* Mobile header + hero search card — neutral mineral parity (color only) */
+  body.hp-v3 .site-header,
+  body.hp-v3 .site-header.scrolled {
+    background: rgba(247, 247, 245, 0.96);
+    border-bottom-color: rgba(100, 102, 98, 0.14);
   }
 
   body.hp-v3 .hp-hero {
@@ -1309,20 +1316,27 @@ body.hp-v3 .hp-hero-photo img {
   body.hp-v3 .hp-search-unit {
     width: 100%;
     height: auto;
-    padding: 1rem 1.1rem 1.05rem;
+    padding: 0.9rem 1rem 0.95rem;
     border-radius: 26px;
-    background: var(--hp-ivory);
-    border: 1px solid var(--hp-line);
+    background: #F7F7F5;
+    border: 1px solid rgba(100, 102, 98, 0.16);
     box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.85) inset,
-      0 14px 36px rgba(47, 49, 43, 0.12);
+      0 1px 0 rgba(255, 255, 255, 0.7) inset,
+      0 10px 28px rgba(47, 49, 43, 0.1);
   }
 
   body.hp-v3 .hp-search-unit:focus-within {
-    border-color: rgba(78, 90, 70, 0.3);
+    border-color: rgba(78, 90, 70, 0.28);
     box-shadow:
-      0 0 0 3px rgba(78, 90, 70, 0.08),
-      0 16px 40px rgba(47, 49, 43, 0.12);
+      0 0 0 3px rgba(78, 90, 70, 0.07),
+      0 12px 32px rgba(47, 49, 43, 0.1);
+  }
+
+  body.hp-v3 .hp-search-unit select,
+  body.hp-v3 .hp-search-unit input,
+  body.hp-v3 .hp-search-unit .hp-category-trigger {
+    background: #FAFAF8;
+    border-color: rgba(100, 102, 98, 0.18);
   }
 
   body.hp-v3 .hp-search-row {
@@ -2412,10 +2426,18 @@ body.hp-v3 .hp-how-clarify {
 
 @media (max-width: 899px) {
   /*
-    Mobile cool neutral remap — matches desktop feeling without yellow cast.
-    Desktop hex values remain frozen above 899px.
+    Mobile neutral mineral palette — desktop hex values frozen above 899px.
   */
   body.hp-v3 {
+    --hp-page: #F7F7F5;
+    --hp-cream: #F7F7F5;
+    --hp-cream-deep: #F2F2F0;
+    --hp-sand: #F2F2F0;
+    --hp-beige: #EDEDEB;
+    --hp-cappuccino: #E6E6E4;
+    --hp-ivory: #F7F7F5;
+    --hp-white: #FAFAF8;
+    --hp-line: rgba(100, 102, 98, 0.16);
     --hp-warm-page: #F7F7F5;
     --hp-warm-sand: #F2F2F0;
     --hp-warm-beige: #EDEDEB;
@@ -2424,6 +2446,12 @@ body.hp-v3 .hp-how-clarify {
     --hp-stone: #F2F2F0;
     --hp-stone-mid: #EDEDEB;
     --hp-stone-deep: #E6E6E4;
+  }
+
+  body.hp-v3 .site-header,
+  body.hp-v3 .site-header.scrolled {
+    background: rgba(247, 247, 245, 0.96);
+    border-bottom-color: rgba(100, 102, 98, 0.14);
   }
 
   body.hp-v3 .hp-mobile-nav {

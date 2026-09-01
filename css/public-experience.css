@@ -1,33 +1,71 @@
 /* ============================================================
-   ELYAN public experience — mobile color + page polish
-   Desktop colors unchanged. Mobile-only neutral mineral palette.
+   ELYAN public experience v2 — mobile mineral palette + page polish
+   Desktop colors unchanged. Mobile-only neutral corrections.
    ============================================================ */
 
+/* ---- Mobile surface tokens (public pages) ---- */
 @media (max-width: 899px) {
   body.hp-v3.page-vakmannen,
   body.hp-v3.page-about,
   body.hp-v3.page-prijs {
+    --px-surface-1: #F7F7F5;
+    --px-surface-2: #F2F2F0;
+    --px-surface-3: #FAFAF8;
+    --px-line: rgba(100, 102, 98, 0.16);
+    --hp-page: #F7F7F5;
+    --hp-cream: #F7F7F5;
+    --hp-ivory: #F7F7F5;
+    --hp-white: #FAFAF8;
+    --hp-line: rgba(100, 102, 98, 0.16);
     --hp-warm-page: #F7F7F5;
     --hp-warm-sand: #F2F2F0;
     --hp-warm-beige: #EDEDEB;
     --hp-warm-cappuccino: #E6E6E4;
     --hp-warm-line: rgba(100, 102, 98, 0.16);
-    --hp-page: #F7F7F5;
-    --hp-stone: #F2F2F0;
-    --hp-stone-mid: #EDEDEB;
-    --hp-stone-deep: #E6E6E4;
+  }
+
+  body.hp-v3.page-vakmannen .site-header,
+  body.hp-v3.page-about .site-header,
+  body.hp-v3.page-prijs .site-header,
+  body.hp-v3.page-vakmannen .site-header.scrolled,
+  body.hp-v3.page-about .site-header.scrolled,
+  body.hp-v3.page-prijs .site-header.scrolled {
+    background: rgba(247, 247, 245, 0.96);
+    border-bottom-color: rgba(100, 102, 98, 0.14);
   }
 
   body.hp-v3.page-vakmannen .hp-mobile-nav,
   body.hp-v3.page-about .hp-mobile-nav,
   body.hp-v3.page-prijs .hp-mobile-nav {
     background: #F9F9F7;
+    border-bottom-color: rgba(100, 102, 98, 0.14);
   }
 
   body.hp-v3.page-vakmannen .hp-footer,
   body.hp-v3.page-about .hp-footer,
   body.hp-v3.page-prijs .hp-footer {
     background: var(--hp-warm-cappuccino);
+    border-top-color: var(--hp-warm-line);
+  }
+
+  body.hp-v3.page-vakmannen .hp-menu-btn,
+  body.hp-v3.page-about .hp-menu-btn,
+  body.hp-v3.page-prijs .hp-menu-btn {
+    background: #FAFAF8;
+    border-color: rgba(100, 102, 98, 0.16);
+  }
+
+  body.hp-v3.page-vakmannen main,
+  body.hp-v3.page-about main,
+  body.hp-v3.page-prijs main {
+    background: var(--px-surface-1);
+  }
+
+  /* Shared mobile page gutter */
+  body.hp-v3.page-about .hp-container,
+  body.hp-v3.page-prijs .hp-container {
+    padding-left: 1.375rem;
+    padding-right: 1.375rem;
   }
 }
 
@@ -37,85 +75,126 @@ body.hp-v3.page-prijs main {
 }
 
 .px-hero {
-  padding: clamp(2.5rem, 6vw, 3.5rem) 0 1.75rem;
+  padding: clamp(1.75rem, 5vw, 3rem) 0 1.25rem;
 }
 
 .px-hero h1 {
-  margin: 0 0 0.55rem;
+  margin: 0 0 0.5rem;
   font-family: var(--font-display);
-  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-size: clamp(1.65rem, 4vw, 2.2rem);
   letter-spacing: -0.025em;
   color: var(--hp-ink);
 }
 
 .px-hero .lead {
   margin: 0;
-  max-width: 40ch;
-  font-size: 1.02rem;
+  max-width: 38ch;
+  font-size: 0.98rem;
   line-height: 1.55;
   color: var(--hp-ink-soft);
 }
 
 .px-options {
   display: grid;
-  gap: 1rem;
+  gap: 0;
   padding-bottom: 2rem;
+  border: 1px solid var(--hp-line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--hp-ivory);
 }
 
 @media (min-width: 768px) {
   .px-options {
     grid-template-columns: 1fr 1fr;
     gap: 1.25rem;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
   }
 }
 
 .px-option {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
-  padding: 1.35rem 1.4rem;
-  border: 1px solid var(--hp-line);
-  border-radius: 12px;
-  background: var(--hp-ivory);
+  gap: 0.5rem;
+  padding: 1.25rem 1.3rem;
+  border: 0;
+  border-bottom: 1px solid var(--hp-line);
+  border-radius: 0;
+  background: transparent;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: background 0.2s ease;
+}
+
+.px-option:last-child {
+  border-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .px-option {
+    padding: 1.4rem 1.45rem;
+    border: 1px solid var(--hp-line);
+    border-radius: 12px;
+    background: var(--hp-ivory);
+  }
+
+  .px-option + .px-option {
+    margin-left: 0;
+  }
+
+  .px-option:hover,
+  .px-option:focus-visible {
+    border-color: rgba(63, 74, 50, 0.28);
+    box-shadow: 0 8px 24px rgba(47, 49, 43, 0.06);
+    outline: none;
+  }
 }
 
 .px-option:hover,
 .px-option:focus-visible {
-  border-color: rgba(63, 74, 50, 0.28);
-  box-shadow: 0 8px 24px rgba(47, 49, 43, 0.06);
+  background: rgba(250, 250, 248, 0.65);
   outline: none;
 }
 
 .px-option-label {
   margin: 0;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--hp-olive-dark);
 }
 
+.px-option-tag {
+  display: inline-block;
+  margin-left: 0.35rem;
+  font-size: 0.58rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(63, 74, 50, 0.72);
+}
+
 .px-option h2 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.08rem;
   font-weight: 650;
   letter-spacing: -0.015em;
 }
 
 .px-option p {
   margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.5;
+  font-size: 0.9rem;
+  line-height: 1.48;
   color: var(--hp-ink-soft);
 }
 
 .px-option-cta {
   margin-top: auto;
-  padding-top: 0.35rem;
-  font-size: 0.9rem;
+  padding-top: 0.5rem;
+  font-size: 0.88rem;
   font-weight: 650;
   color: var(--hp-olive-dark);
 }
@@ -126,22 +205,21 @@ body.hp-v3.page-prijs main {
 }
 
 .px-proof h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1.1rem;
+  margin: 0 0 0.45rem;
+  font-size: 1.05rem;
   font-weight: 650;
 }
 
 .px-proof p {
-  margin: 0 0 1.15rem;
-  max-width: 42ch;
-  font-size: 0.92rem;
+  margin: 0 0 1rem;
+  max-width: 40ch;
+  font-size: 0.9rem;
   line-height: 1.5;
   color: var(--hp-ink-soft);
 }
 
 .px-proof-visual {
-  width: min(100%, 220px);
-  margin: 0 auto;
+  width: min(100%, 200px);
 }
 
 .px-proof-visual img {
@@ -149,14 +227,23 @@ body.hp-v3.page-prijs main {
   height: auto;
   display: block;
   border-radius: 6px;
-  box-shadow: 0 8px 20px rgba(47, 49, 43, 0.08);
+  box-shadow: 0 6px 18px rgba(47, 49, 43, 0.08);
   border: 1px solid rgba(156, 158, 152, 0.22);
 }
 
 @media (max-width: 899px) {
-  .px-option {
-    background: #FAFAF8;
+  .px-options {
     border-color: rgba(100, 102, 98, 0.14);
+    background: var(--px-surface-3);
+  }
+
+  .px-option {
+    border-bottom-color: rgba(100, 102, 98, 0.14);
+  }
+
+  .px-option:hover,
+  .px-option:focus-visible {
+    background: #F7F7F5;
   }
 
   .px-proof {
@@ -170,12 +257,12 @@ body.hp-v3.page-about main {
 }
 
 .ab-hero {
-  padding: clamp(2.5rem, 6vw, 3.5rem) 0 2rem;
+  padding: clamp(1.75rem, 5vw, 3.25rem) 0 1.75rem;
 }
 
 .ab-hero .eyebrow {
-  margin: 0 0 0.55rem;
-  font-size: 0.68rem;
+  margin: 0 0 0.5rem;
+  font-size: 0.66rem;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -183,50 +270,93 @@ body.hp-v3.page-about main {
 }
 
 .ab-hero h1 {
-  margin: 0 0 0.75rem;
-  max-width: 16ch;
+  margin: 0 0 0.65rem;
+  max-width: 14ch;
   font-family: var(--font-display);
-  font-size: clamp(1.85rem, 4vw, 2.5rem);
+  font-size: clamp(1.85rem, 4vw, 2.45rem);
   letter-spacing: -0.03em;
+  line-height: 1.08;
   color: var(--hp-ink);
 }
 
 .ab-hero .lead {
   margin: 0;
-  max-width: 42ch;
-  font-size: 1.02rem;
-  line-height: 1.58;
-  color: var(--hp-ink-soft);
-}
-
-.ab-section {
-  padding: 2.25rem 0;
-  border-top: 1px solid var(--hp-line);
-}
-
-.ab-section h2 {
-  margin: 0 0 0.85rem;
-  font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.5vw, 1.65rem);
-  letter-spacing: -0.02em;
-}
-
-.ab-section > p {
-  margin: 0 0 1rem;
-  max-width: 46ch;
+  max-width: 40ch;
+  font-size: 0.98rem;
   line-height: 1.55;
   color: var(--hp-ink-soft);
 }
 
-.ab-section > p:last-child {
-  margin-bottom: 0;
+.ab-section {
+  padding: 2rem 0;
+  border-top: 1px solid var(--hp-line);
+}
+
+.ab-section h2 {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.5vw, 1.6rem);
+  letter-spacing: -0.02em;
+}
+
+/* Why ELYAN exists — 3-part editorial */
+.ab-problems {
+  display: grid;
+  gap: 0;
+  margin-bottom: 1.5rem;
+}
+
+.ab-problem {
+  padding: 0.95rem 0;
+  border-top: 1px solid var(--hp-line);
+}
+
+.ab-problem:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.ab-problem-label {
+  margin: 0 0 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.ab-problem p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.48;
+  color: var(--hp-ink-soft);
+}
+
+@media (min-width: 900px) {
+  .ab-problems {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .ab-problem {
+    padding: 0;
+    border-top: 0;
+    border-left: 1px solid var(--hp-line);
+    padding-left: 1.25rem;
+  }
+
+  .ab-problem:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
 }
 
 .ab-photo {
-  margin: 1.5rem 0 0;
-  border-radius: 10px;
+  margin: 0;
+  border-radius: 8px;
   overflow: hidden;
-  max-width: 520px;
+  max-width: 480px;
 }
 
 .ab-photo img {
@@ -235,10 +365,10 @@ body.hp-v3.page-about main {
   display: block;
 }
 
+/* What ELYAN brings together */
 .ab-steps {
   display: grid;
   gap: 0;
-  margin-top: 0.5rem;
 }
 
 .ab-step {
@@ -251,7 +381,7 @@ body.hp-v3.page-about main {
 
 .ab-step:first-child {
   border-top: 0;
-  padding-top: 0.35rem;
+  padding-top: 0.25rem;
 }
 
 .ab-step-num {
@@ -259,11 +389,11 @@ body.hp-v3.page-about main {
   font-weight: 650;
   letter-spacing: 0.08em;
   color: var(--hp-olive);
-  margin-top: 0.15rem;
+  margin-top: 0.12rem;
 }
 
 .ab-step h3 {
-  margin: 0 0 0.28rem;
+  margin: 0 0 0.25rem;
   font-size: 1.02rem;
   font-weight: 650;
 }
@@ -275,24 +405,60 @@ body.hp-v3.page-about main {
   color: var(--hp-ink-soft);
 }
 
-.ab-method {
-  display: grid;
-  gap: 0;
-  margin-top: 0.75rem;
+@media (min-width: 900px) {
+  .ab-steps {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .ab-step {
+    grid-template-columns: 1fr;
+    border-top: 0;
+    padding: 0;
+    border-left: 1px solid var(--hp-line);
+    padding-left: 1.25rem;
+  }
+
+  .ab-step:first-child {
+    border-left: 0;
+    padding-left: 0;
+  }
+
+  .ab-step-num {
+    margin-bottom: 0.45rem;
+  }
 }
 
-.ab-method-row {
+/* Methodology rail */
+.ab-method-rail {
   display: grid;
-  gap: 0.35rem;
-  padding: 0.85rem 0;
+  gap: 0;
+}
+
+.ab-method-stage {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  gap: 0.75rem 1rem;
+  padding: 1rem 0;
   border-top: 1px solid var(--hp-line);
 }
 
-.ab-method-row:first-child {
+.ab-method-stage:first-child {
   border-top: 0;
+  padding-top: 0.25rem;
 }
 
-.ab-method-row strong {
+.ab-method-index {
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  color: var(--hp-olive);
+  margin-top: 0.15rem;
+}
+
+.ab-method-stage strong {
+  display: block;
+  margin-bottom: 0.45rem;
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -300,13 +466,86 @@ body.hp-v3.page-about main {
   color: var(--hp-olive-dark);
 }
 
-.ab-method-row ul {
+.ab-method-stage ul {
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.ab-method-row li {
+.ab-method-stage li {
+  position: relative;
+  padding-left: 0.85rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--hp-ink-soft);
+}
+
+.ab-method-stage li + li {
+  margin-top: 0.2rem;
+}
+
+.ab-method-stage li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.52em;
+  width: 0.3rem;
+  height: 0.3rem;
+  border-radius: 999px;
+  background: var(--hp-olive);
+}
+
+@media (min-width: 900px) {
+  .ab-method-rail {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--hp-line);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .ab-method-stage {
+    grid-template-columns: 1fr;
+    padding: 1.15rem 1.1rem;
+    border-top: 0;
+    border-left: 1px solid var(--hp-line);
+  }
+
+  .ab-method-stage:first-child {
+    border-left: 0;
+  }
+}
+
+/* Trust comparison */
+.ab-trust-grid {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 0.85rem;
+}
+
+@media (min-width: 900px) {
+  .ab-trust-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+}
+
+.ab-trust-col h3 {
+  margin: 0 0 0.65rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.ab-trust-col ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ab-trust-col li {
   position: relative;
   padding-left: 0.9rem;
   font-size: 0.9rem;
@@ -314,27 +553,50 @@ body.hp-v3.page-about main {
   color: var(--hp-ink-soft);
 }
 
-.ab-method-row li::before {
+.ab-trust-col li + li {
+  margin-top: 0.35rem;
+}
+
+.ab-trust-yes li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.5em;
+  top: 0.52em;
   width: 0.32rem;
   height: 0.32rem;
   border-radius: 999px;
   background: var(--hp-olive);
 }
 
+.ab-trust-no li::before {
+  content: '—';
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 0.75rem;
+  color: rgba(92, 94, 86, 0.55);
+}
+
+.ab-trust-note {
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: rgba(92, 94, 86, 0.78);
+}
+
+/* Principles */
 .ab-principles {
   display: grid;
   gap: 1rem;
-  margin-top: 0.5rem;
 }
 
-.ab-principle h3 {
+.ab-principle-label {
   margin: 0 0 0.25rem;
-  font-size: 0.95rem;
-  font-weight: 650;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
 }
 
 .ab-principle p {
@@ -344,87 +606,164 @@ body.hp-v3.page-about main {
   color: var(--hp-ink-soft);
 }
 
-.ab-contact {
-  margin-top: 0.5rem;
-}
-
-.ab-contact p {
-  margin: 0 0 1rem;
-  color: var(--hp-ink-soft);
-  line-height: 1.5;
-}
-
-.ab-close {
-  padding: 2.5rem 0 3.5rem;
-  border-top: 1px solid var(--hp-line);
-}
-
-@media (max-width: 899px) {
-  body.hp-v3.page-about .ab-section {
-    border-top-color: rgba(100, 102, 98, 0.14);
-  }
-
-  body.hp-v3.page-about .ab-step,
-  body.hp-v3.page-about .ab-method-row {
-    border-top-color: rgba(100, 102, 98, 0.14);
-  }
-}
-
 @media (min-width: 900px) {
-  .ab-method {
-    grid-template-columns: 1fr 1fr;
-    column-gap: 2rem;
-  }
-
   .ab-principles {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
   }
 }
 
-/* ---- Vakmannen mobile polish ---- */
+.ab-contact p {
+  margin: 0 0 1rem;
+  color: var(--hp-ink-soft);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.ab-close {
+  padding: 2rem 0 3.25rem;
+  border-top: 1px solid var(--hp-line);
+}
+
 @media (max-width: 899px) {
-  .page-vakmannen .vk-marketplace {
-    padding-left: 1.375rem;
-    padding-right: 1.375rem;
+  body.hp-v3.page-about .ab-section,
+  body.hp-v3.page-about .ab-close {
+    border-top-color: rgba(100, 102, 98, 0.14);
+  }
+
+  body.hp-v3.page-about .ab-problem,
+  body.hp-v3.page-about .ab-step,
+  body.hp-v3.page-about .ab-method-stage {
+    border-top-color: rgba(100, 102, 98, 0.14);
+  }
+}
+
+/* ---- Vakmannen mobile composition ---- */
+@media (max-width: 899px) {
+  .page-vakmannen.hp-v3 .vk-site-main {
+    padding-top: 0;
+    background: var(--px-surface-1);
+  }
+
+  .page-vakmannen.page-partner-lab {
+    --vk-surface: #F7F7F5;
+    --vk-surface-2: #F2F2F0;
+    background: var(--vk-surface);
+  }
+
+  .page-vakmannen .site-header {
+    background: rgba(247, 247, 245, 0.96) !important;
+    box-shadow: 0 1px 0 rgba(100, 102, 98, 0.14);
   }
 
   .page-vakmannen .lab-wrap.vk-marketplace {
     width: 100%;
     max-width: none;
-    padding-left: 0;
-    padding-right: 0;
+    padding: 0.65rem 1.375rem 2.5rem;
+    box-sizing: border-box;
+  }
+
+  .page-vakmannen .vk-mp-head {
+    margin-bottom: 1rem;
+  }
+
+  .page-vakmannen .vk-mp-head h1 {
+    font-size: 1.65rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .page-vakmannen .vk-mp-head .lead {
+    font-size: 0.92rem;
+    max-width: none;
   }
 
   .page-vakmannen .lab-search {
-    padding: 1rem;
+    padding: 0.85rem;
     border-radius: 10px;
-    border-color: rgba(100, 102, 98, 0.16);
-    background: #FAFAF8;
+    border: 1px solid rgba(100, 102, 98, 0.16);
+    background: var(--px-surface-3);
+    gap: 0.65rem;
+  }
+
+  .page-vakmannen .lab-search label {
+    gap: 0.3rem;
+    font-size: 0.72rem;
+  }
+
+  .page-vakmannen .lab-search input,
+  .page-vakmannen .lab-search select {
+    min-height: 42px;
+    padding: 0.5rem 0.65rem;
+    border: 1px solid rgba(100, 102, 98, 0.18);
+    border-radius: 8px;
+    background: #fff;
+    font-size: 0.9rem;
+  }
+
+  .page-vakmannen .lab-search .btn {
+    min-height: 42px;
+    padding: 0.55rem 1rem;
+    font-size: 0.88rem;
   }
 
   .page-vakmannen .lab-mobile-filters {
-    margin-bottom: 0.85rem;
+    margin: 0.15rem 0 0.75rem;
+  }
+
+  .page-vakmannen .lab-mobile-filters .btn {
+    border-color: rgba(100, 102, 98, 0.2);
+    background: transparent;
+    color: var(--hp-ink);
+    font-size: 0.84rem;
+    padding: 0.45rem 0.85rem;
+  }
+
+  .page-vakmannen .vk-mp-context {
+    font-size: 0.84rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .page-vakmannen .vk-empty {
+    padding: 1.25rem 0 0.5rem;
+    max-width: 32ch;
+    text-align: left;
+  }
+
+  .page-vakmannen .vk-empty h2 {
+    font-size: 1.05rem;
+    font-weight: 650;
+    margin-bottom: 0.4rem;
+  }
+
+  .page-vakmannen .vk-empty p {
+    margin: 0;
+    font-size: 0.88rem;
+    line-height: 1.48;
   }
 
   .page-vakmannen .lab-drawer-panel {
-    padding: 1.15rem 1.375rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    padding: 1.1rem 1.375rem calc(1.15rem + env(safe-area-inset-bottom, 0px));
     background: #FAFAF8;
-    border-radius: 14px 14px 0 0;
+    border-radius: 12px 12px 0 0;
   }
 
   .page-vakmannen .lab-drawer-head {
-    margin-bottom: 1rem;
-    padding-bottom: 0.75rem;
+    margin-bottom: 0.85rem;
+    padding-bottom: 0.7rem;
     border-bottom: 1px solid rgba(100, 102, 98, 0.14);
+  }
+
+  .page-vakmannen .lab-drawer-head strong {
+    font-size: 0.95rem;
+    font-weight: 650;
   }
 
   .page-vakmannen .vk-filter-fields label {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
-    margin-bottom: 0.95rem;
-    font-size: 0.82rem;
+    gap: 0.3rem;
+    margin-bottom: 0.85rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: var(--hp-ink);
   }
@@ -437,12 +776,6 @@ body.hp-v3.page-about main {
     border-radius: 8px;
     background: #fff;
     font: inherit;
-    font-size: 0.92rem;
-  }
-
-  .page-vakmannen .lab-filters-desktop .lab-filters-title {
-    margin: 0 0 0.85rem;
-    font-size: 1rem;
-    font-weight: 650;
+    font-size: 0.9rem;
   }
 }

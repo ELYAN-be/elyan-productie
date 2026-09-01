@@ -747,7 +747,7 @@ body.vk-lb-open.lock-scroll{
   text-align:center;
 }
 .vk-empty h2{margin:0 0 8px;font-size:1.25rem;}
-.vk-empty p{margin:0 auto 14px;max-width:34em;color:var(--ink-soft);}
+.vk-empty p{margin:0 0 14px;max-width:34em;color:var(--ink-soft);}
 .vk-pill-note{display:inline-flex;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:700;background:#E7EBE1;color:#2C3423;margin-bottom:10px;}
 
 .page-vakmannen .lab-side-sticky{
@@ -1181,16 +1181,20 @@ body.vk-menu-open {
   z-index: 100;
 }
 
+.page-vakmannen.hp-v3 .vk-site-main {
+  padding-top: 0;
+}
+
 .page-vakmannen .vk-marketplace {
-  padding: 1.5rem 0 2.75rem;
+  padding: 1.25rem 0 2.75rem;
 }
 
 .page-vakmannen .vk-mp-head {
-  margin-bottom: 1.35rem;
+  margin-bottom: 1.15rem;
 }
 
 .page-vakmannen .vk-mp-head h1 {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.4rem;
   font-size: clamp(1.75rem, 4vw, 2.2rem);
   letter-spacing: -0.025em;
 }
@@ -1203,21 +1207,27 @@ body.vk-menu-open {
 }
 
 .page-vakmannen .vk-mp-search {
-  margin-bottom: 1.35rem;
+  margin-bottom: 1.15rem;
+}
+
+.page-vakmannen .lab-wrap.vk-marketplace {
+  max-width: 960px;
 }
 
 .page-vakmannen .vk-mp-context {
-  margin: 0 0 1rem;
+  margin: 0 0 0.9rem;
 }
 
 .page-vakmannen .vk-empty {
-  padding: 2rem 0 1rem;
+  padding: 1.5rem 0 0.75rem;
   max-width: 34ch;
+  text-align: left;
 }
 
 .page-vakmannen .vk-empty h2 {
-  margin: 0 0 0.55rem;
-  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+  font-weight: 650;
 }
 
 .page-vakmannen .vk-empty p {
