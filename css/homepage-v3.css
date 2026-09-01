@@ -2078,9 +2078,9 @@ body.hp-v3 .hp-insight-benefits li::before {
 }
 
 @media (max-width: 899px) {
-  /* Mobile report section — premium panel, distinct mineral greige */
+  /* Mobile report section — true neutral mineral grey panel */
   body.hp-v3 .hp-insight {
-    background: #E9EBE7;
+    background: #E7E7E5;
     padding-top: 3rem;
     padding-bottom: 3.1rem;
   }
@@ -2135,6 +2135,15 @@ body.hp-v3 .hp-insight-benefits li::before {
     width: 0.38rem;
     height: 0.38rem;
     align-self: start;
+  }
+
+  /* Mobile-only benefit order: swap Arbeidsinschatting ↔ Belgische marktvergelijking */
+  body.hp-v3 .hp-insight-benefits li:nth-child(2) {
+    order: 6;
+  }
+
+  body.hp-v3 .hp-insight-benefits li:nth-child(6) {
+    order: 2;
   }
 
   body.hp-v3 .hp-insight-disclaimer {
