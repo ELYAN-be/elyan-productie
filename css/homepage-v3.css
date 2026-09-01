@@ -2137,13 +2137,35 @@ body.hp-v3 .hp-insight-benefits li::before {
     align-self: start;
   }
 
-  /* Mobile-only benefit order: swap Arbeidsinschatting ↔ Belgische marktvergelijking */
+  /* Mobile-only benefit layout — two longer items side by side on row 1 */
+  body.hp-v3 .hp-insight-benefits li:nth-child(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
   body.hp-v3 .hp-insight-benefits li:nth-child(2) {
-    order: 6;
+    grid-column: 2;
+    grid-row: 3;
+  }
+
+  body.hp-v3 .hp-insight-benefits li:nth-child(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  body.hp-v3 .hp-insight-benefits li:nth-child(4) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  body.hp-v3 .hp-insight-benefits li:nth-child(5) {
+    grid-column: 1;
+    grid-row: 3;
   }
 
   body.hp-v3 .hp-insight-benefits li:nth-child(6) {
-    order: 2;
+    grid-column: 2;
+    grid-row: 1;
   }
 
   body.hp-v3 .hp-insight-disclaimer {
