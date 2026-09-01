@@ -2314,8 +2314,9 @@ body.hp-v3 .hp-how-clarify {
 }
 
 @media (max-width: 899px) {
+  /* Mobile mineral neutrals only — desktop warm tokens unchanged */
   body.hp-v3 .hp-section--process {
-    background: var(--hp-warm-page);
+    background: #F7F6F2;
     padding-top: 2.9rem;
     padding-bottom: 3rem;
   }
@@ -2345,6 +2346,7 @@ body.hp-v3 .hp-how-clarify {
     margin-top: 2.05rem;
     text-align: left;
     max-width: none;
+    border-top-color: rgba(120, 118, 110, 0.14);
   }
 }
 
@@ -2411,7 +2413,8 @@ body.hp-v3 .hp-pros-lead {
 
 @media (max-width: 899px) {
   body.hp-v3 .hp-pros-band {
-    background: var(--hp-warm-beige);
+    /* Soft limestone / greige — not yellow sand */
+    background: #ECEAE4;
     padding-top: 2.95rem;
     padding-bottom: 3.05rem;
   }
@@ -2499,5 +2502,17 @@ body.hp-v3 .hp-footer .footer-tagline {
 
   body.hp-v3 .hp-footer-cols {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Mobile footer only — calm mineral greige (desktop footer frozen) */
+@media (max-width: 899px) {
+  body.hp-v3 .hp-footer {
+    background: #E8E6E0;
+    border-top-color: rgba(120, 118, 110, 0.16);
+  }
+
+  body.hp-v3 .hp-footer-bottom {
+    border-top-color: rgba(120, 118, 110, 0.14);
   }
 }
