@@ -2091,8 +2091,9 @@ body.hp-v3 .hp-insight-benefits li::before {
     margin: 0.2rem 0 0.45rem;
   }
 
+  /* Keep desktop insight token — no near-white override */
   body.hp-v3 .hp-insight {
-    background: #FAFAF7;
+    background: var(--hp-warm-sand);
     padding-top: 2.85rem;
     padding-bottom: 2.95rem;
   }
@@ -2314,13 +2315,13 @@ body.hp-v3 .hp-how-clarify {
 }
 
 @media (max-width: 899px) {
-  /* Mobile near-white editorial system — desktop warm tokens unchanged */
+  /* Mobile uses approved desktop neutrals — keep editorial step layout only */
   body.hp-v3 .hp-featured {
-    background: #FAFAF7;
+    background: var(--hp-warm-page);
   }
 
   body.hp-v3 .hp-section--process {
-    background: #FAFAF7;
+    background: var(--hp-warm-page);
     padding-top: 3rem;
     padding-bottom: 3.1rem;
   }
@@ -2384,7 +2385,7 @@ body.hp-v3 .hp-how-clarify {
     padding-top: 1.2rem;
     text-align: left;
     max-width: none;
-    border-top: 1px solid rgba(47, 49, 43, 0.08);
+    border-top: 1px solid var(--hp-warm-line);
     font-size: 0.7rem;
     line-height: 1.55;
     color: rgba(92, 94, 86, 0.72);
@@ -2454,9 +2455,9 @@ body.hp-v3 .hp-pros-lead {
 
 @media (max-width: 899px) {
   body.hp-v3 .hp-pros-band {
-    /* Same near-white family — separation via border + spacing */
-    background: #FAFAF7;
-    border-top: 1px solid rgba(47, 49, 43, 0.08);
+    /* Exact desktop secondary neutral */
+    background: var(--hp-warm-beige);
+    border-top: 0;
     padding-top: 3rem;
     padding-bottom: 3.1rem;
   }
@@ -2547,14 +2548,14 @@ body.hp-v3 .hp-footer .footer-tagline {
   }
 }
 
-/* Mobile footer only — near-white mineral, one step deeper (desktop footer frozen) */
+/* Mobile footer — approved desktop footer token */
 @media (max-width: 899px) {
   body.hp-v3 .hp-footer {
-    background: #F5F5F2;
-    border-top: 1px solid rgba(47, 49, 43, 0.1);
+    background: var(--hp-warm-cappuccino);
+    border-top: 1px solid var(--hp-warm-line);
   }
 
   body.hp-v3 .hp-footer-bottom {
-    border-top-color: rgba(47, 49, 43, 0.08);
+    border-top-color: var(--hp-warm-line);
   }
 }
