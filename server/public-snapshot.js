@@ -202,13 +202,25 @@ function buildPublicSnapshotV1(opts) {
   var pricing = serviceIds.map(function (sid) {
     var sp = prices[sid] || { pricing_model: 'on_request' };
     var unit = unitHintFor(categoryId, sid);
+    var hasPrice = sp.pricing_model && sp.pricing_model !== 'on_request';
+    var publicAllowed = sp.public_consent === true;
     return {
       serviceId: sid,
       serviceLabel: serviceLabel(categoryId, sid),
       model: sp.pricing_model || 'on_request',
-      displayString: priceDisplayString(sp, unit),
-      unitHint: unit || undefined
+      displayString: hasPrice && publicAllowed
+        ? priceDisplayString(sp, unit)
+        : 'Prijs op aanvraag',
+      unitHint: unit || undefined,
+      priceSource: hasPrice && publicAllowed ? 'partner' : null,
+      priceSourceLabel: hasPrice && publicAllowed
+        ? 'Door het vakbedrijf aangeleverde prijsindicatie · geen offerte'
+        : null,
+      publicConsent: publicAllowed
     };
+  }).filter(function (row) {
+    if (!row.model || row.model === 'on_request') return true;
+    return row.publicConsent === true;
   });
 
   var projectMinimum =

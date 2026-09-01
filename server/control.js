@@ -24,6 +24,8 @@ var {
   validateReviewItemInput
 } = require('./control-model');
 var { buildPublicSnapshotV1 } = require('./public-snapshot');
+var { isAutoPublishPartners } = require('./partner-autopilot/config');
+var { sendProfilePublishedEmail } = require('./partner-autopilot-emails');
 
 async function loadPartnerBundle(admin, partnerId) {
   var { data: partner, error: pErr } = await admin
@@ -601,7 +603,8 @@ async function publishPartner(opts) {
       primary_category_id: primaryCategoryId,
       published_snapshot: snapshot,
       public_snapshot: publicBuilt.snapshot,
-      public_snapshot_version: nextPublicVersion
+      public_snapshot_version: nextPublicVersion,
+      publication_source: isAutoPublishPartners() ? 'automatic' : 'manual'
     })
     .eq('partner_id', partnerId)
     .eq('profile_status', 'ready')
@@ -628,8 +631,26 @@ async function publishPartner(opts) {
     actorType: 'staff',
     partnerId: partnerId,
     action: 'control_publish',
-    meta: { slug: slug, publishedAt: now }
+    meta: {
+      slug: slug,
+      publishedAt: now,
+      publicationSource: isAutoPublishPartners() ? 'automatic' : 'manual'
+    }
   });
+
+  var appUrl = (process.env.PROFESSIONALS_APP_URL || 'https://www.elyan.be/professionals/dashboard').replace(/\/$/, '');
+  var ownerEmail = null;
+  if (bundle.onboarding && bundle.onboarding.draft && bundle.onboarding.draft.company) {
+    ownerEmail = bundle.onboarding.draft.company.email || null;
+  }
+  if (ownerEmail) {
+    await sendProfilePublishedEmail({
+      to: ownerEmail,
+      companyName: bundle.partner.display_name || bundle.partner.legal_name,
+      dashboardUrl: appUrl + '/dashboard',
+      profileUrl: 'https://www.elyan.be/vakmannen/' + encodeURIComponent(slug)
+    });
+  }
 
   var refreshed = await loadPartnerBundle(admin, partnerId);
   if (!refreshed.ok) return refreshed;

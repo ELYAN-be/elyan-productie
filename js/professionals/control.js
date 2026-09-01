@@ -133,9 +133,14 @@
   async function loadList() {
     renderFilters();
     setActionStatus('', null);
-    var res = await EP.controlFetch('list', {
+    var isAutopilot = state.filter === 'autopilot_review' || state.filter === 'autopilot_ready';
+    var action = isAutopilot ? 'autopilot-queue' : 'list';
+    var query = isAutopilot
+      ? { filter: state.filter === 'autopilot_ready' ? 'ready_for_review' : 'review_required' }
+      : { filter: state.filter };
+    var res = await EP.controlFetch(action, {
       method: 'GET',
-      query: { filter: state.filter }
+      query: query
     });
     if (!res.ok) {
       showGate((res.body && res.body.message) || 'Lijst laden mislukt.', 'error');
@@ -147,7 +152,38 @@
     state.partnerId = null;
     state.review = null;
     setListUrl();
-    renderList(res.body.items || []);
+    if (isAutopilot) {
+      renderAutopilotList(res.body.items || []);
+    } else {
+      renderList(res.body.items || []);
+    }
+  }
+
+  function renderAutopilotList(items) {
+    var host = EP.$('#ctrlList');
+    var meta = EP.$('#ctrlListMeta');
+    if (!host) return;
+    meta.textContent = (items.length === 1 ? '1 item' : items.length + ' items');
+    if (!items.length) {
+      host.innerHTML = '<p class="lab-hint">Geen partners in deze filter.</p>';
+      return;
+    }
+    host.innerHTML = items.map(function (row) {
+      var openId = row.partnerId || row.id;
+      return (
+        '<article class="ctrl-list-item" role="listitem">' +
+          '<div class="ctrl-list-item-main">' +
+            '<strong>' + esc(row.company || '—') + '</strong>' +
+            '<span class="ctrl-list-meta-line">' + esc(row.category || '') + ' · ' + esc(row.region || '') + '</span>' +
+            '<span class="ctrl-list-meta-line">' + esc(row.status || '') +
+              (row.issueReason ? ' — ' + esc(row.issueReason) : '') + '</span>' +
+          '</div>' +
+          (row.kind === 'partner'
+            ? '<button type="button" class="btn btn-primary btn-sm" data-open-partner="' + esc(openId) + '">Bekijk</button>'
+            : '<span class="ctrl-badge is-muted">Kandidaat</span>') +
+        '</article>'
+      );
+    }).join('');
   }
 
   function renderBadges(review) {

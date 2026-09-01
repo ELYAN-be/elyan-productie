@@ -23,6 +23,7 @@
     "test:customer-requests": "node scripts/customer-requests-check.js",
     "test:control-data": "node scripts/control-data-check.js",
     "test:professionals": "npm run test:phase-a && npm run test:phase-b",
+    "test:partner-autopilot": "node scripts/partner-autopilot-check.js",
     "test:security-hardening": "node scripts/security-hardening-check.js && node scripts/private-assets-check.js",
     "test:private-assets": "node scripts/private-assets-check.js",
     "test:marketplace": "npm run test:marketplace-sprint1 && npm run test:marketplace-sprint2 && npm run test:marketplace-sprint3 && npm run test:marketplace-interest && npm run test:customer-requests && npm run test:control-data && npm run test:security-hardening",

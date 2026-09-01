@@ -179,7 +179,8 @@
     'pricing_model',
     'min_price',
     'max_price',
-    'internal_note'
+    'internal_note',
+    'public_consent'
   ];
 
   var CLIENT_TYPES = [
@@ -354,7 +355,8 @@
       pricing_model: '',
       min_price: null,
       max_price: null,
-      internal_note: ''
+      internal_note: '',
+      public_consent: null
     };
   }
 
@@ -384,7 +386,8 @@
           pricing_model: trimStr(sp.pricing_model),
           min_price: sp.min_price == null || sp.min_price === '' ? null : Number(sp.min_price),
           max_price: sp.max_price == null || sp.max_price === '' ? null : Number(sp.max_price),
-          internal_note: trimStr(sp.internal_note).slice(0, 200)
+          internal_note: trimStr(sp.internal_note).slice(0, 200),
+          public_consent: sp.public_consent === true ? true : sp.public_consent === false ? false : null
         };
       });
     }
@@ -664,6 +667,9 @@
         }
         if (Object.prototype.hasOwnProperty.call(sp, 'internal_note')) {
           cur.internal_note = trimStr(sp.internal_note).slice(0, 200);
+        }
+        if (Object.prototype.hasOwnProperty.call(sp, 'public_consent')) {
+          cur.public_consent = sp.public_consent === true ? true : sp.public_consent === false ? false : null;
         }
         out.service_prices[sid] = cur;
       });

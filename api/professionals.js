@@ -19,6 +19,15 @@ var {
   resubmitOnboarding
 } = require('../server/onboarding');
 var {
+  listPartnerRequests,
+  getPartnerRequest,
+  respondToPartnerRequest,
+  DECLINE_REASONS,
+  DECLINE_LABELS
+} = require('../server/partner-request-responses');
+var { evaluateAutopilotReadiness } = require('../server/partner-autopilot/readiness');
+var { composeProfileFromDraft } = require('../server/partner-autopilot/profile-composer');
+var {
   getAssets,
   uploadAsset,
   updateAsset,
@@ -396,6 +405,119 @@ async function handleOnboardingAssetsReorder(req, res, body) {
   });
 }
 
+async function handlePartnerRequestsList(req, res, body) {
+  if (req.method !== 'GET') return methodNotAllowed(res, 'GET');
+  var rl = rateLimit(clientKey(req, 'partner_requests_list'), 60, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await listPartnerRequests(ctx.partner.id);
+    if (!result.ok) return errorJson(res, statusForCode(result.code), result.code);
+    return json(res, 200, { ok: true, items: result.items });
+  });
+}
+
+async function handlePartnerRequestGet(req, res, body) {
+  if (req.method !== 'GET') return methodNotAllowed(res, 'GET');
+  var rl = rateLimit(clientKey(req, 'partner_request_get'), 60, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  var requestId = getQueryParam(req, body, 'requestId');
+  if (!requestId) return errorJson(res, 400, 'missing_fields');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await getPartnerRequest(ctx.partner.id, requestId);
+    if (!result.ok) return errorJson(res, statusForCode(result.code), result.code);
+    return json(res, 200, { ok: true, request: result.request });
+  });
+}
+
+function getQueryParam(req, body, key) {
+  if (body && body[key] != null && String(body[key]).trim()) return String(body[key]).trim();
+  if (req.query && req.query[key] != null && String(req.query[key]).trim()) {
+    return String(req.query[key]).trim();
+  }
+  if (req.url) {
+    try {
+      var u = new URL(req.url, 'http://localhost');
+      var q = u.searchParams.get(key);
+      if (q) return String(q).trim();
+    } catch (e) { /* ignore */ }
+  }
+  return '';
+}
+
+async function handlePartnerRequestRespond(req, res, body) {
+  if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+  var rl = rateLimit(clientKey(req, 'partner_request_respond'), 30, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var result = await respondToPartnerRequest({
+      partnerId: ctx.partner.id,
+      userId: ctx.user.id,
+      requestId: body && body.requestId,
+      action: body && body.response,
+      declineReason: body && body.declineReason,
+      req: req
+    });
+    if (!result.ok) return errorJson(res, statusForCode(result.code), result.code);
+    return json(res, 200, result);
+  });
+}
+
+async function handlePartnerAvailabilitySave(req, res, body) {
+  if (req.method !== 'POST' && req.method !== 'PATCH') return methodNotAllowed(res, 'POST, PATCH');
+  var rl = rateLimit(clientKey(req, 'partner_availability'), 40, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var current = await getOnboarding({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id
+    });
+    if (!current.ok) return respondOnboarding(res, current);
+    var draft = current.draft || {};
+    draft.offer = draft.offer || {};
+    if (body && body.capacity != null) draft.offer.capacity = String(body.capacity);
+    if (body && body.startMonth != null) draft.offer.start_month = String(body.startMonth);
+    var saved = await saveOnboarding({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id,
+      draft: draft,
+      expectedVersion: current.version,
+      req: req
+    });
+    return respondOnboarding(res, saved);
+  });
+}
+
+async function handlePartnerProfileSummary(req, res, body) {
+  if (req.method !== 'GET') return methodNotAllowed(res, 'GET');
+  var rl = rateLimit(clientKey(req, 'partner_profile_summary'), 40, 60 * 1000);
+  if (!rl.ok) return errorJson(res, 429, 'rate_limited');
+  return withPartnerContext(req, res, body, async function (ctx) {
+    var current = await getOnboarding({
+      partnerId: ctx.partner.id,
+      role: ctx.membership.role,
+      userId: ctx.user.id
+    });
+    if (!current.ok) return respondOnboarding(res, current);
+    var composed = composeProfileFromDraft(current.draft || {}, {
+      displayName: ctx.partner.display_name || ctx.partner.displayName
+    });
+    var readiness = evaluateAutopilotReadiness({
+      partner: ctx.partner,
+      onboarding: { onboarding_status: current.onboardingStatus, draft: current.draft },
+      profile: { profile_status: current.profileStatus || 'draft' },
+      checkUnsupportedClaims: true
+    });
+    return json(res, 200, {
+      ok: true,
+      composedProfile: composed,
+      readiness: readiness.verdict,
+      issues: readiness.issues
+    });
+  });
+}
+
 module.exports = async function handler(req, res) {
   try {
     var body = {};
@@ -421,6 +543,12 @@ module.exports = async function handler(req, res) {
     if (action === 'onboarding-asset-update') return handleOnboardingAssetUpdate(req, res, body);
     if (action === 'onboarding-asset-delete') return handleOnboardingAssetDelete(req, res, body);
     if (action === 'onboarding-assets-reorder') return handleOnboardingAssetsReorder(req, res, body);
+
+    if (action === 'partner-requests-list') return handlePartnerRequestsList(req, res, body);
+    if (action === 'partner-request-get') return handlePartnerRequestGet(req, res, body);
+    if (action === 'partner-request-respond') return handlePartnerRequestRespond(req, res, body);
+    if (action === 'partner-availability-save') return handlePartnerAvailabilitySave(req, res, body);
+    if (action === 'partner-profile-summary') return handlePartnerProfileSummary(req, res, body);
 
     return errorJson(res, 400, 'missing_fields', { message: 'Onbekende of ontbrekende action.' });
   } catch (err) {

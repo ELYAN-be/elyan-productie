@@ -946,6 +946,14 @@
           '<input type="text" maxlength="200" data-price-note="' + escapeHtml(sid) + '" value="' +
           escapeHtml(sp.internal_note || '') + '" placeholder="Enkel voor jullie / ELYAN">' +
           '</label>' +
+          '<div class="prof-price-consent"' + (onReq ? ' hidden' : '') + '>' +
+          '<p class="prof-q-label">Wil je deze prijsindicatie publiek op je ELYAN-profiel tonen?</p>' +
+          '<div class="lab-choice-grid is-2">' +
+          '<button type="button" class="lab-choice' + (sp.public_consent === true ? ' is-selected' : '') +
+          '" data-price-consent="' + escapeHtml(sid) + '" data-consent="yes">Ja</button>' +
+          '<button type="button" class="lab-choice' + (sp.public_consent === false ? ' is-selected' : '') +
+          '" data-price-consent="' + escapeHtml(sid) + '" data-consent="no">Nee</button>' +
+          '</div></div>' +
           '</article>';
       }).join('');
     }
@@ -1889,7 +1897,17 @@
         if (model === 'on_request') {
           sp.min_price = null;
           sp.max_price = null;
+          sp.public_consent = null;
         }
+        renderP4();
+        touchP4();
+        return;
+      }
+      var consentBtn = ev.target.closest('[data-price-consent]');
+      if (consentBtn) {
+        var csid = consentBtn.getAttribute('data-price-consent');
+        var consentVal = consentBtn.getAttribute('data-consent');
+        ensureServicePrice(csid).public_consent = consentVal === 'yes';
         renderP4();
         touchP4();
         return;

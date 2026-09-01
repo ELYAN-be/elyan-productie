@@ -38,6 +38,9 @@ var {
   getCustomer,
   getReporting
 } = require('../server/control-data');
+var { listAutopilotQueue } = require('../server/partner-autopilot/control-queue');
+var { provisionInviteFromCandidate } = require('../server/partner-autopilot/provision');
+var { findCandidateById } = require('../server/partner-autopilot/store');
 var { json, methodNotAllowed, errorJson, readJson } = require('../server/http');
 var { rateLimit, clientKey } = require('../server/rate-limit');
 
@@ -449,6 +452,33 @@ module.exports = async function handler(req, res) {
           partnerSlug: getQueryParam(req, body, 'partnerSlug') || null
         });
         return respond(res, reported);
+      }
+
+      if (action === 'autopilot-queue') {
+        if (req.method !== 'GET' && req.method !== 'POST') {
+          return methodNotAllowed(res, 'GET, POST');
+        }
+        var rlAq = rateLimit(clientKey(req, 'control_autopilot_queue'), 40, 60 * 1000);
+        if (!rlAq.ok) return errorJson(res, 429, 'rate_limited');
+        var queue = await listAutopilotQueue(getQueryParam(req, body, 'filter') || 'all');
+        return respond(res, queue);
+      }
+
+      if (action === 'autopilot-invite') {
+        if (req.method !== 'POST') return methodNotAllowed(res, 'POST');
+        var rlAi = rateLimit(clientKey(req, 'control_autopilot_invite'), 20, 60 * 1000);
+        if (!rlAi.ok) return errorJson(res, 429, 'rate_limited');
+        var candidateId = getQueryParam(req, body, 'candidateId');
+        if (!candidateId) return errorJson(res, 400, 'missing_fields');
+        var foundCandidate = await findCandidateById(candidateId);
+        if (!foundCandidate.ok) return respond(res, foundCandidate);
+        if (!foundCandidate.candidate) return errorJson(res, 404, 'not_found');
+        var invited = await provisionInviteFromCandidate(foundCandidate.candidate, {
+          staffUserId: staff.user.id,
+          req: req,
+          sendEmail: body.sendEmail !== false
+        });
+        return respond(res, invited);
       }
 
       return errorJson(res, 400, 'missing_fields', { message: 'Onbekende of ontbrekende action.' });

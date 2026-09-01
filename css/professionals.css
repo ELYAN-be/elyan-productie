@@ -1245,3 +1245,20 @@
     min-height:44px;
   }
 }
+
+/* Partner Autopilot V1 — simple professional dashboard */
+.page-prof-v1 .prof-v1-shell{max-width:720px;margin:0 auto}
+.page-prof-v1 .prof-v1-head{margin-bottom:20px}
+.page-prof-v1 .prof-v1-head-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.page-prof-v1 .prof-v1-title{font-size:1.6rem;margin:0 0 4px}
+.page-prof-v1 .prof-v1-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.page-prof-v1 .prof-v1-nav-link{display:inline-flex;align-items:center;min-height:44px;padding:10px 14px;border-radius:10px;background:#f4f4f1;color:#14150f;text-decoration:none;font-weight:600;font-size:.95rem}
+.page-prof-v1 .prof-v1-nav-link.is-active{background:#3f4a32;color:#fff}
+.page-prof-v1 .prof-request-list{display:grid;gap:12px}
+.page-prof-v1 .prof-request-title{font-size:1.1rem;margin:0 0 8px}
+.page-prof-v1 .prof-request-excerpt{color:#4a4d42;margin:0 0 8px}
+.page-prof-v1 .prof-actions-stack{display:grid;gap:10px;margin-top:16px}
+.page-prof-v1 .prof-actions-stack .btn{min-height:48px;width:100%}
+.page-prof-v1 .prof-empty p{margin:0 0 8px}
+.page-prof-v1 .prof-tag{font-style:normal;font-weight:500;color:#6e7062;font-size:.85em}
+.page-prof-v1 .prof-decline-panel{margin-top:16px}
