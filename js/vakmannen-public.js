@@ -363,27 +363,40 @@
     );
   }
 
-  function filtersHtml() {
+  function filterFieldsHtml() {
     var subtypes = cat(state.category).subtypes || [];
     return (
-      '<h2>Filters</h2>' +
+      '<div class="vk-filter-fields">' +
       '<label>Vakgebied<select id="filterCategory">' +
         categoryList().map(function (c) {
           return '<option value="' + c.id + '"' + (c.id === state.category ? ' selected' : '') + '>' + esc(c.label) + '</option>';
         }).join('') +
       '</select></label>' +
-      '<label>Type werk<select id="filterSubtype">' +
-        '<option value="alle"' + (state.subtype === 'alle' ? ' selected' : '') + '>Alle types</option>' +
-        subtypes.map(function (t) {
-          return '<option value="' + t.id + '"' + (state.subtype === t.id ? ' selected' : '') + '>' + esc(t.label) + '</option>';
-        }).join('') +
-      '</select></label>' +
+      (subtypes.length
+        ? '<label>Type werk<select id="filterSubtype">' +
+            '<option value="alle"' + (state.subtype === 'alle' ? ' selected' : '') + '>Alle types</option>' +
+            subtypes.map(function (t) {
+              return '<option value="' + t.id + '"' + (state.subtype === t.id ? ' selected' : '') + '>' + esc(t.label) + '</option>';
+            }).join('') +
+          '</select></label>'
+        : '') +
       '<label>Wanneer wil je starten?<select id="filterTiming">' +
         (EV.CUSTOMER_TIMING || []).map(function (t) {
           return '<option value="' + t.id + '"' + (t.id === state.customerTiming ? ' selected' : '') + '>' + esc(t.label) + '</option>';
         }).join('') +
-      '</select></label>'
+      '</select></label>' +
+      '</div>'
     );
+  }
+
+  function filtersHtml() {
+    return '<h2 class="lab-filters-title">Filters</h2>' + filterFieldsHtml();
+  }
+
+  function hasDrawerFilters() {
+    var subtypes = (cat(state.category).subtypes || []).length;
+    var timing = (EV.CUSTOMER_TIMING || []).length > 1;
+    return subtypes > 0 || timing;
   }
 
   function hasActiveFilters() {
@@ -469,13 +482,14 @@
     return (
       '<div class="lab-wrap vk-marketplace lab-results">' +
         '<header class="vk-mp-head" id="vk-search">' +
-          '<p class="lab-kicker">Vakmannen</p>' +
           '<h1>Vakmannen</h1>' +
           '<p class="lead">Vind vakbedrijven voor je renovatie en regio.</p>' +
         '</header>' +
         searchFormHtml() +
         context +
-        '<div class="lab-mobile-filters"><button type="button" class="btn btn-ghost btn-sm" id="toggleFilters">Filters</button></div>' +
+        (hasDrawerFilters()
+          ? '<div class="lab-mobile-filters"><button type="button" class="btn btn-ghost btn-sm" id="toggleFilters">Filters</button></div>'
+          : '') +
         '<div class="lab-results-layout">' +
           '<aside class="lab-filters lab-filters-desktop">' + filtersHtml() + '</aside>' +
           '<div>' + resultsBodyHtml() + '</div>' +
@@ -738,7 +752,7 @@
         var d = $('#filtersDrawer');
         var body = $('#filtersDrawerBody');
         if (!d || !body) return;
-        body.innerHTML = filtersHtml();
+        body.innerHTML = filterFieldsHtml();
         d.hidden = false;
         document.body.classList.add('lock-scroll');
         ['filterCategory', 'filterSubtype', 'filterTiming'].forEach(function (id) {

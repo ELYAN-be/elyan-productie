@@ -3,46 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vakmannen | Nagekeken vakbedrijven via ELYAN</title>
-<meta name="description" content="Vind een nagekeken vakbedrijf voor jouw renovatie in Vlaanderen en Brussel. Zoek op vakgebied en regio via ELYAN.">
-<link rel="canonical" href="https://www.elyan.be/vakmannen">
+<title>Prijs berekenen | ELYAN</title>
+<meta name="description" content="Kies hoe uitgebreid je wilt rekenen: één renovatiewerk of een volledige woningrenovatie via ELYAN.">
+<link rel="canonical" href="https://www.elyan.be/prijs-berekenen">
 <meta name="theme-color" content="#3F4A32">
-<meta name="robots" content="index, follow">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="ELYAN">
-<meta property="og:title" content="Vakmannen | Nagekeken vakbedrijven via ELYAN">
-<meta property="og:description" content="Vind een nagekeken vakbedrijf voor jouw renovatie in Vlaanderen en Brussel.">
-<meta property="og:url" content="https://www.elyan.be/vakmannen">
-<meta property="og:image" content="https://www.elyan.be/assets/og-image.png">
-<meta property="og:locale" content="nl_BE">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="alternate icon" href="/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
 <link rel="stylesheet" href="/css/homepage-v3.css?v=hp-public-exp-1">
-<link rel="stylesheet" href="/css/partner-lab.css">
-<link rel="stylesheet" href="/css/vakmannen.css?v=vk-marketplace-2">
 <link rel="stylesheet" href="/css/public-experience.css?v=px-1">
 </head>
-<body class="hp-v3 page-vakmannen page-partner-lab">
+<body class="hp-v3 page-prijs">
 <a href="#main" class="skip-link">Ga naar inhoud</a>
-
 <svg style="display:none" aria-hidden="true"><defs>
 <symbol id="i-logo" viewBox="0 0 32 32"><rect x="4" y="14" width="6" height="14" rx="2" fill="currentColor"/><rect x="13" y="8" width="6" height="20" rx="2" fill="currentColor"/><rect x="22" y="2" width="6" height="26" rx="2" fill="currentColor"/></symbol>
-<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.6 7.2 18.1l.9-5.4L4.2 8.9l5.4-.8L12 3.2z" fill="currentColor"/></symbol>
-<symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
 </defs></svg>
 
 <header class="site-header" id="siteHeader">
   <div class="hp-container hp-header-inner">
     <a href="/" class="logo"><svg class="icon" aria-hidden="true"><use href="#i-logo"></use></svg> ELYAN</a>
     <nav class="hp-nav" aria-label="Hoofdnavigatie">
-      <a href="/vakmannen" aria-current="page">Vakmannen</a>
-      <a href="/prijs-berekenen">Prijs berekenen</a>
+      <a href="/vakmannen">Vakmannen</a>
+      <a href="/prijs-berekenen" aria-current="page">Prijs berekenen</a>
       <a href="/#hoe-elyan-werkt">Hoe ELYAN werkt</a>
       <a href="/partners">Voor vakbedrijven</a>
       <a href="/over-ons.html">Over ELYAN</a>
@@ -59,7 +44,7 @@
   <div class="hp-mobile-nav" id="hpMobileNav">
     <a href="/">Home</a>
     <a href="/vakmannen">Vakmannen</a>
-    <a href="/#prijsinzicht">Prijs berekenen</a>
+    <a href="/prijs-berekenen">Prijs berekenen</a>
     <a href="/#hoe-elyan-werkt">Hoe ELYAN werkt</a>
     <a href="/partners">Voor vakbedrijven</a>
     <a href="/over-ons.html">Over ELYAN</a>
@@ -68,31 +53,37 @@
   </div>
 </header>
 
-<main id="main" class="vk-site-main">
-  <div id="vk-app"></div>
-</main>
+<main id="main">
+  <div class="hp-container">
+    <header class="px-hero">
+      <h1>Kies hoe uitgebreid je wilt rekenen.</h1>
+      <p class="lead">Van één renovatiewerk tot een volledige woningrenovatie.</p>
+    </header>
 
-<div class="lab-lightbox" id="labLightbox" hidden aria-hidden="true">
-  <div class="lab-lightbox-backdrop" data-close-lightbox></div>
-  <button type="button" class="lab-lightbox-close" data-close-lightbox aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
-  <button type="button" class="vk-lb-nav vk-lb-prev" id="vkLbPrev" aria-label="Vorige foto" hidden>‹</button>
-  <button type="button" class="vk-lb-nav vk-lb-next" id="vkLbNext" aria-label="Volgende foto" hidden>›</button>
-  <div class="vk-lb-stage" id="vkLbStage">
-    <img id="labLightboxImg" src="" alt="Projectfoto">
-  </div>
-  <div class="vk-lb-counter" id="vkLbCounter" hidden></div>
-</div>
-
-<div class="lab-drawer" id="filtersDrawer" hidden>
-  <div class="lab-drawer-backdrop" data-close-drawer></div>
-  <div class="lab-drawer-panel" role="dialog" aria-modal="true" aria-label="Filters">
-    <div class="lab-drawer-head">
-      <strong>Filters</strong>
-      <button type="button" class="lab-modal-close" data-close-drawer aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
+    <div class="px-options">
+      <a class="px-option" href="/?open=renovatiecalculator">
+        <p class="px-option-label">Renovatiecalculator</p>
+        <h2>Bereken één renovatiewerk</h2>
+        <p>Voor één categorie, zoals dak, badkamer, keuken of isolatie. Krijg in enkele minuten een realistische prijsvork en persoonlijk renovatierapport.</p>
+        <span class="px-option-cta">Start renovatiecalculator →</span>
+      </a>
+      <a class="px-option" href="/?open=woningproject">
+        <p class="px-option-label">Uitgebreide analyse</p>
+        <h2>Plan je woningrenovatie</h2>
+        <p>Voor meerdere renovatiewerken op woningniveau of een aankoop- en renovatiescenario. Krijg inzicht in scope, budgetlagen, planning en — waar relevant — investeringsanalyse.</p>
+        <span class="px-option-cta">Start woningproject →</span>
+      </a>
     </div>
-    <div id="filtersDrawerBody"></div>
+
+    <section class="px-proof" aria-labelledby="pxProofTitle">
+      <h2 id="pxProofTitle">Wat je ontvangt</h2>
+      <p>Een persoonlijk renovatierapport met prijscontext, aandachtspunten en een helder beeld van wat realistisch is.</p>
+      <div class="px-proof-visual">
+        <img src="/assets/report/page-summary.png" alt="" width="595" height="842" loading="lazy" decoding="async">
+      </div>
+    </section>
   </div>
-</div>
+</main>
 
 <footer class="site-footer hp-footer">
   <div class="hp-container">
@@ -132,14 +123,8 @@
   </div>
 </footer>
 
-<script src="/shared/vakmannen/categories.js"></script>
-<script src="/shared/vakmannen/intelligence.js"></script>
-<script src="/shared/vakmannen/locations-be.js"></script>
-<script src="/shared/vakmannen/core.js"></script>
-<script src="/shared/vakmannen/marketplace-ui.js"></script>
 <script src="/js/site.js" defer></script>
 <script src="/js/marketplace-nav.js" defer></script>
-<script src="/js/vakmannen-public.js?v=vk-marketplace-1" defer></script>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
 </html>

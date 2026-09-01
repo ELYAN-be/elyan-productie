@@ -3,189 +3,221 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Over ELYAN | Belgisch renovatieplatform</title>
-<meta name="description" content="ELYAN helpt woningeigenaars in België om renovatieprojecten realistisch in te schatten, op basis van actuele richtprijzen en vergelijkbare projecten.">
-<link rel="canonical" href="https://elyan.vercel.app/over-ons.html">
+<title>Over ELYAN | Renovatieplatform voor België</title>
+<meta name="description" content="ELYAN helpt je een renovatie beter begrijpen: van realistische prijscontext tot het vinden van vakbedrijven die bij je project passen.">
+<link rel="canonical" href="https://www.elyan.be/over-ons.html">
 <meta name="theme-color" content="#3F4A32">
-<meta name="robots" content="index, follow">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="ELYAN">
-<meta property="og:title" content="Over ELYAN | Belgisch renovatieplatform">
-<meta property="og:description" content="ELYAN helpt woningeigenaars in België om renovatieprojecten realistisch in te schatten, op basis van actuele richtprijzen en vergelijkbare projecten.">
-<meta property="og:url" content="https://elyan.vercel.app/over-ons.html">
-<meta property="og:image" content="https://elyan.vercel.app/assets/og-image.png">
-<meta property="og:locale" content="nl_BE">
-<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="alternate icon" href="/favicon.ico">
-<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/homepage-v3.css?v=hp-public-exp-1">
+<link rel="stylesheet" href="/css/public-experience.css?v=px-1">
 </head>
-<body>
+<body class="hp-v3 page-about">
 <a href="#main" class="skip-link">Ga naar inhoud</a>
-
 <svg style="display:none" aria-hidden="true"><defs>
 <symbol id="i-logo" viewBox="0 0 32 32"><rect x="4" y="14" width="6" height="14" rx="2" fill="currentColor"/><rect x="13" y="8" width="6" height="20" rx="2" fill="currentColor"/><rect x="22" y="2" width="6" height="26" rx="2" fill="currentColor"/></symbol>
-<symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/></symbol>
 </defs></svg>
 
 <header class="site-header" id="siteHeader">
-  <div class="container header-inner">
-    <a href="/" class="logo"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</a>
-    <nav class="nav-links" aria-label="Hoofdnavigatie">
-      <a href="/#waarom">Waarom ELYAN</a>
-      <a href="/#hoe-het-werkt">Hoe het werkt</a>
+  <div class="hp-container hp-header-inner">
+    <a href="/" class="logo"><svg class="icon" aria-hidden="true"><use href="#i-logo"></use></svg> ELYAN</a>
+    <nav class="hp-nav" aria-label="Hoofdnavigatie">
+      <a href="/vakmannen">Vakmannen</a>
+      <a href="/prijs-berekenen">Prijs berekenen</a>
+      <a href="/#hoe-elyan-werkt">Hoe ELYAN werkt</a>
+      <a href="/partners">Voor vakbedrijven</a>
       <a href="/over-ons.html" aria-current="page">Over ELYAN</a>
-      <a href="/contact.html">Contact</a>
     </nav>
-    <a href="/#top" class="btn btn-primary btn-sm">Start gratis</a>
+    <div class="hp-header-actions">
+      <a class="hp-login-link" href="/professionals/login">Inloggen</a>
+      <a class="btn btn-primary btn-sm" href="/vakmannen#vk-search">Vind vakmannen</a>
+      <button type="button" class="hp-menu-btn" id="hpMenuBtn" aria-expanded="false" aria-controls="hpMobileNav" aria-label="Menu openen">
+        <span class="hp-menu-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+        <span class="hp-menu-label" data-label-closed="Menu" data-label-open="Sluiten">Menu</span>
+      </button>
+    </div>
+  </div>
+  <div class="hp-mobile-nav" id="hpMobileNav">
+    <a href="/">Home</a>
+    <a href="/vakmannen">Vakmannen</a>
+    <a href="/prijs-berekenen">Prijs berekenen</a>
+    <a href="/#hoe-elyan-werkt">Hoe ELYAN werkt</a>
+    <a href="/partners">Voor vakbedrijven</a>
+    <a href="/over-ons.html">Over ELYAN</a>
+    <a href="/professionals/login">Inloggen</a>
+    <a class="btn btn-primary" href="/vakmannen#vk-search">Vind vakmannen</a>
   </div>
 </header>
 
 <main id="main">
-<section class="page-hero container-narrow">
-  <span class="eyebrow">Over ELYAN</span>
-  <h1>Waarom ELYAN bestaat</h1>
-  <p class="lead">Renovatieprijzen zijn moeilijk vooraf in te schatten. ELYAN geeft een onafhankelijke eerste prijsinschatting, zodat je rustiger kan beslissen.</p>
-</section>
+  <div class="hp-container">
+    <header class="ab-hero">
+      <p class="eyebrow">Over ELYAN</p>
+      <h1>Renoveren begint met duidelijkheid.</h1>
+      <p class="lead">ELYAN helpt je een renovatie beter begrijpen vóór je beslist: van realistische prijscontext tot het vinden van vakbedrijven die bij je project passen.</p>
+    </header>
 
-<section class="container">
-  <div class="about-grid">
-    <div>
-      <h2 style="margin-bottom:var(--sp-4);">Het probleem</h2>
-      <p style="margin-bottom:var(--sp-4);max-width:38em;">Voor je een aannemer contacteert, wil je vaak al een idee hebben van wat een renovatie ongeveer kost. Die informatie is verspreid, verouderd of moeilijk te vergelijken.</p>
-      <h2 style="margin-bottom:var(--sp-4);margin-top:var(--sp-6);">Onze oplossing</h2>
-      <p style="max-width:38em;">ELYAN brengt Belgische richtprijzen samen in één eenvoudige tool. Binnen ongeveer 2&nbsp;minuten krijg je een realistisch beeld van jouw project, zonder verplichte offerteaanvraag en zonder verkoopdruk.</p>
-    </div>
-    <div class="about-photo">
-      <picture>
-        <source type="image/avif" media="(max-width:720px)" srcset="/assets/photos/about-sm.avif">
-        <source type="image/webp" media="(max-width:720px)" srcset="/assets/photos/about-sm.webp">
-        <source media="(max-width:720px)" srcset="/assets/photos/about-sm.jpg">
-        <source type="image/avif" srcset="/assets/photos/about.avif">
-        <source type="image/webp" srcset="/assets/photos/about.webp">
-        <img src="/assets/photos/about.jpg" alt="Architect met helm en bouwplannen loopt langs een moderne witte woning" width="1024" height="683" loading="lazy" decoding="async">
-      </picture>
-    </div>
+    <section class="ab-section" aria-labelledby="abWhyTitle">
+      <h2 id="abWhyTitle">Waarom ELYAN bestaat</h2>
+      <p>Renovatieprijzen zijn moeilijk in te schatten. Informatie is verspreid, vergelijken is lastig en veel gesprekken starten zonder voldoende context.</p>
+      <p>ELYAN brengt structuur vóór je de volgende stap zet: wat is realistisch, wat past bij jouw project en welke vakbedrijven zijn relevant.</p>
+      <figure class="ab-photo">
+        <picture>
+          <source type="image/avif" media="(max-width:720px)" srcset="/assets/photos/about-sm.avif">
+          <source type="image/webp" media="(max-width:720px)" srcset="/assets/photos/about-sm.webp">
+          <source media="(max-width:720px)" srcset="/assets/photos/about-sm.jpg">
+          <source type="image/avif" srcset="/assets/photos/about.avif">
+          <source type="image/webp" srcset="/assets/photos/about.webp">
+          <img src="/assets/photos/about.jpg" alt="Architect met helm en bouwplannen bij een moderne woning" width="1024" height="683" loading="lazy" decoding="async">
+        </picture>
+      </figure>
+    </section>
+
+    <section class="ab-section" aria-labelledby="abPillarsTitle">
+      <h2 id="abPillarsTitle">Hoe ELYAN werkt</h2>
+      <div class="ab-steps">
+        <div class="ab-step">
+          <span class="ab-step-num" aria-hidden="true">01</span>
+          <div>
+            <h3>Begrijp je project</h3>
+            <p>Realistische context rond scope, kosten en aandachtspunten.</p>
+          </div>
+        </div>
+        <div class="ab-step">
+          <span class="ab-step-num" aria-hidden="true">02</span>
+          <div>
+            <h3>Vergelijk mogelijkheden</h3>
+            <p>Profielen van vakbedrijven en relevante renovatie-informatie op één plek.</p>
+          </div>
+        </div>
+        <div class="ab-step">
+          <span class="ab-step-num" aria-hidden="true">03</span>
+          <div>
+            <h3>Neem gericht de volgende stap</h3>
+            <p>Van inzicht naar een aanvraag via ELYAN wanneer je klaar bent.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="ab-section" aria-labelledby="abMethodTitle">
+      <h2 id="abMethodTitle">Hoe ELYAN prijscontext opbouwt</h2>
+      <div class="ab-method">
+        <div class="ab-method-row">
+          <strong>Project</strong>
+          <ul>
+            <li>Projecttype en scope</li>
+            <li>Oppervlakte</li>
+            <li>Afwerkingsniveau</li>
+          </ul>
+        </div>
+        <div class="ab-method-row">
+          <strong>Kosten</strong>
+          <ul>
+            <li>Materiaal</li>
+            <li>Arbeid</li>
+            <li>Overige posten</li>
+          </ul>
+        </div>
+        <div class="ab-method-row">
+          <strong>Context</strong>
+          <ul>
+            <li>Provincie / regio</li>
+            <li>Belgische marktdata</li>
+            <li>Vergelijkbare projectcontext</li>
+          </ul>
+        </div>
+        <div class="ab-method-row">
+          <strong>Resultaat</strong>
+          <ul>
+            <li>Prijsvork</li>
+            <li>Persoonlijk renovatierapport</li>
+            <li>Aandachtspunten en risico's</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="ab-section" aria-labelledby="abTrustTitle">
+      <h2 id="abTrustTitle">Wat ELYAN wel — en niet — doet</h2>
+      <p>ELYAN is geen aannemer en levert geen bindende offerte. We geven prijscontext en structuur zodat je beter geïnformeerd beslist.</p>
+      <p>Vraag altijd offertes bij erkende vakbedrijven voor een contractuele prijs.</p>
+    </section>
+
+    <section class="ab-section" aria-labelledby="abPrinciplesTitle">
+      <h2 id="abPrinciplesTitle">Onze principes</h2>
+      <div class="ab-principles">
+        <div class="ab-principle">
+          <h3>Transparantie</h3>
+          <p>We tonen een prijsvork met context, geen vast bedrag zonder uitleg.</p>
+        </div>
+        <div class="ab-principle">
+          <h3>Privacy</h3>
+          <p>We verzamelen enkel wat nodig is. Meer in ons <a href="/privacybeleid.html">privacybeleid</a>.</p>
+        </div>
+        <div class="ab-principle">
+          <h3>Onafhankelijkheid</h3>
+          <p>ELYAN is niet verbonden aan een specifieke aannemer of leverancier.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="ab-section ab-contact" aria-labelledby="abContactTitle">
+      <h2 id="abContactTitle">Vragen of feedback?</h2>
+      <p>We horen graag van je.</p>
+      <a class="btn btn-primary" href="/contact.html">Contacteer ELYAN →</a>
+    </section>
+
+    <section class="ab-close">
+      <a class="btn btn-primary" href="/prijs-berekenen">Bereken je richtprijs →</a>
+    </section>
   </div>
-</section>
-
-<section class="container-narrow legal-content" style="padding-top:0;">
-  <h2>Hoe we ramen</h2>
-  <p>De inschattingen van ELYAN zijn opgebouwd uit projectkenmerken en Belgische marktdata. We kijken onder meer naar:</p>
-  <div class="about-blocks">
-    <div class="about-block">
-      <h3>Project</h3>
-      <ul>
-        <li>Projecttype en scope</li>
-        <li>Oppervlakte</li>
-        <li>Afwerkingsniveau</li>
-      </ul>
-    </div>
-    <div class="about-block">
-      <h3>Kostenopbouw</h3>
-      <ul>
-        <li>Materiaal</li>
-        <li>Arbeid</li>
-        <li>Overige posten</li>
-      </ul>
-    </div>
-    <div class="about-block">
-      <h3>Context</h3>
-      <ul>
-        <li>Provincie / regio</li>
-        <li>Belgische marktdata 2026</li>
-        <li>Vergelijkbare projecten</li>
-      </ul>
-    </div>
-    <div class="about-block">
-      <h3>Resultaat</h3>
-      <ul>
-        <li>Prijsvork (laag / verwacht / hoog)</li>
-        <li>Persoonlijk renovatierapport</li>
-        <li>Aandachtspunten en risico's</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="about-not">
-    <h3>Wat ELYAN niet is</h3>
-    <ul>
-      <li>Geen bindende offerte</li>
-      <li>Geen aannemer of uitvoerder</li>
-      <li>Geen garantie op de uiteindelijke eindprijs</li>
-    </ul>
-    <p style="margin:var(--sp-4) 0 0;">ELYAN is een betrouwbaar startpunt om je budget te bepalen. Vraag altijd offertes bij erkende aannemers voor een contractuele prijs.</p>
-  </div>
-
-  <h2>Waar ELYAN naartoe wil</h2>
-  <p>Een transparantere renovatiemarkt in België: heldere verwachtingen, rustiger gesprekken met aannemers, en minder verrassingen achteraf.</p>
-
-  <h2>Ons engagement</h2>
-  <ul>
-    <li><strong>Transparantie.</strong> We tonen altijd een prijsvork, geen vast bedrag, en leggen uit waar de kosten vandaan komen.</li>
-    <li><strong>Privacy.</strong> We verzamelen enkel wat nodig is om je rapport te versturen en verkopen jouw gegevens nooit aan derden. Meer details vind je in ons <a href="/privacybeleid.html">privacybeleid</a>.</li>
-    <li><strong>Onafhankelijkheid.</strong> ELYAN is niet verbonden aan een specifieke aannemer of materiaalleverancier.</li>
-  </ul>
-
-  <div class="contact-card">
-    <div class="icon-wrap"><svg class="icon"><use href="#i-mail"></use></svg></div>
-    <div>
-      <h3 style="margin-bottom:4px;">Vragen of feedback?</h3>
-      <p style="margin-bottom:8px;">We horen graag van je.</p>
-      <a class="mail-link" href="mailto:elyan.info@gmail.com">elyan.info@gmail.com</a>
-    </div>
-  </div>
-
-  <div style="margin-top:var(--sp-8);">
-    <a href="/#top" class="btn btn-primary">Start gratis <svg class="icon"><use href="#i-arrow-right"></use></svg></a>
-  </div>
-</section>
 </main>
 
-<footer class="site-footer">
-  <div class="container">
-    <div class="footer-top">
-      <div class="footer-columns">
-        <div>
-          <div class="footer-brand"><svg class="icon"><use href="#i-logo"></use></svg> ELYAN</div>
-          <p class="footer-tagline">Jouw renovatie. Duidelijker.</p>
+<footer class="site-footer hp-footer">
+  <div class="hp-container">
+    <div class="hp-footer-top">
+      <div class="hp-footer-brand">
+        <div class="footer-brand"><svg class="icon" aria-hidden="true"><use href="#i-logo"></use></svg> ELYAN</div>
+        <p class="footer-tagline">Het platform voor renovatie in België.</p>
+      </div>
+      <div class="hp-footer-cols">
+        <div class="footer-col">
+          <div class="footer-col-title">Consument</div>
+          <a href="/vakmannen">Vakmannen</a>
+          <a href="/prijs-berekenen">Prijs berekenen</a>
+          <a href="/#hoe-elyan-werkt">Hoe ELYAN werkt</a>
         </div>
         <div class="footer-col">
-          <div class="footer-col-title">Navigatie</div>
+          <div class="footer-col-title">Professionals</div>
+          <a href="/partners">Voor vakbedrijven</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Bedrijf</div>
           <a href="/over-ons.html">Over ELYAN</a>
           <a href="/contact.html">Contact</a>
-          <a href="/partners">Voor vakbedrijven</a>
-          <a href="/privacybeleid.html">Privacy</a>
-          <a href="/voorwaarden.html">Voorwaarden</a>
         </div>
         <div class="footer-col">
-          <div class="footer-col-title">Contact</div>
-          <a class="mail-plain" href="mailto:elyan.info@gmail.com">elyan.info@gmail.com</a>
+          <div class="footer-col-title">Juridisch</div>
+          <a href="/privacybeleid.html">Privacy</a>
+          <a href="/voorwaarden.html">Voorwaarden</a>
           <a href="/cookiebeleid.html">Cookiebeleid</a>
         </div>
       </div>
     </div>
-    <div class="footer-bottom">
+    <div class="hp-footer-bottom">
       <p class="footer-meta">© <span id="footerYear">2026</span> ELYAN. Alle prijzen zijn indicatief.</p>
       <p class="footer-meta">Made in Belgium</p>
     </div>
   </div>
 </footer>
 
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
-<script>
-  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
 <script src="/js/site.js" defer></script>
+<script src="/js/marketplace-nav.js" defer></script>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>
 </html>

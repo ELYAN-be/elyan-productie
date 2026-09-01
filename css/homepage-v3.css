@@ -2416,19 +2416,19 @@ body.hp-v3 .hp-how-clarify {
     Desktop hex values remain frozen above 899px.
   */
   body.hp-v3 {
-    --hp-warm-page: #F6F6F3;
-    --hp-warm-sand: #F0F1EE;
-    --hp-warm-beige: #F0F1EE;
-    --hp-warm-cappuccino: #E8E9E6;
-    --hp-warm-line: rgba(104, 106, 102, 0.18);
-    --hp-stone: #F0F1EE;
-    --hp-stone-mid: #ECECE9;
-    --hp-stone-deep: #E8E9E6;
+    --hp-warm-page: #F7F7F5;
+    --hp-warm-sand: #F2F2F0;
+    --hp-warm-beige: #EDEDEB;
+    --hp-warm-cappuccino: #E6E6E4;
+    --hp-warm-line: rgba(100, 102, 98, 0.16);
+    --hp-stone: #F2F2F0;
+    --hp-stone-mid: #EDEDEB;
+    --hp-stone-deep: #E6E6E4;
   }
 
   body.hp-v3 .hp-mobile-nav {
-    background: #F8F8F5;
-    border-bottom-color: rgba(104, 106, 102, 0.16);
+    background: #F9F9F7;
+    border-bottom-color: rgba(100, 102, 98, 0.14);
   }
 
   /* Mobile uses approved desktop neutrals — keep editorial step layout only */

@@ -1,0 +1,448 @@
+/* ============================================================
+   ELYAN public experience — mobile color + page polish
+   Desktop colors unchanged. Mobile-only neutral mineral palette.
+   ============================================================ */
+
+@media (max-width: 899px) {
+  body.hp-v3.page-vakmannen,
+  body.hp-v3.page-about,
+  body.hp-v3.page-prijs {
+    --hp-warm-page: #F7F7F5;
+    --hp-warm-sand: #F2F2F0;
+    --hp-warm-beige: #EDEDEB;
+    --hp-warm-cappuccino: #E6E6E4;
+    --hp-warm-line: rgba(100, 102, 98, 0.16);
+    --hp-page: #F7F7F5;
+    --hp-stone: #F2F2F0;
+    --hp-stone-mid: #EDEDEB;
+    --hp-stone-deep: #E6E6E4;
+  }
+
+  body.hp-v3.page-vakmannen .hp-mobile-nav,
+  body.hp-v3.page-about .hp-mobile-nav,
+  body.hp-v3.page-prijs .hp-mobile-nav {
+    background: #F9F9F7;
+  }
+
+  body.hp-v3.page-vakmannen .hp-footer,
+  body.hp-v3.page-about .hp-footer,
+  body.hp-v3.page-prijs .hp-footer {
+    background: var(--hp-warm-cappuccino);
+  }
+}
+
+/* ---- Calculator chooser ---- */
+body.hp-v3.page-prijs main {
+  background: var(--hp-page);
+}
+
+.px-hero {
+  padding: clamp(2.5rem, 6vw, 3.5rem) 0 1.75rem;
+}
+
+.px-hero h1 {
+  margin: 0 0 0.55rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  letter-spacing: -0.025em;
+  color: var(--hp-ink);
+}
+
+.px-hero .lead {
+  margin: 0;
+  max-width: 40ch;
+  font-size: 1.02rem;
+  line-height: 1.55;
+  color: var(--hp-ink-soft);
+}
+
+.px-options {
+  display: grid;
+  gap: 1rem;
+  padding-bottom: 2rem;
+}
+
+@media (min-width: 768px) {
+  .px-options {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+}
+
+.px-option {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  padding: 1.35rem 1.4rem;
+  border: 1px solid var(--hp-line);
+  border-radius: 12px;
+  background: var(--hp-ivory);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.px-option:hover,
+.px-option:focus-visible {
+  border-color: rgba(63, 74, 50, 0.28);
+  box-shadow: 0 8px 24px rgba(47, 49, 43, 0.06);
+  outline: none;
+}
+
+.px-option-label {
+  margin: 0;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.px-option h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.px-option p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--hp-ink-soft);
+}
+
+.px-option-cta {
+  margin-top: auto;
+  padding-top: 0.35rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--hp-olive-dark);
+}
+
+.px-proof {
+  padding: 2rem 0 3rem;
+  border-top: 1px solid var(--hp-line);
+}
+
+.px-proof h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 650;
+}
+
+.px-proof p {
+  margin: 0 0 1.15rem;
+  max-width: 42ch;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: var(--hp-ink-soft);
+}
+
+.px-proof-visual {
+  width: min(100%, 220px);
+  margin: 0 auto;
+}
+
+.px-proof-visual img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(47, 49, 43, 0.08);
+  border: 1px solid rgba(156, 158, 152, 0.22);
+}
+
+@media (max-width: 899px) {
+  .px-option {
+    background: #FAFAF8;
+    border-color: rgba(100, 102, 98, 0.14);
+  }
+
+  .px-proof {
+    border-top-color: rgba(100, 102, 98, 0.14);
+  }
+}
+
+/* ---- Over ELYAN ---- */
+body.hp-v3.page-about main {
+  background: var(--hp-page);
+}
+
+.ab-hero {
+  padding: clamp(2.5rem, 6vw, 3.5rem) 0 2rem;
+}
+
+.ab-hero .eyebrow {
+  margin: 0 0 0.55rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.ab-hero h1 {
+  margin: 0 0 0.75rem;
+  max-width: 16ch;
+  font-family: var(--font-display);
+  font-size: clamp(1.85rem, 4vw, 2.5rem);
+  letter-spacing: -0.03em;
+  color: var(--hp-ink);
+}
+
+.ab-hero .lead {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 1.02rem;
+  line-height: 1.58;
+  color: var(--hp-ink-soft);
+}
+
+.ab-section {
+  padding: 2.25rem 0;
+  border-top: 1px solid var(--hp-line);
+}
+
+.ab-section h2 {
+  margin: 0 0 0.85rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.35rem, 2.5vw, 1.65rem);
+  letter-spacing: -0.02em;
+}
+
+.ab-section > p {
+  margin: 0 0 1rem;
+  max-width: 46ch;
+  line-height: 1.55;
+  color: var(--hp-ink-soft);
+}
+
+.ab-section > p:last-child {
+  margin-bottom: 0;
+}
+
+.ab-photo {
+  margin: 1.5rem 0 0;
+  border-radius: 10px;
+  overflow: hidden;
+  max-width: 520px;
+}
+
+.ab-photo img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.ab-steps {
+  display: grid;
+  gap: 0;
+  margin-top: 0.5rem;
+}
+
+.ab-step {
+  display: grid;
+  grid-template-columns: 1.7rem minmax(0, 1fr);
+  column-gap: 0.85rem;
+  padding: 1rem 0;
+  border-top: 1px solid var(--hp-line);
+}
+
+.ab-step:first-child {
+  border-top: 0;
+  padding-top: 0.35rem;
+}
+
+.ab-step-num {
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  color: var(--hp-olive);
+  margin-top: 0.15rem;
+}
+
+.ab-step h3 {
+  margin: 0 0 0.28rem;
+  font-size: 1.02rem;
+  font-weight: 650;
+}
+
+.ab-step p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--hp-ink-soft);
+}
+
+.ab-method {
+  display: grid;
+  gap: 0;
+  margin-top: 0.75rem;
+}
+
+.ab-method-row {
+  display: grid;
+  gap: 0.35rem;
+  padding: 0.85rem 0;
+  border-top: 1px solid var(--hp-line);
+}
+
+.ab-method-row:first-child {
+  border-top: 0;
+}
+
+.ab-method-row strong {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
+}
+
+.ab-method-row ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ab-method-row li {
+  position: relative;
+  padding-left: 0.9rem;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--hp-ink-soft);
+}
+
+.ab-method-row li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 999px;
+  background: var(--hp-olive);
+}
+
+.ab-principles {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.ab-principle h3 {
+  margin: 0 0 0.25rem;
+  font-size: 0.95rem;
+  font-weight: 650;
+}
+
+.ab-principle p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--hp-ink-soft);
+}
+
+.ab-contact {
+  margin-top: 0.5rem;
+}
+
+.ab-contact p {
+  margin: 0 0 1rem;
+  color: var(--hp-ink-soft);
+  line-height: 1.5;
+}
+
+.ab-close {
+  padding: 2.5rem 0 3.5rem;
+  border-top: 1px solid var(--hp-line);
+}
+
+@media (max-width: 899px) {
+  body.hp-v3.page-about .ab-section {
+    border-top-color: rgba(100, 102, 98, 0.14);
+  }
+
+  body.hp-v3.page-about .ab-step,
+  body.hp-v3.page-about .ab-method-row {
+    border-top-color: rgba(100, 102, 98, 0.14);
+  }
+}
+
+@media (min-width: 900px) {
+  .ab-method {
+    grid-template-columns: 1fr 1fr;
+    column-gap: 2rem;
+  }
+
+  .ab-principles {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+/* ---- Vakmannen mobile polish ---- */
+@media (max-width: 899px) {
+  .page-vakmannen .vk-marketplace {
+    padding-left: 1.375rem;
+    padding-right: 1.375rem;
+  }
+
+  .page-vakmannen .lab-wrap.vk-marketplace {
+    width: 100%;
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .page-vakmannen .lab-search {
+    padding: 1rem;
+    border-radius: 10px;
+    border-color: rgba(100, 102, 98, 0.16);
+    background: #FAFAF8;
+  }
+
+  .page-vakmannen .lab-mobile-filters {
+    margin-bottom: 0.85rem;
+  }
+
+  .page-vakmannen .lab-drawer-panel {
+    padding: 1.15rem 1.375rem calc(1.25rem + env(safe-area-inset-bottom, 0px));
+    background: #FAFAF8;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .page-vakmannen .lab-drawer-head {
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(100, 102, 98, 0.14);
+  }
+
+  .page-vakmannen .vk-filter-fields label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-bottom: 0.95rem;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--hp-ink);
+  }
+
+  .page-vakmannen .vk-filter-fields select {
+    width: 100%;
+    min-height: 44px;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid rgba(100, 102, 98, 0.2);
+    border-radius: 8px;
+    background: #fff;
+    font: inherit;
+    font-size: 0.92rem;
+  }
+
+  .page-vakmannen .lab-filters-desktop .lab-filters-title {
+    margin: 0 0 0.85rem;
+    font-size: 1rem;
+    font-weight: 650;
+  }
+}

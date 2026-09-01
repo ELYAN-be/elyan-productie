@@ -734,6 +734,22 @@
     });
   }
 
+  function initCalculatorDeepLink() {
+    if (location.pathname !== '/' && location.pathname !== '/index.html') return;
+    var open = new URLSearchParams(location.search).get('open');
+    if (!open) return;
+    window.requestAnimationFrame(function () {
+      if (open === 'renovatiecalculator') {
+        var btn = document.querySelector('[data-action="start-calculator"]');
+        if (btn) btn.click();
+      } else if (open === 'woningproject') {
+        var btn2 = document.querySelector('[data-action="start-calculator-2"]');
+        if (btn2) btn2.click();
+      }
+      history.replaceState(null, '', location.pathname);
+    });
+  }
+
   function init() {
     if (!document.body.classList.contains('hp-v3')) return;
     initMobileNav();
@@ -741,6 +757,7 @@
     initReportVisual();
     initHeroReveal();
     initSectionReveal();
+    initCalculatorDeepLink();
     loadProfessionals();
   }
 
