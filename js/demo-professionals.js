@@ -5,7 +5,8 @@
  * Never loaded into Supabase. Never returned by public APIs.
  *
  * Enable ONLY when:
- *   - hostname is localhost / 127.0.0.1 / [::1]
+ *   - safe host: localhost / 127.0.0.1 / [::1] OR *.vercel.app
+ *   - AND never elyan.be / www.elyan.be
  *   - AND URL has ?demoProfessionals=1
  *
  * Production hosts always get an empty list from this module.
@@ -43,17 +44,20 @@
     var band = DEMO_MARKET_BANDS[categoryId];
     if (!band) {
       return {
+        priceLabel: '',
         priceLine: 'Prijsinformatie beschikbaar',
         priceContext: 'Bekijk prijscontext →'
       };
     }
     if (band.onRequest) {
       return {
+        priceLabel: 'Prijsindicatie voor ' + band.label,
         priceLine: 'Prijsinformatie beschikbaar',
         priceContext: 'ELYAN marktindicatie · geen offerte'
       };
     }
     return {
+      priceLabel: 'Prijsindicatie voor ' + band.label,
       priceLine: band.range,
       priceContext: 'ELYAN marktindicatie · geen offerte'
     };
@@ -76,9 +80,10 @@
       specialtyLine: specialtyLine,
       serviceAreaText: def.location,
       availabilityLabel: def.availability || '',
-      /* Demo ratings are never Google and never shown as Google on the homepage. */
-      ratingLabel: '',
+      /* Layout-only demo ratings — never Google-source */
+      demoRating: def.demoRating || null,
       google: null,
+      priceLabel: price.priceLabel,
       priceLine: price.priceLine,
       priceContext: price.priceContext,
       coverUrl: def.coverUrl,
@@ -97,7 +102,7 @@
       specialisations: ['Dakrenovatie', 'Platte daken'],
       location: 'Antwerpen',
       availability: 'Beschikbaar binnen 2 weken',
-      rating: '★ 4,9 (31)',
+      demoRating: { rating: '4,9', count: 31 },
       coverUrl: COVERS.dak,
       description:
         'Gespecialiseerd in renovatie van hellende en platte daken, met focus op duidelijke planning en afwerking.',
@@ -111,7 +116,7 @@
       specialisations: ['Badkamerrenovatie', 'Inloopdouches'],
       location: 'Mechelen',
       availability: 'Beschikbaar vanaf oktober',
-      rating: '★ 4,8 (18)',
+      demoRating: { rating: '4,8', count: 18 },
       coverUrl: COVERS.bath,
       description: 'Badkamerrenovaties met heldere keuzes in sanitair, betegeling en waterdichte afwerking.',
       publishedAt: '2099-01-09T00:00:00.000Z'
@@ -124,7 +129,7 @@
       specialisations: ['Keukenrenovatie', 'Maatwerk'],
       location: 'Gent',
       availability: 'Planning op aanvraag',
-      rating: '★ 4,7 (42)',
+      demoRating: { rating: '4,7', count: 42 },
       coverUrl: COVERS.kitchen,
       description: 'Maatwerkkeukens en renovatieprojecten met aandacht voor indeling, materiaalkeuze en montage.',
       publishedAt: '2099-01-08T00:00:00.000Z'
@@ -137,7 +142,7 @@
       specialisations: ['Ramen', 'Buitendeuren'],
       location: 'Leuven',
       availability: '',
-      rating: '★ 4,9 (12)',
+      demoRating: { rating: '4,9', count: 12 },
       coverUrl: COVERS.craft,
       description: 'Vervanging en plaatsing van ramen en buitendeuren met focus op isolatie en afwerking.',
       publishedAt: '2099-01-07T00:00:00.000Z'
@@ -150,7 +155,7 @@
       specialisations: ['Dakisolatie', 'Muurisolatie'],
       location: 'Hasselt',
       availability: 'Beschikbaar binnen 2 weken',
-      rating: '',
+      demoRating: null,
       coverUrl: COVERS.dak,
       description: 'Isolatieprojecten voor dak en muren, gericht op comfortverbetering en duidelijke uitvoeringsstappen.',
       publishedAt: '2099-01-06T00:00:00.000Z'
@@ -163,7 +168,7 @@
       specialisations: ['Warmtepompen', 'Centrale verwarming'],
       location: 'Brugge',
       availability: 'Beschikbaar vanaf oktober',
-      rating: '★ 4,8 (27)',
+      demoRating: { rating: '4,8', count: 27 },
       coverUrl: COVERS.craft,
       description: 'Installatie en vernieuwing van verwarmingssystemen, inclusief warmtepomptrajecten.',
       publishedAt: '2099-01-05T00:00:00.000Z'
@@ -176,7 +181,7 @@
       specialisations: ['Elektrische renovatie', 'Laadpalen'],
       location: 'Aalst',
       availability: 'Planning op aanvraag',
-      rating: '★ 4,6 (15)',
+      demoRating: { rating: '4,6', count: 15 },
       coverUrl: COVERS.kitchen,
       description: 'Elektrische renovatie en laadinfra voor woningen, met aandacht voor keuring en veiligheid.',
       publishedAt: '2099-01-04T00:00:00.000Z'
@@ -189,7 +194,7 @@
       specialisations: ['Gevelrenovatie', 'Voegwerken'],
       location: 'Sint-Niklaas',
       availability: '',
-      rating: '',
+      demoRating: null,
       coverUrl: COVERS.bath,
       description: 'Gevelrenovatie en voegwerken met zorg voor uitstraling, bescherming en nette werfafwerking.',
       publishedAt: '2099-01-03T00:00:00.000Z'
@@ -202,7 +207,7 @@
       specialisations: ['Tegelvloeren', 'Parket'],
       location: 'Kortrijk',
       availability: 'Beschikbaar binnen 2 weken',
-      rating: '★ 4,7 (22)',
+      demoRating: { rating: '4,7', count: 22 },
       coverUrl: COVERS.kitchen,
       description: 'Plaatsing van tegelvloeren en parket met focus op ondergrond, afwerking en duurzame materialen.',
       publishedAt: '2099-01-02T00:00:00.000Z'
@@ -215,7 +220,7 @@
       specialisations: ['Binnenschilderwerk', 'Buitenschilderwerk'],
       location: 'Brussel',
       availability: 'Planning op aanvraag',
-      rating: '★ 4,9 (36)',
+      demoRating: { rating: '4,9', count: 36 },
       coverUrl: COVERS.craft,
       description: 'Binnen- en buitenschilderwerk met nette voorbereiding, duurzame producten en strakke afwerking.',
       publishedAt: '2099-01-01T00:00:00.000Z'
@@ -227,8 +232,18 @@
     return host === 'localhost' || host === '127.0.0.1' || host === '[::1]';
   }
 
+  /** Localhost or Vercel Preview only — never production apex/www. */
+  function isSafeDemoHost() {
+    if (isLocalHost()) return true;
+    var host = String((global.location && global.location.hostname) || '').toLowerCase();
+    if (!host) return false;
+    if (host === 'elyan.be' || host === 'www.elyan.be') return false;
+    if (host.slice(-10) === '.vercel.app') return true;
+    return false;
+  }
+
   function isDemoModeEnabled() {
-    if (!isLocalHost()) return false;
+    if (!isSafeDemoHost()) return false;
     try {
       var params = new URLSearchParams(global.location.search || '');
       return params.get('demoProfessionals') === '1';
@@ -245,6 +260,7 @@
   global.ElyanDemoProfessionals = {
     isDemoModeEnabled: isDemoModeEnabled,
     isLocalHost: isLocalHost,
+    isSafeDemoHost: isSafeDemoHost,
     getDemoCards: getDemoCards,
     DEMO_COUNT: DEMO_PROFESSIONALS.length
   };

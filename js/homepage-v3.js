@@ -358,10 +358,20 @@
   function resolvePriceDisplay(card) {
     var rawLine = String((card && card.priceLine) || '').trim();
     var rawContext = String((card && card.priceContext) || '').trim();
+    var rawLabel = String((card && card.priceLabel) || '').trim();
     var isDemo = !!(card && (card.is_demo || card._localPreview));
+    if (!rawLabel) {
+      var cat =
+        String((card && card.primaryCategoryLabel) || '').trim() ||
+        String((card && card.specialtyLine) || '')
+          .split('·')[0]
+          .trim();
+      if (cat) rawLabel = 'Prijsindicatie voor ' + cat.toLowerCase();
+    }
 
     if (isDemo && rawLine) {
       return {
+        label: rawLabel || '',
         price: rawLine,
         context: rawContext || 'ELYAN marktindicatie · geen offerte'
       };
@@ -369,12 +379,14 @@
 
     if (rawLine && rawLine !== 'Prijs op aanvraag') {
       return {
+        label: rawLabel || '',
         price: rawLine,
         context: rawContext || 'ELYAN marktindicatie · geen offerte'
       };
     }
 
     return {
+      label: '',
       price: 'Prijsinformatie beschikbaar',
       context: 'Bekijk prijscontext →'
     };
@@ -382,7 +394,7 @@
 
   /**
    * Google reviews only when API proves live Google data.
-   * Never treat demo/synthetic ratingLabel as Google.
+   * Never treat demo/synthetic ratings as Google.
    */
   function googleReviewHtml(card) {
     var g = card && card.google;
@@ -410,6 +422,21 @@
     );
   }
 
+  /** Demo-only layout ratings — never labeled as Google. */
+  function demoRatingHtml(card) {
+    if (!(card && (card.is_demo || card._localPreview))) return '';
+    var dr = card.demoRating;
+    if (!(dr && dr.rating != null && dr.count != null)) return '';
+    return (
+      '<p class="hp-pro-rating" data-review-state="demo">' +
+      '★ ' +
+      escapeHtml(String(dr.rating).replace('.', ',')) +
+      ' · ' +
+      escapeHtml(String(dr.count)) +
+      ' beoordelingen</p>'
+    );
+  }
+
   function cardHtml(card) {
     card = card || {};
     var slug = String(card.slug || '').trim();
@@ -420,8 +447,9 @@
     var specialty = escapeHtml(card.specialtyLine || '');
     var area = escapeHtml(card.serviceAreaText || '');
     var avail = escapeHtml(card.availabilityLabel || '');
-    var googleHtml = googleReviewHtml(card);
+    var reviewHtml = googleReviewHtml(card) || demoRatingHtml(card);
     var priced = resolvePriceDisplay(card);
+    var priceLabel = escapeHtml(priced.label || '');
     var price = escapeHtml(priced.price);
     var priceContext = escapeHtml(priced.context);
     var image = safeCoverUrl(card.coverUrl);
@@ -429,9 +457,14 @@
     var media = image
       ? '<img src="' + escapeHtml(image) + '" alt="' + alt + '" loading="lazy" decoding="async" width="160" height="140">'
       : '<span aria-hidden="true">ELYAN</span>';
+    /* Badge only when publish/verify signal exists (public badge) or demo fixture exercises UI */
+    var showBadge = !!(card.badge || card.is_demo || card._localPreview);
+    var badgeHtml = showBadge
+      ? '<span class="hp-pro-badge">Gecontroleerd door ELYAN</span>'
+      : '';
 
     var metaSecondary = [];
-    if (googleHtml) metaSecondary.push(googleHtml);
+    if (reviewHtml) metaSecondary.push(reviewHtml);
     if (area) metaSecondary.push('<p class="hp-pro-meta hp-pro-loc">' + area + '</p>');
     if (avail) metaSecondary.push('<p class="hp-pro-meta hp-pro-avail">' + avail + '</p>');
 
@@ -444,7 +477,7 @@
       media +
       '</div>' +
       '<div class="hp-pro-body">' +
-      '<span class="hp-pro-badge">Gecontroleerd door ELYAN</span>' +
+      badgeHtml +
       '<h3 class="hp-pro-name">' +
       name +
       '</h3>' +
@@ -453,6 +486,7 @@
       '</div>' +
       '<div class="hp-pro-aside">' +
       '<div class="hp-pro-price-block">' +
+      (priceLabel ? '<span class="hp-pro-price-label">' + priceLabel + '</span>' : '') +
       '<span class="hp-pro-price">' +
       price +
       '</span>' +
@@ -489,6 +523,11 @@
     if (foot) foot.hidden = !visible;
   }
 
+  function setEmptyVisible(visible) {
+    var empty = $('#hpProEmpty');
+    if (empty) empty.hidden = !visible;
+  }
+
   function showProState(section, state, html, isPreview) {
     var loading = $('#hpProLoading', section);
     var grid = $('#hpProGrid', section);
@@ -496,11 +535,13 @@
     if (grid) {
       grid.hidden = state !== 'ready';
       if (state === 'ready') grid.innerHTML = html || '';
-      else if (state === 'hidden') grid.innerHTML = '';
+      else grid.innerHTML = '';
     }
+    setEmptyVisible(state === 'empty');
     setDemoFlag(!!(isPreview && state === 'ready'));
     setFootVisible(state === 'ready');
-    setFeaturedSectionVisible(state === 'loading' || state === 'ready');
+    /* Section stays visible for ready / loading / empty — never hide for zero supply */
+    setFeaturedSectionVisible(true);
   }
 
   function getDemoCardsSafe() {
@@ -514,8 +555,7 @@
     var cards = getDemoCardsSafe().slice(0, MAX_FEATURED);
     var html = cards.map(cardHtml).filter(Boolean).join('');
     if (!html) {
-      showProState(section, 'hidden');
-      setFeaturedSectionVisible(false);
+      showProState(section, 'empty');
       return;
     }
     showProState(section, 'ready', html, true);
@@ -585,12 +625,11 @@
         return;
       }
 
-      /* Fail closed: hide section. No empty/error UI for visitors. */
       if (failedAll && typeof console !== 'undefined' && console.warn) {
         console.warn('[ELYAN] Featured professionals unavailable');
       }
-      showProState(section, 'hidden');
-      setFeaturedSectionVisible(false);
+      /* Premium empty state — section remains visible */
+      showProState(section, 'empty');
     });
   }
 
