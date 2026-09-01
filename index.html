@@ -34,7 +34,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
 <link rel="stylesheet" href="/css/calculator2.css?v=6.5-polish">
-<link rel="stylesheet" href="/css/homepage-v3.css?v=mhero-v9d">
+<link rel="stylesheet" href="/css/homepage-v3.css?v=below-hero-final2">
 </head>
 <body class="hp-v3 hp-v6">
 <a href="#main" class="skip-link">Ga naar inhoud</a>
@@ -279,17 +279,12 @@
   </div>
 </section>
 
-<section class="hp-section hp-featured" id="vakgebieden" aria-labelledby="hpProTitle" hidden>
+<section class="hp-section hp-featured" id="vakbedrijven-bij-elyan" aria-labelledby="hpProTitle" hidden data-hp-reveal>
   <div class="hp-container">
     <div class="hp-featured-head">
-      <div>
-        <h2 id="hpProTitle">Uitgelichte vakbedrijven</h2>
-        <p class="hp-lead">Bekijk nagekeken vakbedrijven met duidelijke informatie over specialisatie, regio en prijscontext.</p>
-      </div>
-      <a class="hp-market-pros-link" href="/vakmannen">Bekijk alle vakmannen <span aria-hidden="true">→</span></a>
+      <h2 id="hpProTitle">Vakbedrijven bij ELYAN</h2>
     </div>
     <div id="hpProfessionals">
-      <p class="hp-pro-preview-note" id="hpProPreviewNote" hidden>DEMO DATA · lokale visuele preview · geen productiedata</p>
       <div id="hpProLoading" class="hp-pro-list" hidden>
         <div class="hp-pro-skeleton" aria-hidden="true"></div>
         <div class="hp-pro-skeleton" aria-hidden="true"></div>
@@ -297,35 +292,31 @@
       </div>
       <div id="hpProGrid" class="hp-pro-list" hidden></div>
       <div class="hp-featured-foot" id="hpProFoot" hidden>
-        <a class="hp-market-pros-link" href="/vakmannen">Bekijk alle vakmannen <span aria-hidden="true">→</span></a>
+        <a class="hp-market-pros-link" href="/vakmannen">Bekijk alle vakbedrijven <span aria-hidden="true">→</span></a>
       </div>
     </div>
   </div>
 </section>
 
-<section class="hp-section hp-section--olive" id="prijsinzicht" aria-labelledby="hpPriceTitle">
-  <div class="hp-container hp-price-grid">
-    <div class="hp-price-copy">
+<section class="hp-section hp-insight" id="prijsinzicht" aria-labelledby="hpPriceTitle" data-hp-reveal>
+  <div class="hp-container hp-insight-grid">
+    <div class="hp-insight-copy">
+      <p class="hp-insight-eyebrow">ELYAN Renovatie-inzicht</p>
       <h2 id="hpPriceTitle">Meer dan alleen een prijs.</h2>
-      <p class="hp-price-lead">Je ontvangt inzicht in kosten, arbeid, planning, risico’s en aandachtspunten.</p>
-      <p class="hp-price-lead hp-price-lead--soft">Weet wat je mag verwachten vóór je offertes vergelijkt.</p>
-      <div class="hp-price-routes">
-        <button type="button" class="hp-price-action" data-action="start-calculator">
-          <span class="hp-price-action-copy">
-            <strong>Bereken één renovatiewerk</strong>
-            <span>Richtprijs en persoonlijk rapport in enkele minuten.</span>
-          </span>
-          <span class="hp-price-action-arrow" aria-hidden="true">→</span>
-        </button>
-        <button type="button" class="hp-price-action" data-action="start-calculator-2">
-          <span class="hp-price-action-copy">
-            <strong>Plan je woningrenovatie</strong>
-            <span>Meerdere werken, budgetlagen en planning in één analyse.</span>
-          </span>
-          <span class="hp-price-action-arrow" aria-hidden="true">→</span>
-        </button>
+      <p class="hp-insight-lead">Je ontvangt een persoonlijk renovatierapport met inzicht in kosten, arbeid, planning en aandachtspunten.</p>
+      <ul class="hp-insight-benefits">
+        <li>Persoonlijke kostenanalyse</li>
+        <li>Arbeidsinschatting</li>
+        <li>Projectplanning</li>
+        <li>Risicoanalyse</li>
+        <li>Offertecheck</li>
+        <li>Belgische marktvergelijking</li>
+      </ul>
+      <div class="hp-insight-actions">
+        <button type="button" class="hp-insight-cta" data-action="start-calculator">Bereken je richtprijs <span class="hp-cta-arrow" aria-hidden="true">→</span></button>
+        <button type="button" class="hp-insight-secondary" data-action="start-calculator-2">Plan je volledige woningrenovatie <span aria-hidden="true">→</span></button>
       </div>
-      <p class="hp-price-disclaimer">Prijzen zijn indicatief en vervangen geen offerte op maat.</p>
+      <p class="hp-insight-disclaimer">Prijzen zijn indicatief en vervangen geen offerte op maat.</p>
     </div>
     <div class="hp-report-visual" id="hpReportVisual" aria-hidden="true">
       <div class="hp-report-stack">
@@ -343,25 +334,27 @@
   </div>
 </section>
 
-<section class="hp-section hp-section--process" id="hoe-elyan-werkt" aria-labelledby="hpHowTitle">
+<section class="hp-section hp-section--process" id="hoe-elyan-werkt" aria-labelledby="hpHowTitle" data-hp-reveal>
   <div class="hp-container">
     <div class="hp-section-head hp-section-head--center">
-      <h2 id="hpHowTitle">Hoe ELYAN werkt</h2>
+      <h2 id="hpHowTitle">Zo werkt ELYAN</h2>
     </div>
     <div class="hp-steps">
       <div class="hp-step">
         <span class="hp-step-num" aria-hidden="true">01</span>
         <div>
-          <h3>Kies je project</h3>
-          <p>Vertel ons wat je wilt laten uitvoeren en waar.</p>
+          <h3>Begrijp je project</h3>
+          <p>Start met je project en krijg context over wat realistisch is.</p>
+          <p class="hp-step-trust">Richtprijzen met duidelijke context</p>
         </div>
       </div>
       <div class="hp-step-connector" aria-hidden="true"></div>
       <div class="hp-step">
         <span class="hp-step-num" aria-hidden="true">02</span>
         <div>
-          <h3>Vergelijk je mogelijkheden</h3>
-          <p>Bekijk nagekeken vakbedrijven en prijsinformatie.</p>
+          <h3>Vergelijk vakbedrijven</h3>
+          <p>Bekijk vakbedrijven die passen bij jouw type renovatie en regio.</p>
+          <p class="hp-step-trust">Profielen nagekeken door ELYAN</p>
         </div>
       </div>
       <div class="hp-step-connector" aria-hidden="true"></div>
@@ -369,64 +362,22 @@
         <span class="hp-step-num" aria-hidden="true">03</span>
         <div>
           <h3>Vraag via ELYAN aan</h3>
-          <p>Je aanvraag wordt veilig via ELYAN opgevolgd.</p>
+          <p>Neem via ELYAN de volgende stap wanneer je een interessante vakman vindt.</p>
+          <p class="hp-step-trust">Geen publieke contactgegevens</p>
         </div>
       </div>
     </div>
+    <p class="hp-how-clarify">ELYAN is geen aannemer en garandeert geen prijs of uitvoering. We helpen je beter geïnformeerd zoeken en aanvragen.</p>
   </div>
 </section>
 
-<section class="hp-section hp-section--trust" id="controle-toelichting" aria-labelledby="hpTrustTitle">
-  <div class="hp-container">
-    <div class="hp-trust-band">
-      <article class="hp-trust-block">
-        <svg class="icon hp-trust-icon" aria-hidden="true"><use href="#i-shield"></use></svg>
-        <h3>Profielen nagekeken</h3>
-        <p>Bedrijfsgegevens en profielen worden beoordeeld vóór publicatie.</p>
-      </article>
-      <article class="hp-trust-block">
-        <svg class="icon hp-trust-icon" aria-hidden="true"><use href="#i-euro"></use></svg>
-        <h3>Prijsinformatie met context</h3>
-        <p>Richtprijzen worden duidelijk onderscheiden van offertes.</p>
-      </article>
-      <article class="hp-trust-block">
-        <svg class="icon hp-trust-icon" aria-hidden="true"><use href="#i-check-circle"></use></svg>
-        <h3>Je gegevens blijven beschermd</h3>
-        <p>Contactgegevens verschijnen niet openbaar en worden niet verkocht.</p>
-      </article>
-    </div>
-    <p class="hp-trust-clarify">ELYAN is geen aannemer en garandeert geen prijs of uitvoering. We helpen je beter geïnformeerd zoeken en aanvragen.</p>
-  </div>
-</section>
-
-<section class="hp-section hp-pros-band" id="voor-vakbedrijven" aria-labelledby="hpBizTitle">
+<section class="hp-section hp-pros-band" id="voor-vakbedrijven" aria-labelledby="hpBizTitle" data-hp-reveal>
   <div class="hp-container hp-pros-cta">
     <div class="hp-pros-copy">
       <p class="hp-pros-eyebrow">Voor vakbedrijven</p>
-      <h2 id="hpBizTitle">Laat klanten zien waar je sterk in bent.</h2>
-      <p class="hp-lead">Maak je bedrijf vindbaar, toon je diensten en bereik relevante aanvragen via ELYAN.</p>
-      <a class="btn btn-primary" href="/partners">Ontdek ELYAN for Professionals <span class="hp-cta-arrow" aria-hidden="true">→</span></a>
-    </div>
-    <div class="hp-pros-visual" aria-hidden="true">
-      <picture>
-        <source type="image/avif" srcset="/assets/photos/elyan-hero-craftsman-v5-sm.avif">
-        <source type="image/webp" srcset="/assets/photos/elyan-hero-craftsman-v5-sm.webp">
-        <img src="/assets/photos/elyan-hero-craftsman-v5-sm.jpg" alt="" width="780" height="520" loading="lazy" decoding="async">
-      </picture>
-    </div>
-  </div>
-</section>
-
-<section class="hp-section hp-final-band" id="start" aria-labelledby="hpFinalTitle">
-  <div class="hp-container">
-    <div class="hp-final">
-      <div class="hp-final-copy">
-        <h2 id="hpFinalTitle">Klaar om je renovatie te starten?</h2>
-      </div>
-      <div class="hp-final-actions">
-        <a class="btn btn-primary btn-lg" href="/vakmannen">Vind een vakman</a>
-        <a class="btn btn-ghost btn-lg" href="#prijsinzicht">Bereken richtprijs</a>
-      </div>
+      <h2 id="hpBizTitle">Laat zien waar je sterk in bent.</h2>
+      <p class="hp-pros-lead">Ontvang renovatieprojecten die passen bij je expertise en werkgebied.</p>
+      <a class="btn btn-primary" href="/partners">Ontdek ELYAN Professionals <span class="hp-cta-arrow" aria-hidden="true">→</span></a>
     </div>
   </div>
 </section>
@@ -441,19 +392,22 @@
       </div>
       <div class="hp-footer-cols">
         <div class="footer-col">
-          <div class="footer-col-title">Platform</div>
+          <div class="footer-col-title">Consument</div>
           <a href="/vakmannen">Vakmannen</a>
           <a href="#prijsinzicht">Prijs berekenen</a>
           <a href="#hoe-elyan-werkt">Hoe ELYAN werkt</a>
         </div>
         <div class="footer-col">
-          <div class="footer-col-title">Over ELYAN</div>
-          <a href="/over-ons.html">Over ons</a>
+          <div class="footer-col-title">Professionals</div>
           <a href="/partners">Voor vakbedrijven</a>
         </div>
         <div class="footer-col">
-          <div class="footer-col-title">Hulp</div>
+          <div class="footer-col-title">Bedrijf</div>
+          <a href="/over-ons.html">Over ELYAN</a>
           <a href="/contact.html">Contact</a>
+        </div>
+        <div class="footer-col">
+          <div class="footer-col-title">Juridisch</div>
           <a href="/privacybeleid.html">Privacy</a>
           <a href="/voorwaarden.html">Voorwaarden</a>
           <a href="/cookiebeleid.html">Cookiebeleid</a>

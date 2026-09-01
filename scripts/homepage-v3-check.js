@@ -18,7 +18,7 @@ assert.ok(h.indexOf('>Locatie<') >= 0, 'label locatie');
 assert.ok(h.indexOf('Kies een vakgebied') >= 0, 'ph');
 assert.ok(h.indexOf('Gemeente of postcode') >= 0, 'loc ph');
 assert.ok(h.indexOf('elyan-hero-craftsman-desktop-now') >= 0, 'desktop asset');
-assert.ok(h.indexOf('elyan-hero-craftsman-workbench-mobile') >= 0, 'mobile asset');
+assert.ok(h.indexOf('elyan-hero-craftsman-mobile-v9') >= 0 || h.indexOf('elyan-hero-craftsman-workbench-mobile') >= 0, 'mobile asset');
 assert.ok(h.indexOf('desktop-2x') < 0, 'no fake 2x');
 assert.ok(h.indexOf('href="/" class="logo"') >= 0, 'logo');
 assert.ok(h.indexOf('Over ELYAN') >= 0, 'nav about');
@@ -32,10 +32,26 @@ assert.ok(js.indexOf('initHeroParallax();') < 0, 'parallax off');
 assert.ok(js.indexOf('initHeroReveal') >= 0, 'reveal');
 assert.ok(js.indexOf('initHeroCueRotate') < 0, 'no cue rotate');
 
-var heroSlice = h.slice(h.indexOf('class="hp-hero"'), h.indexOf('id="vakgebieden"'));
+var heroSlice = h.slice(h.indexOf('class="hp-hero"'), h.indexOf('id="vakbedrijven-bij-elyan"'));
 assert.ok(heroSlice.indexOf('Gecontroleerde vakbedrijven') < 0, 'no trust1');
 assert.ok(heroSlice.indexOf('Persoonlijke opvolging') < 0, 'no trust4');
 assert.ok(heroSlice.indexOf('hp-trust-row') < 0, 'no trust row');
+assert.ok(h.indexOf('id="categorieen"') < 0, 'no category navigator');
+assert.ok(h.indexOf('Waar wil je aan werken?') < 0, 'no category heading');
+assert.ok(h.indexOf('Vakbedrijven bij ELYAN') >= 0, 'professionals title');
+assert.ok(h.indexOf('Uitgelichte') < 0, 'no Uitgelichte wording');
+assert.ok(h.indexOf('hp-final-band') < 0, 'no duplicate final CTA');
+assert.ok(h.indexOf('id="controle-toelichting"') < 0, 'no separate trust section');
+assert.ok(h.indexOf('Meer dan alleen een prijs.') >= 0, 'insight headline');
+assert.ok(h.indexOf('page-summary.png') >= 0, 'real report page');
+assert.ok(h.indexOf('hp-report-card') < 0, 'no fake report dashboard');
+assert.ok((h.match(/Bekijk alle vakbedrijven/g) || []).length === 1, 'single all-pros link');
+assert.ok(js.indexOf('Bekijk profiel') >= 0, 'profile CTA');
+assert.ok(js.indexOf("g.status === 'live'") >= 0, 'google live gate');
+assert.ok(js.indexOf('demoProfessionals') >= 0 || fs.readFileSync('js/demo-professionals.js', 'utf8').indexOf('demoProfessionals') >= 0, 'demo gate');
+assert.ok(js.indexOf('slice(0, MAX_FEATURED)') >= 0, 'demo capped to max featured');
+assert.ok(js.indexOf('setDemoFlag') >= 0, 'external demo flag');
+assert.ok(css.indexOf('hp-pros-band') >= 0 && css.indexOf('var(--hp-cappuccino)') >= 0, 'cappuccino pros band');
 
 var fn = new Function('window', 'document', js + '\n;return window.ElyanHomepageV3;');
 var stubDoc = {

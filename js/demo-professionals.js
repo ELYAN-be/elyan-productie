@@ -50,12 +50,12 @@
     if (band.onRequest) {
       return {
         priceLine: 'Prijsinformatie beschikbaar',
-        priceContext: 'Prijsindicatie voor ' + band.label + ' · ELYAN marktindicatie · geen offerte'
+        priceContext: 'ELYAN marktindicatie · geen offerte'
       };
     }
     return {
       priceLine: band.range,
-      priceContext: 'Prijsindicatie voor ' + band.label + ' · ELYAN marktindicatie · geen offerte'
+      priceContext: 'ELYAN marktindicatie · geen offerte'
     };
   }
 
@@ -76,7 +76,9 @@
       specialtyLine: specialtyLine,
       serviceAreaText: def.location,
       availabilityLabel: def.availability || '',
-      ratingLabel: def.rating || '',
+      /* Demo ratings are never Google and never shown as Google on the homepage. */
+      ratingLabel: '',
+      google: null,
       priceLine: price.priceLine,
       priceContext: price.priceContext,
       coverUrl: def.coverUrl,

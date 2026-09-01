@@ -361,13 +361,16 @@
     var isDemo = !!(card && (card.is_demo || card._localPreview));
 
     if (isDemo && rawLine) {
-      return { price: rawLine, context: rawContext };
+      return {
+        price: rawLine,
+        context: rawContext || 'ELYAN marktindicatie · geen offerte'
+      };
     }
 
     if (rawLine && rawLine !== 'Prijs op aanvraag') {
       return {
         price: rawLine,
-        context: rawContext || 'Prijsindicatie · geen offerte'
+        context: rawContext || 'ELYAN marktindicatie · geen offerte'
       };
     }
 
@@ -375,6 +378,36 @@
       price: 'Prijsinformatie beschikbaar',
       context: 'Bekijk prijscontext →'
     };
+  }
+
+  /**
+   * Google reviews only when API proves live Google data.
+   * Never treat demo/synthetic ratingLabel as Google.
+   */
+  function googleReviewHtml(card) {
+    var g = card && card.google;
+    if (
+      !(
+        g &&
+        g.show &&
+        g.status === 'live' &&
+        !g.demo &&
+        g.rating != null &&
+        g.count != null
+      )
+    ) {
+      return '';
+    }
+    var rating = String(g.rating).replace('.', ',');
+    var count = String(g.count);
+    return (
+      '<p class="hp-pro-rating" data-review-state="live">' +
+      '★ ' +
+      escapeHtml(rating) +
+      ' · ' +
+      escapeHtml(count) +
+      ' Google-beoordelingen</p>'
+    );
   }
 
   function cardHtml(card) {
@@ -387,7 +420,7 @@
     var specialty = escapeHtml(card.specialtyLine || '');
     var area = escapeHtml(card.serviceAreaText || '');
     var avail = escapeHtml(card.availabilityLabel || '');
-    var rating = escapeHtml(card.ratingLabel || '');
+    var googleHtml = googleReviewHtml(card);
     var priced = resolvePriceDisplay(card);
     var price = escapeHtml(priced.price);
     var priceContext = escapeHtml(priced.context);
@@ -398,8 +431,8 @@
       : '<span aria-hidden="true">ELYAN</span>';
 
     var metaSecondary = [];
+    if (googleHtml) metaSecondary.push(googleHtml);
     if (area) metaSecondary.push('<p class="hp-pro-meta hp-pro-loc">' + area + '</p>');
-    if (rating) metaSecondary.push('<p class="hp-pro-rating">' + rating + '</p>');
     if (avail) metaSecondary.push('<p class="hp-pro-meta hp-pro-avail">' + avail + '</p>');
 
     return (
@@ -425,16 +458,25 @@
       '</span>' +
       (priceContext ? '<span class="hp-pro-price-context">' + priceContext + '</span>' : '') +
       '</div>' +
-      '<span class="hp-pro-cta">Bekijk vakman <span aria-hidden="true">→</span></span>' +
+      '<span class="hp-pro-cta">Bekijk profiel <span aria-hidden="true">→</span></span>' +
       '</div>' +
       '</a>' +
       '</article>'
     );
   }
 
-  function setPreviewNote(visible) {
-    var note = $('#hpProPreviewNote');
-    if (note) note.hidden = !visible;
+  function setDemoFlag(visible) {
+    var flag = $('#hpDemoFlag');
+    if (!flag) {
+      if (!visible) return;
+      flag = document.createElement('p');
+      flag.id = 'hpDemoFlag';
+      flag.className = 'hp-demo-flag';
+      flag.textContent = 'DEMO';
+      flag.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(flag);
+    }
+    flag.hidden = !visible;
   }
 
   function setFeaturedSectionVisible(visible) {
@@ -456,7 +498,7 @@
       if (state === 'ready') grid.innerHTML = html || '';
       else if (state === 'hidden') grid.innerHTML = '';
     }
-    setPreviewNote(!!(isPreview && state === 'ready'));
+    setDemoFlag(!!(isPreview && state === 'ready'));
     setFootVisible(state === 'ready');
     setFeaturedSectionVisible(state === 'loading' || state === 'ready');
   }
@@ -469,7 +511,7 @@
   }
 
   function renderDemoCards(section) {
-    var cards = getDemoCardsSafe();
+    var cards = getDemoCardsSafe().slice(0, MAX_FEATURED);
     var html = cards.map(cardHtml).filter(Boolean).join('');
     if (!html) {
       showProState(section, 'hidden');
@@ -629,12 +671,37 @@
     });
   }
 
+  function initSectionReveal() {
+    var nodes = $all('[data-hp-reveal]');
+    if (!nodes.length) return;
+    if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
+      nodes.forEach(function (el) {
+        el.classList.add('is-inview');
+      });
+      return;
+    }
+    var io = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add('is-inview');
+          io.unobserve(entry.target);
+        });
+      },
+      { rootMargin: '0px 0px -8% 0px', threshold: 0.12 }
+    );
+    nodes.forEach(function (el) {
+      io.observe(el);
+    });
+  }
+
   function init() {
     if (!document.body.classList.contains('hp-v3')) return;
     initMobileNav();
     initSearchForm();
     initReportVisual();
     initHeroReveal();
+    initSectionReveal();
     loadProfessionals();
   }
 
