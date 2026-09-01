@@ -1589,13 +1589,15 @@ body.hp-v3 .hp-hero-photo img {
    ============================================================ */
 
 body.hp-v3 {
-  /* Warm olive-grey with stone undertone — lighter, not charcoal */
-  --hp-insight-top: #6e7864;
-  --hp-insight-mid: #67725e;
-  --hp-insight-deep: #606b57;
-  --hp-stone: #F3F0E9;
-  --hp-stone-mid: #ECE8DF;
-  --hp-stone-deep: #E3DDD2;
+  /* Warm neutral below-hero system — olive only as accent */
+  --hp-warm-page: #FAF7F1;
+  --hp-warm-sand: #F3EEE4;
+  --hp-warm-beige: #EBE4D6;
+  --hp-warm-cappuccino: #E2D8C8;
+  --hp-warm-line: rgba(184, 167, 145, 0.42);
+  --hp-stone: #F3EEE4;
+  --hp-stone-mid: #EBE4D6;
+  --hp-stone-deep: #E2D8C8;
 }
 
 body.hp-v3 [data-hp-reveal] {
@@ -1644,9 +1646,9 @@ body.hp-v3 .hp-featured {
   position: relative;
   z-index: 2;
   isolation: isolate;
-  background: #F7F6F2;
-  padding-top: clamp(2.2rem, 4.2vw, 3.2rem);
-  padding-bottom: clamp(2.6rem, 4.8vw, 3.8rem);
+  background: var(--hp-warm-page);
+  padding-top: clamp(2.35rem, 4.4vw, 3.4rem);
+  padding-bottom: clamp(2.7rem, 5vw, 3.9rem);
 }
 
 body.hp-v3 .hp-featured::before {
@@ -1980,24 +1982,18 @@ body.hp-v3 .hp-featured-foot {
   }
 }
 
-/* ---- Renovatie-inzicht: clean warm olive + report-led (no haze) ---- */
+/* ---- Renovatie-inzicht: warm sand / off-white — olive accent only ---- */
 body.hp-v3 .hp-insight {
   position: relative;
   z-index: 2;
   isolation: isolate;
-  background: linear-gradient(
-    165deg,
-    var(--hp-insight-top) 0%,
-    var(--hp-insight-mid) 52%,
-    var(--hp-insight-deep) 100%
-  );
-  color: #f7f4ee;
+  background: var(--hp-warm-sand);
+  color: var(--hp-ink);
   overflow: clip;
-  padding-top: clamp(2.6rem, 5vw, 4rem);
-  padding-bottom: clamp(2.6rem, 5vw, 4rem);
+  padding-top: clamp(2.7rem, 5vw, 4.1rem);
+  padding-bottom: clamp(2.7rem, 5vw, 4.1rem);
 }
 
-/* No mist / blur / veil between featured and insight */
 body.hp-v3 .hp-insight::before {
   content: none;
   display: none;
@@ -2005,7 +2001,7 @@ body.hp-v3 .hp-insight::before {
 
 body.hp-v3 .hp-insight-grid {
   display: grid;
-  gap: 1.5rem 2rem;
+  gap: 1.6rem 2rem;
   align-items: start;
   grid-template-columns: 1fr;
   grid-template-areas:
@@ -2034,50 +2030,51 @@ body.hp-v3 .hp-insight-eyebrow {
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: rgba(255, 252, 245, 0.78);
+  color: var(--hp-olive-dark);
 }
 
 body.hp-v3 .hp-insight-intro h2 {
-  color: #fffef9;
+  color: var(--hp-ink);
   font-size: clamp(1.65rem, 3vw, 2.35rem);
   max-width: 14ch;
   margin: 0 0 0.65rem;
+  letter-spacing: -0.025em;
 }
 
 body.hp-v3 .hp-insight-lead {
   margin: 0;
-  max-width: 36ch;
+  max-width: 38ch;
   font-size: 1.02rem;
-  line-height: 1.5;
-  color: rgba(255, 252, 245, 0.92);
+  line-height: 1.55;
+  color: var(--hp-ink-soft);
 }
 
 body.hp-v3 .hp-insight-benefits {
   list-style: none;
-  margin: 0 0 1.25rem;
+  margin: 0 0 1.35rem;
   padding: 0;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0.4rem 0.9rem;
+  gap: 0.5rem 1rem;
 }
 
 body.hp-v3 .hp-insight-benefits li {
   position: relative;
   padding-left: 1.05rem;
-  font-size: 0.88rem;
-  line-height: 1.35;
-  color: rgba(255, 252, 245, 0.92);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: var(--hp-ink);
 }
 
 body.hp-v3 .hp-insight-benefits li::before {
   content: '';
   position: absolute;
   left: 0;
-  top: 0.42em;
-  width: 0.4rem;
-  height: 0.4rem;
+  top: 0.48em;
+  width: 0.38rem;
+  height: 0.38rem;
   border-radius: 999px;
-  background: rgba(233, 226, 212, 0.9);
+  background: var(--hp-olive);
 }
 
 @media (max-width: 899px) {
@@ -2090,8 +2087,14 @@ body.hp-v3 .hp-insight-benefits li::before {
   }
 
   body.hp-v3 .hp-report-visual {
-    width: min(100%, 280px);
-    margin: 0.15rem 0 0.35rem;
+    width: min(100%, 286px);
+    margin: 0.2rem 0 0.45rem;
+  }
+
+  body.hp-v3 .hp-insight {
+    background: var(--hp-warm-sand);
+    padding-top: 2.85rem;
+    padding-bottom: 2.95rem;
   }
 }
 
@@ -2099,7 +2102,7 @@ body.hp-v3 .hp-insight-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.7rem;
+  gap: 0.8rem;
 }
 
 body.hp-v3 .hp-insight-cta {
@@ -2107,12 +2110,12 @@ body.hp-v3 .hp-insight-cta {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
-  min-height: 48px;
-  padding: 0.7rem 1.25rem;
+  min-height: 50px;
+  padding: 0.75rem 1.35rem;
   border: 0;
   border-radius: 999px;
-  background: #fff;
-  color: var(--hp-olive-dark);
+  background: var(--hp-olive);
+  color: #fff;
   font: inherit;
   font-size: 0.95rem;
   font-weight: 650;
@@ -2122,7 +2125,7 @@ body.hp-v3 .hp-insight-cta {
 
 body.hp-v3 .hp-insight-cta:hover,
 body.hp-v3 .hp-insight-cta:focus-visible {
-  background: var(--hp-ivory);
+  background: var(--hp-olive-dark);
   outline: none;
 }
 
@@ -2130,25 +2133,27 @@ body.hp-v3 .hp-insight-secondary {
   appearance: none;
   border: 0;
   background: transparent;
-  padding: 0;
-  color: rgba(255, 255, 255, 0.75);
+  padding: 0.15rem 0;
+  min-height: 44px;
+  color: var(--hp-olive-dark);
   font: inherit;
-  font-size: 0.88rem;
-  font-weight: 600;
+  font-size: 0.9rem;
+  font-weight: 650;
   cursor: pointer;
   text-decoration: underline;
-  text-underline-offset: 0.18em;
+  text-underline-offset: 0.2em;
 }
 
 body.hp-v3 .hp-insight-secondary:hover,
 body.hp-v3 .hp-insight-secondary:focus-visible {
-  color: #fff;
+  color: var(--hp-olive);
 }
 
 body.hp-v3 .hp-insight-disclaimer {
-  margin: 1rem 0 0;
+  margin: 1.05rem 0 0;
   font-size: 0.76rem;
-  color: rgba(255, 255, 255, 0.55);
+  line-height: 1.45;
+  color: rgba(92, 94, 86, 0.85);
 }
 
 body.hp-v3 .hp-report-stack {
@@ -2160,11 +2165,11 @@ body.hp-v3 .hp-report-stack {
 body.hp-v3 .hp-report-page {
   position: absolute;
   inset: 0;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
   background: var(--hp-ivory);
-  border: 1px solid rgba(255, 255, 255, 0.28);
-  box-shadow: 0 18px 40px rgba(40, 46, 34, 0.22);
+  border: 1px solid rgba(184, 167, 145, 0.45);
+  box-shadow: 0 14px 36px rgba(47, 49, 43, 0.1);
   transition: transform 0.4s ease;
 }
 
@@ -2177,11 +2182,11 @@ body.hp-v3 .hp-report-page img {
 }
 
 body.hp-v3 .hp-report-page--back {
-  transform: translate(18px, -12px) rotate(3.2deg);
+  transform: translate(16px, -10px) rotate(2.8deg);
 }
 
 body.hp-v3 .hp-report-page--mid {
-  transform: translate(8px, -5px) rotate(1.4deg);
+  transform: translate(7px, -4px) rotate(1.2deg);
 }
 
 body.hp-v3 .hp-report-page--front {
@@ -2190,10 +2195,10 @@ body.hp-v3 .hp-report-page--front {
 
 @media (hover: hover) and (pointer: fine) {
   body.hp-v3 .hp-report-visual:hover .hp-report-page--back {
-    transform: translate(22px, -16px) rotate(4deg);
+    transform: translate(20px, -14px) rotate(3.5deg);
   }
   body.hp-v3 .hp-report-visual:hover .hp-report-page--mid {
-    transform: translate(10px, -7px) rotate(1.8deg);
+    transform: translate(9px, -6px) rotate(1.6deg);
   }
 }
 
@@ -2204,7 +2209,7 @@ body.hp-v3 .hp-report-page--front {
       'intro visual'
       'detail visual';
     column-gap: 2.75rem;
-    row-gap: 1.1rem;
+    row-gap: 1.15rem;
     align-items: center;
   }
 
@@ -2228,29 +2233,30 @@ body.hp-v3 .hp-report-page--front {
 
 /* ---- Zo werkt ELYAN ---- */
 body.hp-v3 .hp-section--process {
-  background: #F7F6F2;
-  padding-top: clamp(2.6rem, 5vw, 3.6rem);
-  padding-bottom: clamp(2.6rem, 5vw, 3.6rem);
+  background: var(--hp-warm-page);
+  padding-top: clamp(2.7rem, 5vw, 3.7rem);
+  padding-bottom: clamp(2.7rem, 5vw, 3.7rem);
 }
 
 body.hp-v3 .hp-section--process .hp-section-head {
-  margin-bottom: 1.55rem;
+  margin-bottom: 1.6rem;
 }
 
 body.hp-v3 .hp-section--process .hp-section-head h2 {
   font-size: clamp(1.55rem, 2.6vw, 1.95rem);
   letter-spacing: -0.025em;
+  color: var(--hp-ink);
 }
 
 body.hp-v3 .hp-steps {
   display: grid;
-  gap: 1.45rem;
+  gap: 1.5rem;
 }
 
 body.hp-v3 .hp-step {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.95rem;
+  gap: 1rem;
   align-items: start;
 }
 
@@ -2297,10 +2303,10 @@ body.hp-v3 .hp-step-connector {
 }
 
 body.hp-v3 .hp-how-clarify {
-  margin: 1.75rem auto 0;
+  margin: 1.8rem auto 0;
   max-width: 40rem;
-  padding-top: 1.1rem;
-  border-top: 1px solid rgba(63, 74, 50, 0.12);
+  padding-top: 1.15rem;
+  border-top: 1px solid var(--hp-warm-line);
   text-align: center;
   font-size: 0.74rem;
   line-height: 1.5;
@@ -2309,13 +2315,13 @@ body.hp-v3 .hp-how-clarify {
 
 @media (max-width: 899px) {
   body.hp-v3 .hp-section--process {
-    background: #F8F7F3;
-    padding-top: 2.85rem;
-    padding-bottom: 2.95rem;
+    background: var(--hp-warm-page);
+    padding-top: 2.9rem;
+    padding-bottom: 3rem;
   }
 
   body.hp-v3 .hp-section--process .hp-section-head {
-    margin-bottom: 1.85rem;
+    margin-bottom: 1.9rem;
   }
 
   body.hp-v3 .hp-section--process .hp-section-head h2 {
@@ -2324,7 +2330,7 @@ body.hp-v3 .hp-how-clarify {
   }
 
   body.hp-v3 .hp-steps {
-    gap: 1.85rem;
+    gap: 1.9rem;
   }
 
   body.hp-v3 .hp-step {
@@ -2336,7 +2342,7 @@ body.hp-v3 .hp-how-clarify {
   }
 
   body.hp-v3 .hp-how-clarify {
-    margin-top: 2rem;
+    margin-top: 2.05rem;
     text-align: left;
     max-width: none;
   }
@@ -2365,11 +2371,11 @@ body.hp-v3 .hp-how-clarify {
   }
 }
 
-/* ---- Voor vakbedrijven: clean stone wash (desktop + mobile) ---- */
+/* ---- Voor vakbedrijven: soft cappuccino accent band ---- */
 body.hp-v3 .hp-pros-band {
-  background: linear-gradient(180deg, var(--hp-stone) 0%, var(--hp-stone-mid) 100%);
-  padding-top: clamp(2.5rem, 4.5vw, 3.2rem);
-  padding-bottom: clamp(2.5rem, 4.5vw, 3.2rem);
+  background: var(--hp-warm-beige);
+  padding-top: clamp(2.6rem, 4.6vw, 3.3rem);
+  padding-bottom: clamp(2.6rem, 4.6vw, 3.3rem);
 }
 
 body.hp-v3 .hp-pros-cta {
@@ -2391,12 +2397,12 @@ body.hp-v3 .hp-pros-copy h2 {
   color: var(--hp-ink);
   font-size: clamp(1.4rem, 2.4vw, 1.8rem);
   max-width: 16ch;
-  margin: 0 0 0.65rem;
+  margin: 0 0 0.7rem;
   letter-spacing: -0.02em;
 }
 
 body.hp-v3 .hp-pros-lead {
-  margin: 0 0 1.35rem;
+  margin: 0 0 1.4rem;
   font-size: 1rem;
   line-height: 1.5;
   color: rgba(47, 49, 43, 0.76);
@@ -2405,9 +2411,9 @@ body.hp-v3 .hp-pros-lead {
 
 @media (max-width: 899px) {
   body.hp-v3 .hp-pros-band {
-    background: #F3F1EB;
-    padding-top: 2.9rem;
-    padding-bottom: 3rem;
+    background: var(--hp-warm-beige);
+    padding-top: 2.95rem;
+    padding-bottom: 3.05rem;
   }
 
   body.hp-v3 .hp-pros-eyebrow {
@@ -2415,7 +2421,7 @@ body.hp-v3 .hp-pros-lead {
   }
 
   body.hp-v3 .hp-pros-copy h2 {
-    margin-bottom: 0.8rem;
+    margin-bottom: 0.85rem;
     font-size: 1.48rem;
   }
 
@@ -2427,8 +2433,8 @@ body.hp-v3 .hp-pros-lead {
 
 /* ---- Footer: shared warm neutral ---- */
 body.hp-v3 .hp-footer {
-  background: var(--hp-stone-mid);
-  border-top: 1px solid rgba(184, 167, 145, 0.38);
+  background: var(--hp-warm-cappuccino);
+  border-top: 1px solid var(--hp-warm-line);
   padding: 2.4rem 0 1.6rem;
 }
 

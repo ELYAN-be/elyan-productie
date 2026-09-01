@@ -56,9 +56,10 @@ assert.ok(demo.indexOf('isSafeDemoHost') >= 0, 'safe demo host');
 assert.ok(demo.indexOf('demoRating') >= 0, 'demo ratings');
 assert.ok(demo.indexOf("DEMO_COUNT: DEMO_PROFESSIONALS.length") >= 0 || demo.indexOf('DEMO_COUNT') >= 0, 'demo count');
 assert.ok(js.indexOf('slice(0, MAX_FEATURED)') >= 0, 'demo capped to max featured');
-assert.ok(css.indexOf('--hp-insight-deep') >= 0, 'muted insight tokens');
-assert.ok(css.indexOf('var(--hp-stone)') >= 0, 'shared stone token');
-assert.ok(css.indexOf('hp-pros-band') >= 0 && css.indexOf('var(--hp-stone)') >= 0, 'stone pros band');
+assert.ok(css.indexOf('--hp-warm-sand') >= 0, 'warm sand token');
+assert.ok(css.indexOf('--hp-warm-page') >= 0, 'warm page token');
+assert.ok(css.indexOf('var(--hp-warm-sand)') >= 0, 'insight warm sand bg');
+assert.ok(css.indexOf('hp-pros-band') >= 0 && css.indexOf('var(--hp-warm-beige)') >= 0, 'warm beige pros band');
 assert.ok(css.indexOf('content: none') >= 0 || css.indexOf('hp-insight::before') >= 0, 'insight haze disabled');
 
 var fn = new Function('window', 'document', js + '\n;return window.ElyanHomepageV3;');
