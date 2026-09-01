@@ -58,7 +58,8 @@ assert.ok(demo.indexOf("DEMO_COUNT: DEMO_PROFESSIONALS.length") >= 0 || demo.ind
 assert.ok(js.indexOf('slice(0, MAX_FEATURED)') >= 0, 'demo capped to max featured');
 assert.ok(css.indexOf('--hp-insight-deep') >= 0, 'muted insight tokens');
 assert.ok(css.indexOf('var(--hp-stone)') >= 0, 'shared stone token');
-assert.ok(css.indexOf('hp-pros-band') >= 0 && css.indexOf('var(--hp-cappuccino)') >= 0, 'cappuccino pros band');
+assert.ok(css.indexOf('hp-pros-band') >= 0 && css.indexOf('var(--hp-stone)') >= 0, 'stone pros band');
+assert.ok(css.indexOf('content: none') >= 0 || css.indexOf('hp-insight::before') >= 0, 'insight haze disabled');
 
 var fn = new Function('window', 'document', js + '\n;return window.ElyanHomepageV3;');
 var stubDoc = {
