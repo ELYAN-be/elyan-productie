@@ -1186,8 +1186,8 @@ body.hp-v3 .hp-hero-photo img {
 
   body.hp-v3 .hp-hero-photo img {
     object-fit: cover;
-    /* Center-right craftsman; less empty left wall; no extra zoom */
-    object-position: 68% 30%;
+    /* Balanced craftsman frame from portrait extract — no extra zoom */
+    object-position: 50% 28%;
     transform: none;
     opacity: 1;
     filter: none;
@@ -1196,7 +1196,7 @@ body.hp-v3 .hp-hero-photo img {
     z-index: 0;
   }
 
-  /* Overlay: very light text-side wash only — no muddy full-image darkening */
+  /* Subtle text-side wash only — photo stays natural and clear */
   body.hp-v3 .hp-hero-photo::after {
     content: '';
     position: absolute;
@@ -1206,20 +1206,27 @@ body.hp-v3 .hp-hero-photo img {
     background:
       linear-gradient(
         105deg,
-        rgba(28, 30, 26, 0.28) 0%,
-        rgba(28, 30, 26, 0.10) 30%,
-        rgba(28, 30, 26, 0.03) 48%,
-        transparent 58%
+        rgba(28, 30, 26, 0.34) 0%,
+        rgba(28, 30, 26, 0.14) 28%,
+        rgba(28, 30, 26, 0.04) 48%,
+        transparent 60%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        transparent 62%,
+        rgba(28, 30, 26, 0.08) 82%,
+        rgba(28, 30, 26, 0.18) 100%
       );
   }
 
-  /* Copy + card sit higher inside the photo for one integrated composition */
+  /* Copy overlaps photo; search rides the lower edge — text Y kept while stage grows */
   body.hp-v3 .hp-hero-copy {
     position: relative;
     z-index: 3;
     max-width: none;
     width: auto;
-    margin-top: -30.5rem;
+    margin-top: -27.25rem;
     padding: 0 1.25rem 0;
     box-sizing: border-box;
   }
@@ -1270,7 +1277,7 @@ body.hp-v3 .hp-hero-photo img {
 
   body.hp-v3 .hp-search {
     width: 100%;
-    margin-top: 0.85rem;
+    margin-top: 1.15rem;
     position: relative;
     z-index: 4;
   }
@@ -1528,7 +1535,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -31.25rem;
+    margin-top: -28rem;
   }
 
   body.hp-v3 .hp-hero h1 {
@@ -1537,7 +1544,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-photo img {
-    object-position: 66% 28%;
+    object-position: 50% 26%;
   }
 }
 
@@ -1548,7 +1555,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -29rem;
+    margin-top: -26rem;
     padding: 0 1.1rem;
   }
 
