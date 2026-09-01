@@ -1153,7 +1153,7 @@ body.hp-v3 .hp-hero-photo img {
   /* Mobile header + hero search card — neutral mineral parity (color only) */
   body.hp-v3 .site-header,
   body.hp-v3 .site-header.scrolled {
-    background: rgba(247, 247, 245, 0.96);
+    background: rgba(242, 242, 240, 0.96);
     border-bottom-color: rgba(100, 102, 98, 0.14);
   }
 
@@ -1318,7 +1318,7 @@ body.hp-v3 .hp-hero-photo img {
     height: auto;
     padding: 0.9rem 1rem 0.95rem;
     border-radius: 26px;
-    background: #F7F7F5;
+    background: #F2F2F0;
     border: 1px solid rgba(100, 102, 98, 0.16);
     box-shadow:
       0 1px 0 rgba(255, 255, 255, 0.7) inset,
@@ -2450,7 +2450,7 @@ body.hp-v3 .hp-how-clarify {
 
   body.hp-v3 .site-header,
   body.hp-v3 .site-header.scrolled {
-    background: rgba(247, 247, 245, 0.96);
+    background: rgba(242, 242, 240, 0.96);
     border-bottom-color: rgba(100, 102, 98, 0.14);
   }
 
