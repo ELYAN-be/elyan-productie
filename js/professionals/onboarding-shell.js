@@ -39,8 +39,8 @@
     review_hub: {
       id: 'review_hub',
       p: 8,
-      title: 'Review Hub',
-      short: 'Review'
+      title: 'Profielcontrole',
+      short: 'Status'
     }
   };
 
@@ -201,7 +201,7 @@
       return {
         kind: 'start',
         href: href,
-        label: 'Start onboarding',
+        label: 'Start je profiel',
         hint: 'Richt je bedrijfsprofiel in voor ELYAN.'
       };
     }
@@ -217,8 +217,8 @@
       return {
         kind: 'wait_for_review',
         href: stepPath('review_hub'),
-        label: 'Wacht op review',
-        hint: 'Je aanvraag staat bij ELYAN Control. Je kunt de status volgen in Review Hub.'
+        label: 'Wacht op controle',
+        hint: 'Je profiel is ingediend. ELYAN controleert je gegevens voordat je profiel wordt gepubliceerd.'
       };
     }
     if (status === 'changes_requested') {
@@ -226,15 +226,15 @@
         kind: 'changes_requested',
         href: stepPath('review_hub'),
         label: 'Bekijk gevraagde wijzigingen',
-        hint: 'ELYAN vroeg om aanpassingen. Open Review Hub om verder te gaan.'
+        hint: 'ELYAN vroeg om aanpassingen. Los de open punten op en dien opnieuw in.'
       };
     }
     if (status === 'approved') {
       return {
         kind: 'approved',
         href: stepPath('review_hub'),
-        label: 'Onboarding goedgekeurd',
-        hint: 'Je onboarding is goedgekeurd. Bekijk de status in Review Hub.'
+        label: 'Profiel goedgekeurd',
+        hint: 'Je profiel is goedgekeurd. ELYAN publiceert je profiel wanneer alles klaar is.'
       };
     }
     return {
@@ -269,7 +269,7 @@
     if (status === 'submitted') {
       return {
         title: 'Ingediend',
-        body: 'ELYAN bereidt jullie profiel voor. Meestal binnen 3 werkdagen horen jullie meer.'
+        body: 'Je profiel is klaar voor controle. We controleren je gegevens voordat je profiel op ELYAN verschijnt. Je hoeft voorlopig niets meer te doen.'
       };
     }
     if (status === 'changes_requested') {
@@ -281,11 +281,11 @@
     if (status === 'approved') {
       return {
         title: 'Goedgekeurd',
-        body: 'Jullie onboarding is goedgekeurd. Het marketplace-profiel staat klaar voor publicatie door ELYAN.'
+        body: 'Je profiel is goedgekeurd. ELYAN publiceert je profiel wanneer alles klaar is.'
       };
     }
     return {
-      title: 'Review Hub',
+      title: 'Profielcontrole',
       body: 'Dit scherm opent automatisch na indienen.'
     };
   }

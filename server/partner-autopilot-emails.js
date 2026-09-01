@@ -44,13 +44,14 @@ async function sendInterestReceivedEmail(opts) {
   var companyName = opts.companyName || 'je bedrijf';
   var html =
     '<!DOCTYPE html><html lang="nl-BE"><body style="font-family:Arial,Helvetica,sans-serif;color:#14150F;">' +
-    '<h1 style="font-size:18px;">Bedankt voor je interesse in ELYAN</h1>' +
+    '<h1 style="font-size:18px;">We hebben je aanvraag ontvangen</h1>' +
     '<p>We hebben je aanvraag voor <strong>' + escapeHtml(companyName) + '</strong> ontvangen.</p>' +
-    '<p>ELYAN beoordeelt je gegevens en neemt contact op zodra je verder kunt met je bedrijfsprofiel.</p>' +
+    '<p>We controleren je gegevens en sturen je per e-mail de volgende stap om je ELYAN-profiel aan te vullen.</p>' +
+    '<p style="font-size:13px;color:#6E7062;">Je hoeft nu niets meer te doen.</p>' +
   '</body></html>';
   return sendResendEmail({
     to: opts.to,
-    subject: 'ELYAN — interesse ontvangen',
+    subject: 'ELYAN — aanvraag ontvangen',
     html: html
   });
 }
@@ -60,14 +61,15 @@ async function sendContinueProfileEmail(opts) {
   var ctaUrl = opts.passwordSetupUrl || opts.activateUrl;
   var html =
     '<!DOCTYPE html><html lang="nl-BE"><body style="font-family:Arial,Helvetica,sans-serif;color:#14150F;">' +
-    '<h1 style="font-size:18px;">Je aanvraag kan verder</h1>' +
-    '<p>Vul je bedrijfsprofiel aan voor <strong>' + escapeHtml(companyName) + '</strong> zodat ELYAN je diensten, werkgebied, beschikbaarheid en prijsinformatie correct kan presenteren.</p>' +
+    '<h1 style="font-size:18px;">Vervolledig je ELYAN-profiel</h1>' +
+    '<p>Je kunt je bedrijfsprofiel nu verder aanvullen voor <strong>' + escapeHtml(companyName) + '</strong>.</p>' +
+    '<p>We begeleiden je stap voor stap door je werkzaamheden, werkgebied, beschikbaarheid en profielinformatie.</p>' +
     '<p style="margin:24px 0;"><a href="' + escapeHtml(ctaUrl) + '" style="display:inline-block;background:#3F4A32;color:#fff;padding:12px 20px;text-decoration:none;border-radius:6px;">Vervolledig je profiel →</a></p>' +
     '<p style="font-size:13px;color:#6E7062;">Deze link is persoonlijk. Deel hem niet met anderen.</p>' +
   '</body></html>';
   return sendResendEmail({
     to: opts.to,
-    subject: 'ELYAN — vervolledig je bedrijfsprofiel',
+    subject: 'ELYAN — vervolledig je ELYAN-profiel',
     html: html
   });
 }
@@ -78,9 +80,10 @@ async function sendProfilePublishedEmail(opts) {
   var dashboardUrl = opts.dashboardUrl || profileUrl;
   var html =
     '<!DOCTYPE html><html lang="nl-BE"><body style="font-family:Arial,Helvetica,sans-serif;color:#14150F;">' +
-    '<h1 style="font-size:18px;">Je ELYAN-profiel is gepubliceerd</h1>' +
-    '<p>Het profiel van <strong>' + escapeHtml(companyName) + '</strong> staat nu live op ELYAN.</p>' +
-    '<p style="margin:24px 0;"><a href="' + escapeHtml(dashboardUrl) + '" style="display:inline-block;background:#3F4A32;color:#fff;padding:12px 20px;text-decoration:none;border-radius:6px;">Naar je dashboard →</a></p>' +
+    '<h1 style="font-size:18px;">Je ELYAN-profiel staat live</h1>' +
+    '<p>Het profiel van <strong>' + escapeHtml(companyName) + '</strong> staat nu op ELYAN.</p>' +
+    '<p style="margin:24px 0;"><a href="' + escapeHtml(profileUrl) + '" style="display:inline-block;background:#3F4A32;color:#fff;padding:12px 20px;text-decoration:none;border-radius:6px;">Bekijk mijn profiel →</a></p>' +
+    '<p style="margin:16px 0;"><a href="' + escapeHtml(dashboardUrl) + '" style="color:#3F4A32;">Naar aanvragen →</a></p>' +
   '</body></html>';
   return sendResendEmail({
     to: opts.to,

@@ -734,6 +734,9 @@
       } else if (sp.max_price != null && sp.min_price != null && sp.max_price < sp.min_price) {
         errors[prefix + 'max'] = 'Maximum moet minstens het minimum zijn.';
       }
+      if (sp.public_consent !== true && sp.public_consent !== false) {
+        errors[prefix + 'consent'] = 'Kies of deze prijsindicatie publiek mag worden getoond.';
+      }
     });
 
     if (!offer.vat_basis || enumId(VAT_BASIS_OPTIONS, offer.vat_basis) == null) {

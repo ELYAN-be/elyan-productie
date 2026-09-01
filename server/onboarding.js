@@ -21,6 +21,7 @@ var {
   draftHelpers
 } = require('./onboarding-model');
 var { mapAsset, sortAssets } = require('./assets');
+var { maybeSeedOnboardingFromInterest } = require('./partner-autopilot/interest-seed');
 
 async function ensureRows(admin, partnerId) {
   var { error: oErr } = await admin.from('partner_onboarding').upsert(
@@ -83,6 +84,11 @@ async function loadOnboarding(admin, partnerId) {
   if (aErr) {
     console.error('assets_load_failed', aErr.message);
     return { ok: false, code: 'server_error' };
+  }
+
+  var seeded = await maybeSeedOnboardingFromInterest(admin, partnerId, onboarding);
+  if (seeded.ok && seeded.onboarding) {
+    onboarding = seeded.onboarding;
   }
 
   return {

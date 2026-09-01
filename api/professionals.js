@@ -27,6 +27,7 @@ var {
 } = require('../server/partner-request-responses');
 var { evaluateAutopilotReadiness } = require('../server/partner-autopilot/readiness');
 var { composeProfileFromDraft } = require('../server/partner-autopilot/profile-composer');
+var intelligence = require('../shared/vakmannen/intelligence');
 var {
   getAssets,
   uploadAsset,
@@ -475,7 +476,14 @@ async function handlePartnerAvailabilitySave(req, res, body) {
     if (!current.ok) return respondOnboarding(res, current);
     var draft = current.draft || {};
     draft.offer = draft.offer || {};
-    if (body && body.capacity != null) draft.offer.capacity = String(body.capacity);
+    if (body && body.capacity != null) {
+      var cap = String(body.capacity);
+      var allowed = (intelligence.CAPACITY_OPTIONS || []).map(function (o) { return o.id; });
+      if (allowed.indexOf(cap) < 0) {
+        return errorJson(res, 400, 'invalid_capacity');
+      }
+      draft.offer.capacity = cap;
+    }
     if (body && body.startMonth != null) draft.offer.start_month = String(body.startMonth);
     var saved = await saveOnboarding({
       partnerId: ctx.partner.id,

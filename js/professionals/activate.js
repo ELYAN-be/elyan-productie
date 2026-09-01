@@ -11,6 +11,15 @@
     return new URLSearchParams(location.search).get('token') || '';
   }
 
+  async function redirectAfterActivate() {
+    var sessionRes = await EP.apiFetch('session');
+    if (sessionRes.ok && sessionRes.body.memberships && sessionRes.body.memberships.length) {
+      var partnerId = sessionRes.body.memberships[0].partnerId || sessionRes.body.memberships[0].partner.id;
+      return EP.resolveProfessionalsHome(partnerId, null);
+    }
+    return '/professionals/onboarding';
+  }
+
   async function loadPreview() {
     var token = tokenFromUrl();
     if (!token) {
@@ -24,7 +33,8 @@
       if (body && (body.error === 'invite_used' || body.error === 'invite_invalid')) {
         var sessionRes = await EP.apiFetch('session');
         if (sessionRes.ok && sessionRes.body.memberships && sessionRes.body.memberships.length) {
-          location.replace('/professionals/dashboard');
+          var dest = await redirectAfterActivate();
+          location.replace(dest);
           return null;
         }
       }
@@ -63,7 +73,8 @@
           var sessionRes = await EP.apiFetch('session');
           if (sessionRes.ok && sessionRes.body.memberships && sessionRes.body.memberships.length) {
             EP.setStatus(status, 'Lidmaatschap al geactiveerd. Je wordt doorgestuurd…', 'ok');
-            location.replace('/professionals/dashboard');
+            var destDup = await redirectAfterActivate();
+            location.replace(destDup);
             return;
           }
         }
@@ -71,9 +82,10 @@
         return;
       }
       EP.setStatus(status, 'Lidmaatschap geactiveerd. Je wordt doorgestuurd…', 'ok');
-      location.replace('/professionals/dashboard');
+      var dest = await redirectAfterActivate();
+      location.replace(dest);
     } catch (err) {
-      EP.setStatus(status, err.message || 'Er ging iets mis.', 'error');
+      EP.setStatus(status, 'Er ging iets mis.', 'error');
     } finally {
       claiming = false;
       claimBtn.disabled = false;

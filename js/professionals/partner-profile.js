@@ -31,7 +31,7 @@
       var issues = (res.body.issues || []).map(function (i) { return '<li>' + esc(i.message) + '</li>'; }).join('');
       body.innerHTML =
         '<div class="prof-card">' +
-        '<h2>Preview</h2>' +
+        '<h2>Zo verschijnt je bedrijf op ELYAN</h2>' +
         (p.introduction ? '<p><strong>' + esc(p.introduction) + '</strong></p>' : '') +
         (p.description ? '<p>' + esc(p.description) + '</p>' : '') +
         (p.workAreaCopy ? '<p class="lab-hint">Werkgebied: ' + esc(p.workAreaCopy) + '</p>' : '') +

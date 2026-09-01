@@ -66,7 +66,16 @@
 
   function redirectAfterPasswordUpdate(inviteToken, next, claimed) {
     if (claimed) {
-      location.replace('/professionals/dashboard');
+      EP.apiFetch('session').then(function (sessionRes) {
+        if (sessionRes.ok && sessionRes.body.memberships && sessionRes.body.memberships.length) {
+          var partnerId = sessionRes.body.memberships[0].partnerId || sessionRes.body.memberships[0].partner.id;
+          EP.resolveProfessionalsHome(partnerId, null).then(function (dest) {
+            location.replace(dest);
+          });
+          return;
+        }
+        location.replace('/professionals/onboarding');
+      });
       return;
     }
     if (inviteToken) {
@@ -172,7 +181,7 @@
           redirecting = true;
           var claimedOnFail = !!(setupRes.body && setupRes.body.claimed);
           var nextAfterLogin = claimedOnFail
-            ? '/professionals/dashboard'
+            ? '/professionals/onboarding'
             : '/professionals/activate?token=' + inviteToken;
           setTimeout(function () {
             location.replace('/professionals/login?next=' + encodeURIComponent(nextAfterLogin));

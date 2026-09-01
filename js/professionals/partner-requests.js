@@ -12,14 +12,17 @@
   }
 
   function statusLabel(status) {
-    if (status === 'interested') return 'Interesse gemeld';
+    if (status === 'interested') return 'Interesse doorgegeven';
     if (status === 'declined') return 'Niet voor mij';
     return 'Nieuw';
   }
 
   function renderList(items) {
     if (!items.length) {
-      return '<div class="prof-card prof-empty"><p>Geen nieuwe aanvragen op dit moment.</p><p class="lab-hint">Zodra ELYAN een passende aanvraag voor je heeft, verschijnt die hier.</p></div>';
+      return '<div class="prof-card prof-empty">' +
+        '<p>Nog geen nieuwe aanvragen.</p>' +
+        '<p class="lab-hint">Nieuwe aanvragen die passen bij je bedrijf verschijnen hier.</p>' +
+        '</div>';
     }
     return '<div class="prof-request-list">' + items.map(function (item) {
       return '<article class="prof-card prof-request-card" data-request-id="' + esc(item.id) + '">' +
@@ -32,25 +35,31 @@
   }
 
   function renderDetail(req) {
+    var responded = req.responseStatus === 'interested' || req.responseStatus === 'declined';
     return '<div class="prof-card">' +
       '<button type="button" class="btn btn-ghost btn-sm" id="reqBack">← Terug</button>' +
-      '<h2>' + esc(req.title) + '</h2>' +
+      '<h2>Past dit project bij je?</h2>' +
+      '<p class="prof-request-detail-title">' + esc(req.title) + '</p>' +
       (req.message ? '<p class="prof-request-detail">' + esc(req.message) + '</p>' : '') +
-      '<div class="prof-actions prof-actions-stack">' +
-      '<button type="button" class="btn btn-primary" id="reqInterested" data-id="' + esc(req.id) + '">Interesse</button>' +
-      '<button type="button" class="btn" id="reqDecline" data-id="' + esc(req.id) + '">Niet voor mij</button>' +
-      '</div>' +
+      (responded
+        ? '<p class="prof-status is-success">' + esc(statusLabel(req.responseStatus)) + '.</p>'
+        : '<div class="prof-actions prof-actions-stack">' +
+          '<button type="button" class="btn btn-primary" id="reqInterested" data-id="' + esc(req.id) + '">Interesse</button>' +
+          '<button type="button" class="btn" id="reqDecline" data-id="' + esc(req.id) + '">Niet voor mij</button>' +
+          '</div>') +
       '<div id="declinePanel" class="prof-decline-panel" hidden>' +
-      '<p class="prof-q-label">Reden (optioneel)</p>' +
+      '<p class="prof-q-label">Mag je aangeven waarom?</p>' +
       '<div class="lab-choice-grid is-2" id="declineReasons">' +
       '<button type="button" class="lab-choice" data-reason="te_ver">Te ver</button>' +
-      '<button type="button" class="lab-choice" data-reason="niet_mijn_werk">Niet mijn type werk</button>' +
       '<button type="button" class="lab-choice" data-reason="geen_beschikbaarheid">Geen beschikbaarheid</button>' +
+      '<button type="button" class="lab-choice" data-reason="niet_mijn_werk">Niet mijn type werk</button>' +
       '<button type="button" class="lab-choice" data-reason="project_grootte">Project te klein/groot</button>' +
       '<button type="button" class="lab-choice" data-reason="andere">Andere</button>' +
       '</div>' +
+      '<div class="prof-actions prof-actions-stack">' +
       '<button type="button" class="btn" id="reqDeclineConfirm">Bevestigen</button>' +
-      '</div>' +
+      '<button type="button" class="btn btn-ghost" id="reqDeclineSkip">Overslaan</button>' +
+      '</div></div>' +
       '<p id="reqStatus" class="prof-status" hidden></p>' +
       '</div>';
   }
@@ -89,6 +98,12 @@
         respond('declined', state.declineReason);
       });
     }
+    var skip = EP.$('#reqDeclineSkip');
+    if (skip) {
+      skip.addEventListener('click', function () {
+        respond('declined', null);
+      });
+    }
   }
 
   async function respond(response, declineReason) {
@@ -100,10 +115,14 @@
         body: { requestId: state.selectedId, response: response, declineReason: declineReason }
       });
       if (!res.ok || !res.body.ok) throw new Error('Kon reactie niet opslaan.');
-      EP.setStatus(statusEl, response === 'interested' ? 'Interesse opgeslagen.' : 'Aanvraag afgewezen.', 'success');
+      var msg = response === 'interested'
+        ? 'Interesse doorgegeven. ELYAN heeft je reactie geregistreerd.'
+        : 'Reactie opgeslagen.';
+      EP.setStatus(statusEl, msg, 'success');
       await loadRequests();
+      setTimeout(function () { openRequest(state.selectedId); }, 400);
     } catch (e) {
-      EP.setStatus(statusEl, e.message || 'Er ging iets mis.', 'error');
+      EP.setStatus(statusEl, e.message || 'Er ging iets mis. Probeer opnieuw.', 'error');
     }
   }
 
@@ -157,6 +176,11 @@
     }
     state.partnerId = session.memberships[0].partnerId || session.memberships[0].partner.id;
     try {
+      var dest = await EP.resolveProfessionalsHome(state.partnerId, null);
+      if (dest !== '/professionals/dashboard') {
+        location.replace(dest);
+        return;
+      }
       await loadRequests();
     } catch (e) {
       Shell.mountShell({ host: root, active: 'aanvragen', title: 'Aanvragen' });

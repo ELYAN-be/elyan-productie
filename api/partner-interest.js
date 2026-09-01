@@ -169,7 +169,10 @@ module.exports = async function handler(req, res) {
     pipeline = await processScreeningOutcome(persisted.candidate, screening, { req: req });
   }
 
-  await sendInterestReceivedEmail({ to: email, companyName: companyName });
+  var autoInvited = !!(pipeline && pipeline.ok && pipeline.inviteId);
+  if (!autoInvited) {
+    await sendInterestReceivedEmail({ to: email, companyName: companyName });
+  }
   await sendInternalNotification({
     companyName: companyName,
     contactName: contactName,

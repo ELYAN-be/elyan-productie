@@ -2,13 +2,14 @@
   'use strict';
   var EP = window.ElyanProfessionals;
   var Shell = window.ElyanProShell;
-  var OPTIONS = [
-    { id: 'nu', label: 'Nu' },
-    { id: 'binnen_1_maand', label: 'Binnen 1 maand' },
-    { id: 'binnen_2_3_maanden', label: 'Binnen 2–3 maanden' },
-    { id: 'later', label: 'Later' },
-    { id: 'tijdelijk_volzet', label: 'Tijdelijk volzet' }
-  ];
+  var Draft = window.ElyanOnboardingDraft;
+  var OPTIONS = (Draft && Draft.getCapacityOptions)
+    ? Draft.getCapacityOptions()
+    : [
+      { id: 'available', label: 'Nieuwe projecten mogelijk' },
+      { id: 'limited', label: 'Beperkt beschikbaar' },
+      { id: 'full', label: 'Tijdelijk volzet' }
+    ];
 
   var root = EP.$('#profRoot');
   var partnerId = null;
@@ -23,6 +24,7 @@
     });
     body.innerHTML =
       '<div class="prof-card">' +
+      '<p class="lab-hint">Kies één optie. Klanten zien dit op je ELYAN-profiel.</p>' +
       '<div class="lab-choice-grid">' +
       OPTIONS.map(function (o) {
         return '<button type="button" class="lab-choice btn-block' + (selected === o.id ? ' is-selected' : '') +
@@ -43,9 +45,9 @@
             body: { capacity: selected }
           });
           if (!res.ok || !res.body.ok) throw new Error('Opslaan mislukt.');
-          EP.setStatus(EP.$('#availStatus'), 'Beschikbaarheid opgeslagen.', 'success');
+          EP.setStatus(EP.$('#availStatus'), 'Beschikbaarheid bijgewerkt.', 'success');
         } catch (e) {
-          EP.setStatus(EP.$('#availStatus'), e.message || 'Er ging iets mis.', 'error');
+          EP.setStatus(EP.$('#availStatus'), 'Kon beschikbaarheid niet opslaan. Probeer opnieuw.', 'error');
         }
       });
     });

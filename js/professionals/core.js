@@ -216,6 +216,30 @@
     previewObjectUrls = {};
   }
 
+  async function resolveProfessionalsHome(partnerId, explicitNext) {
+    if (explicitNext && explicitNext.charAt(0) === '/' && explicitNext.indexOf('/professionals/') === 0) {
+      return explicitNext;
+    }
+    if (!partnerId) return '/professionals/onboarding';
+    try {
+      var statusRes = await apiFetch('onboarding-status', {
+        method: 'GET',
+        query: { partnerId: partnerId }
+      });
+      if (!statusRes.ok || !statusRes.body) return '/professionals/onboarding';
+      var status = statusRes.body.onboardingStatus || 'not_started';
+      if (status === 'not_started' || status === 'in_progress') {
+        return '/professionals/onboarding';
+      }
+      if (status === 'submitted' || status === 'changes_requested') {
+        return '/professionals/onboarding/review_hub';
+      }
+      return '/professionals/dashboard';
+    } catch (e) {
+      return '/professionals/onboarding';
+    }
+  }
+
   global.ElyanProfessionals = {
     $,
     showEl,
@@ -232,6 +256,7 @@
     logout,
     resolveMediaUrl,
     revokePreviewMediaCache,
-    isPrivatePreviewPath
+    isPrivatePreviewPath,
+    resolveProfessionalsHome
   };
 })(window);

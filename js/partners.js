@@ -92,15 +92,23 @@
       body: JSON.stringify(payload)
     })
       .then(function (res) {
-        // Always show confirmation to the user; API is best-effort notify.
-        if (!res.ok) {
-          console.warn('partner-interest status', res.status);
-        }
-        showSuccess();
+        return res.json().catch(function () { return {}; }).then(function (data) {
+          if (!res.ok) {
+            if (res.status === 429) {
+              showError('Te veel pogingen. Probeer later opnieuw.');
+            } else if (res.status === 400) {
+              showError('Vul alle verplichte velden correct in.');
+            } else {
+              showError('Je aanvraag kon niet worden verzonden. Probeer opnieuw of mail naar elyan.info@gmail.com.');
+            }
+            return;
+          }
+          showSuccess();
+        });
       })
       .catch(function (err) {
         console.warn('partner-interest error', err);
-        showSuccess();
+        showError('Je aanvraag kon niet worden verzonden. Controleer je verbinding en probeer opnieuw.');
       })
       .finally(function () {
         setLoading(false);

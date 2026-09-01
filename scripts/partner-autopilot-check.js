@@ -223,6 +223,63 @@ async function run() {
     assert(!/CRM/.test(html));
   });
 
+  await test('interest seed prefills company from candidate', function () {
+    var seed = require('../server/partner-autopilot/interest-seed');
+    var built = seed.buildDraftSeedFromCandidate({
+      companyName: 'Dak Pro',
+      contactName: 'Jan',
+      email: 'jan@test.invalid',
+      phone: '+32470123456',
+      specialty: 'dak',
+      region: 'antwerpen',
+      categoryId: 'dakwerken'
+    });
+    assert.strictEqual(built.company.legal_name, 'Dak Pro');
+    assert.strictEqual(built.company.contact_name, 'Jan');
+    assert.strictEqual(built.craft.primary_category_id, 'dakwerken');
+    assert.deepStrictEqual(built.service_area.provinces, ['antwerpen']);
+  });
+
+  await test('resolveProfessionalsHome redirects incomplete onboarding', function () {
+    var coreSrc = fs.readFileSync(path.join(root, 'js/professionals/core.js'), 'utf8');
+    assert(/resolveProfessionalsHome/.test(coreSrc));
+    assert(/not_started/.test(coreSrc));
+    assert(/in_progress/.test(coreSrc));
+    assert(/review_hub/.test(coreSrc));
+  });
+
+  await test('P4 requires explicit public price consent', function () {
+    var sid = Draft.getServices('dakwerken')[0].id;
+    var sp = Draft.emptyServicePrice();
+    sp.pricing_model = 'price_range';
+    sp.min_price = 80;
+    sp.max_price = 110;
+    var draft = {
+      craft: { primary_category_id: 'dakwerken', service_ids: [sid] },
+      offer: {
+        service_prices: {},
+        vat_basis: 'exclusief',
+        capacity: 'available',
+        start_month: '2026-10',
+        client_types: ['particulier'],
+        response_time: '48u',
+        visit_speed: '1w'
+      }
+    };
+    draft.offer.service_prices[sid] = sp;
+    assert.strictEqual(Draft.validateP4Complete(draft).ok, false);
+    sp.public_consent = false;
+    draft.offer.service_prices[sid] = sp;
+    assert.strictEqual(Draft.validateP4Complete(draft).ok, true);
+  });
+
+  await test('partner requests UX copy', function () {
+    var src = fs.readFileSync(path.join(root, 'js/professionals/partner-requests.js'), 'utf8');
+    assert(/Past dit project bij je/.test(src));
+    assert(/Overslaan/.test(src));
+    assert(/resolveProfessionalsHome/.test(src));
+  });
+
   if (failed) {
     console.error('\n' + failed + ' check(s) failed.');
     process.exit(1);

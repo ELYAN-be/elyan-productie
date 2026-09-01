@@ -38,9 +38,11 @@
         EP.setStatus(status, 'Je bent aangemeld, maar er is nog geen actief partnerlidmaatschap. Gebruik je uitnodigingslink om te activeren.', 'error');
         return;
       }
-      location.replace(nextUrl());
+      var partnerId = sessionRes.body.memberships[0].partnerId || sessionRes.body.memberships[0].partner.id;
+      var dest = await EP.resolveProfessionalsHome(partnerId, nextUrl());
+      location.replace(dest);
     } catch (err) {
-      EP.setStatus(status, err.message || 'Er ging iets mis. Probeer later opnieuw.', 'error');
+      EP.setStatus(status, 'Er ging iets mis. Probeer later opnieuw.', 'error');
     } finally {
       submitBtn.disabled = false;
     }
@@ -50,9 +52,11 @@
     return sb.auth.getSession();
   }).then(function (res) {
     if (res && res.data && res.data.session) {
-      return EP.apiFetch('session').then(function (s) {
+      return EP.apiFetch('session').then(async function (s) {
         if (s.ok && s.body.memberships && s.body.memberships.length) {
-          location.replace(nextUrl());
+          var partnerId = s.body.memberships[0].partnerId || s.body.memberships[0].partner.id;
+          var dest = await EP.resolveProfessionalsHome(partnerId, nextUrl());
+          location.replace(dest);
         }
       });
     }
