@@ -1196,7 +1196,7 @@ body.hp-v3 .hp-hero-photo img {
     z-index: 0;
   }
 
-  /* Subtle localized text wash only — photo stays natural */
+  /* Cinematic dark overlay — left/top/text zone; photo stays sharp underneath */
   body.hp-v3 .hp-hero-photo::after {
     content: '';
     position: absolute;
@@ -1206,27 +1206,35 @@ body.hp-v3 .hp-hero-photo img {
     background:
       linear-gradient(
         105deg,
-        rgba(28, 30, 26, 0.36) 0%,
-        rgba(28, 30, 26, 0.16) 26%,
-        rgba(28, 30, 26, 0.05) 46%,
-        transparent 60%
+        rgba(20, 22, 18, 0.82) 0%,
+        rgba(26, 28, 24, 0.58) 16%,
+        rgba(30, 32, 28, 0.32) 34%,
+        rgba(30, 32, 28, 0.10) 50%,
+        transparent 66%
       ),
       linear-gradient(
         180deg,
-        transparent 0%,
-        transparent 58%,
-        rgba(28, 30, 26, 0.08) 80%,
-        rgba(28, 30, 26, 0.16) 100%
+        rgba(22, 24, 20, 0.48) 0%,
+        rgba(22, 24, 20, 0.16) 16%,
+        transparent 34%,
+        transparent 48%,
+        rgba(22, 24, 20, 0.42) 70%,
+        rgba(16, 18, 14, 0.72) 100%
+      ),
+      radial-gradient(
+        ellipse 90% 75% at 10% 40%,
+        rgba(16, 18, 14, 0.38) 0%,
+        transparent 55%
       );
   }
 
-  /* Text group higher into the photo; card overlaps lower band */
+  /* Text group high on photo; card sits slightly lower to cover table */
   body.hp-v3 .hp-hero-copy {
     position: relative;
     z-index: 3;
     max-width: none;
     width: auto;
-    margin-top: -40rem;
+    margin-top: -38.75rem;
     padding: 0 1.25rem 0;
     box-sizing: border-box;
   }
@@ -1279,7 +1287,7 @@ body.hp-v3 .hp-hero-photo img {
 
   body.hp-v3 .hp-search {
     width: 100%;
-    margin-top: 1.15rem;
+    margin-top: 4.35rem;
     position: relative;
     z-index: 4;
   }
@@ -1537,7 +1545,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -41.25rem;
+    margin-top: -39.75rem;
   }
 
   body.hp-v3 .hp-hero h1 {
@@ -1557,7 +1565,7 @@ body.hp-v3 .hp-hero-photo img {
   }
 
   body.hp-v3 .hp-hero-copy {
-    margin-top: -38rem;
+    margin-top: -36.75rem;
     padding: 0 1.1rem;
   }
 
