@@ -1196,7 +1196,7 @@ body.hp-v3 .hp-hero-photo img {
     z-index: 0;
   }
 
-  /* Cinematic dark overlay — left/top/text zone; photo stays sharp underneath */
+  /* Soft cinematic overlay — calms skin texture, keeps photo sharp underneath */
   body.hp-v3 .hp-hero-photo::after {
     content: '';
     position: absolute;
@@ -1206,24 +1206,30 @@ body.hp-v3 .hp-hero-photo img {
     background:
       linear-gradient(
         105deg,
-        rgba(20, 22, 18, 0.82) 0%,
-        rgba(26, 28, 24, 0.58) 16%,
-        rgba(30, 32, 28, 0.32) 34%,
-        rgba(30, 32, 28, 0.10) 50%,
-        transparent 66%
+        rgba(16, 18, 14, 0.8) 0%,
+        rgba(22, 24, 20, 0.54) 18%,
+        rgba(26, 28, 24, 0.3) 36%,
+        rgba(26, 28, 24, 0.1) 52%,
+        transparent 70%
       ),
       linear-gradient(
         180deg,
-        rgba(22, 24, 20, 0.48) 0%,
-        rgba(22, 24, 20, 0.16) 16%,
-        transparent 34%,
+        rgba(18, 20, 16, 0.48) 0%,
+        rgba(18, 20, 16, 0.16) 14%,
+        transparent 30%,
         transparent 48%,
-        rgba(22, 24, 20, 0.42) 70%,
-        rgba(16, 18, 14, 0.72) 100%
+        rgba(18, 20, 16, 0.38) 74%,
+        rgba(12, 14, 10, 0.7) 100%
       ),
       radial-gradient(
-        ellipse 90% 75% at 10% 40%,
-        rgba(16, 18, 14, 0.38) 0%,
+        ellipse 56% 46% at 76% 20%,
+        rgba(14, 16, 12, 0.4) 0%,
+        rgba(14, 16, 12, 0.16) 40%,
+        transparent 66%
+      ),
+      radial-gradient(
+        ellipse 90% 75% at 8% 42%,
+        rgba(12, 14, 10, 0.36) 0%,
         transparent 55%
       );
   }
