@@ -9,6 +9,7 @@ var { createAdminClient } = require('./supabase');
 var { getProfessionalBySlug } = require('./marketplace-public');
 var { isPartnerAtCapacity } = require('./public-snapshot');
 var { createRequestFromInterest, ensureRequestForIntakeId } = require('./customer-requests');
+var { incrementAnalyticsEvent } = require('./analytics');
 
 var DEDUPE_WINDOW_MS = 5 * 60 * 1000;
 var MAX = {
@@ -235,9 +236,14 @@ async function submitInterest(body, meta) {
   if (!reqCreated.ok) {
     // Intake exists; request create failed — surface as server error so ops notice.
     // Unique race still returns ok from createRequestFromInterest.
-    console.error('interest_request_create_failed', reqCreated.code);
+    console.error('interest_request_create_failed', { action: 'submitInterest', code: reqCreated.code });
     return { ok: false, code: reqCreated.code || 'server_error' };
   }
+
+  incrementAnalyticsEvent({
+    event: 'request_submitted',
+    category: resolved.categoryId || 'all'
+  });
 
   return {
     ok: true,

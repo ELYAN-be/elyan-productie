@@ -344,6 +344,52 @@ async function searchProfessionals(query) {
   };
 }
 
+/** Published public profile slugs for sitemap (public projection only). */
+async function listPublishedProfileSlugs() {
+  var admin = createAdminClient();
+  var { data: profiles, error } = await admin
+    .from('partner_profiles')
+    .select('slug, partner_id, profile_status, public_snapshot')
+    .eq('profile_status', 'published');
+
+  if (error) {
+    var schemaCode = schemaFailureCode(error);
+    if (schemaCode) return { ok: false, code: schemaCode };
+    console.error('sitemap_profiles_failed', { action: 'listPublishedProfileSlugs', code: error.message });
+    return { ok: false, code: 'server_error' };
+  }
+
+  if (!profiles || !profiles.length) {
+    return { ok: true, slugs: [] };
+  }
+
+  var partnerIds = profiles.map(function (p) { return p.partner_id; });
+  var { data: partners, error: pErr } = await admin
+    .from('partners')
+    .select('id, account_status')
+    .in('id', partnerIds);
+
+  if (pErr) {
+    console.error('sitemap_partners_failed', { action: 'listPublishedProfileSlugs', code: pErr.message });
+    return { ok: false, code: 'server_error' };
+  }
+
+  var partnerMap = Object.create(null);
+  (partners || []).forEach(function (p) {
+    partnerMap[p.id] = p;
+  });
+
+  var slugs = [];
+  profiles.forEach(function (profile) {
+    var partner = partnerMap[profile.partner_id];
+    if (isPubliclyVisible(partner, profile) && profile.slug) {
+      slugs.push(String(profile.slug));
+    }
+  });
+  slugs.sort();
+  return { ok: true, slugs: slugs };
+}
+
 module.exports = {
   PROBLEMS: PROBLEMS,
   SORTS: SORTS,
@@ -353,5 +399,6 @@ module.exports = {
   listProblems: listProblems,
   getProfessionalBySlug: getProfessionalBySlug,
   searchProfessionals: searchProfessionals,
+  listPublishedProfileSlugs: listPublishedProfileSlugs,
   isPubliclyVisible: isPubliclyVisible
 };

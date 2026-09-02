@@ -64,14 +64,15 @@
     <li><strong>Supabase authenticatie (professionals)</strong> — op pagina’s onder <code>/professionals</code> slaat de login-sessie tokens op in de browser (localStorage, PKCE-flow). Doel: veilig inloggen en sessiebeheer voor vakbedrijven. Alleen actief wanneer je een professioneel account gebruikt. Bron: <code>js/professionals/core.js</code>.</li>
   </ul>
 
-  <h3>Statistiek / prestatie (cookieless)</h3>
+  <h3>Statistiek / productmeting (geen tracking)</h3>
   <ul>
-    <li><strong>Vercel Web Analytics</strong> — telt paginaweergaves en bezoekersaantallen zonder trackingcookies te plaatsen. Script: <code>/_vercel/insights/script.js</code>. Geen persoonlijke profilering voor advertenties.</li>
-    <li><strong>Vercel Speed Insights</strong> — meet laadtijden en technische prestaties, eveneens zonder trackingcookies. Script: <code>/_vercel/speed-insights/script.js</code>.</li>
+    <li><strong>ELYAN aggregate analytics</strong> — anonieme dagtellingen van productgebeurtenissen (bv. calculator gestart, aanvraag ingediend). Geen cookies, geen persistente browser-ID, geen IP-opslag in analytics. Client roept <code>/api/analytics</code> aan; server telt geaggregeerd op.</li>
   </ul>
 
-  <h3>Niet aanwezig (vandaag)</h3>
+  <h3>Niet actief (uitgeschakeld)</h3>
   <ul>
+    <li>Vercel Web Analytics client scripts — <strong>uitgeschakeld</strong> (niet geladen).</li>
+    <li>Vercel Speed Insights client scripts — <strong>uitgeschakeld</strong> (niet geladen).</li>
     <li>geen Google Analytics, Meta Pixel of vergelijkbare advertentietrackers;</li>
     <li>geen tag manager met marketingpixels;</li>
     <li>geen retargeting;</li>
@@ -126,14 +127,6 @@
   </div>
 </footer>
 
-<script>
-  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/insights/script.js"></script>
-<script>
-  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
-</script>
-<script defer src="/_vercel/speed-insights/script.js"></script>
 <script src="/js/site.js" defer></script>
 <script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
 </body>

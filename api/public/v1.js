@@ -188,7 +188,7 @@ module.exports = async function handler(req, res) {
       try {
         return await handleInterestPost(req, res);
       } catch (e) {
-        console.error('public_v1_interest_failed', e && e.message ? e.message : e);
+        console.error('public_v1_interest_failed', { action: 'interest', code: e && e.message ? e.message : 'error' });
         return sendError(res, 500, 'server_error');
       }
     }
@@ -202,7 +202,7 @@ module.exports = async function handler(req, res) {
   try {
     return await handleGet(req, res);
   } catch (e) {
-    console.error('public_v1_handler_failed', e && e.message ? e.message : e);
+    console.error('public_v1_handler_failed', { action: 'get', code: e && e.message ? e.message : 'error' });
     return sendError(res, 500, 'server_error');
   }
 };

@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Disallow: /professionals/
+Disallow: /api/
+Disallow: /internal/
 
-Sitemap: https://elyan.vercel.app/sitemap.xml
+Sitemap: https://www.elyan.be/sitemap.xml

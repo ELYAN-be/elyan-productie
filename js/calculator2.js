@@ -150,6 +150,9 @@
       document.body.classList.add('lock-scroll');
       render();
       try { overlay.focus(); } catch (e) {}
+      if (window.ElyanAnalytics) {
+        window.ElyanAnalytics.trackOnce('calc2_started', 'calculator_started', { calculator: 'calc2', surface: 'home' });
+      }
     }
 
     function closeCalculator2() {
@@ -1232,6 +1235,9 @@
       if (id === 'review') {
         if (pendingReviewAnimation && UiResults) {
           pendingReviewAnimation = false;
+          if (window.ElyanAnalytics) {
+            window.ElyanAnalytics.trackOnce('calc2_completed', 'calculator_completed', { calculator: 'calc2' });
+          }
           showAnalysisThenReview();
           return;
         }

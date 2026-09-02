@@ -22,6 +22,10 @@
   ],
   "rewrites": [
     {
+      "source": "/sitemap.xml",
+      "destination": "/api/sitemap.xml"
+    },
+    {
       "source": "/api/public/v1/:path*",
       "destination": "/api/public/v1?path=:path*"
     },

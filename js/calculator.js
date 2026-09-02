@@ -25,8 +25,17 @@
 
   function trackEvent(name, data) {
     try {
-      if (typeof window.va === 'function') {
-        window.va('event', { name: name, data: data || {} });
+      var A = window.ElyanAnalytics;
+      if (!A || typeof A.track !== 'function') return;
+      if (name === 'calculation_completed') {
+        A.trackOnce('calc1_completed', 'calculator_completed', { calculator: 'calc1' });
+      } else if (name === 'calculator_started') {
+        A.trackOnce('calc1_started', 'calculator_started', { calculator: 'calc1', surface: 'home' });
+      } else if (name === 'calculator_selected') {
+        A.trackOnce('calc1_selected_' + (data && data.type ? data.type : 'x'), 'calculator_selected', {
+          calculator: 'calc1',
+          surface: 'home'
+        });
       }
     } catch (e) { /* ignore */ }
   }
@@ -187,6 +196,7 @@
       document.querySelectorAll('.js-type-option').forEach(function (o) { o.classList.remove('selected'); });
       updateProgress();
       showView('calculator');
+      trackEvent('calculator_started');
     }
 
     function closeToHome() {
@@ -235,6 +245,7 @@
         state.type = el.dataset.type;
         document.querySelectorAll('.js-type-option').forEach(function (o) { o.classList.remove('selected'); });
         el.classList.add('selected');
+        trackEvent('calculator_selected', { type: state.type });
         // default size from first number question presets
         refreshVisible();
         var numQ = state.visibleQuestions.filter(function (q) { return q.type === 'number'; })[0];
@@ -495,7 +506,7 @@
         loadingStep.classList.remove('active');
         appBack.style.visibility = '';
         showResults();
-        trackEvent('calculation_completed', { type: state.type, province: state.answers.province, level: state.answers.level });
+        trackEvent('calculation_completed');
       }, 3000);
     }
 
@@ -635,7 +646,6 @@
         state.email = email;
         document.getElementById('emailCaptureForm').style.display = 'none';
         document.getElementById('emailSuccessState').classList.add('show');
-        trackEvent('email_submitted', { type: state.type, province: answers.province });
       }).catch(function () {
         errorEl.textContent = 'Er ging iets mis bij het verzenden. Probeer het opnieuw of mail ons op elyan.info@gmail.com.';
         errorEl.classList.add('show');

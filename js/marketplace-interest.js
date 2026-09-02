@@ -310,6 +310,9 @@
           return;
         }
         renderForm(profileData);
+        if (window.ElyanAnalytics) {
+          window.ElyanAnalytics.trackOnce('request_started_intake', 'request_started', { surface: 'marketplace' });
+        }
       })
       .catch(function () {
         if (!app) return;

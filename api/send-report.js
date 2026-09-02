@@ -8,6 +8,7 @@ var pricing = require('./lib/pricing');
 var questions = require('./lib/questions');
 var buildReportPdf = require('./lib/pdf-report').buildReportPdf;
 var { rateLimit, clientKey } = require('../server/rate-limit');
+var { incrementAnalyticsEvent } = require('../server/analytics');
 
 var FROM_ADDRESS = 'ELYAN <rapport@elyan.be>';
 var REPLY_TO = 'elyan.info@gmail.com';
@@ -189,13 +190,15 @@ module.exports = async function handler(req, res) {
 
     if (!resendRes.ok) {
       var errText = await resendRes.text();
-      console.error('Resend error:', resendRes.status, errText);
+      console.error('send_report_failed', { action: 'send-report', code: 'send_failed', status: resendRes.status });
       return res.status(502).json({ error: 'send_failed' });
     }
 
+    incrementAnalyticsEvent({ event: 'report_requested', calculator: 'calc1' });
+
     return res.status(200).json({ ok: true });
   } catch (err) {
-    console.error('send-report error:', err);
+    console.error('send_report_failed', { action: 'send-report', code: 'server_error', message: err && err.message ? err.message : 'error' });
     return res.status(500).json({ error: 'server_error' });
   }
 };

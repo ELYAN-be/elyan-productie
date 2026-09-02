@@ -10,6 +10,7 @@ var FinanceEngine = require('../shared/calc2/investor/finance-engine');
 var Acq = require('../shared/calc2/investor/acquisition-costs');
 var buildProjectReportPdf = require('./lib/pdf-project-report').buildProjectReportPdf;
 var { rateLimit, clientKey } = require('../server/rate-limit');
+var { incrementAnalyticsEvent } = require('../server/analytics');
 
 var FROM_ADDRESS = 'ELYAN <rapport@elyan.be>';
 var REPLY_TO = 'elyan.info@gmail.com';
@@ -230,10 +231,11 @@ module.exports = async function handler(req, res) {
     });
 
     if (!resendRes.ok) {
-      var errText = await resendRes.text();
-      console.error('Resend error:', resendRes.status, errText);
+      console.error('send_project_report_failed', { action: 'send-project-report', code: 'send_failed', status: resendRes.status });
       return res.status(502).json({ error: 'send_failed' });
     }
+
+    incrementAnalyticsEvent({ event: 'report_requested', calculator: 'calc2' });
 
     return res.status(200).json({
       ok: true,

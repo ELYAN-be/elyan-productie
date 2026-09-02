@@ -12,6 +12,7 @@ var {
 var { runScreening } = require('../server/partner-autopilot/screening');
 var { mapSpecialtyToCategory } = require('../server/partner-autopilot/categories');
 var { processScreeningOutcome, sendInterestReceivedEmail } = require('../server/partner-autopilot/provision');
+var { incrementAnalyticsEvent } = require('../server/analytics');
 
 var FROM_ADDRESS = 'ELYAN <rapport@elyan.be>';
 var TO_ADDRESS = 'elyan.info@gmail.com';
@@ -184,6 +185,13 @@ module.exports = async function handler(req, res) {
     message: message,
     autopilotStatus: pipeline && pipeline.candidate ? pipeline.candidate.autopilotStatus : screening.verdict
   });
+
+  if (persisted && persisted.ok && persisted.created) {
+    incrementAnalyticsEvent({
+      event: 'partner_interest_submitted',
+      category: screening.categoryId || 'all'
+    });
+  }
 
   return res.status(200).json({
     ok: true,

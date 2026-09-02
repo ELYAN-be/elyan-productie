@@ -250,6 +250,30 @@
     });
   }
 
+  function updateSeoMeta(opts) {
+    opts = opts || {};
+    var titleEl = document.querySelector('title');
+    var canonicalEl = document.querySelector('link[rel="canonical"]');
+    var robotsEl = document.querySelector('meta[name="robots"]');
+    var descEl = document.querySelector('meta[name="description"]');
+    if (opts.title && titleEl) titleEl.textContent = opts.title;
+    if (opts.description && descEl) descEl.setAttribute('content', opts.description);
+    if (opts.canonical && canonicalEl) canonicalEl.setAttribute('href', opts.canonical);
+    if (opts.robots && robotsEl) robotsEl.setAttribute('content', opts.robots);
+  }
+
+  function trackAnalytics(event, payload) {
+    try {
+      if (window.ElyanAnalytics) window.ElyanAnalytics.track(event, payload || {});
+    } catch (e) { /* ignore */ }
+  }
+
+  function trackAnalyticsOnce(key, event, payload) {
+    try {
+      if (window.ElyanAnalytics) window.ElyanAnalytics.trackOnce(key, event, payload || {});
+    } catch (e) { /* ignore */ }
+  }
+
   function parseRoute() {
     var path = location.pathname.replace(/\/$/, '') || '';
     var params = new URLSearchParams(location.search);
@@ -799,6 +823,7 @@
         } else {
           state.locationQuery = '';
         }
+        trackAnalyticsOnce('mp_search_' + (catVal || 'all'), 'marketplace_search', { category: catVal || 'all' });
         if (state.hasCategoryFilter) goResults({ replaceUrl: false });
         else goBrowse({ replaceUrl: false });
       });
@@ -909,6 +934,7 @@
     function goAanvraag() {
       var slug = state.profile && state.profile.slug;
       if (!slug || isTemporarilyFull(state.profile)) return;
+      trackAnalyticsOnce('req_start_' + slug, 'request_started', { surface: 'marketplace' });
       var href = UI && UI.buildAanvraagPath
         ? UI.buildAanvraagPath(slug)
         : '/vakmannen/p/' + encodeURIComponent(slug) + '/aanvraag';
@@ -1025,6 +1051,14 @@
         if (!data || !data.ok || !data.professional) throw new Error('not_found');
         state.profile = data.professional;
         state.profileStatus = 'ready';
+        var pCat = data.professional.primaryCategoryId || data.professional.categoryId || 'all';
+        trackAnalyticsOnce('profile_' + slug, 'profile_opened', { category: pCat });
+        updateSeoMeta({
+          title: (data.professional.displayName || 'Vakman') + ' | ELYAN',
+          description: 'Bekijk dit ELYAN-nagekeken vakbedrijf: specialisatie, prijsindicatie, beschikbaarheid en projectaanvraag.',
+          canonical: 'https://www.elyan.be/vakmannen/' + slug,
+          robots: 'index, follow'
+        });
         render();
       })
       .catch(function () {
@@ -1085,6 +1119,11 @@
 
   bindLightboxOnce();
   bootFromRoute();
+  trackAnalyticsOnce('landing_marketplace', 'landing_view', { surface: 'marketplace' });
+  var bootParams = new URLSearchParams(location.search);
+  if (bootParams.get('postcode') || bootParams.get('gemeente')) {
+    updateSeoMeta({ robots: 'noindex, follow' });
+  }
   if (location.hash === '#vk-search') {
     requestAnimationFrame(function () {
       var anchor = document.getElementById('vk-search');
