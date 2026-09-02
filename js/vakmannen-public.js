@@ -934,7 +934,6 @@
     function goAanvraag() {
       var slug = state.profile && state.profile.slug;
       if (!slug || isTemporarilyFull(state.profile)) return;
-      trackAnalyticsOnce('req_start_' + slug, 'request_started', { surface: 'marketplace' });
       var href = UI && UI.buildAanvraagPath
         ? UI.buildAanvraagPath(slug)
         : '/vakmannen/p/' + encodeURIComponent(slug) + '/aanvraag';

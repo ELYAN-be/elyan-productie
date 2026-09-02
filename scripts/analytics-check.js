@@ -93,8 +93,29 @@ test('analytics endpoint exists', function () {
   assert.ok(fs.existsSync(path.join(root, 'api/analytics.js')));
 });
 
-test('events contract doc exists', function () {
-  assert.ok(fs.existsSync(path.join(root, 'scripts/analytics-events.md')));
+test('request_started only on intake form load, not profile CTA', function () {
+  var pub = read('js/vakmannen-public.js');
+  var intake = read('js/marketplace-interest.js');
+  assert.ok(intake.indexOf("'request_started'") >= 0 || intake.indexOf('"request_started"') >= 0);
+  assert.ok(pub.indexOf("'request_started'") < 0 && pub.indexOf('"request_started"') < 0,
+    'vakmannen-public must not fire request_started on CTA');
+});
+
+test('calculator_started uses in-memory dedupe only', function () {
+  var calc = read('js/calculator.js');
+  var calc2 = read('js/calculator2.js');
+  var client = read('js/analytics.js');
+  assert.ok(client.indexOf('Object.create(null)') >= 0, 'in-memory fired map');
+  assert.ok(calc.indexOf('trackOnce') >= 0 || calc.indexOf('calculator_started') >= 0);
+  assert.ok(calc2.indexOf('trackOnce') >= 0);
+  assert.ok(calc.indexOf('sessionStorage') < 0 && calc2.indexOf('sessionStorage') < 0);
+});
+
+test('events contract documents no session identifier', function () {
+  var doc = read('scripts/analytics-events.md');
+  assert.ok(doc.indexOf('No session ID') >= 0 || doc.indexOf('no session ID') >= 0);
+  assert.ok(doc.indexOf('page/runtime') >= 0 || doc.indexOf('page-runtime') >= 0);
+  assert.ok(doc.indexOf('not profile CTA') >= 0 || doc.indexOf('not profile CTA click') >= 0);
 });
 
 if (failed) {
