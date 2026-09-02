@@ -300,7 +300,8 @@
       totalLow: round10(mat.low + labourAmt.low + other.low),
       totalBase: round10(mat.base + labourAmt.base + other.base),
       totalHigh: round10(mat.high + labourAmt.high + other.high),
-      reason: opts.reason || ''
+      reason: opts.reason || '',
+      vatClass: opts.vatClass || null
     };
   }
 
@@ -322,7 +323,8 @@
         labourHours: { low: p.labourHoursLow, base: p.labourHoursBase, high: p.labourHoursHigh },
         labourRate: { low: p.labourRate * 0.92 * m, base: p.labourRate * m, high: p.labourRate * 1.08 * m },
         other: { low: p.otherLow * m, base: p.otherBase * m, high: p.otherHigh * m },
-        reason: p.reason
+        reason: p.reason,
+        vatClass: p.vatClass
       });
     });
   }
@@ -335,6 +337,120 @@
       rate: indicativeRate,
       label: indicativeRate === 0.06 ? '6% (indicatief renovatie)' : '21% (standaard)',
       disclaimer: 'Indicatief btw-scenario op basis van woningouderdom. Definitief btw-tarief moet door de aannemer worden bevestigd op basis van de wettelijke voorwaarden.'
+    };
+  }
+
+  /* FOD Financiën 2025/C/47 — fossil heating VAT split (verwarming only). Excl-VAT totals unchanged. */
+  var VAT_FOSSIL_HYBRID_SPLIT = { fossil: 0.35, nonFossil: 0.65 };
+
+  function sumPackagesByVatClass(packages, classes) {
+    var out = 0;
+    packages.forEach(function (p) {
+      if (classes.indexOf(p.vatClass) !== -1) out += p.totalBase || 0;
+    });
+    return out;
+  }
+
+  function computeVatAmounts(catKey, answers, packages, subtotalExVat) {
+    var std = MARKET.vat.standard;
+    var red = MARKET.vat.reducedRenovation;
+    var baseDisclaimer = vatScenario(answers.housingAge).disclaimer;
+    var qualifiesReduced = answers.housingAge === 'middel' || answers.housingAge === 'oud';
+
+    function singleVat(base, rate, label, breakdownKey) {
+      var vatAmt = round50(base * rate);
+      var breakdown = {
+        taxableBase6: 0,
+        vat6: 0,
+        taxableBase21: 0,
+        vat21: 0,
+        totalVat: vatAmt
+      };
+      if (breakdownKey === '6') {
+        breakdown.taxableBase6 = base;
+        breakdown.vat6 = vatAmt;
+      } else {
+        breakdown.taxableBase21 = base;
+        breakdown.vat21 = vatAmt;
+      }
+      return {
+        vatRate: rate,
+        vatLabel: label,
+        vatAmount: vatAmt,
+        totalInclVat: base + vatAmt,
+        vatMixed: false,
+        vatBreakdown: breakdown,
+        vatNote: null,
+        vatDisclaimer: baseDisclaimer
+      };
+    }
+
+    if (!qualifiesReduced) {
+      return singleVat(subtotalExVat, std, '21% (standaard)', '21');
+    }
+
+    var pt = answers.projectType || 'ketel_vervangen';
+    var needsHeatingSplit = catKey === 'verwarming' &&
+      (pt === 'ketel_vervangen' || pt === 'hybride');
+
+    if (catKey !== 'verwarming' || !needsHeatingSplit) {
+      if (catKey === 'verwarming' && (pt === 'lucht_water' || pt === 'radiatoren' || pt === 'vloerverwarming')) {
+        return singleVat(subtotalExVat, red, '6% (indicatief renovatie)', '6');
+      }
+      if (catKey !== 'verwarming') {
+        return singleVat(subtotalExVat, red, '6% (indicatief renovatie)', '6');
+      }
+    }
+
+    var base6 = 0;
+    var base21 = 0;
+
+    packages.forEach(function (p) {
+      var b = p.totalBase || 0;
+      var cls = p.vatClass;
+      if (cls === 'fossil') base21 += b;
+      else if (cls === 'distribution') base6 += b;
+      else if (cls === 'hybrid_core') {
+        base21 += b * VAT_FOSSIL_HYBRID_SPLIT.fossil;
+        base6 += b * VAT_FOSSIL_HYBRID_SPLIT.nonFossil;
+      }
+    });
+
+    var proportional = sumPackagesByVatClass(packages, ['proportional']);
+    if (proportional > 0) {
+      var fossilOnly = sumPackagesByVatClass(packages, ['fossil']);
+      var distOnly = sumPackagesByVatClass(packages, ['distribution']);
+      var denom = fossilOnly + distOnly;
+      var fossilShare = denom > 0 ? fossilOnly / denom : 1;
+      base21 += proportional * fossilShare;
+      base6 += proportional * (1 - fossilShare);
+    }
+
+    base6 = round50(base6);
+    base21 = round50(base21);
+    var vat6 = round50(base6 * red);
+    var vat21 = round50(base21 * std);
+    var totalVat = vat6 + vat21;
+    var mixed = base6 > 0 && base21 > 0;
+    var effectiveRate = subtotalExVat > 0 ? Math.round((totalVat / subtotalExVat) * 1000) / 1000 : red;
+
+    return {
+      vatRate: effectiveRate,
+      vatLabel: mixed ? 'Gemengd (6% + 21%)' : (base21 > 0 ? '21% (fossiel specifiek deel)' : '6% (indicatief renovatie)'),
+      vatAmount: totalVat,
+      totalInclVat: subtotalExVat + totalVat,
+      vatMixed: mixed,
+      vatBreakdown: {
+        taxableBase6: base6,
+        vat6: vat6,
+        taxableBase21: base21,
+        vat21: vat21,
+        totalVat: totalVat
+      },
+      vatNote: mixed || base21 > 0
+        ? 'Een deel van deze verwarmingsinstallatie kan aan 21% btw onderworpen zijn (fossiel specifiek gedeelte). Niet-specifieke distributie kan onder 6% vallen indien aan alle renovatievoorwaarden is voldaan.'
+        : null,
+      vatDisclaimer: baseDisclaimer + ' Fossiele verwarmingsinstallaties: FOD Financiën circulaire 2025/C/47 (vanaf 29.07.2025).'
     };
   }
 
@@ -760,10 +876,8 @@
 
     var plan = labourPlan(scaled, crewSize);
     var weeks = weeksFromDays(plan.workDays);
-    var vat = vatScenario(answers.housingAge);
     var subtotalExVat = totalBase;
-    var vatAmount = round50(subtotalExVat * vat.rate);
-    var totalInclVat = subtotalExVat + vatAmount;
+    var vatResult = computeVatAmounts(catKey, answers, scaled, subtotalExVat);
 
     var sumParts = Math.max(1, mat.base + lab.base + oth.base);
     var split = {
@@ -885,11 +999,14 @@
       workDays: plan.workDays,
       effectiveHourlyRate: plan.effectiveHourlyRate,
       subtotalExVat: subtotalExVat,
-      vatRate: vat.rate,
-      vatLabel: vat.label,
-      vatAmount: vatAmount,
-      vatDisclaimer: vat.disclaimer,
-      totalInclVat: totalInclVat,
+      vatRate: vatResult.vatRate,
+      vatLabel: vatResult.vatLabel,
+      vatAmount: vatResult.vatAmount,
+      vatMixed: vatResult.vatMixed,
+      vatBreakdown: vatResult.vatBreakdown,
+      vatNote: vatResult.vatNote,
+      vatDisclaimer: vatResult.vatDisclaimer,
+      totalInclVat: vatResult.totalInclVat,
       premies: premieInfo(catKey, answers, provKey),
       marketDataVersion: MARKET.meta.version,
       asOf: MARKET.meta.asOf
@@ -1699,55 +1816,68 @@
     if (pt === 'vloerverwarming') {
       packages.push(createPackage('ufh-mat', 'Vloerverwarming: materiaal', {
         material: scaleBand(H.ufhPerM2.material, size * mf * insF),
-        reason: 'UFH €/m² componenten'
+        reason: 'UFH €/m² componenten',
+        vatClass: 'distribution'
       }));
       packages.push(createPackage('ufh-labour', 'Plaatsing vloerverwarming', {
         labourHours: scaleBand(H.ufhPerM2.labourHours, size * lf),
-        labourRate: rate
+        labourRate: rate,
+        vatClass: 'distribution'
       }));
     } else if (pt === 'radiatoren') {
       packages.push(createPackage('rad-mat', 'Radiatoren: materiaal', {
         material: scaleBand(H.radiatorPerM2.material, size * mf * insF * distF),
-        reason: 'Radiatorenpakket geschaald op verwarmde m²'
+        reason: 'Radiatorenpakket geschaald op verwarmde m²',
+        vatClass: 'distribution'
       }));
       packages.push(createPackage('rad-labour', 'Plaatsing radiatoren', {
         labourHours: scaleBand(H.radiatorPerM2.labourHours, size * lf * distF),
-        labourRate: rate
+        labourRate: rate,
+        vatClass: 'distribution'
       }));
     } else {
       var unitKey = pt === 'lucht_water' ? 'lucht_water' : pt === 'hybride' ? 'hybride' : 'ketel';
+      var unitVat = unitKey === 'lucht_water' ? 'distribution' : unitKey === 'hybride' ? 'hybrid_core' : 'fossil';
       packages.push(createPackage('unit', 'Verwarmingstoestel (materiaal)', {
         material: scaleBand(H.unitMaterial[unitKey], mf * insF * replF),
-        reason: 'Toestel/materiaal ' + unitKey
+        reason: 'Toestel/materiaal ' + unitKey,
+        vatClass: unitVat
       }));
       packages.push(createPackage('install', 'Installatie & aansluiting', {
         labourHours: scaleBand(H.unitLabourHours[unitKey], lf * distF * replF),
         labourRate: rate,
-        other: scaleBand({ low: 200, base: 350, high: 550 }, distF)
+        other: scaleBand({ low: 200, base: 350, high: 550 }, distF),
+        vatClass: unitVat
       }));
       if (a.distribution === 'vloer' || a.distribution === 'gemengd') {
         var ufhShare = a.distribution === 'gemengd' ? 0.45 : 0.85;
         packages.push(createPackage('dist-ufh', 'Verdeling vloerverwarming (deel)', {
           material: scaleBand(H.ufhPerM2.material, size * ufhShare * mf),
           labourHours: scaleBand(H.ufhPerM2.labourHours, size * ufhShare * lf),
-          labourRate: rate
+          labourRate: rate,
+          vatClass: 'distribution'
         }));
       }
     }
 
     if (a.dhw === 'nieuw') {
+      var dhwVat = pt === 'lucht_water' || pt === 'radiatoren' || pt === 'vloerverwarming'
+        ? 'distribution'
+        : (pt === 'hybride' ? 'distribution' : 'fossil');
       packages.push(createPackage('dhw', 'Sanitair warm water (nieuw)', {
         material: scaleBand(H.dhwNew, mf * 0.7),
         labourHours: scaleBand({ low: 4, base: 6, high: 10 }, lf),
         labourRate: rate,
-        other: scaleBand(H.dhwNew, 0.15)
+        other: scaleBand(H.dhwNew, 0.15),
+        vatClass: dhwVat
       }));
     }
 
     packages.push(createPackage('commission', 'Inregeling & oplevering', {
       other: H.commissioning,
       labourHours: { low: 2, base: 3, high: 5 },
-      labourRate: rate
+      labourRate: rate,
+      vatClass: pt === 'ketel_vervangen' ? 'proportional' : 'distribution'
     }));
 
     var drivers = buildDrivers('verwarming', a, provKey, packages, H.crewSize);

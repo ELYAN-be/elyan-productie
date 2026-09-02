@@ -885,10 +885,18 @@ function buildReportPdf(data) {
       sandCard(doc, [
         { text: r.vatLabel || 'Indicatief', bold: true, color: COLOR.ink, size: 10 },
         { text: 'Subtotaal excl. btw: ' + pricing.fmtEUR(r.subtotalExVat || r.price) },
+        r.vatMixed && r.vatBreakdown ? {
+          text: '6% op ' + pricing.fmtEUR(r.vatBreakdown.taxableBase6 || 0) +
+            ' → ' + pricing.fmtEUR(r.vatBreakdown.vat6 || 0) +
+            '   ·   21% op ' + pricing.fmtEUR(r.vatBreakdown.taxableBase21 || 0) +
+            ' → ' + pricing.fmtEUR(r.vatBreakdown.vat21 || 0),
+          size: 8.5
+        } : null,
+        r.vatNote ? { text: r.vatNote, size: 8.5 } : null,
         { text: 'BTW-bedrag: ' + pricing.fmtEUR(r.vatAmount || 0) },
         { text: 'Indicatief incl. btw: ' + pricing.fmtEUR(r.totalInclVat || r.price) },
-        { text: 'Dit is een indicatieve fiscale inschatting. De aannemer moet bevestigen of aan alle wettelijke voorwaarden is voldaan.', size: 8 }
-      ], ctx);
+        { text: (r.vatDisclaimer || 'Dit is een indicatieve fiscale inschatting. De aannemer moet bevestigen of aan alle wettelijke voorwaarden is voldaan.'), size: 8 }
+      ].filter(Boolean), ctx);
 
       startSection(doc, ctx, {
         eyebrow: 'Premies',

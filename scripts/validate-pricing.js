@@ -113,8 +113,14 @@ Object.keys(SCENARIOS).forEach(function (type) {
       warn(tag + ': line items sum ' + lineSum + ' vs price ' + r.price);
     }
 
-    var vatExpected = Math.round((r.subtotalExVat || r.price) * (r.vatRate || 0) / 50) * 50;
-    if (Math.abs((r.vatAmount || 0) - vatExpected) > 100) warn(tag + ': vat arithmetic soft mismatch');
+    var vatExpected;
+    if (r.vatBreakdown && r.vatMixed) {
+      vatExpected = (r.vatBreakdown.vat6 || 0) + (r.vatBreakdown.vat21 || 0);
+      if (Math.abs((r.vatAmount || 0) - vatExpected) > 50) fail(tag + ': mixed vat breakdown mismatch');
+    } else {
+      vatExpected = Math.round((r.subtotalExVat || r.price) * (r.vatRate || 0) / 50) * 50;
+      if (Math.abs((r.vatAmount || 0) - vatExpected) > 100) warn(tag + ': vat arithmetic soft mismatch');
+    }
     if (Math.abs((r.totalInclVat || 0) - ((r.subtotalExVat || 0) + (r.vatAmount || 0))) > 50) fail(tag + ': incl vat mismatch');
 
     if ((a.arbeid || 0) > 0 && !(r.labourHours > 0)) fail(tag + ': labour amount without manuren');
