@@ -47,6 +47,33 @@
     );
   }
 
+  var DEF_LABELS = {
+    received: 'Ontvangen',
+    contacted: 'Contact opgenomen',
+    qualified: 'Gekwalificeerd',
+    successful_introduction: 'Succesvolle introductie',
+    open: 'Open (actief)',
+    new_count: 'Nieuw',
+    attention: 'Aandacht nodig',
+    overdue_follow_ups: 'Opvolging achterstallig',
+    unassigned_active: 'Actief zonder eigenaar',
+    avg_time_to_first_contact_ms: 'Gem. tijd tot first contact',
+    pct_first_contact_within_sla: '% first contact binnen SLA',
+    loss_share: 'Verliesredenen',
+    by_category: 'Per categorie',
+    by_professional: 'Per vakbedrijf',
+    by_region: 'Per regio',
+    marketplace_analytics: 'Marketplace-analytics'
+  };
+
+  function periodLabel(key) {
+    if (key === '7') return '7 dagen';
+    if (key === '30') return '30 dagen';
+    if (key === '90') return '90 dagen';
+    if (key === 'custom') return 'Aangepast';
+    return key || '—';
+  }
+
   function rateLabel(r) {
     if (!r || r.value == null) return 'Niet beschikbaar';
     return r.label + ' (' + r.numerator + '/' + r.denominator + ')';
@@ -76,10 +103,9 @@
     var meta = EP.$('#ctrlReportMeta');
     if (meta) {
       meta.textContent =
-        'Periode ' +
-        (report.period && report.period.key ? report.period.key : '—') +
-        (report.capped ? ' · scan begrensd' : '') +
-        (report.generatedAt ? ' · gegenereerd ' + report.generatedAt : '');
+        'Periode: ' +
+        periodLabel(report.period && report.period.key) +
+        (report.capped ? ' · scan begrensd' : '');
     }
 
     var funnelHost = EP.$('#ctrlFunnel');
@@ -124,7 +150,7 @@
     var loss = report.loss || {};
     if (!loss.closedLostTotal) {
       EP.$('#ctrlLoss').innerHTML =
-        '<p class="lab-hint">Geen closed_lost in deze selectie.</p>';
+        '<p class="lab-hint">Geen afgesloten aanvragen in deze selectie.</p>';
     } else {
       EP.$('#ctrlLoss').innerHTML =
         metricRow('Totaal verloren', String(loss.closedLostTotal)) +
@@ -188,7 +214,7 @@
       .map(function (k) {
         return (
           '<div class="ctrl-report-def"><strong>' +
-          esc(k) +
+          esc(DEF_LABELS[k] || k) +
           '</strong><p>' +
           esc(defs[k]) +
           '</p></div>'

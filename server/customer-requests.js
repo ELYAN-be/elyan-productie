@@ -31,10 +31,10 @@ var STATUS_TRANSITIONS = {
 
 var STATUS_LABELS_NL = {
   new: 'Nieuw',
-  contacted: 'Gecontacteerd',
+  contacted: 'Contact opgenomen',
   qualified: 'Gekwalificeerd',
-  closed_won: 'Afgesloten — gewonnen (intro/match)',
-  closed_lost: 'Afgesloten — verloren'
+  closed_won: 'Succesvolle introductie',
+  closed_lost: 'Afgesloten — niet gelukt'
 };
 
 /** Exact closed_lost reason keys (frozen). */

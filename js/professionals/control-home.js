@@ -39,6 +39,76 @@
     return '/professionals/aanvragen/' + encodeURIComponent(id);
   }
 
+  function renderAttentionSummary(opsPayload, queuePayload) {
+    var host = EP.$('#ctrlAttentionSummary');
+    if (!host) return;
+
+    var opsTotals = (opsPayload && opsPayload.totals) || {};
+    var queueCounts = (queuePayload && queuePayload.counts) || {};
+
+    var partnerReview = queueCounts.review_required || 0;
+    var partnerReady = queueCounts.ready_for_review || 0;
+    var newRequests = opsTotals.new_needing_first_contact || 0;
+    var slaOverdue = opsTotals.sla_overdue || 0;
+    var followUpOverdue = opsTotals.follow_up_overdue || 0;
+
+    var items = [];
+    if (partnerReview > 0) {
+      items.push({
+        href: '/professionals/control?filter=autopilot_review',
+        text: partnerReview === 1
+          ? '1 partner wacht op controle'
+          : partnerReview + ' partners wachten op controle'
+      });
+    }
+    if (partnerReady > 0) {
+      items.push({
+        href: '/professionals/control?filter=autopilot_ready',
+        text: partnerReady === 1
+          ? '1 profiel klaar voor publicatie'
+          : partnerReady + ' profielen klaar voor publicatie'
+      });
+    }
+    if (newRequests > 0) {
+      items.push({
+        href: '/professionals/aanvragen?status=new',
+        text: newRequests === 1 ? '1 nieuwe aanvraag' : newRequests + ' nieuwe aanvragen'
+      });
+    }
+    if (slaOverdue > 0) {
+      items.push({
+        href: '/professionals/aanvragen?attention=1',
+        text: slaOverdue === 1
+          ? '1 aanvraag — SLA overschreden'
+          : slaOverdue + ' aanvragen — SLA overschreden'
+      });
+    }
+    if (followUpOverdue > 0) {
+      items.push({
+        href: '/professionals/aanvragen?followUp=overdue',
+        text: followUpOverdue === 1
+          ? '1 aanvraag — opvolging achterstallig'
+          : followUpOverdue + ' aanvragen — opvolging achterstallig'
+      });
+    }
+
+    if (!items.length) {
+      host.innerHTML =
+        '<div class="ctrl-attention-clear">' +
+        '<p><strong>Alles bijgewerkt.</strong></p>' +
+        '<p class="lab-hint">Er zijn momenteel geen openstaande acties.</p>' +
+        '</div>';
+      return;
+    }
+
+    host.innerHTML =
+      '<ul class="ctrl-attention-links">' +
+      items.map(function (item) {
+        return '<li><a href="' + esc(item.href) + '">' + esc(item.text) + ' →</a></li>';
+      }).join('') +
+      '</ul>';
+  }
+
   function renderBuckets(payload) {
     var host = EP.$('#ctrlOpsBuckets');
     if (!host) return;
@@ -63,7 +133,7 @@
         '</div>';
 
       if (!items.length) {
-        html += '<p class="lab-hint">Geen items in scan.</p>';
+        html += '<p class="lab-hint">Geen items.</p>';
       } else {
         html += '<ul class="ctrl-ops-list">';
         items.forEach(function (row) {
@@ -100,19 +170,21 @@
 
   async function load() {
     showGate('Laden…', 'info');
-    var res = await EP.controlFetch('ops-attention');
-    if (!res.ok) {
+    var opsRes = await EP.controlFetch('ops-attention');
+    var queueRes = await EP.controlFetch('autopilot-queue', { query: { filter: 'all' } });
+    if (!opsRes.ok) {
       showGate(
-        res.status === 403
+        opsRes.status === 403
           ? 'Geen toegang (alleen ELYAN-staff).'
-          : 'Kon aandachtlijst niet laden.',
+          : 'Kon overzicht niet laden.',
         'error'
       );
       return;
     }
     EP.showEl(EP.$('#ctrlGate'), false);
     EP.showEl(EP.$('#ctrlHome'), true);
-    renderBuckets(res.body);
+    renderAttentionSummary(opsRes.body, queueRes.ok ? queueRes.body : null);
+    renderBuckets(opsRes.body);
   }
 
   async function init() {

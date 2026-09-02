@@ -423,9 +423,9 @@ async function getCustomer(opts) {
         partnerSlug: r.partnerSlug,
         outcome:
           r.status === 'closed_won'
-            ? 'successful_introduction'
+            ? 'Succesvolle introductie'
             : r.status === 'closed_lost'
-              ? r.closedLostReasonLabel || 'closed_lost'
+              ? r.closedLostReasonLabel || 'Afgesloten — niet gelukt'
               : null
       };
     });
@@ -598,7 +598,7 @@ function buildReporting(rows, firstContactByRequestId, period, opts) {
         },
         {
           key: 'contacted',
-          label: 'Gecontacteerd',
+          label: 'Contact opgenomen',
           count: funnelContacted,
           rate: rate(funnelContacted, received)
         },
@@ -613,7 +613,7 @@ function buildReporting(rows, firstContactByRequestId, period, opts) {
           label: 'Succesvolle introductie',
           count: funnelWon,
           rate: rate(funnelWon, received),
-          note: 'closed_won — geen omzet/contract/renovatie'
+          note: 'Geen omzet of contract — alleen introductie/match.'
         }
       ],
       denominator: 'received',

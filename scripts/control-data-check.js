@@ -340,7 +340,19 @@ test('UI pages + nav + rewrite exist; no CSV export', function () {
 
   var home = source('js/professionals/control-home.js');
   assert.ok(home.indexOf('ops-attention') >= 0);
+  assert.ok(home.indexOf('autopilot-queue') >= 0);
+  assert.ok(home.indexOf('Alles bijgewerkt') >= 0);
   assert.ok(home.indexOf('/professionals/aanvragen/') >= 0);
+
+  var ctrl = source('js/professionals/control.js');
+  assert.ok(ctrl.indexOf('AUTOPILOT_STATUS_LABELS') >= 0);
+  assert.ok(ctrl.indexOf('Publiceer') >= 0);
+  assert.ok(ctrl.indexOf('Vraag aanvulling') >= 0);
+
+  var reqCtrl = source('js/professionals/control-requests.js');
+  assert.ok(reqCtrl.indexOf('REQUEST_STATUS_LABELS') >= 0);
+  assert.ok(reqCtrl.indexOf('Succesvolle introductie') >= 0);
+  assert.ok(reqCtrl.indexOf('Partnerreactie:') >= 0);
 
   var cust = source('js/professionals/control-customers.js');
   assert.ok(cust.indexOf('customers-list') >= 0);

@@ -36,6 +36,47 @@
     in_progress: 'Bezig'
   };
 
+  var AUTOPILOT_STATUS_LABELS = {
+    review_required: 'Review nodig',
+    ready_for_review: 'Klaar voor publicatie',
+    published: 'Gepubliceerd',
+    blocked: 'Geblokkeerd',
+    interest_received: 'Interesse ontvangen',
+    invited: 'Uitgenodigd',
+    onboarding: 'Profiel aanvullen',
+    screening: 'In screening',
+    review_required_candidate: 'Review nodig'
+  };
+
+  var CATEGORY_LABELS = {
+    dakwerken: 'Dakwerken',
+    badkamer: 'Badkamer',
+    keuken: 'Keuken',
+    'ramen-deuren': 'Ramen & deuren',
+    isolatie: 'Isolatie',
+    verwarming: 'Verwarming',
+    elektriciteit: 'Elektriciteit',
+    gevel: 'Gevel',
+    vloeren: 'Vloeren',
+    schilderwerken: 'Schilderwerken',
+    ventilatie: 'Ventilatie',
+    zonnepanelen: 'Zonnepanelen'
+  };
+
+  function categoryLabel(id) {
+    if (!id) return '—';
+    return CATEGORY_LABELS[id] || String(id).replace(/-/g, ' ').replace(/_/g, ' ');
+  }
+
+  function autopilotStatusLabel(s) {
+    return AUTOPILOT_STATUS_LABELS[s] || statusLabel(s) || '—';
+  }
+
+  function stepLabel(stepId) {
+    var found = STEP_OPTIONS.filter(function (o) { return o.id === stepId; })[0];
+    return found ? found.label : (stepId ? String(stepId).replace(/_/g, ' ') : '');
+  }
+
   function esc(s) {
     return String(s == null ? '' : s)
       .replace(/&/g, '&amp;')
@@ -165,25 +206,55 @@
     if (!host) return;
     meta.textContent = (items.length === 1 ? '1 item' : items.length + ' items');
     if (!items.length) {
-      host.innerHTML = '<p class="lab-hint">Geen partners in deze filter.</p>';
+      host.innerHTML = '<p class="lab-hint">Geen partners die review nodig hebben.</p>';
       return;
     }
     host.innerHTML = items.map(function (row) {
       var openId = row.partnerId || row.id;
+      var statusText = autopilotStatusLabel(row.status);
       return (
         '<article class="ctrl-list-item" role="listitem">' +
           '<div class="ctrl-list-item-main">' +
             '<strong>' + esc(row.company || '—') + '</strong>' +
-            '<span class="ctrl-list-meta-line">' + esc(row.category || '') + ' · ' + esc(row.region || '') + '</span>' +
-            '<span class="ctrl-list-meta-line">' + esc(row.status || '') +
-              (row.issueReason ? ' — ' + esc(row.issueReason) : '') + '</span>' +
+            '<span class="ctrl-list-meta-line">' +
+              esc(categoryLabel(row.category)) + ' · ' + esc(row.region || '—') +
+            '</span>' +
+            '<span class="ctrl-list-meta-line">' +
+              '<span class="ctrl-badge' + (row.status === 'ready_for_review' ? '' : ' ctrl-badge-attention') + '">' +
+              esc(statusText) + '</span>' +
+              (row.issueReason ? ' — ' + esc(row.issueReason) : '') +
+            '</span>' +
           '</div>' +
           (row.kind === 'partner'
             ? '<button type="button" class="btn btn-primary btn-sm" data-open-partner="' + esc(openId) + '">Bekijk</button>'
-            : '<span class="ctrl-badge is-muted">Kandidaat</span>') +
+            : '<button type="button" class="btn btn-ghost btn-sm" data-invite-candidate="' + esc(row.id) + '">Uitnodigen</button>') +
         '</article>'
       );
     }).join('');
+  }
+
+  async function inviteCandidate(candidateId, btn) {
+    if (state.busy || !candidateId) return;
+    var ok = await confirmAction(
+      'Kandidaat uitnodigen?',
+      'De kandidaat ontvangt per e-mail een link om het profiel te vervolledigen.'
+    );
+    if (!ok) return;
+    state.busy = true;
+    if (btn) btn.disabled = true;
+    setActionStatus('Uitnodiging versturen…', 'info');
+    var res = await EP.controlFetch('autopilot-invite', {
+      method: 'POST',
+      body: { candidateId: candidateId }
+    });
+    state.busy = false;
+    if (btn) btn.disabled = false;
+    if (!res.ok) {
+      setActionStatus((res.body && res.body.message) || 'Uitnodiging mislukt.', 'error');
+      return;
+    }
+    setActionStatus('Uitnodiging verstuurd.', 'ok');
+    await loadList();
   }
 
   function renderBadges(review) {
@@ -267,7 +338,7 @@
     var host = EP.$('#ctrlReviewItems');
     if (!host) return;
     if (!items || !items.length) {
-      host.innerHTML = '<p class="lab-hint">Geen aanpassingspunten.</p>';
+      host.innerHTML = '<p class="lab-hint">Geen openstaande problemen.</p>';
       return;
     }
     host.innerHTML = items.map(function (it) {
@@ -275,7 +346,7 @@
         '<div class="ctrl-ri ' + (it.status === 'open' ? 'is-open' : 'is-resolved') + '">' +
           '<div class="ctrl-ri-top">' +
             '<strong>' + (it.status === 'open' ? 'Open' : 'Opgelost') + '</strong>' +
-            (it.stepId ? '<span>' + esc(it.stepId.replace(/_/g, ' ')) + '</span>' : '') +
+            (it.stepId ? '<span>' + esc(stepLabel(it.stepId)) + '</span>' : '') +
           '</div>' +
           '<p>' + esc(it.message) + '</p>' +
         '</div>'
@@ -289,13 +360,13 @@
     var a = review.actions || {};
     var bits = [];
     if (a.canRequestChanges) {
-      bits.push('<button type="button" class="btn btn-ghost" data-act="show-changes">Wijzigingen vragen</button>');
+      bits.push('<button type="button" class="btn btn-ghost" data-act="show-changes">Vraag aanvulling</button>');
     }
     if (a.canApprove) {
       bits.push('<button type="button" class="btn btn-primary" data-act="approve">Goedkeuren</button>');
     }
     if (a.canPublish) {
-      bits.push('<button type="button" class="btn btn-primary" data-act="publish">Publiceren</button>');
+      bits.push('<button type="button" class="btn btn-primary" data-act="publish">Publiceer</button>');
     }
     if (a.canPause) {
       bits.push('<button type="button" class="btn btn-ghost" data-act="pause">Pauzeren</button>');
@@ -397,7 +468,7 @@
     if (state.busy || !state.partnerId) return;
     var titles = {
       approve: ['Profiel goedkeuren?', 'Onboarding wordt goedgekeurd. Publiceren gebeurt apart.'],
-      publish: ['Profiel publiceren?', 'Er wordt een vaste slug en marketplace-snapshot aangemaakt.'],
+      publish: ['Profiel publiceren op ELYAN?', 'Er wordt een vaste slug en marketplace-snapshot aangemaakt.'],
       pause: ['Publicatie pauzeren?', 'Het profiel verdwijnt tijdelijk uit de marketplace.'],
       hide: ['Profiel verbergen?', 'Het profiel wordt verborgen tot je het herstelt.'],
       restore: ['Profiel herstellen?', 'Het profiel wordt opnieuw gepubliceerd.']
@@ -418,7 +489,11 @@
       return;
     }
     paintReview(res.body);
-    setActionStatus('Opgeslagen.', 'ok');
+    if (act === 'publish') {
+      setActionStatus('Profiel gepubliceerd.', 'ok');
+    } else {
+      setActionStatus('Opgeslagen.', 'ok');
+    }
   }
 
   async function submitChanges() {
@@ -438,8 +513,8 @@
       return;
     }
     var ok = await confirmAction(
-      'Wijzigingen vragen?',
-      'De partner krijgt ' + items.length + ' aanpassingspunt' + (items.length === 1 ? '' : 'en') + ' en moet opnieuw indienen.'
+      'Aanvulling vragen?',
+      'De partner krijgt ' + items.length + ' concreet punt' + (items.length === 1 ? '' : 'en') + ' om aan te passen.'
     );
     if (!ok) return;
     state.busy = true;
@@ -472,6 +547,11 @@
     var list = EP.$('#ctrlList');
     if (list) {
       list.addEventListener('click', function (e) {
+        var inviteBtn = e.target.closest('[data-invite-candidate]');
+        if (inviteBtn) {
+          inviteCandidate(inviteBtn.getAttribute('data-invite-candidate'), inviteBtn);
+          return;
+        }
         var btn = e.target.closest('[data-open-partner]');
         if (!btn) return;
         loadReview(btn.getAttribute('data-open-partner'));
@@ -545,6 +625,14 @@
     if (userEl && session.user) {
       userEl.textContent = session.user.email || '';
       userEl.hidden = false;
+    }
+    var urlFilter = new URLSearchParams(location.search).get('filter');
+    var allowedFilters = [
+      'submitted', 'changes_requested', 'ready', 'autopilot_review',
+      'autopilot_ready', 'published', 'paused', 'hidden'
+    ];
+    if (urlFilter && allowedFilters.indexOf(urlFilter) >= 0) {
+      state.filter = urlFilter;
     }
     var pid = parsePartnerFromPath();
     if (pid) await loadReview(pid);

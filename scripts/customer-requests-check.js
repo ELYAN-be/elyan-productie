@@ -80,9 +80,9 @@ test('status transitions: valid path + invalid blocked', function () {
 
 test('NL status labels + closed_lost reason keys/labels', function () {
   assert.strictEqual(requests.STATUS_LABELS_NL.new, 'Nieuw');
-  assert.strictEqual(requests.STATUS_LABELS_NL.contacted, 'Gecontacteerd');
-  assert.ok(requests.STATUS_LABELS_NL.closed_won.indexOf('gewonnen') >= 0);
-  assert.ok(requests.STATUS_LABELS_NL.closed_won.indexOf('intro') >= 0);
+  assert.strictEqual(requests.STATUS_LABELS_NL.contacted, 'Contact opgenomen');
+  assert.strictEqual(requests.STATUS_LABELS_NL.closed_won, 'Succesvolle introductie');
+  assert.strictEqual(requests.STATUS_LABELS_NL.closed_lost, 'Afgesloten — niet gelukt');
   assert.deepStrictEqual(requests.CLOSED_LOST_REASONS, [
     'no_response',
     'not_qualified',

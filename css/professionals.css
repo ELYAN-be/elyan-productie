@@ -1206,6 +1206,32 @@
 .page-control .ctrl-report-def p{
   margin:4px 0 0;
 }
+.page-control .ctrl-attention-summary{
+  margin-bottom:20px;
+}
+.page-control .ctrl-attention-links{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:8px;
+}
+.page-control .ctrl-attention-links a{
+  display:block;
+  padding:12px 14px;
+  border:1px solid var(--e-line, rgba(63,74,50,.14));
+  border-radius:10px;
+  background:#FFFEFA;
+  text-decoration:none;
+  color:var(--e-ink, #14150F);
+  font-weight:650;
+}
+.page-control .ctrl-attention-clear{
+  padding:14px 16px;
+  border-radius:10px;
+  background:#FFFEFA;
+  border:1px solid var(--e-line, rgba(63,74,50,.14));
+}
 
 @media (max-width:900px){
   .page-control .ctrl-review-grid{
@@ -1218,6 +1244,24 @@
 }
 
 @media (max-width:640px){
+  .page-control .ctrl-dl-row{
+    grid-template-columns:1fr;
+    gap:4px;
+  }
+  .page-control .ctrl-list-item{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .page-control .ctrl-list-item-side{
+    width:100%;
+    justify-content:flex-start;
+  }
+  .page-control .ctrl-filters{
+    overflow-x:auto;
+    flex-wrap:nowrap;
+    max-width:100%;
+    padding-bottom:4px;
+  }
   .page-professionals .prof-shell-wizard{
     padding:24px 16px 56px;
   }

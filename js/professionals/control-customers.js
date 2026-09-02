@@ -145,7 +145,6 @@
       ['E-mail', c.email],
       ['Telefoon', c.phone],
       ['Locatie', c.locationText],
-      ['Identiteitsregel', 'Genormaliseerd e-mailadres'],
       [
         'Naam-ambiguïteit',
         c.nameAmbiguous ? 'Meerdere namen op dit e-mailadres (geen merge)' : 'Nee'

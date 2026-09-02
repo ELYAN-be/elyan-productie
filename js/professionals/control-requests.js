@@ -15,6 +15,19 @@
     closed: 'Afgesloten'
   };
 
+  var REQUEST_STATUS_LABELS = {
+    new: 'Nieuw',
+    contacted: 'Contact opgenomen',
+    qualified: 'Gekwalificeerd',
+    closed_won: 'Succesvolle introductie',
+    closed_lost: 'Afgesloten — niet gelukt'
+  };
+
+  function lifecycleLabel(code) {
+    if (!code) return '—';
+    return REQUEST_STATUS_LABELS[code] || code;
+  }
+
   var state = {
     status: 'all',
     categoryId: '',
@@ -150,7 +163,7 @@
     if (!host) return;
     meta.textContent = items.length === 1 ? '1 aanvraag' : items.length + ' aanvragen';
     if (!items.length) {
-      host.innerHTML = '<p class="lab-hint">Geen aanvragen in deze filter.</p>';
+      host.innerHTML = '<p class="lab-hint">Geen nieuwe aanvragen.</p>';
       return;
     }
     host.innerHTML = items
@@ -165,6 +178,9 @@
           '</strong>' +
           '<span class="ctrl-list-meta-line">' +
           esc(row.statusLabel || row.status) +
+          (row.partnerResponseStatusLabel
+            ? ' · Partnerreactie: ' + esc(row.partnerResponseStatusLabel)
+            : '') +
           ' · ' +
           esc(row.partnerSlug || '—') +
           (row.categoryId ? ' · ' + esc(row.categoryId) : '') +
@@ -257,7 +273,8 @@
     var meta = ev.meta || {};
     var detail = '';
     if (ev.action === 'status_changed') {
-      detail = (meta.from || '—') + ' → ' + (meta.to || '—');
+      detail =
+        lifecycleLabel(meta.from) + ' → ' + lifecycleLabel(meta.to);
     } else if (ev.action === 'owner_changed') {
       detail =
         (meta.from ? shortId(meta.from) : 'geen') +
@@ -266,7 +283,9 @@
     } else if (ev.action === 'follow_up_changed' || ev.action === 'follow_up_cleared') {
       detail = meta.to ? fmtDate(meta.to) : 'gewist';
     } else if (ev.action === 'closed') {
-      detail = (meta.outcome || '') + (meta.reason ? ' · ' + meta.reason : '');
+      detail =
+        lifecycleLabel(meta.outcome) +
+        (meta.reason ? ' · ' + meta.reason : '');
     } else if (ev.action === 'note_added') {
       detail = meta.noteId ? 'ref ' + shortId(meta.noteId) : '';
     }
@@ -333,7 +352,7 @@
 
     EP.$('#ctrlContextFields').innerHTML = dlRows([
       ['Bron', req.source === 'marketplace_interest' ? 'Marketplace-interesse' : req.source],
-      ['Partner', req.partnerSlug || '—'],
+      ['Gekozen vakbedrijf', req.partnerSlug || '—'],
       ['Categorie', req.categoryId || '—'],
       ['Partnerreactie', req.partnerResponseStatusLabel || '—'],
       ['Afwijzingsreden', req.partnerDeclineReasonLabel || '—'],
