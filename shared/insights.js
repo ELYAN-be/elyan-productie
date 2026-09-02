@@ -61,7 +61,13 @@
     redFlags.push('Geen garantievoorwaarden');
     redFlags.push('Offerte veel lager dan marktband zonder uitleg over scope');
 
-    if (answers.housingAge === 'jong') {
+    if (result.vatMixed || (result.vatBreakdown && Number(result.vatBreakdown.taxableBase21) > 0)) {
+      insights.push(
+        'Indicatief btw-scenario ' + (result.vatLabel || 'gemengd/21%') +
+        ': een deel van dit verwarmingsproject kan aan 21% onderworpen zijn (fossiel specifiek). Laat de aannemer de splitsing bevestigen.'
+      );
+      recommendations.push('Vraag in de offerte een duidelijke splitsing tussen 6% en 21% btw volgens de wettelijke voorwaarden.');
+    } else if (answers.housingAge === 'jong') {
       insights.push('Je woning is jonger dan 10 jaar: reken doorgaans op 21% btw, tenzij een specifieke uitzondering geldt.');
     } else if (answers.housingAge === 'middel' || answers.housingAge === 'oud') {
       insights.push('Indicatief btw-scenario 6%: je woning is ouder dan 10 jaar. Definitieve toepasselijkheid moet de aannemer bevestigen.');
@@ -802,9 +808,12 @@
       redFlags: uniq(redFlags),
       timeline: timeline,
       bufferReason: bufferReason,
-      btwTip: (answers.housingAge === 'middel' || answers.housingAge === 'oud')
-        ? pricing.BTW_TIP
-        : 'Bij woningen jonger dan 10 jaar geldt meestal 21% btw. Laat dit bevestigen in je offerte.',
+      btwTip: (result.vatMixed || (result.vatBreakdown && Number(result.vatBreakdown.taxableBase21) > 0))
+        ? ('Indicatief btw-scenario: ' + (result.vatLabel || 'Gemengd (6% + 21%)') + '. ' +
+          (result.vatNote || 'Een deel van deze verwarmingsinstallatie kan aan 21% btw onderworpen zijn. Het definitieve tarief moet de aannemer bevestigen.'))
+        : ((answers.housingAge === 'middel' || answers.housingAge === 'oud')
+          ? pricing.BTW_TIP
+          : 'Bij woningen jonger dan 10 jaar geldt meestal 21% btw. Laat dit bevestigen in je offerte.'),
       fingerprint: buildFingerprint(type, answers, pricing)
     };
   }

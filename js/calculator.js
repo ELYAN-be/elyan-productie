@@ -580,7 +580,8 @@
       });
 
       document.getElementById('premieNote').textContent = cat.premieNote;
-      document.getElementById('btwTipText').textContent = pack.btwTip || BTW_TIP;
+      document.getElementById('btwTipText').textContent =
+        pack.btwTip || r.vatNote || (r.vatLabel ? ('Indicatief btw-scenario: ' + r.vatLabel) : null) || BTW_TIP;
       var regionLink = REGION_LINKS[prov.region];
       var premieLinkEl = document.getElementById('premieLink');
       premieLinkEl.textContent = regionLink.label;
