@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cookiebeleid | ELYAN</title>
-<meta name="description" content="ELYAN gebruikt geen trackingcookies. Lees hier hoe onze privacyvriendelijke bezoekersstatistieken werken.">
-<link rel="canonical" href="https://elyan.vercel.app/cookiebeleid.html">
+<meta name="description" content="Welke cookies en vergelijkbare technologieën ELYAN gebruikt — op basis van de huidige implementatie.">
+<link rel="canonical" href="https://www.elyan.be/cookiebeleid.html">
 <meta name="theme-color" content="#3F4A32">
 <meta name="robots" content="index, follow">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="ELYAN">
 <meta property="og:title" content="Cookiebeleid | ELYAN">
-<meta property="og:description" content="ELYAN gebruikt geen trackingcookies.">
-<meta property="og:url" content="https://elyan.vercel.app/cookiebeleid.html">
-<meta property="og:image" content="https://elyan.vercel.app/assets/og-image.png">
+<meta property="og:description" content="Welke cookies en vergelijkbare technologieën ELYAN gebruikt.">
+<meta property="og:url" content="https://www.elyan.be/cookiebeleid.html">
+<meta property="og:image" content="https://www.elyan.be/assets/og-image.png">
 <meta property="og:locale" content="nl_BE">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
@@ -43,29 +43,55 @@
 <section class="page-hero container-narrow">
   <span class="eyebrow">Juridisch</span>
   <h1>Cookiebeleid</h1>
-  <p class="lead">Kort en duidelijk: ELYAN plaatst geen trackingcookies.</p>
+  <p class="lead">Welke cookies en vergelijkbare technologieën ELYAN vandaag gebruikt.</p>
 </section>
 
 <section class="container-narrow legal-content">
-  <span class="updated">Laatst bijgewerkt: augustus 2026</span>
+  <span class="updated">Laatst bijgewerkt: september 2026</span>
 
   <div class="callout">
-    <p><strong>ELYAN gebruikt geen advertentie- of trackingcookies</strong>, en toont daarom geen cookiebanner. Er is namelijk niets om toestemming voor te vragen.</p>
+    <p><strong>ELYAN gebruikt geen advertentie- of marketingtrackingcookies.</strong> Op dit moment zijn er geen niet-noodzakelijke trackers die vooraf toestemming vereisen. Daarom tonen we geen cookiebanner.</p>
   </div>
 
   <h2>1. Wat is een cookie?</h2>
-  <p>Een cookie is een klein bestandje dat een website op je toestel kan plaatsen om informatie te onthouden, bijvoorbeeld voor inloggegevens of advertentievoorkeuren. ELYAN heeft geen inlogfunctie en toont geen advertenties, en heeft dus geen nood aan dat soort cookies.</p>
+  <p>Een cookie is een klein bestandje dat een website op je toestel kan plaatsen. Vergelijkbare technologieën zijn onder meer localStorage (browseropslag) en sessie-identificatie zonder permanente cookies.</p>
 
-  <h2>2. Hoe meten we dan onze bezoekersstatistieken?</h2>
-  <p>We gebruiken <strong>Vercel Web Analytics</strong>, een privacyvriendelijk meetinstrument dat bezoekersaantallen en paginaweergaves telt zonder cookies te plaatsen en zonder jou persoonlijk te identificeren. Bezoekers worden herkend via een tijdelijke, versleutelde waarde die na 24 uur automatisch verdwijnt, niet via een cookie op je toestel.</p>
+  <h2>2. Overzicht — huidige implementatie</h2>
+  <p>De volledige technische inventaris staat in <code>scripts/cookie-storage-inventory.md</code> (intern). Samengevat voor bezoekers:</p>
 
-  <h2>3. Andere technische opslag</h2>
-  <p>Je browser kan tijdens je bezoek tijdelijk gegevens in het geheugen bewaren om de rekentool te laten werken (bijvoorbeeld welke stap je hebt ingevuld). Dit gebeurt volledig in je browser, wordt nergens naar onze servers verstuurd, en verdwijnt zodra je de pagina verlaat of herlaadt.</p>
+  <h3>Strikt noodzakelijk / functioneel</h3>
+  <ul>
+    <li><strong>Supabase authenticatie (professionals)</strong> — op pagina’s onder <code>/professionals</code> slaat de login-sessie tokens op in de browser (localStorage, PKCE-flow). Doel: veilig inloggen en sessiebeheer voor vakbedrijven. Alleen actief wanneer je een professioneel account gebruikt. Bron: <code>js/professionals/core.js</code>.</li>
+  </ul>
 
-  <h2>4. Wijzigingen</h2>
-  <p>Mochten we in de toekomst toch cookies willen gebruiken die toestemming vereisen, dan passen we dit beleid aan en vragen we die toestemming eerst via een duidelijke banner.</p>
+  <h3>Statistiek / prestatie (cookieless)</h3>
+  <ul>
+    <li><strong>Vercel Web Analytics</strong> — telt paginaweergaves en bezoekersaantallen zonder trackingcookies te plaatsen. Script: <code>/_vercel/insights/script.js</code>. Geen persoonlijke profilering voor advertenties.</li>
+    <li><strong>Vercel Speed Insights</strong> — meet laadtijden en technische prestaties, eveneens zonder trackingcookies. Script: <code>/_vercel/speed-insights/script.js</code>.</li>
+  </ul>
 
-  <p>Vragen? Zie ons <a href="/privacybeleid.html">privacybeleid</a> of mail naar <a href="mailto:elyan.info@gmail.com">elyan.info@gmail.com</a>.</p>
+  <h3>Niet aanwezig (vandaag)</h3>
+  <ul>
+    <li>geen Google Analytics, Meta Pixel of vergelijkbare advertentietrackers;</li>
+    <li>geen tag manager met marketingpixels;</li>
+    <li>geen retargeting;</li>
+    <li>geen cookiebanner op de consumentensite.</li>
+  </ul>
+
+  <h2>3. Rekentool en tijdelijke browseropslag</h2>
+  <p>De renovatierekenhulp kan tijdelijk antwoorden in het geheugen van je browser bewaren zolang je op de pagina blijft. Dit is bedoeld om je voortgang te bewaren en vervangt geen account.</p>
+
+  <h2>4. Toestemming</h2>
+  <p>Omdat we momenteel geen niet-noodzakelijke trackingcookies activeren vóór toestemming, is er geen cookiebanner nodig. Als we later analytics of andere niet-noodzakelijke technologieën toevoegen die toestemming vereisen, passen we dit beleid aan en vragen we die toestemming op een duidelijke manier (met accepteer- en weigeropties).</p>
+  <p><em>ANALYTICS COOKIE INVENTORY MUST BE RECHECKED AFTER ANALYTICS IMPLEMENTATION.</em></p>
+
+  <h2>5. Je keuzes</h2>
+  <p>Je kan cookies en browseropslag beheren via je browserinstellingen. Let op: het uitschakelen van functionele opslag kan inloggen op het professionele portaal verhinderen.</p>
+
+  <h2>6. Wijzigingen</h2>
+  <p>Bij wijzigingen in onze technische stack werken we dit beleid bij. Zie ook ons <a href="/privacybeleid.html">privacybeleid</a>.</p>
+
+  <p>Vragen? Mail naar <a href="mailto:elyan.info@gmail.com">elyan.info@gmail.com</a>.</p>
 </section>
 </main>
 
@@ -84,6 +110,7 @@
           <a href="/partners">Voor vakbedrijven</a>
           <a href="/privacybeleid.html">Privacy</a>
           <a href="/voorwaarden.html">Voorwaarden</a>
+          <a href="/voorwaarden-vakbedrijven.html">Voorwaarden vakbedrijven</a>
         </div>
         <div class="footer-col">
           <div class="footer-col-title">Contact</div>

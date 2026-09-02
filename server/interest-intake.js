@@ -1,6 +1,6 @@
 /**
- * Marketplace Interest Intake — server logic (Design Freeze V3 / PRE-LAUNCH).
- * Phase 1: ELYAN receives PII; partners never receive contact details.
+ * Marketplace Interest Intake — server logic.
+ * Targeted request: customer PII is shared with the one chosen published partner.
  */
 'use strict';
 
@@ -72,13 +72,8 @@ function validateInterestPayload(body) {
     MAX.location
   );
   var description = clean(body.description || body.message || body.project, MAX.description);
-  var consent = body.consent === true || body.consent === 'true' || body.consent === 1;
-
   if (!partnerSlug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(partnerSlug)) {
     return { ok: false, code: 'not_found' };
-  }
-  if (!consent) {
-    return { ok: false, code: 'consent_required' };
   }
   if (!name || !email || !locationText || !description) {
     return { ok: false, code: 'missing_fields' };

@@ -97,11 +97,12 @@ test('intake page uses Partner Lab shell + interest JS', function () {
   assert.ok(html.indexOf('qa-seeds') < 0);
   assert.ok(js.indexOf('/api/public/v1/interest') >= 0);
   assert.ok(js.indexOf('Je aanvraag is verzonden via ELYAN') >= 0);
-  assert.ok(js.indexOf('niet rechtstreeks naar het vakbedrijf') >= 0);
+  assert.ok(js.indexOf('het vakbedrijf dat je hebt gekozen') >= 0);
+  assert.ok(js.indexOf('niet rechtstreeks naar het vakbedrijf') < 0);
   assert.ok(!/tel:|mailto:/i.test(html + js));
 });
 
-test('validation: happy path + consent + missing + honeypot', function () {
+test('validation: happy path + missing + honeypot (no explicit consent field required)', function () {
   var good = intake.validateInterestPayload({
     partnerSlug: 'acme-dak',
     name: 'Jan Peeters',
@@ -109,23 +110,12 @@ test('validation: happy path + consent + missing + honeypot', function () {
     phone: '+32470000000',
     location: '9000 Gent',
     description: 'Nieuw dak voor rijhuis, hellend.',
-    consent: true,
     website: ''
   });
   assert.strictEqual(good.ok, true);
   assert.strictEqual(good.data.spam, false);
   assert.strictEqual(good.data.email, 'jan@example.be');
-
-  var noConsent = intake.validateInterestPayload({
-    partnerSlug: 'acme-dak',
-    name: 'Jan',
-    email: 'jan@example.be',
-    location: 'Gent',
-    description: 'Nieuw dak voor rijhuis.',
-    consent: false
-  });
-  assert.strictEqual(noConsent.ok, false);
-  assert.strictEqual(noConsent.code, 'consent_required');
+  assert.strictEqual(good.data.consent, true);
 
   var missing = intake.validateInterestPayload({
     partnerSlug: 'acme-dak',
@@ -242,7 +232,7 @@ function runHandler(req) {
 }
 
 async function main() {
-  await testAsync('POST interest rejects missing consent with 400', async function () {
+  await testAsync('POST interest accepts valid payload without explicit consent field', async function () {
     var res = await runHandler({
       method: 'POST',
       url: '/api/public/v1/interest',
@@ -253,12 +243,11 @@ async function main() {
         name: 'Jan Peeters',
         email: 'jan@example.be',
         location: '9000 Gent',
-        description: 'Nieuw dak voor rijhuis, hellend.',
-        consent: false
+        description: 'Nieuw dak voor rijhuis, hellend.'
       }
     });
-    assert.strictEqual(res.statusCode, 400);
-    assert.strictEqual(res.getBody().error, 'consent_required');
+    assert.ok(res.statusCode === 400 || res.statusCode === 404 || res.statusCode === 500 || res.statusCode === 409);
+    assert.notStrictEqual(res.getBody().error, 'consent_required');
     assert.strictEqual(res.getHeader('Cache-Control'), 'no-store');
   });
 

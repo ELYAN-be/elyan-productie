@@ -172,13 +172,9 @@
       '<label class="lab-field">Korte projectbeschrijving' +
       '<textarea name="description" required maxlength="2000" rows="4" placeholder="Wat wil je laten uitvoeren?"></textarea>' +
       '<span class="lab-field-error" id="err-description" hidden></span></label>' +
-      '<label class="lab-consent">' +
-      '<input type="checkbox" name="consent" required>' +
-      '<span>Ik ga akkoord dat ELYAN mijn gegevens gebruikt om deze aanvraag te behandelen. ' +
-      '<a href="/privacybeleid.html" target="_blank" rel="noopener noreferrer">Privacybeleid</a>.</span></label>' +
-      '<span class="lab-field-error" id="err-consent" hidden></span>' +
       '<p class="lab-form-error" id="err-form" hidden></p>' +
-      '<p class="lab-hint lab-intake-privacy">Je gegevens gaan naar ELYAN — niet rechtstreeks naar het vakbedrijf.</p>' +
+      '<p class="lab-hint lab-intake-privacy">Door je aanvraag te versturen, gebruikt ELYAN je gegevens om je aanvraag te verwerken en te delen met het vakbedrijf dat je hebt gekozen. ' +
+      '<a href="/privacybeleid.html" target="_blank" rel="noopener noreferrer">Privacybeleid</a>.</p>' +
       '<div class="lab-quote-actions">' +
       '<button type="submit" class="btn btn-primary btn-block" id="intakeSubmit">Aanvraag versturen</button>' +
       '</div></form></div></div>';
@@ -193,7 +189,6 @@
     var email = (form.email.value || '').trim();
     var location = (form.location.value || '').trim();
     var description = (form.description.value || '').trim();
-    var consent = form.consent.checked;
     var ok = true;
 
     if (!name) {
@@ -210,10 +205,6 @@
     }
     if (!description || description.length < 10) {
       fieldError('err-description', 'Beschrijf je project kort (min. 10 tekens).');
-      ok = false;
-    }
-    if (!consent) {
-      fieldError('err-consent', 'Bevestig het privacy-akkoord.');
       ok = false;
     }
     return ok;
@@ -272,8 +263,7 @@
         }
         if (out.status === 400) {
           var code = out.data.error;
-          if (code === 'consent_required') fieldError('err-consent', out.data.message || 'Bevestig het privacy-akkoord.');
-          else if (code === 'invalid_email') fieldError('err-email', out.data.message || 'Ongeldig e-mailadres.');
+          if (code === 'invalid_email') fieldError('err-email', out.data.message || 'Ongeldig e-mailadres.');
           else if (code === 'missing_fields') fieldError('err-form', out.data.message || 'Vul alle verplichte velden in.');
           else fieldError('err-form', (out.data && out.data.message) || 'Controleer je gegevens.');
           return;
