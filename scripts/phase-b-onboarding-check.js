@@ -238,6 +238,7 @@ test('validateDraftStructure rejects malformed and google_intent', function () {
 });
 
 test('editableSections and reviewHub flags', function () {
+  assert.ok(model.editableSectionsFor('not_started').indexOf('start') >= 0);
   assert.ok(model.editableSectionsFor('in_progress').indexOf('ambacht') >= 0);
   assert.deepStrictEqual(model.editableSectionsFor('submitted'), ['portfolio', 'verhaal_optional']);
   assert.deepStrictEqual(model.editableSectionsFor('approved'), []);

@@ -168,7 +168,13 @@ function canResubmit(status) {
  * V2 Review Hub allowlist while under Control review.
  */
 function editableSectionsFor(status) {
-  if (status === 'in_progress' || status === 'changes_requested') {
+  // not_started must be editable so owners can click "Profiel starten"
+  // (first save transitions → in_progress).
+  if (
+    status === 'not_started' ||
+    status === 'in_progress' ||
+    status === 'changes_requested'
+  ) {
     return WIZARD_STEPS.slice();
   }
   if (status === 'submitted') {
