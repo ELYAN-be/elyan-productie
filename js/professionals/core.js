@@ -4,8 +4,68 @@
 
   var cfgPromise = null;
   var supabaseClient = null;
+  var RECOVERY_FLAG = 'elyan_pw_recovery';
+  var recoveryListenerBound = false;
 
   function $(sel, root) { return (root || document).querySelector(sel); }
+
+  function isPasswordSetupPath(pathname) {
+    var p = pathname || (location && location.pathname) || '';
+    return (
+      p === '/professionals/reset-password' ||
+      p.indexOf('/professionals/set-password/') === 0
+    );
+  }
+
+  function markPasswordRecoveryPending() {
+    try {
+      sessionStorage.setItem(RECOVERY_FLAG, '1');
+    } catch (e) { /* ignore */ }
+  }
+
+  function clearPasswordRecoveryPending() {
+    try {
+      sessionStorage.removeItem(RECOVERY_FLAG);
+    } catch (e) { /* ignore */ }
+  }
+
+  function isPasswordRecoveryPending() {
+    try {
+      return sessionStorage.getItem(RECOVERY_FLAG) === '1';
+    } catch (e2) {
+      return false;
+    }
+  }
+
+  function urlLooksLikePasswordRecovery() {
+    var hash = String((location && location.hash) || '');
+    var search = String((location && location.search) || '');
+    var path = (location && location.pathname) || '';
+    if (/type=recovery/i.test(hash) || /type=recovery/i.test(search)) return true;
+    // PKCE email callbacks use ?code=. Invite set-password never uses ?code=.
+    // If a code lands on login/dashboard/onboarding (misconfigured Site URL), park on reset-password.
+    if (/[?&]code=/.test(search)) {
+      if (isPasswordSetupPath(path)) return true;
+      if (/^\/professionals\/(login|dashboard|onboarding)/.test(path)) return true;
+    }
+    return false;
+  }
+
+  /**
+   * Keep recovery sessions on the set-password screen until updateUser succeeds.
+   * Returns true when a redirect was started.
+   */
+  function redirectIfPasswordRecoveryPending() {
+    if (isPasswordSetupPath()) return false;
+    if (!isPasswordRecoveryPending() && !urlLooksLikePasswordRecovery()) return false;
+    markPasswordRecoveryPending();
+    var suffix = '';
+    try {
+      suffix = (location.search || '') + (location.hash || '');
+    } catch (e) { /* ignore */ }
+    location.replace('/professionals/reset-password' + suffix);
+    return true;
+  }
 
   function showEl(el, on) {
     if (!el) return;
@@ -65,6 +125,9 @@
     // detectSessionInUrl MUST stay true so forgot-password recovery links
     // (?code= PKCE / #access_token=) establish a session. Invite password
     // setup no longer embeds Supabase OTP in the URL, so auto-detect is safe.
+    if (urlLooksLikePasswordRecovery()) {
+      markPasswordRecoveryPending();
+    }
     supabaseClient = global.supabase.createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
       auth: {
         persistSession: true,
@@ -73,6 +136,16 @@
         flowType: 'pkce'
       }
     });
+    if (!recoveryListenerBound) {
+      recoveryListenerBound = true;
+      supabaseClient.auth.onAuthStateChange(function (event) {
+        if (event !== 'PASSWORD_RECOVERY') return;
+        markPasswordRecoveryPending();
+        if (!isPasswordSetupPath()) {
+          location.replace('/professionals/reset-password');
+        }
+      });
+    }
     return supabaseClient;
   }
 
@@ -128,6 +201,7 @@
     var nextPath = location.pathname + location.search;
     if (nextPath.indexOf('/professionals/') !== 0) nextPath = '/professionals/control';
     var sb = await getSupabase();
+    if (redirectIfPasswordRecoveryPending()) return null;
     var { data } = await sb.auth.getSession();
     if (!data || !data.session) {
       location.replace('/professionals/login?next=' + encodeURIComponent(nextPath));
@@ -147,6 +221,7 @@
 
   async function requireSessionOrRedirect() {
     var sb = await getSupabase();
+    if (redirectIfPasswordRecoveryPending()) return null;
     var { data } = await sb.auth.getSession();
     if (!data || !data.session) {
       var next = encodeURIComponent(location.pathname + location.search);
@@ -246,6 +321,11 @@
     setStatus,
     loadConfig,
     getSupabase,
+    markPasswordRecoveryPending,
+    clearPasswordRecoveryPending,
+    isPasswordRecoveryPending,
+    redirectIfPasswordRecoveryPending,
+    isPasswordSetupPath,
     getAccessToken,
     apiFetch,
     controlFetch,

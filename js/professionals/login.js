@@ -12,12 +12,51 @@
     return n;
   }
 
+  function wantsControl(next) {
+    return String(next || '').indexOf('/professionals/control') === 0;
+  }
+
+  async function continueAfterAuth(sessionBody) {
+    var next = nextUrl();
+    var memberships = sessionBody && sessionBody.memberships ? sessionBody.memberships : [];
+
+    if (memberships.length) {
+      var partnerId = memberships[0].partnerId || memberships[0].partner.id;
+      // Prefer an explicit Control next over partner home when staff opens Control login.
+      if (wantsControl(next)) {
+        var staffGate = await EP.controlFetch('session');
+        if (staffGate.ok) {
+          location.replace(next);
+          return;
+        }
+      }
+      var dest = await EP.resolveProfessionalsHome(partnerId, next);
+      location.replace(dest);
+      return;
+    }
+
+    // Staff-only accounts have no partner membership — allow Control without inventing one.
+    var controlSession = await EP.controlFetch('session');
+    if (controlSession.ok) {
+      location.replace(wantsControl(next) ? next : '/professionals/control');
+      return;
+    }
+
+    EP.setStatus(
+      status,
+      'Je bent aangemeld, maar er is nog geen actief partnerlidmaatschap. Gebruik je uitnodigingslink om te activeren.',
+      'error'
+    );
+  }
+
   form.addEventListener('submit', async function (e) {
     e.preventDefault();
     EP.setStatus(status, '', '');
     submitBtn.disabled = true;
     try {
+      if (EP.redirectIfPasswordRecoveryPending()) return;
       var sb = await EP.getSupabase();
+      if (EP.redirectIfPasswordRecoveryPending()) return;
       var email = EP.$('#email').value.trim().toLowerCase();
       var password = EP.$('#password').value;
       var { error } = await sb.auth.signInWithPassword({ email: email, password: password });
@@ -34,13 +73,7 @@
         await sb.auth.signOut();
         return;
       }
-      if (!sessionRes.body.memberships || !sessionRes.body.memberships.length) {
-        EP.setStatus(status, 'Je bent aangemeld, maar er is nog geen actief partnerlidmaatschap. Gebruik je uitnodigingslink om te activeren.', 'error');
-        return;
-      }
-      var partnerId = sessionRes.body.memberships[0].partnerId || sessionRes.body.memberships[0].partner.id;
-      var dest = await EP.resolveProfessionalsHome(partnerId, nextUrl());
-      location.replace(dest);
+      await continueAfterAuth(sessionRes.body);
     } catch (err) {
       EP.setStatus(status, 'Er ging iets mis. Probeer later opnieuw.', 'error');
     } finally {
@@ -48,17 +81,18 @@
     }
   });
 
-  EP.getSupabase().then(function (sb) {
-    return sb.auth.getSession();
-  }).then(function (res) {
-    if (res && res.data && res.data.session) {
-      return EP.apiFetch('session').then(async function (s) {
-        if (s.ok && s.body.memberships && s.body.memberships.length) {
-          var partnerId = s.body.memberships[0].partnerId || s.body.memberships[0].partner.id;
-          var dest = await EP.resolveProfessionalsHome(partnerId, nextUrl());
-          location.replace(dest);
-        }
+  EP.getSupabase()
+    .then(function (sb) {
+      if (EP.redirectIfPasswordRecoveryPending()) return null;
+      return sb.auth.getSession();
+    })
+    .then(function (res) {
+      if (!res || !res.data || !res.data.session) return;
+      if (EP.redirectIfPasswordRecoveryPending()) return;
+      return EP.apiFetch('session').then(function (s) {
+        if (!s.ok) return;
+        return continueAfterAuth(s.body);
       });
-    }
-  }).catch(function () { /* ignore */ });
+    })
+    .catch(function () { /* ignore */ });
 })();

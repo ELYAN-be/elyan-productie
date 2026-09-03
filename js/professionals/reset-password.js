@@ -106,10 +106,28 @@
         console.error('recovery_code_exchange_failed', exchanged.error);
         return null;
       }
-      return exchanged.data && exchanged.data.session;
+      if (exchanged.data && exchanged.data.session) {
+        EP.markPasswordRecoveryPending();
+        return exchanged.data.session;
+      }
+      return null;
     }
     return null;
   }
+
+  // Recovery callbacks must stay on this page — never bounce into partner onboarding first.
+  (async function bootRecoveryGate() {
+    try {
+      var sbBoot = await EP.getSupabase();
+      if (/type=recovery/i.test(location.hash + location.search) || location.search.indexOf('code=') >= 0) {
+        EP.markPasswordRecoveryPending();
+      }
+      var session = await ensureRecoverySession(sbBoot);
+      if (session && EP.isPasswordRecoveryPending()) {
+        EP.setStatus(status, 'Kies een nieuw wachtwoord om je account te herstellen.', 'ok');
+      }
+    } catch (e) { /* ignore */ }
+  })();
 
   var submitting = false;
 
@@ -211,10 +229,15 @@
         EP.setStatus(status, 'Wachtwoord resetten mislukt. Probeer opnieuw via “Wachtwoord vergeten”.', 'error');
         return;
       }
+      EP.clearPasswordRecoveryPending();
+      try {
+        await sbRecovery.auth.signOut();
+      } catch (signOutErr) { /* ignore */ }
       EP.setStatus(status, 'Wachtwoord bijgewerkt. Je kunt nu inloggen.', 'ok');
       redirecting = true;
       setTimeout(function () {
-        redirectAfterPasswordUpdate(null, next, false);
+        // Always return to login after recovery — never partner onboarding.
+        location.replace('/professionals/login' + (next ? '?next=' + encodeURIComponent(next) : ''));
       }, 1200);
     } catch (err) {
       console.error('reset_password_exception', err);

@@ -124,6 +124,35 @@ test('core.js keeps detectSessionInUrl enabled for recovery callbacks', function
   var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'professionals', 'core.js'), 'utf8');
   assert.ok(src.indexOf('detectSessionInUrl: true') >= 0);
   assert.ok(src.indexOf('detectSessionInUrl: !isPasswordSetupRoute') < 0);
+  assert.ok(src.indexOf("PASSWORD_RECOVERY") >= 0);
+  assert.ok(src.indexOf('markPasswordRecoveryPending') >= 0);
+  assert.ok(src.indexOf('redirectIfPasswordRecoveryPending') >= 0);
+});
+
+test('reset-password recovery stays on form then returns to login (not onboarding)', function () {
+  var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'professionals', 'reset-password.js'), 'utf8');
+  assert.ok(src.indexOf('updateUser({ password:') >= 0 || src.indexOf('updateUser({ password: p1 })') >= 0);
+  assert.ok(src.indexOf('clearPasswordRecoveryPending') >= 0);
+  assert.ok(src.indexOf('signOut') >= 0);
+  assert.ok(src.indexOf("location.replace('/professionals/login'") >= 0);
+  assert.ok(src.indexOf('bootRecoveryGate') >= 0);
+  // Recovery success path must not call claimed/onboarding redirect helper with claimed=true
+  assert.ok(src.indexOf('Always return to login after recovery') >= 0);
+});
+
+test('login.js allows staff Control without partner membership and blocks recovery auto-route', function () {
+  var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'professionals', 'login.js'), 'utf8');
+  assert.ok(src.indexOf('redirectIfPasswordRecoveryPending') >= 0);
+  assert.ok(src.indexOf("controlFetch('session')") >= 0);
+  assert.ok(src.indexOf('/professionals/control') >= 0);
+  assert.ok(src.indexOf('continueAfterAuth') >= 0);
+  assert.ok(src.indexOf('wantsControl') >= 0);
+});
+
+test('forgot-password still targets reset-password redirectTo', function () {
+  var src = fs.readFileSync(path.join(__dirname, '..', 'js', 'professionals', 'forgot-password.js'), 'utf8');
+  assert.ok(src.indexOf("'/professionals/reset-password'") >= 0);
+  assert.ok(src.indexOf('resetPasswordForEmail') >= 0);
 });
 
 test('elyan invite token hashing remains sha256', function () {

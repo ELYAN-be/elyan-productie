@@ -98,13 +98,15 @@ test('setup-password claims membership in the same BFF step', function () {
   assert.ok(api.indexOf('claimed: !!result.claimed') >= 0);
 });
 
-test('reset-password redirects to dashboard when setup-password claimed', function () {
+test('reset-password routes claimed setup via resolveProfessionalsHome (not recovery onboarding leak)', function () {
   var src = fs.readFileSync(
     path.join(__dirname, '..', 'js', 'professionals', 'reset-password.js'),
     'utf8'
   );
-  assert.ok(src.indexOf("location.replace('/professionals/dashboard')") >= 0);
+  assert.ok(src.indexOf('resolveProfessionalsHome') >= 0);
   assert.ok(src.indexOf('setupRes.body.claimed') >= 0 || src.indexOf('setupRes.body && setupRes.body.claimed') >= 0);
+  assert.ok(src.indexOf('clearPasswordRecoveryPending') >= 0);
+  assert.ok(src.indexOf('Always return to login after recovery') >= 0);
 });
 
 test('activate auto-claims when session is present', function () {
