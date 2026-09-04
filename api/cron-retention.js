@@ -2,6 +2,8 @@
  * ELYAN retention cron — service-side only.
  * Vercel Cron GET with Authorization: Bearer $CRON_SECRET.
  * Defaults to dry-run. Set RETENTION_APPLY=true to apply deletes.
+ *
+ * Path: /api/cron-retention (top-level api file so Vercel bundles ../server/*).
  */
 'use strict';
 

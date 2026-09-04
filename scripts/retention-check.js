@@ -157,7 +157,7 @@ async function main() {
   });
 
   await test('cron endpoint requires secret and defaults dry-run', function () {
-    var src = source('api/cron/retention.js');
+    var src = source('api/cron-retention.js');
     assert.ok(src.indexOf('CRON_SECRET') >= 0);
     assert.ok(src.indexOf('RETENTION_APPLY') >= 0);
     assert.ok(src.indexOf('dryRun') >= 0);

@@ -3,7 +3,7 @@
   "trailingSlash": false,
   "crons": [
     {
-      "path": "/api/cron/retention",
+      "path": "/api/cron-retention",
       "schedule": "0 4 * * 1"
     }
   ],
