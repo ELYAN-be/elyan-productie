@@ -41,9 +41,9 @@ var CONTENT_W = PAGE.width - MARGIN * 2;
 var FOOTER_Y = PAGE.height - 36;
 var CONTENT_BOTTOM = FOOTER_Y - 16;
 /* Balanced editorial scale — breathe without sparse gaps */
-var SPACE = { XS: 3, S: 5, M: 8, L: 12, XL: 18, XXL: 24 };
+var SPACE = { XS: 4, S: 6, M: 10, L: 14, XL: 20, XXL: 26 };
 var GAP = SPACE.M;
-var TABLE_ROW_H = 22;
+var TABLE_ROW_H = 24;
 var TABLE_HEADER_H = 22;
 var HEADER_AFTER = 50; /* approx doc.y just under page header */
 
@@ -233,11 +233,11 @@ function sandCard(doc, lines, ctx, minH) {
 function mintBudgetCard(doc, budget, statusLabel, confLabel, durationText, ctx, opts) {
   opts = opts || {};
   var isPartial = !!opts.isPartial;
-  var h = isPartial ? 138 : 118;
+  var h = isPartial ? 144 : 124;
   keepBlock(doc, h + SPACE.M, ctx);
   var y = doc.y;
-  doc.roundedRect(MARGIN, y, CONTENT_W, h, 10).fill(COLOR.mint);
-  doc.roundedRect(MARGIN, y, CONTENT_W, h, 10).lineWidth(0.9).strokeColor(COLOR.primarySoft).stroke();
+  doc.roundedRect(MARGIN, y, CONTENT_W, h, 8).fill(COLOR.mint);
+  doc.roundedRect(MARGIN, y, CONTENT_W, h, 8).lineWidth(0.9).strokeColor(COLOR.primarySoft).stroke();
 
   if (isPartial) {
     doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)

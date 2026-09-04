@@ -48,7 +48,7 @@ var MARGIN = 44;
 var CONTENT_W = PAGE.width - MARGIN * 2;
 var FOOTER_Y = PAGE.height - 36;
 var CONTENT_BOTTOM = FOOTER_Y - 14;
-var GAP = 8;
+var GAP = 10;
 
 function fmtDate(d) {
   var months = ['januari', 'februari', 'maart', 'april', 'mei', 'juni', 'juli', 'augustus', 'september', 'oktober', 'november', 'december'];
@@ -117,11 +117,11 @@ function startSectionPage(doc, ctx) {
 }
 
 function maybeNewSection(doc, ctx, minNeeded) {
-  minNeeded = minNeeded || 160;
+  minNeeded = minNeeded || 168;
   if (CONTENT_BOTTOM - doc.y < minNeeded) {
     startSectionPage(doc, ctx);
   } else {
-    doc.y += 6;
+    doc.y += 10;
   }
 }
 
@@ -141,7 +141,7 @@ function sectionTitle(doc, iconKey, text, ctx, opts) {
     .text(text, MARGIN + (iconKey ? size + 7 : 0), yStart, {
       width: CONTENT_W - (iconKey ? size + 7 : 0)
     });
-  doc.y = Math.max(doc.y, yStart + size) + (opts.marginBottom !== undefined ? opts.marginBottom : 6);
+  doc.y = Math.max(doc.y, yStart + size) + (opts.marginBottom !== undefined ? opts.marginBottom : 8);
 }
 
 /* Keep eyebrow + title with at least the first content block (no orphan headings). */
@@ -213,20 +213,20 @@ function numberedList(doc, items, ctx) {
 
 function kpiRow(doc, cells, ctx) {
   var n = cells.length;
-  var gap = 7;
+  var gap = 8;
   var boxW = (CONTENT_W - gap * (n - 1)) / n;
-  var boxH = 48;
-  ensureSpace(doc, boxH + 6, ctx);
+  var boxH = 52;
+  ensureSpace(doc, boxH + 8, ctx);
   var rowY = doc.y;
   cells.forEach(function (m, i) {
     var x = MARGIN + i * (boxW + gap);
-    doc.roundedRect(x, rowY, boxW, boxH, 6).fill(COLOR.sand);
+    doc.roundedRect(x, rowY, boxW, boxH, 5).fill(COLOR.sand);
     doc.font('Helvetica').fontSize(6.5).fillColor(COLOR.inkFaint)
-      .text(String(m.label).toUpperCase(), x + 7, rowY + 8, { width: boxW - 14, characterSpacing: 0.4 });
-    doc.font('Helvetica-Bold').fontSize(m.big ? 12 : 10).fillColor(COLOR.ink)
-      .text(String(m.value), x + 7, rowY + 24, { width: boxW - 14 });
+      .text(String(m.label).toUpperCase(), x + 8, rowY + 10, { width: boxW - 16, characterSpacing: 0.4 });
+    doc.font('Helvetica-Bold').fontSize(m.big ? 12.5 : 10).fillColor(COLOR.ink)
+      .text(String(m.value), x + 8, rowY + 26, { width: boxW - 16 });
   });
-  doc.y = rowY + boxH + 7;
+  doc.y = rowY + boxH + 10;
 }
 
 function metaGrid2(doc, cells, ctx) {
@@ -250,23 +250,25 @@ function metaGrid2(doc, cells, ctx) {
 }
 
 function drawRangeBar(doc, low, mid, high, ctx) {
-  ensureSpace(doc, 56, ctx);
+  ensureSpace(doc, 62, ctx);
   var y = doc.y;
-  doc.font('Helvetica').fontSize(7.5).fillColor(COLOR.inkFaint)
+  doc.font('Helvetica').fontSize(7).fillColor(COLOR.inkFaint)
     .text('LOW', MARGIN, y)
-    .text('EXPECTED', MARGIN, y, { width: CONTENT_W, align: 'center' })
     .text('HIGH', MARGIN, y, { width: CONTENT_W, align: 'right' });
-  doc.font('Helvetica-Bold').fontSize(11).fillColor(COLOR.ink)
-    .text(pricing.fmtEUR(low), MARGIN, y + 12)
-    .text(pricing.fmtEUR(mid), MARGIN, y + 12, { width: CONTENT_W, align: 'center' })
-    .text(pricing.fmtEUR(high), MARGIN, y + 12, { width: CONTENT_W, align: 'right' });
-  var barY = y + 34;
-  doc.roundedRect(MARGIN, barY, CONTENT_W, 7, 3.5).fill(COLOR.sandDeep);
+  doc.font('Helvetica-Bold').fontSize(7.2).fillColor(COLOR.primary)
+    .text('EXPECTED', MARGIN, y, { width: CONTENT_W, align: 'center', characterSpacing: 0.5 });
+  doc.font('Helvetica-Bold').fontSize(10.5).fillColor(COLOR.ink)
+    .text(pricing.fmtEUR(low), MARGIN, y + 13)
+    .text(pricing.fmtEUR(high), MARGIN, y + 13, { width: CONTENT_W, align: 'right' });
+  doc.font('Helvetica-Bold').fontSize(13).fillColor(COLOR.primaryDark)
+    .text(pricing.fmtEUR(mid), MARGIN, y + 12, { width: CONTENT_W, align: 'center' });
+  var barY = y + 36;
+  doc.roundedRect(MARGIN, barY, CONTENT_W, 7, 3).fill(COLOR.sandDeep);
   var span = Math.max(1, high - low);
   var midX = MARGIN + ((mid - low) / span) * CONTENT_W;
-  doc.roundedRect(MARGIN, barY, Math.max(8, midX - MARGIN), 7, 3.5).fill(COLOR.primarySoft);
+  doc.roundedRect(MARGIN, barY, Math.max(8, midX - MARGIN), 7, 3).fill(COLOR.primarySoft);
   doc.circle(midX, barY + 3.5, 5).fill(COLOR.primary);
-  doc.y = barY + 16;
+  doc.y = barY + 18;
 }
 
 function drawSplitBars(doc, r, ctx) {

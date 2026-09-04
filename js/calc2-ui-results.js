@@ -136,7 +136,7 @@
       '<p class="calc2-confidence">' + escapeHtml(statusLabel) +
         ' · Betrouwbaarheid: <strong>' + escapeHtml(confLabel) + '</strong></p>' +
       '<p class="calc2-vat-note">' + escapeHtml(vatNote) + '</p>' +
-      '<p class="calc2-confidence">Indicatieve uitvoeringsduur: ongeveer ' + escapeHtml(duration) + '</p>' +
+      '<p class="calc2-duration">Indicatieve uitvoeringsduur: ongeveer ' + escapeHtml(duration) + '</p>' +
       scopeNote +
       marketNote +
     '</section>';

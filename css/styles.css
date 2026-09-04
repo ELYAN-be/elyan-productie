@@ -653,6 +653,128 @@ textarea#notesInput:focus,#calcStepHost textarea:focus{border-color:var(--primar
 .results-footer{text-align:center;}
 .disclaimer{font-size:.78rem;color:var(--ink-faint);max-width:38em;margin:0 auto var(--sp-6);}
 
+/* ============ CALC1 VISUAL POLISH (presentation only) ============ */
+#calculatorOverlay .chip-btn,
+#calculatorOverlay .preset-chip{
+  border-radius:8px;
+}
+#calculatorOverlay .option-card{
+  border-radius:12px;
+}
+#calculatorOverlay .calc-actions{
+  gap:10px;
+}
+#calculatorOverlay .calc-actions .btn{
+  height:48px;
+  padding:0 22px;
+  border-radius:10px;
+  font-size:.92rem;
+}
+.results-overlay .price-card{
+  border-radius:14px;
+}
+.results-overlay .price-card .label{
+  letter-spacing:.05em;
+  margin-bottom:10px;
+}
+.results-overlay .price-card .price{
+  margin-bottom:8px;
+  letter-spacing:-.025em;
+}
+.results-overlay .price-card .range{
+  font-size:.98rem;
+  margin-bottom:var(--sp-4);
+  opacity:.95;
+  font-weight:600;
+}
+.results-overlay .price-card .duration{
+  border-radius:8px;
+  padding:8px 14px;
+  font-size:.82rem;
+}
+.results-overlay .results-card{
+  border-radius:12px;
+  padding:var(--sp-5);
+}
+.results-overlay .results-card h3{
+  margin-bottom:var(--sp-4);
+  font-size:1rem;
+}
+.results-overlay .cta-card{
+  border-radius:14px;
+}
+.results-overlay .email-form input,
+.results-overlay .email-form .btn{
+  border-radius:10px;
+  height:48px;
+}
+.results-overlay .email-form .btn{
+  padding:0 22px;
+}
+.results-overlay #btwTipText{
+  font-size:.86rem;
+  line-height:1.45;
+  color:var(--ink-soft);
+  margin:0;
+}
+.results-overlay .tip-item{
+  font-size:.88rem;
+  line-height:1.45;
+}
+
+@media (max-width:430px){
+  #calculatorOverlay .app-body{
+    padding:var(--sp-6) 16px var(--sp-8);
+  }
+  #calculatorOverlay .app-bar .container,
+  .results-bar-inner{
+    padding-left:16px;
+    padding-right:16px;
+  }
+  .results-body{
+    padding:var(--sp-6) 16px var(--sp-8);
+  }
+  .results-overlay .price-card{
+    padding:var(--sp-6) var(--sp-5);
+  }
+  .results-overlay .cta-card{
+    padding:var(--sp-6) var(--sp-5);
+  }
+  .results-overlay .email-form{
+    flex-direction:column;
+    align-items:stretch;
+    max-width:none;
+  }
+  .results-overlay .email-form input{
+    min-width:0;
+    width:100%;
+  }
+  .results-overlay .email-form .btn{
+    width:100%;
+  }
+  #calculatorOverlay .calc-actions{
+    flex-direction:column;
+  }
+  #calculatorOverlay .calc-actions .btn{
+    width:100%;
+  }
+  #calculatorOverlay .option-card .opt-label{
+    font-size:.88rem;
+    line-height:1.3;
+  }
+}
+
+@media (max-width:360px){
+  #calculatorOverlay .app-body,
+  .results-body{
+    padding-left:14px;
+    padding-right:14px;
+  }
+  .results-overlay .price-card .price{
+    font-size:clamp(1.45rem,7vw,1.9rem);
+  }
+}
+
 /* ============ LEGAL / INFO PAGES ============ */
 .page-hero{padding:calc(var(--sp-10) + 1rem) 0 var(--sp-7);}
 .page-hero h1{font-size:clamp(2rem,3vw + 1rem,2.75rem);margin-bottom:var(--sp-3);}
