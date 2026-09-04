@@ -1,4 +1,4 @@
-/* ELYAN Control — Reporting V1 */
+/* ELYAN Control: Reporting V1 */
 (function () {
   'use strict';
 
@@ -71,7 +71,7 @@
     if (key === '30') return '30 dagen';
     if (key === '90') return '90 dagen';
     if (key === 'custom') return 'Aangepast';
-    return key || '—';
+    return key || '-';
   }
 
   function rateLabel(r) {
@@ -111,7 +111,7 @@
     var funnelHost = EP.$('#ctrlFunnel');
     if (report.funnel && report.funnel.empty) {
       funnelHost.innerHTML =
-        '<p class="lab-hint">Geen aanvragen in deze periode/filters — geen percentages.</p>';
+        '<p class="lab-hint">Geen aanvragen in deze periode of filters. Geen percentages.</p>';
     } else {
       funnelHost.innerHTML = (report.funnel.stages || [])
         .map(function (s) {
@@ -195,7 +195,7 @@
         .slice(0, 25)
         .map(function (p) {
           return metricRow(
-            p.partnerSlug || p.partnerId || '—',
+            p.partnerSlug || p.partnerId || '-',
             'ontvangen ' +
               p.received +
               ' · gekwalificeerd ' +
@@ -257,7 +257,7 @@
     var session = await EP.requireStaffOrRedirect();
     if (!session) return;
     if (session.notStaff) {
-      showGate('Geen toegang — alleen ELYAN-staff.', 'error');
+      showGate('Geen toegang: alleen ELYAN-staff.', 'error');
       return;
     }
     var userEl = EP.$('#ctrlUser');

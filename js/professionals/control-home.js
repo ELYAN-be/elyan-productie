@@ -1,4 +1,4 @@
-/* ELYAN Control — Home / Overzicht (operations attention) */
+/* ELYAN Control: Home / Overzicht (operations attention) */
 (function () {
   'use strict';
 
@@ -6,7 +6,7 @@
   if (!EP) return;
 
   var BUCKET_LABELS = {
-    new_needing_first_contact: 'Nieuw — eerste contact',
+    new_needing_first_contact: 'Nieuw: eerste contact',
     sla_approaching: 'SLA nadert',
     sla_overdue: 'SLA overschreden',
     follow_up_overdue: 'Opvolging achterstallig',
@@ -27,6 +27,10 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function uiText(s) {
+    return String(s == null ? '' : s).replace(/\u2014/g, ' · ');
   }
 
   function showGate(msg, kind) {
@@ -79,16 +83,16 @@
       items.push({
         href: '/professionals/aanvragen?attention=1',
         text: slaOverdue === 1
-          ? '1 aanvraag — SLA overschreden'
-          : slaOverdue + ' aanvragen — SLA overschreden'
+          ? '1 aanvraag: SLA overschreden'
+          : slaOverdue + ' aanvragen: SLA overschreden'
       });
     }
     if (followUpOverdue > 0) {
       items.push({
         href: '/professionals/aanvragen?followUp=overdue',
         text: followUpOverdue === 1
-          ? '1 aanvraag — opvolging achterstallig'
-          : followUpOverdue + ' aanvragen — opvolging achterstallig'
+          ? '1 aanvraag: opvolging achterstallig'
+          : followUpOverdue + ' aanvragen: opvolging achterstallig'
       });
     }
 
@@ -143,14 +147,14 @@
             esc(requestHref(row.id)) +
             '">' +
             '<span class="ctrl-ops-name">' +
-            esc(row.customerName || '—') +
+            esc(row.customerName || '-') +
             '</span>' +
             '<span class="ctrl-ops-meta">' +
-            esc(row.partnerSlug || '') +
+            esc(row.partnerSlug || '-') +
             ' · ' +
-            esc(row.statusLabel || row.status) +
+            esc(uiText(row.statusLabel || row.status)) +
             ' · ' +
-            esc(row.ageLabel || '') +
+            esc(row.ageLabel || '-') +
             '</span>' +
             '</a>' +
             '</li>';
@@ -162,7 +166,7 @@
 
     if (totals.capped) {
       html +=
-        '<p class="lab-hint">Scan begrensd tot recente actieve aanvragen — totalen kunnen onvolledig zijn.</p>';
+        '<p class="lab-hint">Scan begrensd tot recente actieve aanvragen. Totalen kunnen onvolledig zijn.</p>';
     }
 
     host.innerHTML = html;
@@ -191,7 +195,7 @@
     var session = await EP.requireStaffOrRedirect();
     if (!session) return;
     if (session.notStaff) {
-      showGate('Geen toegang — alleen ELYAN-staff.', 'error');
+      showGate('Geen toegang: alleen ELYAN-staff.', 'error');
       return;
     }
     var userEl = EP.$('#ctrlUser');

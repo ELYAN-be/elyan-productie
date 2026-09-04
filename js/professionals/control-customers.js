@@ -1,4 +1,4 @@
-/* ELYAN Control — Customer View (staff-only, email aggregation) */
+/* ELYAN Control: Customer View (staff-only, email aggregation) */
 (function () {
   'use strict';
 
@@ -13,6 +13,28 @@
       .replace(/</g, '&lt;')
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;');
+  }
+
+  function uiText(s) {
+    return String(s == null ? '' : s).replace(/\u2014/g, ' · ');
+  }
+
+  function metaRows(pairs) {
+    return (
+      '<dl class="ctrl-meta-grid">' +
+      pairs
+        .map(function (p) {
+          return (
+            '<div class="ctrl-dl-row"><dt>' +
+            esc(p[0]) +
+            '</dt><dd>' +
+            esc(p[1] == null || p[1] === '' ? '-' : uiText(p[1])) +
+            '</dd></div>'
+          );
+        })
+        .join('') +
+      '</dl>'
+    );
   }
 
   function fmtDate(iso) {
@@ -99,24 +121,21 @@
           '<strong>' +
           esc(c.name) +
           '</strong>' +
-          '<span class="ctrl-list-meta-line">' +
+          '<p class="ctrl-list-status">' +
           esc(c.email) +
           (c.phone ? ' · ' + esc(c.phone) : '') +
-          '</span>' +
-          '<span class="ctrl-list-meta-line">' +
-          esc(c.locationText || 'Locatie: Niet beschikbaar') +
-          ' · Eerste: ' +
-          esc(fmtDate(c.firstRequestAt)) +
-          ' · Laatst: ' +
-          esc(fmtDate(c.lastActivityAt)) +
-          '</span>' +
-          '<span class="ctrl-list-meta-line">' +
-          esc(String(c.totalRequests)) +
-          ' aanvragen · ' +
-          esc(String(c.activeRequests)) +
-          ' actief' +
-          (c.nameAmbiguous ? ' · Meerdere namen gezien' : '') +
-          '</span>' +
+          '</p>' +
+          metaRows([
+            ['Locatie', c.locationText || 'Niet beschikbaar'],
+            ['Eerste aanvraag', fmtDate(c.firstRequestAt)],
+            ['Laatste activiteit', fmtDate(c.lastActivityAt)],
+            ['Totaal', String(c.totalRequests) + ' aanvragen'],
+            ['Actief', String(c.activeRequests)],
+            [
+              'Naam',
+              c.nameAmbiguous ? 'Meerdere namen gezien' : 'Eenduidig'
+            ]
+          ]) +
           '</div>' +
           '<div class="ctrl-list-item-side">' +
           '<button type="button" class="btn btn-ghost btn-sm" data-customer="' +
@@ -169,14 +188,13 @@
             '<article class="ctrl-list-item" role="listitem">' +
             '<div class="ctrl-list-item-main">' +
             '<strong>' +
-            esc(r.statusLabel || r.status) +
+            esc(uiText(r.statusLabel || r.status)) +
             '</strong>' +
-            '<span class="ctrl-list-meta-line">' +
-            esc(r.partnerSlug || '') +
-            (r.categoryId ? ' · ' + esc(r.categoryId) : '') +
-            ' · ' +
-            esc(fmtDate(r.createdAt)) +
-            '</span>' +
+            metaRows([
+              ['Partner', r.partnerSlug || '-'],
+              ['Vakgebied', r.categoryId || '-'],
+              ['Aangemaakt', fmtDate(r.createdAt)]
+            ]) +
             '</div>' +
             '<a class="btn btn-ghost btn-sm" href="/professionals/aanvragen/' +
             esc(r.id) +
@@ -201,12 +219,12 @@
             esc(fmtDate(h.at)) +
             '</strong>' +
             '<span>' +
-            esc(h.statusLabel || h.status) +
+            esc(uiText(h.statusLabel || h.status)) +
             '</span>' +
             '</div>' +
             '<p>' +
             esc(h.partnerSlug || '') +
-            (h.outcome ? ' · ' + esc(h.outcome) : '') +
+            (h.outcome ? ' · ' + esc(uiText(h.outcome)) : '') +
             ' · <a href="/professionals/aanvragen/' +
             esc(h.requestId) +
             '">Openen</a></p>' +
@@ -258,7 +276,7 @@
     var session = await EP.requireStaffOrRedirect();
     if (!session) return;
     if (session.notStaff) {
-      showGate('Geen toegang — alleen ELYAN-staff.', 'error');
+      showGate('Geen toegang: alleen ELYAN-staff.', 'error');
       return;
     }
     var userEl = EP.$('#ctrlUser');

@@ -1,4 +1,4 @@
-/* ELYAN Control — Customer Requests / Aanvragen (Core + Automation V1) */
+/* ELYAN Control: Customer Requests / Aanvragen (Core + Automation V1) */
 (function () {
   'use strict';
 
@@ -20,12 +20,20 @@
     contacted: 'Contact opgenomen',
     qualified: 'Gekwalificeerd',
     closed_won: 'Succesvolle introductie',
-    closed_lost: 'Afgesloten — niet gelukt'
+    closed_lost: 'Afgesloten · niet gelukt'
   };
 
+  function uiText(s) {
+    return String(s == null ? '' : s).replace(/\u2014/g, ' · ');
+  }
+
+  function emptyVal() {
+    return '-';
+  }
+
   function lifecycleLabel(code) {
-    if (!code) return '—';
-    return REQUEST_STATUS_LABELS[code] || code;
+    if (!code) return emptyVal();
+    return REQUEST_STATUS_LABELS[code] || uiText(code);
   }
 
   var state = {
@@ -53,7 +61,7 @@
   }
 
   function fmtDate(iso) {
-    if (!iso) return '—';
+    if (!iso) return emptyVal();
     try {
       var d = new Date(iso);
       if (isNaN(d.getTime())) return String(iso);
@@ -90,9 +98,27 @@
   }
 
   function shortId(id) {
-    if (!id) return '—';
+    if (!id) return emptyVal();
     var s = String(id);
     return s.length > 8 ? s.slice(0, 8) + '…' : s;
+  }
+
+  function metaRows(pairs) {
+    return (
+      '<dl class="ctrl-meta-grid">' +
+      pairs
+        .map(function (p) {
+          return (
+            '<div class="ctrl-dl-row"><dt>' +
+            esc(p[0]) +
+            '</dt><dd>' +
+            esc(p[1] == null || p[1] === '' ? emptyVal() : uiText(p[1])) +
+            '</dd></div>'
+          );
+        })
+        .join('') +
+      '</dl>'
+    );
   }
 
   function parseRequestFromPath() {
@@ -168,6 +194,7 @@
     }
     host.innerHTML = items
       .map(function (row) {
+        var statusLine = uiText(row.statusLabel || lifecycleLabel(row.status) || row.status);
         return (
           '<article class="ctrl-list-item' +
           (row.attention ? ' is-attention' : '') +
@@ -176,26 +203,28 @@
           '<strong>' +
           esc(row.customerName) +
           '</strong>' +
-          '<span class="ctrl-list-meta-line">' +
-          esc(row.statusLabel || row.status) +
-          (row.partnerResponseStatusLabel
-            ? ' · Partnerreactie: ' + esc(row.partnerResponseStatusLabel)
-            : '') +
-          ' · ' +
-          esc(row.partnerSlug || '—') +
-          (row.categoryId ? ' · ' + esc(row.categoryId) : '') +
-          ' · ' +
-          esc(row.locationText || '—') +
-          '</span>' +
-          '<span class="ctrl-list-meta-line">' +
-          'Eigenaar: ' +
-          esc(row.ownerUserId ? shortId(row.ownerUserId) : 'niet toegewezen') +
-          ' · Leeftijd: ' +
-          esc(row.ageLabel || '—') +
-          ' · Opvolging: ' +
-          esc(row.nextFollowUpAt ? fmtDate(row.nextFollowUpAt) : '—') +
-          (row.attention ? ' · Aandacht: ja' : ' · Aandacht: nee') +
-          '</span>' +
+          '<p class="ctrl-list-status">' +
+          esc(statusLine) +
+          '</p>' +
+          metaRows([
+            ['Vakgebied', row.categoryId || emptyVal()],
+            ['Locatie', row.locationText || emptyVal()],
+            ['Partner', row.partnerSlug || emptyVal()],
+            [
+              'Partnerreactie',
+              row.partnerResponseStatusLabel || 'Nog geen reactie'
+            ],
+            [
+              'Eigenaar',
+              row.ownerUserId ? shortId(row.ownerUserId) : 'Niet toegewezen'
+            ],
+            ['Leeftijd', row.ageLabel || emptyVal()],
+            [
+              'Opvolging',
+              row.nextFollowUpAt ? fmtDate(row.nextFollowUpAt) : 'Geen'
+            ],
+            ['Aandacht', row.attention ? 'Ja' : 'Nee']
+          ]) +
           '</div>' +
           '<div class="ctrl-list-item-side">' +
           attentionBadge(row) +
@@ -241,13 +270,15 @@
   function dlRows(pairs) {
     return pairs
       .map(function (p) {
+        var val = p[1];
+        if (!p[2] && typeof val === 'string') val = uiText(val);
         return (
           '<div class="ctrl-dl-row">' +
           '<dt>' +
           esc(p[0]) +
           '</dt>' +
           '<dd>' +
-          (p[2] ? p[1] : esc(p[1])) +
+          (p[2] ? val : esc(val)) +
           '</dd>' +
           '</div>'
         );
@@ -294,7 +325,7 @@
       '<div class="ctrl-ri-head">' +
       '<strong>' +
       esc(label) +
-      (detail ? ' — ' + esc(detail) : '') +
+      (detail ? ': ' + esc(detail) : '') +
       '</strong>' +
       '<span>' +
       esc(fmtDate(ev.createdAt)) +
@@ -309,9 +340,16 @@
     state.detail = payload;
     EP.$('#ctrlDetailName').textContent = req.customerName || 'Aanvraag';
     EP.$('#ctrlDetailSub').textContent =
-      (req.statusLabel || req.status) + ' · ' + fmtDate(req.createdAt) + ' · ' + (req.ageLabel || '');
+      uiText(req.statusLabel || req.status) +
+      ' · ' +
+      fmtDate(req.createdAt) +
+      ' · ' +
+      (req.ageLabel || emptyVal());
 
-    var badges = '<span class="ctrl-badge">' + esc(req.statusLabel || req.status) + '</span>';
+    var badges =
+      '<span class="ctrl-badge">' +
+      esc(uiText(req.statusLabel || req.status)) +
+      '</span>';
     if (req.attention) badges += '<span class="ctrl-badge ctrl-badge-attention">Aandacht</span>';
     if (req.newSlaOverdue) badges += '<span class="ctrl-badge ctrl-badge-attention">SLA nieuw</span>';
     if (req.followUpOverdue) badges += '<span class="ctrl-badge ctrl-badge-attention">Opvolging</span>';
@@ -320,7 +358,7 @@
     EP.$('#ctrlCustomerFields').innerHTML = dlRows([
       ['Naam', req.customerName],
       ['E-mail', req.customerEmail],
-      ['Telefoon', req.customerPhone || '—'],
+      ['Telefoon', req.customerPhone || emptyVal()],
       ['Locatie', req.locationText],
       ['Toestemming', fmtDate(req.consentAt)]
     ]);
@@ -342,7 +380,8 @@
     if (ops) {
       var closed = req.status === 'closed_won' || req.status === 'closed_lost';
       if (closed) {
-        ops.innerHTML = '<p class="lab-hint">Gesloten aanvraag — geen actieve toewijzing/opvolging nodig.</p>';
+        ops.innerHTML =
+          '<p class="lab-hint">Gesloten aanvraag: geen actieve toewijzing of opvolging nodig.</p>';
       } else {
         ops.innerHTML =
           '<button type="button" class="btn btn-ghost btn-sm" data-assign-me>Toewijzen aan mij</button>' +
@@ -352,18 +391,19 @@
 
     EP.$('#ctrlContextFields').innerHTML = dlRows([
       ['Bron', req.source === 'marketplace_interest' ? 'Marketplace-interesse' : req.source],
-      ['Gekozen vakbedrijf', req.partnerSlug || '—'],
-      ['Categorie', req.categoryId || '—'],
-      ['Partnerreactie', req.partnerResponseStatusLabel || '—'],
-      ['Afwijzingsreden', req.partnerDeclineReasonLabel || '—'],
+      ['Gekozen vakbedrijf', req.partnerSlug || emptyVal()],
+      ['Categorie', req.categoryId || emptyVal()],
+      ['Partnerreactie', uiText(req.partnerResponseStatusLabel) || emptyVal()],
+      ['Afwijzingsreden', uiText(req.partnerDeclineReasonLabel) || emptyVal()],
       ['Partner reageerde op', fmtDate(req.partnerRespondedAt)],
       ['Aangemaakt', fmtDate(req.createdAt)],
       ['Laatste statuswijziging', fmtDate(req.statusChangedAt)],
       [
         'Afsluitreden',
         req.closedLostReasonLabel
-          ? req.closedLostReasonLabel + (req.closedLostDetail ? ' — ' + req.closedLostDetail : '')
-          : '—'
+          ? uiText(req.closedLostReasonLabel) +
+            (req.closedLostDetail ? ': ' + req.closedLostDetail : '')
+          : emptyVal()
       ],
       ['Afgesloten op', fmtDate(req.closedAt)]
     ]);
@@ -417,9 +457,9 @@
             '<div class="ctrl-ri">' +
             '<div class="ctrl-ri-head">' +
             '<strong>' +
-            esc(ev.fromLabel || '—') +
+            esc(uiText(ev.fromLabel) || emptyVal()) +
             ' → ' +
-            esc(ev.toLabel || ev.toStatus) +
+            esc(uiText(ev.toLabel || ev.toStatus)) +
             '</strong>' +
             '<span>' +
             esc(fmtDate(ev.createdAt)) +

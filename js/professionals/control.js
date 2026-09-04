@@ -1,4 +1,4 @@
-/* ELYAN Control — Phase B Sprint 8 */
+/* ELYAN Control: Phase B Sprint 8 */
 (function () {
   'use strict';
 
@@ -64,12 +64,12 @@
   };
 
   function categoryLabel(id) {
-    if (!id) return '—';
+    if (!id) return '-';
     return CATEGORY_LABELS[id] || String(id).replace(/-/g, ' ').replace(/_/g, ' ');
   }
 
   function autopilotStatusLabel(s) {
-    return AUTOPILOT_STATUS_LABELS[s] || statusLabel(s) || '—';
+    return AUTOPILOT_STATUS_LABELS[s] || statusLabel(s) || '-';
   }
 
   function stepLabel(stepId) {
@@ -85,8 +85,30 @@
       .replace(/"/g, '&quot;');
   }
 
+  function uiText(s) {
+    return String(s == null ? '' : s).replace(/\u2014/g, ' · ');
+  }
+
   function statusLabel(s) {
-    return STATUS_LABELS[s] || s || '—';
+    return STATUS_LABELS[s] || uiText(s) || '-';
+  }
+
+  function metaRows(pairs) {
+    return (
+      '<dl class="ctrl-meta-grid">' +
+      pairs
+        .map(function (p) {
+          return (
+            '<div class="ctrl-dl-row"><dt>' +
+            esc(p[0]) +
+            '</dt><dd>' +
+            esc(p[1] == null || p[1] === '' ? '-' : uiText(p[1])) +
+            '</dd></div>'
+          );
+        })
+        .join('') +
+      '</dl>'
+    );
   }
 
   function parsePartnerFromPath() {
@@ -160,12 +182,20 @@
         '<article class="ctrl-list-item" role="listitem">' +
           '<div class="ctrl-list-item-main">' +
             '<strong>' + esc(row.displayName || row.legalName) + '</strong>' +
-            '<span class="ctrl-list-meta-line">' + esc(row.legalName || '') + '</span>' +
-            '<span class="ctrl-list-meta-line">' +
-              esc(statusLabel(row.onboardingStatus)) + ' · ' + esc(statusLabel(row.profileStatus)) +
-            '</span>' +
+            '<p class="ctrl-list-status">' +
+              esc(statusLabel(row.onboardingStatus)) +
+              ' · ' +
+              esc(statusLabel(row.profileStatus)) +
+            '</p>' +
+            metaRows([
+              ['Juridische naam', row.legalName || '-'],
+              ['Onboarding', statusLabel(row.onboardingStatus)],
+              ['Profiel', statusLabel(row.profileStatus)]
+            ]) +
           '</div>' +
-          '<button type="button" class="btn btn-primary btn-sm" data-open-partner="' + esc(row.partnerId) + '">Openen</button>' +
+          '<div class="ctrl-list-item-side">' +
+            '<button type="button" class="btn btn-primary btn-sm" data-open-partner="' + esc(row.partnerId) + '">Openen</button>' +
+          '</div>' +
         '</article>'
       );
     }).join('');
@@ -215,19 +245,20 @@
       return (
         '<article class="ctrl-list-item" role="listitem">' +
           '<div class="ctrl-list-item-main">' +
-            '<strong>' + esc(row.company || '—') + '</strong>' +
-            '<span class="ctrl-list-meta-line">' +
-              esc(categoryLabel(row.category)) + ' · ' + esc(row.region || '—') +
-            '</span>' +
-            '<span class="ctrl-list-meta-line">' +
-              '<span class="ctrl-badge' + (row.status === 'ready_for_review' ? '' : ' ctrl-badge-attention') + '">' +
-              esc(statusText) + '</span>' +
-              (row.issueReason ? ' — ' + esc(row.issueReason) : '') +
-            '</span>' +
+            '<strong>' + esc(row.company || '-') + '</strong>' +
+            '<p class="ctrl-list-status">' + esc(statusText) + '</p>' +
+            metaRows([
+              ['Vakgebied', categoryLabel(row.category)],
+              ['Regio', row.region || '-'],
+              ['Status', statusText],
+              ['Opmerking', row.issueReason ? uiText(row.issueReason) : '-']
+            ]) +
           '</div>' +
-          (row.kind === 'partner'
-            ? '<button type="button" class="btn btn-primary btn-sm" data-open-partner="' + esc(openId) + '">Bekijk</button>'
-            : '<button type="button" class="btn btn-ghost btn-sm" data-invite-candidate="' + esc(row.id) + '">Uitnodigen</button>') +
+          '<div class="ctrl-list-item-side">' +
+            (row.kind === 'partner'
+              ? '<button type="button" class="btn btn-primary btn-sm" data-open-partner="' + esc(openId) + '">Bekijk</button>'
+              : '<button type="button" class="btn btn-ghost btn-sm" data-invite-candidate="' + esc(row.id) + '">Uitnodigen</button>') +
+          '</div>' +
         '</article>'
       );
     }).join('');

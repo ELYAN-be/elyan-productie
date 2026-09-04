@@ -352,7 +352,8 @@ test('UI pages + nav + rewrite exist; no CSV export', function () {
   var reqCtrl = source('js/professionals/control-requests.js');
   assert.ok(reqCtrl.indexOf('REQUEST_STATUS_LABELS') >= 0);
   assert.ok(reqCtrl.indexOf('Succesvolle introductie') >= 0);
-  assert.ok(reqCtrl.indexOf('Partnerreactie:') >= 0);
+  assert.ok(reqCtrl.indexOf('Partnerreactie') >= 0);
+  assert.ok(reqCtrl.indexOf('ctrl-meta-grid') >= 0);
 
   var cust = source('js/professionals/control-customers.js');
   assert.ok(cust.indexOf('customers-list') >= 0);
