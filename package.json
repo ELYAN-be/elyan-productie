@@ -47,6 +47,11 @@
     "test:calc2-investor-finance-parity": "node scripts/test-calc2-investor-finance-parity.js",
     "validate:calc2-investor-finance-audit": "node scripts/validate-calc2-investor-finance-audit.js",
     "test:calc2-project-report-parity": "node scripts/test-calc2-project-report-parity.js",
+    "test:vat-heating": "node scripts/test-vat-heating.js",
+    "test:vat-kitchen": "node scripts/test-vat-kitchen.js",
+    "test:premie-copy": "node scripts/test-premie-copy.js",
+    "test:exvat-preservation": "node scripts/test-exvat-preservation.js",
+    "test:report-accuracy": "npm run test:exvat-preservation && npm run test:vat-heating && npm run test:vat-kitchen && npm run test:premie-copy",
     "test:retention": "node scripts/retention-check.js",
     "retention:dry-run": "node scripts/retention-run.js"
   },

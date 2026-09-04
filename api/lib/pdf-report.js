@@ -672,7 +672,7 @@ function buildReportPdf(data) {
         { label: 'Arbeidsuren', value: String(r.labourHours || lp.labourHours || '-') + ' u' },
         { label: 'Ploeg', value: String(r.crewSize || lp.crewSize || '-') },
         { label: 'Werkdagen', value: '±' + String(r.workDays || lp.workDays || '-') },
-        { label: 'Kalender', value: r.weeksLow + '–' + r.weeksHigh + ' w' },
+        { label: 'Indicatieve duur', value: r.weeksLow + '–' + r.weeksHigh + ' w' },
         { label: 'Dataset', value: (r.marketDataVersion || '2026').replace('audit', '').trim() || '2026' }
       ].slice(0, 5), ctx);
 
@@ -722,10 +722,9 @@ function buildReportPdf(data) {
           { label: 'Werkdagen', value: '±' + String(lp.workDays || r.workDays) },
           { label: 'Effectief tarief', value: pricing.fmtEUR(lp.effectiveHourlyRate || r.effectiveHourlyRate) + '/u' }
         ], ctx);
-        bodyText(doc, 'Werkdagen ≠ kalenderdagen. Productieve uren/dag: ' +
-          (lp.productiveHoursPerDay || 6.5) +
-          '. Kalenderdoorlooptijd: ' + r.weeksLow + '–' + r.weeksHigh +
-          ' weken (incl. planning, levering en weersafhankelijkheid).', ctx);
+        bodyText(doc, 'Werkdagen zijn productieve dagen. Indicatieve uitvoeringsduur: ' +
+          r.weeksLow + '–' + r.weeksHigh +
+          ' weken. De kalenderduur kan langer zijn door fasering, levertijden, droogtijden en afstemming tussen vakdisciplines.', ctx);
 
         var hourRows = (lp.topLabourPackages && lp.topLabourPackages.length)
           ? lp.topLabourPackages
@@ -748,8 +747,8 @@ function buildReportPdf(data) {
           title: 'Projectplanning',
           keepWith: 100
         });
-        bodyText(doc, 'Indicatieve fasering in productieve werkdagen. Kalenderdoorlooptijd is langer: ' +
-          r.weeksLow + '–' + r.weeksHigh + ' weken.', ctx);
+        bodyText(doc, 'Indicatieve fasering in productieve werkdagen. Indicatieve uitvoeringsduur: ' +
+          r.weeksLow + '–' + r.weeksHigh + ' weken (kalenderduur kan langer zijn door fasering, levering en droogtijden).', ctx);
         drawTimeline(doc, pack.timeline, ctx);
       }
 
@@ -897,7 +896,7 @@ function buildReportPdf(data) {
         r.vatNote ? { text: r.vatNote, size: 8.5 } : null,
         { text: 'BTW-bedrag: ' + pricing.fmtEUR(r.vatAmount || 0) },
         { text: 'Indicatief incl. btw: ' + pricing.fmtEUR(r.totalInclVat || r.price) },
-        { text: (r.vatDisclaimer || 'Dit is een indicatieve fiscale inschatting. De aannemer moet bevestigen of aan alle wettelijke voorwaarden is voldaan.'), size: 8 }
+        { text: (r.vatDisclaimer || 'Indicatief btw-scenario op basis van de projectgegevens die ELYAN kent. Het verlaagde renovatie-btw-tarief hangt af van bijkomende wettelijke voorwaarden. Het definitieve tarief bepaalt de aannemer op de factuur.'), size: 8 }
       ].filter(Boolean), ctx);
 
       startSection(doc, ctx, {
@@ -907,9 +906,12 @@ function buildReportPdf(data) {
         keepWith: 78
       });
       (r.premies || []).forEach(function (pr) {
+        var relLabel = pr.relevance === 'mogelijk' ? 'mogelijk relevant'
+          : pr.relevance === 'niet_beschikbaar' ? 'momenteel geen aanvraag mogelijk'
+          : 'beperkt relevant';
         sandCard(doc, [
           {
-            text: pr.scheme + '. ' + (pr.relevance === 'mogelijk' ? 'mogelijk relevant' : 'beperkt relevant'),
+            text: pr.scheme + '. ' + relLabel,
             bold: true, color: COLOR.ink, size: 9.5
           },
           { text: pr.reason },

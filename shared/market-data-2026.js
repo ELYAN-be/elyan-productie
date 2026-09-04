@@ -21,7 +21,9 @@
       version: '2026.3.1-audit7',
       currency: 'EUR',
       vatInternal: 'excl',
-      labourNote: 'Gefactureerde aannemerstarieven; overhead/winst in tarief, geen dubbele marge'
+      labourNote: 'Gefactureerde aannemerstarieven; overhead/winst in tarief, geen dubbele marge',
+      reportAccuracyRevalidated: '2026-09-04',
+      pricingLaunchDecision: 'keep-calibration-2026-09-04'
     },
 
     /* ---------- Source registry ---------- */

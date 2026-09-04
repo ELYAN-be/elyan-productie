@@ -28,7 +28,7 @@ function base(age, pt, extra) {
   }, extra || {});
 }
 
-// A. Young dwelling → 21% on entire subtotal
+// A. Young dwelling + fossil → 21% on entire subtotal
 var young = est(base('jong', 'ketel_vervangen'));
 assert('A young ketel 21%', young.vatRate === 0.21 && !young.vatMixed);
 assert('A young excl unchanged', young.price === young.subtotalExVat);
@@ -51,7 +51,7 @@ assert('D both bases', mixed.vatBreakdown.taxableBase6 > 0 && mixed.vatBreakdown
 // E. Heat pump preserved
 assert('E HP no fossil exception', hp.vatBreakdown.taxableBase21 === 0);
 
-// F. Hybrid FOD 35/65 on core
+// F. Hybrid FOD 35/65 on core (older home)
 var hyb = est(base('oud', 'hybride', { distribution: 'gemengd', dhw: 'nieuw' }));
 assert('F hybrid mixed', hyb.vatMixed === true);
 var core = hyb.workPackages.filter(function (p) { return p.vatClass === 'hybrid_core'; })
@@ -65,6 +65,33 @@ assert('F hybrid fossil base ~35% core', Math.abs(hyb.vatBreakdown.taxableBase21
   assert('G breakdown sum ' + i, (bd.vat6 || 0) + (bd.vat21 || 0) === r.vatAmount);
   assert('G incl vat ' + i, r.totalInclVat === r.subtotalExVat + r.vatAmount);
 });
+
+// H. Young + pure air-water → temporary 6% on heat-pump packages
+var youngHp = est(base('jong', 'lucht_water', { replaceVsNew: 'nieuw' }));
+assert('H young pure HP has 6% base', youngHp.vatBreakdown.taxableBase6 > 0);
+assert('H young pure HP label/temp', youngHp.vatBreakdown.taxableBase6 > 0 &&
+  (youngHp.vatRate === 0.06 || youngHp.vatMixed));
+assert('H young pure HP packages tagged', youngHp.workPackages.some(function (p) {
+  return p.vatClass === 'heat_pump_temp6' && p.totalBase > 0;
+}));
+assert('H young pure HP excl unchanged', youngHp.price === youngHp.subtotalExVat);
+
+// H2. Young pure HP + UFH distribution → distribution stays 21%
+var youngHpUfh = est(base('jong', 'lucht_water', { distribution: 'vloer', replaceVsNew: 'nieuw' }));
+assert('H2 young HP+UFH mixed', youngHpUfh.vatMixed === true);
+assert('H2 young HP+UFH has 21% on distribution', youngHpUfh.vatBreakdown.taxableBase21 > 0);
+assert('H2 young HP+UFH has 6% on HP', youngHpUfh.vatBreakdown.taxableBase6 > 0);
+
+// I. Young + hybrid → temporary pure-HP rule NOT applied
+var youngHyb = est(base('jong', 'hybride'));
+assert('I young hybrid full 21%', youngHyb.vatRate === 0.21 && youngHyb.vatBreakdown.taxableBase6 === 0);
+assert('I young hybrid no heat_pump_temp6', !youngHyb.workPackages.some(function (p) {
+  return p.vatClass === 'heat_pump_temp6';
+}));
+
+// J. Older qualifying non-specific distribution (radiatoren) → 6%
+var rad = est(base('oud', 'radiatoren'));
+assert('J older radiatoren 6%', rad.vatRate === 0.06 && rad.vatBreakdown.taxableBase21 === 0);
 
 // Non-heating category unchanged
 var dak = pricing.calcEstimate('dak', PROV, { province: PROV, size: 80, level: 'standaard', housingAge: 'oud', workType: 'vernieuwen', insulation: 'ja', urgency: 'binnen6' });

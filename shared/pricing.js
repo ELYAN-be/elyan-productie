@@ -45,7 +45,7 @@
       resultNoun: 'vloerrenovatie',
       icon: 'i-layers',
       split: { materiaal: 0.45, arbeid: 0.45, overige: 0.10 },
-      premieNote: 'Bij vloerisolatie kan een energiepremie relevant zijn. Een afwerkingsvloer op zich geeft meestal geen premie.'
+      premieNote: 'Een afwerkingsvloer of nieuwe vloerverwarming op zich toont geen vloerisolatie. Zonder bewezen isolatie-ingreep is Mijn VerbouwPremie vloerisolatie niet van toepassing.'
     },
     schilderwerken: {
       label: 'Schilderwerken',
@@ -73,7 +73,7 @@
       resultNoun: 'verwarmingsrenovatie',
       icon: 'i-heat',
       split: { materiaal: 0.55, arbeid: 0.35, overige: 0.10 },
-      premieNote: 'Warmtepompen en bepaalde verwarmingsrenovaties kunnen premie-gevoelig zijn. Isolatiegraad van de woning bepaalt of een warmtepomp zinvol is, laat dit technisch bevestigen.'
+      premieNote: 'Alleen warmtepomp-gerelateerde maatregelen kunnen relevant zijn voor de huidige warmtepomppremie. Vervanging van een fossiele ketel, radiatoren of vloerverwarming op zich geeft geen aparte Mijn VerbouwPremie.'
     },
     elektriciteit: {
       label: 'Elektriciteit',
@@ -94,14 +94,14 @@
       resultNoun: 'zonnepaneleninstallatie',
       icon: 'i-solar',
       split: { materiaal: 0.60, arbeid: 0.30, overige: 0.10 },
-      premieNote: 'Premies en nettarieven voor PV wijzigen regelmatig per regio. ELYAN geeft geen gegarandeerde besparing of terugverdientijd, vraag actuele steun na bij het officiële loket.'
+      premieNote: 'Voor gewone kleine residentiële PV-installaties tot 10 kVA is er momenteel geen directe Vlaamse installatiepremie. Financiering via Mijn VerbouwLening kan onder voorwaarden. Netregels wijzigen regelmatig.'
     },
     ventilatie: {
       label: 'Ventilatie',
       resultNoun: 'ventilatiewerken',
       icon: 'i-vent',
       split: { materiaal: 0.45, arbeid: 0.45, overige: 0.10 },
-      premieNote: 'Ventilatiesystemen kunnen in sommige regio’s gekoppeld zijn aan renovatie- of energiepremies, vooral bij nieuw Systeem D. Check voorwaarden per gewest.'
+      premieNote: 'Er bestaat geen aparte Mijn VerbouwPremie voor het plaatsen van een ventilatiesysteem zelf. Ventilatie kan wel relevant zijn als voorwaarde bij bepaalde raam-/deurpremies. Oudere BENO/totaalrenovatie-trajecten hebben eigen regels.'
     }
   };
 
@@ -122,10 +122,16 @@
   var REGION_LINKS = {
     vlaanderen: { label: 'Mijn VerbouwPremie (Vlaanderen)', url: 'https://www.mijnverbouwpremie.be' },
     wallonie: { label: 'Primes Habitation (Wallonie)', url: 'https://energie.wallonie.be' },
-    brussel: { label: 'Renolution (Brussel)', url: 'https://leefmilieu.brussels/professionelen/subsidies/renolution-premies' }
+    brussel: {
+      label: 'RENOLUTION (Brussel)',
+      url: 'https://be.brussels/nl/huisvesting/bouwen-en-verbouwen/premies-belastingen-en-financiering-van-renovaties'
+    }
   };
 
-  var BTW_TIP = 'Indicatief btw-scenario: bij een privéwoning die minstens 10 jaar in gebruik is, kan onder wettelijke voorwaarden 6% btw gelden i.p.v. 21%. Het definitieve tarief moet door de aannemer worden bevestigd.';
+  var BTW_TIP =
+    'Indicatief btw-scenario: berekend met de projectgegevens die ELYAN kent. ' +
+    'Het verlaagde renovatie-btw-tarief hangt af van bijkomende wettelijke voorwaarden. ' +
+    'Het definitieve tarief bepaalt de aannemer op de factuur.';
 
   var PRAKTISCHE_TIPS = [
     'Vergelijk offertes op scope, niet alleen op totaalprijs: afbraak, afvoer, steiger, btw en garanties.',
@@ -138,7 +144,7 @@
     'Controleer oppervlakte en scope van jouw project aan de hand van dit rapport.',
     'Verzamel foto\'s of plannen en vraag minstens 3 vergelijkbare offertes.',
     'Gebruik de ELYAN-kostentabel als referentie bij het vergelijken.',
-    'Laat btw-tarief en eventuele premievoorwaarden expliciet bevestigen.',
+    'Laat het indicatieve btw-scenario en eventuele premievoorwaarden bevestigen.',
     'Leg scope, planning en buffer schriftelijk vast vóór start.'
   ];
 
@@ -336,12 +342,27 @@
     return {
       rate: indicativeRate,
       label: indicativeRate === 0.06 ? '6% (indicatief renovatie)' : '21% (standaard)',
-      disclaimer: 'Indicatief btw-scenario op basis van woningouderdom. Definitief btw-tarief moet door de aannemer worden bevestigd op basis van de wettelijke voorwaarden.'
+      disclaimer: BTW_TIP
     };
   }
 
   /* FOD Financiën 2025/C/47 — fossil heating VAT split (verwarming only). Excl-VAT totals unchanged. */
   var VAT_FOSSIL_HYBRID_SPLIT = { fossil: 0.35, nonFossil: 0.65 };
+
+  /** Temporary pure heat-pump 6% regime (2026-01-01 … 2030-12-31). Hybride excluded. */
+  function temporaryPureHeatPumpActive(asOf) {
+    var y;
+    if (asOf instanceof Date) {
+      y = asOf.getFullYear();
+    } else if (typeof asOf === 'string' && asOf.length >= 4) {
+      y = parseInt(asOf.slice(0, 4), 10);
+    } else if (MARKET.meta && MARKET.meta.asOf) {
+      y = parseInt(String(MARKET.meta.asOf).slice(0, 4), 10);
+    } else {
+      y = new Date().getFullYear();
+    }
+    return y >= 2026 && y <= 2030;
+  }
 
   function sumPackagesByVatClass(packages, classes) {
     var out = 0;
@@ -354,66 +375,96 @@
   function computeVatAmounts(catKey, answers, packages, subtotalExVat) {
     var std = MARKET.vat.standard;
     var red = MARKET.vat.reducedRenovation;
-    var baseDisclaimer = vatScenario(answers.housingAge).disclaimer;
+    var baseDisclaimer = BTW_TIP;
     var qualifiesReduced = answers.housingAge === 'middel' || answers.housingAge === 'oud';
+    var pt = answers.projectType || 'ketel_vervangen';
+    var pureHpTemp = temporaryPureHeatPumpActive() &&
+      catKey === 'verwarming' &&
+      pt === 'lucht_water';
 
-    function singleVat(base, rate, label, breakdownKey) {
-      var vatAmt = round50(base * rate);
-      var breakdown = {
-        taxableBase6: 0,
-        vat6: 0,
-        taxableBase21: 0,
-        vat21: 0,
-        totalVat: vatAmt
-      };
-      if (breakdownKey === '6') {
-        breakdown.taxableBase6 = base;
-        breakdown.vat6 = vatAmt;
+    function finishMixed(base6, base21, extraNote, extraDisclaimer) {
+      base6 = round50(base6);
+      base21 = round50(base21);
+      var vat6 = round50(base6 * red);
+      var vat21 = round50(base21 * std);
+      var totalVat = vat6 + vat21;
+      var mixed = base6 > 0 && base21 > 0;
+      // Canonical rate when single band; effective only when mixed (rounding-safe)
+      var effectiveRate = mixed
+        ? (subtotalExVat > 0 ? Math.round((totalVat / subtotalExVat) * 1000) / 1000 : red)
+        : (base6 > 0 ? red : std);
+      var label;
+      if (mixed) {
+        label = 'Gemengd (6% + 21%)';
+      } else if (base21 > 0 && base6 === 0) {
+        label = (catKey === 'verwarming' && qualifiesReduced && pt === 'ketel_vervangen')
+          ? '21% (fossiel specifiek deel)'
+          : '21% (standaard)';
+      } else if (!qualifiesReduced && pureHpTemp && base6 > 0) {
+        label = '6% (tijdelijk zuivere warmtepomp)';
       } else {
-        breakdown.taxableBase21 = base;
-        breakdown.vat21 = vatAmt;
+        label = '6% (indicatief renovatie)';
       }
       return {
-        vatRate: rate,
+        vatRate: effectiveRate,
         vatLabel: label,
-        vatAmount: vatAmt,
-        totalInclVat: base + vatAmt,
-        vatMixed: false,
-        vatBreakdown: breakdown,
-        vatNote: null,
-        vatDisclaimer: baseDisclaimer
+        vatAmount: totalVat,
+        totalInclVat: subtotalExVat + totalVat,
+        vatMixed: mixed,
+        vatBreakdown: {
+          taxableBase6: base6,
+          vat6: vat6,
+          taxableBase21: base21,
+          vat21: vat21,
+          totalVat: totalVat
+        },
+        vatNote: extraNote || null,
+        vatDisclaimer: (extraDisclaimer || baseDisclaimer)
       };
-    }
-
-    if (!qualifiesReduced) {
-      return singleVat(subtotalExVat, std, '21% (standaard)', '21');
-    }
-
-    var pt = answers.projectType || 'ketel_vervangen';
-    var needsHeatingSplit = catKey === 'verwarming' &&
-      (pt === 'ketel_vervangen' || pt === 'hybride');
-
-    if (catKey !== 'verwarming' || !needsHeatingSplit) {
-      if (catKey === 'verwarming' && (pt === 'lucht_water' || pt === 'radiatoren' || pt === 'vloerverwarming')) {
-        return singleVat(subtotalExVat, red, '6% (indicatief renovatie)', '6');
-      }
-      if (catKey !== 'verwarming') {
-        return singleVat(subtotalExVat, red, '6% (indicatief renovatie)', '6');
-      }
     }
 
     var base6 = 0;
     var base21 = 0;
+    var notes = [];
 
     packages.forEach(function (p) {
       var b = p.totalBase || 0;
+      if (b <= 0) return;
       var cls = p.vatClass;
-      if (cls === 'fossil') base21 += b;
-      else if (cls === 'distribution') base6 += b;
-      else if (cls === 'hybrid_core') {
-        base21 += b * VAT_FOSSIL_HYBRID_SPLIT.fossil;
-        base6 += b * VAT_FOSSIL_HYBRID_SPLIT.nonFossil;
+
+      if (cls === 'appliances' || cls === 'goods_21') {
+        base21 += b;
+        return;
       }
+      if (cls === 'fossil') {
+        base21 += b;
+        return;
+      }
+      if (cls === 'hybrid_core') {
+        if (qualifiesReduced) {
+          base21 += b * VAT_FOSSIL_HYBRID_SPLIT.fossil;
+          base6 += b * VAT_FOSSIL_HYBRID_SPLIT.nonFossil;
+        } else {
+          base21 += b;
+        }
+        return;
+      }
+      if (cls === 'heat_pump_temp6') {
+        if (pureHpTemp || qualifiesReduced) base6 += b;
+        else base21 += b;
+        return;
+      }
+      if (cls === 'distribution') {
+        if (qualifiesReduced) base6 += b;
+        else base21 += b;
+        return;
+      }
+      if (cls === 'proportional') {
+        return; // handled below
+      }
+      // Default / unset vatClass
+      if (qualifiesReduced) base6 += b;
+      else base21 += b;
     });
 
     var proportional = sumPackagesByVatClass(packages, ['proportional']);
@@ -422,36 +473,33 @@
       var distOnly = sumPackagesByVatClass(packages, ['distribution']);
       var denom = fossilOnly + distOnly;
       var fossilShare = denom > 0 ? fossilOnly / denom : 1;
-      base21 += proportional * fossilShare;
-      base6 += proportional * (1 - fossilShare);
+      if (qualifiesReduced) {
+        base21 += proportional * fossilShare;
+        base6 += proportional * (1 - fossilShare);
+      } else {
+        base21 += proportional;
+      }
     }
 
-    base6 = round50(base6);
-    base21 = round50(base21);
-    var vat6 = round50(base6 * red);
-    var vat21 = round50(base21 * std);
-    var totalVat = vat6 + vat21;
-    var mixed = base6 > 0 && base21 > 0;
-    var effectiveRate = subtotalExVat > 0 ? Math.round((totalVat / subtotalExVat) * 1000) / 1000 : red;
+    if (catKey === 'keuken' && qualifiesReduced && base21 > 0) {
+      notes.push('Inbouwapparatuur is indicatief aan 21% btw gehouden. Vaste keukenwerken kunnen onder voorwaarden aan 6% vallen. De aannemer itemiseert dit op de factuur.');
+    }
+    if (pureHpTemp && !qualifiesReduced && base6 > 0) {
+      notes.push('Tijdelijk 6%-regime (2026–2030) voor zuivere warmtepomp (indicatief). Losse verdelingswerken in een jonge woning volgen het standaardtarief tenzij een andere regel van toepassing is. Hybride valt hier buiten.');
+    }
+    if (catKey === 'verwarming' && qualifiesReduced && (pt === 'ketel_vervangen' || pt === 'hybride') && base21 > 0) {
+      notes.push('Een deel van deze verwarmingsinstallatie kan aan 21% btw onderworpen zijn (fossiel specifiek gedeelte). Niet-specifieke distributie kan onder 6% vallen indien aan alle renovatievoorwaarden is voldaan.');
+    }
 
-    return {
-      vatRate: effectiveRate,
-      vatLabel: mixed ? 'Gemengd (6% + 21%)' : (base21 > 0 ? '21% (fossiel specifiek deel)' : '6% (indicatief renovatie)'),
-      vatAmount: totalVat,
-      totalInclVat: subtotalExVat + totalVat,
-      vatMixed: mixed,
-      vatBreakdown: {
-        taxableBase6: base6,
-        vat6: vat6,
-        taxableBase21: base21,
-        vat21: vat21,
-        totalVat: totalVat
-      },
-      vatNote: mixed || base21 > 0
-        ? 'Een deel van deze verwarmingsinstallatie kan aan 21% btw onderworpen zijn (fossiel specifiek gedeelte). Niet-specifieke distributie kan onder 6% vallen indien aan alle renovatievoorwaarden is voldaan.'
-        : null,
-      vatDisclaimer: baseDisclaimer + ' Fossiele verwarmingsinstallaties: FOD Financiën circulaire 2025/C/47 (vanaf 29.07.2025).'
-    };
+    var disc = baseDisclaimer;
+    if (catKey === 'verwarming' && (pt === 'ketel_vervangen' || pt === 'hybride')) {
+      disc = baseDisclaimer + ' Fossiele verwarmingsinstallaties: FOD Financiën circulaire 2025/C/47 (vanaf 29.07.2025).';
+    }
+    if (pureHpTemp) {
+      disc = baseDisclaimer + ' Zuivere warmtepomp: tijdelijk 6%-regime 01.01.2026–31.12.2030 (indicatief; hybride uitgesloten).';
+    }
+
+    return finishMixed(base6, base21, notes.length ? notes.join(' ') : null, disc);
   }
 
   function contingencyFor(answers, packages) {
@@ -468,63 +516,187 @@
     return cfg;
   }
 
+  var PREMIE_AUDIT_AS_OF = '2026-09-04';
+  var ENVELOPE_INCOME_CAVEAT =
+    'Sinds 1 maart 2026 komen eigenaar-bewoners in inkomenscategorie 1 en 2 doorgaans niet meer in aanmerking voor Mijn VerbouwPremie voor deze schilwerken. Categorie 3 en 4 kunnen nog in aanmerking komen onder voorwaarden. ELYAN berekent geen exact premiebedrag.';
+
   function premieInfo(type, answers, provKey) {
     var prov = PROVINCES[provKey];
     var region = prov ? prov.region : 'vlaanderen';
     var link = REGION_LINKS[region];
     var items = [];
+    var checkedAt = PREMIE_AUDIT_AS_OF;
 
-    if (region === 'vlaanderen') {
-      if (type === 'dak' && (answers.insulation === 'ja' || answers.workType === 'isolatie' || answers.workType === 'volledig')) {
+    if (region === 'brussel') {
+      items.push({
+        scheme: 'RENOLUTION (Brussel)',
+        relevance: 'niet_beschikbaar',
+        reason: 'RENOLUTION: momenteel geen aanvraag mogelijk. Het Brussels Gewest heeft nog geen beslissing genomen over het premiekader voor 2025/2026; dossiers met eindfactuur uit 2025 of 2026 kunnen momenteel niet worden ingediend.',
+        conditions: ['Wacht op officiële beslissing van het Brussels Gewest'],
+        missing: ['Officieel 2025/2026-premiekader'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: null
+      });
+      return items;
+    }
+
+    if (region !== 'vlaanderen') {
+      items.push({
+        scheme: link.label,
+        relevance: 'beperkt',
+        reason: 'Regionale premies verschillen. Raadpleeg het officiële loket. ELYAN berekent geen exact premiebedrag.',
+        conditions: ['Regiospecifieke voorwaarden'],
+        missing: ['Persoonlijke premievoorwaarden'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: null
+      });
+      return items;
+    }
+
+    // --- Vlaanderen ---
+    if (type === 'dak' && (answers.insulation === 'ja' || answers.workType === 'isolatie' || answers.workType === 'volledig')) {
+      items.push({
+        scheme: 'Mijn VerbouwPremie: dakisolatie',
+        relevance: 'mogelijk',
+        reason: 'Dakisolatie kan premie-relevant zijn, afhankelijk van aanvragercategorie. ' + ENVELOPE_INCOME_CAVEAT,
+        conditions: [
+          'Inkomenscategorie 3 of 4 (eigenaar-bewoner) of andere toegelaten categorieën',
+          'Technische eisen (o.a. Rd-waarde)',
+          'Aanvraag op basis van factuur, binnen de geldende termijnen'
+        ],
+        missing: ['Inkomen / categorie', 'Eigendomstype', 'Exacte isolatiespecificatie'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: '2026-03-01'
+      });
+      return items;
+    }
+
+    if (type === 'ramen') {
+      items.push({
+        scheme: 'Mijn VerbouwPremie: ramen/deuren',
+        relevance: 'mogelijk',
+        reason: 'Hoogisolerend schrijnwerk kan premie-relevant zijn, afhankelijk van aanvragercategorie. ' + ENVELOPE_INCOME_CAVEAT,
+        conditions: ['U-waarde / technische eisen', 'Inkomenscategorie en eigendomstype'],
+        missing: ['Inkomen / categorie', 'Eigendomstype', 'Exacte U-waarde'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: '2026-03-01'
+      });
+      return items;
+    }
+
+    if (type === 'isolatie') {
+      items.push({
+        scheme: 'Mijn VerbouwPremie: muur-/vloer-/dakisolatie',
+        relevance: 'mogelijk',
+        reason: 'Isolatiewerken aan de gebouwschil kunnen premie-relevant zijn, afhankelijk van aanvragercategorie. ' + ENVELOPE_INCOME_CAVEAT,
+        conditions: ['Rd-waarde / technische eisen', 'Inkomenscategorie en eigendomstype'],
+        missing: ['Inkomen / categorie', 'Eigendomstype', 'Exacte isolatiespecificatie'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: '2026-03-01'
+      });
+      return items;
+    }
+
+    if (type === 'gevel' && (answers.intervention === 'isolatie_afwerking' || answers.intervention === 'isolatie')) {
+      items.push({
+        scheme: 'Mijn VerbouwPremie: gevel-/muurisolatie',
+        relevance: 'mogelijk',
+        reason: 'Gevelisolatie kan premie-relevant zijn, afhankelijk van aanvragercategorie. ' + ENVELOPE_INCOME_CAVEAT,
+        conditions: ['Technische eisen', 'Inkomenscategorie en eigendomstype'],
+        missing: ['Inkomen / categorie', 'Eigendomstype'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: '2026-03-01'
+      });
+      return items;
+    }
+
+    if (type === 'vloeren') {
+      // No floor-insulation input in calculator; do not infer from UFH.
+      items.push({
+        scheme: link.label,
+        relevance: 'beperkt',
+        reason: CATEGORIES.vloeren.premieNote,
+        conditions: ['Alleen bij bewezen vloerisolatie-ingreep'],
+        missing: ['Of isolatie deel uitmaakt van de werken', 'Inkomen / categorie'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: '2026-03-01'
+      });
+      return items;
+    }
+
+    if (type === 'ventilatie') {
+      items.push({
+        scheme: 'Mijn VerbouwPremie / ventilatievoorwaarden',
+        relevance: 'beperkt',
+        reason: CATEGORIES.ventilatie.premieNote,
+        conditions: ['Geen aparte MVP voor het ventilatiesysteem zelf'],
+        missing: ['Context van eventuele raam-/deurpremie of legacy-traject'],
+        officialUrl: link.url,
+        checkedAt: checkedAt,
+        regulationDate: '2026-03-01'
+      });
+      return items;
+    }
+
+    if (type === 'zonnepanelen') {
+      items.push({
+        scheme: 'Mijn VerbouwLening (geen installatiepremie)',
+        relevance: 'beperkt',
+        reason: CATEGORIES.zonnepanelen.premieNote,
+        conditions: ['Geen huidige directe Vlaamse installatiepremie voor gewone PV ≤10 kVA'],
+        missing: ['Leenvoorwaarden / doelgroep'],
+        officialUrl: 'https://www.vlaanderen.be/mijn-verbouwlening',
+        checkedAt: checkedAt,
+        regulationDate: '2026-03-01'
+      });
+      return items;
+    }
+
+    if (type === 'verwarming') {
+      var pt = answers.projectType || '';
+      if (pt === 'lucht_water' || pt === 'hybride') {
         items.push({
-          scheme: 'Mijn VerbouwPremie: dakisolatie',
+          scheme: 'Warmtepomppremie (Vlaanderen)',
           relevance: 'mogelijk',
-          reason: 'Dakisolatie kan premie-gevoelig zijn, maar sinds 1 maart 2026 komen eigenaar-bewoners uit inkomenscategorie 1 en 2 hiervoor niet meer in aanmerking. Categorie 3 en 4 behouden mogelijkheden.',
-          conditions: [
-            'Eigendomstype en inkomenscategorie bepalen de toegang',
-            'Technische eisen (o.a. Rd-waarde) moeten gehaald worden',
-            'Aanvraag op basis van factuur, binnen de geldende termijnen'
-          ],
-          missing: ['Inkomen / categorie', 'Eigendomstype (eigenaar-bewoner of investeerder)', 'Exacte isolatiespecificatie'],
+          reason: 'Warmtepomp-gerelateerde maatregelen kunnen relevant zijn voor de huidige warmtepomppremie, onder voorwaarden. ELYAN berekent geen exact premiebedrag.',
+          conditions: ['Technische en aanvraagvoorwaarden warmtepomppremie'],
+          missing: ['Inkomen / categorie', 'Technische specificatie toestel'],
           officialUrl: link.url,
-          checkedAt: MARKET.meta.asOf,
-          regulationDate: '2026-03-01'
-        });
-      } else if (type === 'vloeren' && answers.ufh === 'nieuw') {
-        items.push({
-          scheme: 'Mijn VerbouwPremie: vloerisolatie / energie',
-          relevance: 'mogelijk',
-          reason: 'Alleen relevant als er effectief vloerisolatie of een premiewaardige energie-ingreep gebeurt, niet voor enkel een afwerkingsvloer.',
-          conditions: ['Inkomenscategorie 3 of 4 (of specifieke uitzonderingen)', 'Technische eisen'],
-          missing: ['Of isolatie deel uitmaakt van de werken', 'Inkomen'],
-          officialUrl: link.url,
-          checkedAt: MARKET.meta.asOf,
+          checkedAt: checkedAt,
           regulationDate: '2026-03-01'
         });
       } else {
         items.push({
           scheme: link.label,
           relevance: 'beperkt',
-          reason: CATEGORIES[type].premieNote,
-          conditions: ['Controleer of jouw werken onder een premiecategorie vallen'],
-          missing: ['Inkomen', 'Eigendomstype'],
+          reason: CATEGORIES.verwarming.premieNote,
+          conditions: ['Geen aparte MVP enkel omdat een fossiele ketel, radiatoren of vloerverwarming wordt vervangen'],
+          missing: ['Of er een warmtepompmaatregel in scope zit'],
           officialUrl: link.url,
-          checkedAt: MARKET.meta.asOf,
+          checkedAt: checkedAt,
           regulationDate: '2026-03-01'
         });
       }
-    } else {
-      items.push({
-        scheme: link.label,
-        relevance: 'mogelijk',
-        reason: 'Regionale premies verschillen. Raadpleeg het officiële loket voor actuele voorwaarden.',
-        conditions: ['Regiospecifieke voorwaarden'],
-        missing: ['Persoonlijke premievoorwaarden'],
-        officialUrl: link.url,
-        checkedAt: MARKET.meta.asOf,
-        regulationDate: null
-      });
+      return items;
     }
+
+    items.push({
+      scheme: link.label,
+      relevance: 'beperkt',
+      reason: CATEGORIES[type].premieNote,
+      conditions: ['Controleer of jouw werken onder een premiecategorie vallen'],
+      missing: ['Inkomen', 'Eigendomstype'],
+      officialUrl: link.url,
+      checkedAt: checkedAt,
+      regulationDate: '2026-03-01'
+    });
 
     return items;
   }
@@ -1383,7 +1555,8 @@
         material: scaleBand(K.appliances[a.appliances], mf),
         labourHours: { low: 3, base: 5, high: 8 },
         labourRate: rateFit,
-        reason: 'Toestellen + aansluiting'
+        reason: 'Toestellen + aansluiting',
+        vatClass: 'appliances'
       }));
     }
 
@@ -1837,7 +2010,8 @@
       }));
     } else {
       var unitKey = pt === 'lucht_water' ? 'lucht_water' : pt === 'hybride' ? 'hybride' : 'ketel';
-      var unitVat = unitKey === 'lucht_water' ? 'distribution' : unitKey === 'hybride' ? 'hybrid_core' : 'fossil';
+      var unitVat = unitKey === 'lucht_water' ? 'heat_pump_temp6'
+        : unitKey === 'hybride' ? 'hybrid_core' : 'fossil';
       packages.push(createPackage('unit', 'Verwarmingstoestel (materiaal)', {
         material: scaleBand(H.unitMaterial[unitKey], mf * insF * replF),
         reason: 'Toestel/materiaal ' + unitKey,
@@ -1877,7 +2051,8 @@
       other: H.commissioning,
       labourHours: { low: 2, base: 3, high: 5 },
       labourRate: rate,
-      vatClass: pt === 'ketel_vervangen' ? 'proportional' : 'distribution'
+      vatClass: pt === 'ketel_vervangen' ? 'proportional'
+        : (pt === 'lucht_water' ? 'heat_pump_temp6' : 'distribution')
     }));
 
     var drivers = buildDrivers('verwarming', a, provKey, packages, H.crewSize);

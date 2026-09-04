@@ -61,16 +61,25 @@
     redFlags.push('Geen garantievoorwaarden');
     redFlags.push('Offerte veel lager dan marktband zonder uitleg over scope');
 
-    if (result.vatMixed || (result.vatBreakdown && Number(result.vatBreakdown.taxableBase21) > 0)) {
+    if (result.vatMixed || (result.vatBreakdown && Number(result.vatBreakdown.taxableBase21) > 0 && Number(result.vatBreakdown.taxableBase6) > 0)) {
       insights.push(
-        'Indicatief btw-scenario ' + (result.vatLabel || 'gemengd/21%') +
-        ': een deel van dit verwarmingsproject kan aan 21% onderworpen zijn (fossiel specifiek). Laat de aannemer de splitsing bevestigen.'
+        'Indicatief btw-scenario ' + (result.vatLabel || 'gemengd') +
+        '. Berekend met de projectgegevens die ELYAN kent; het definitieve tarief bepaalt de aannemer op de factuur.'
       );
       recommendations.push('Vraag in de offerte een duidelijke splitsing tussen 6% en 21% btw volgens de wettelijke voorwaarden.');
     } else if (answers.housingAge === 'jong') {
-      insights.push('Je woning is jonger dan 10 jaar: reken doorgaans op 21% btw, tenzij een specifieke uitzondering geldt.');
+      if (result.vatBreakdown && Number(result.vatBreakdown.taxableBase6) > 0) {
+        insights.push(
+          'Indicatief btw-scenario: tijdelijk 6% kan gelden voor zuivere warmtepomp (2026–2030). Overige werken in een jonge woning volgen doorgaans 21%, tenzij een andere regel van toepassing is.'
+        );
+      } else {
+        insights.push('Indicatief btw-scenario 21%: jongere woning. Specifieke uitzonderingen (zoals tijdelijk warmtepompregime) moeten door de aannemer worden bevestigd.');
+      }
     } else if (answers.housingAge === 'middel' || answers.housingAge === 'oud') {
-      insights.push('Indicatief btw-scenario 6%: je woning is ouder dan 10 jaar. Definitieve toepasselijkheid moet de aannemer bevestigen.');
+      insights.push(
+        'Indicatief btw-scenario: berekend met de projectgegevens die ELYAN kent. ' +
+        'Het verlaagde renovatie-btw-tarief hangt af van bijkomende wettelijke voorwaarden. Het definitieve tarief bepaalt de aannemer op de factuur.'
+      );
       recommendations.push('Vraag expliciet om het toepasselijke btw-tarief en de wettelijke voorwaarden in de offerte op te nemen.');
     }
 
@@ -86,7 +95,7 @@
     if (lp.labourHours) {
       planning.push('Raming manuren: ca. ' + lp.labourHours + ' u met ploeg van ' + (lp.crewSize || result.crewSize || 2) + ' → ongeveer ' + (lp.workDays || result.workDays) + ' effectieve werkdagen.');
     }
-    planning.push('Kalenderdoorlooptijd (richting): ' + result.weeksLow + '–' + result.weeksHigh + ' weken, inclusief voorbereiding en levertijden.');
+    planning.push('Indicatieve uitvoeringsduur: ' + result.weeksLow + '–' + result.weeksHigh + ' weken. De kalenderduur kan langer zijn door fasering, levertijden, droogtijden en afstemming tussen vakdisciplines.');
     if (result.contingency) {
       var pctLow = result.contingencyPct ? Math.round(result.contingencyPct.low * 100) : 10;
       var pctHigh = result.contingencyPct ? Math.round(result.contingencyPct.high * 100) : 15;
@@ -649,6 +658,7 @@
 
       insights.push('ELYAN raamde hardware en montage, geen gegarandeerde besparing of terugverdientijd.');
       insights.push('Prijs per Wp is de beste vergelijkingsmaat; batterij maakt totalen niet-direct vergelijkbaar.');
+      insights.push('Voor gewone residentiële PV tot 10 kVA is er momenteel geen directe Vlaamse installatiepremie; Mijn VerbouwLening kan onder voorwaarden.');
       if (answers.access === 'moeilijk') insights.push('Moeilijke daktoegang verhoogt montageuren met ongeveer 15–25%.');
       if (answers.battery === 'ja') insights.push('Batterij is een aparte investeringsbeslissing; reken die niet mee in een “pure PV”-vergelijking.');
 
@@ -690,6 +700,7 @@
       confirmItems.push('Onderhoudsfilter en toegang');
 
       insights.push('Systeem D is duurder maar recupereert warmte; C is goedkoper maar ventileert anders.');
+      insights.push('Er is geen aparte Mijn VerbouwPremie voor het plaatsen van een ventilatiesysteem zelf; wel relevant als voorwaarde bij bepaalde raam-/deurpremies.');
       if (answers.routing === 'complex') insights.push('Complex kanaalwerk in renovatie is vaak de grootste urenpost, niet de unit alleen.');
       if (answers.system === 'decentraal') insights.push('Decentrale units vermijden lange kanalen, maar je hebt meer toestellen en onderhoudspunten.');
 
@@ -808,12 +819,7 @@
       redFlags: uniq(redFlags),
       timeline: timeline,
       bufferReason: bufferReason,
-      btwTip: (result.vatMixed || (result.vatBreakdown && Number(result.vatBreakdown.taxableBase21) > 0))
-        ? ('Indicatief btw-scenario: ' + (result.vatLabel || 'Gemengd (6% + 21%)') + '. ' +
-          (result.vatNote || 'Een deel van deze verwarmingsinstallatie kan aan 21% btw onderworpen zijn. Het definitieve tarief moet de aannemer bevestigen.'))
-        : ((answers.housingAge === 'middel' || answers.housingAge === 'oud')
-          ? pricing.BTW_TIP
-          : 'Bij woningen jonger dan 10 jaar geldt meestal 21% btw. Laat dit bevestigen in je offerte.'),
+      btwTip: result.vatDisclaimer || pricing.BTW_TIP,
       fingerprint: buildFingerprint(type, answers, pricing)
     };
   }

@@ -238,3 +238,41 @@ Audit 2026.3.1: banden ongewijzigd (realistisch).
 | Ventilatie | — | Geen wijziging | Bevestigd |
 
 **Onaangeroerd:** Badkamer, Keuken, Dak, Vloeren, Schilderwerken (productie-ready).
+
+---
+
+## 16. Voorbereiding — regionale herijking Vlaanderen & Brussel (2026)
+
+**Status:** gepland · **nog niet doorgevoerd in de pricing engine**
+
+Doel van een aparte, bron-gebaseerde herijking:
+
+1. Marktbanden per regio (Vlaanderen vs. Brussel) met traceerbare bronnen.
+2. Arbeidstarieven en overige projectkosten regionaal documenteren (excl. btw).
+3. Scope-identieke benchmarks behouden; geen %-splits op all-in prijzen.
+4. Datasetversie bump + audittrail in dit document vóór productie-activatie.
+
+Tot die herijking blijft de huidige nationale mid-market dataset (`market-data-2026`) de enige bron voor `calcEstimate` en rapportweergave.
+
+---
+
+## 17. Launch decision — report accuracy sprint (2026-09-04)
+
+**Decision:** KEEP current market pricing model and category price constants for launch.
+
+**Revalidated (no numeric market-input changes):** 2026-09-04  
+**Datasetversie (unchanged):** 2026.3.1-audit7 · asOf 2026-08-10
+
+Kept for launch:
+- material prices, labour rates/hours, category bases, low/high bands
+- level multipliers, province multipliers (incl. Brussels **1.12**)
+- contingency %, range/finalize formulas
+- Calc2 scope and pricing adapters
+
+Monitor post-launch with partner quotations:
+- **Brussels calibration** (mult 1.12) — compare real partner quotes
+- **Ventilation** — priority for quote-data calibration after launch
+
+All pricing remains **indicative**, not a binding contractor quote.
+
+Report-accuracy fixes in this sprint (VAT/premium/copy only): see release notes for pure heat-pump temporary 6%, kitchen appliances 21%, Brussels RENOLUTION status, Flanders MVP caveats, and indicative duration wording.
