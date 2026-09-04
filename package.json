@@ -46,7 +46,9 @@
     "validate:calc2-investor-finance": "node scripts/validate-calc2-investor-finance.js",
     "test:calc2-investor-finance-parity": "node scripts/test-calc2-investor-finance-parity.js",
     "validate:calc2-investor-finance-audit": "node scripts/validate-calc2-investor-finance-audit.js",
-    "test:calc2-project-report-parity": "node scripts/test-calc2-project-report-parity.js"
+    "test:calc2-project-report-parity": "node scripts/test-calc2-project-report-parity.js",
+    "test:retention": "node scripts/retention-check.js",
+    "retention:dry-run": "node scripts/retention-run.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.112.3",

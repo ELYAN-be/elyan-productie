@@ -120,16 +120,21 @@
   <p>Sommige verwerkers kunnen gegevens verwerken buiten de Europese Economische Ruimte, afhankelijk van hun infrastructuur. Waar van toepassing moeten passende waarborgen worden toegepast. De exacte doorgiftemechanismen per provider worden vóór schaalbare commerciële lancering bevestigd — <em>TRANSFER SAFEGUARDS TO CONFIRM</em>.</p>
 
   <h2>9. Bewaartermijnen</h2>
-  <p>We bewaren gegevens niet langer dan nodig voor de doeleinden waarvoor ze zijn verzameld, behoudens wettelijke verplichtingen.</p>
+  <p>We bewaren gegevens niet langer dan nodig voor de doeleinden waarvoor ze zijn verzameld, behoudens wettelijke verplichtingen. ELYAN heeft bij lancering geen facturatie of betalingsverwerking.</p>
   <ul>
-    <li><strong>Technische logs / beveiliging</strong> — beperkte bewaartermijn volgens operationele noden; geen vaste automatische verwijdering in alle categorieën geverifieerd.</li>
-    <li><strong>Renovatierapport / e-mail</strong> — zolang nodig om het rapport te versturen en follow-up vragen te behandelen; geen vaste automatische verwijdertermijn geïmplementeerd.</li>
-    <li><strong>Klantaanvragen en partnerinteresse</strong> — bewaard zolang nodig voor afhandeling en platformwerking; geen vaste automatische verwijdertermijn geïmplementeerd.</li>
-    <li><strong>Professionele accounts, onboarding en profielen</strong> — zolang het account actief is of nodig voor de dienst; geen vaste automatische verwijdertermijn geïmplementeerd.</li>
-    <li><strong>Audit- / reviewhistorie (Control)</strong> — bewaard voor intern beheer; geen vaste automatische verwijdertermijn geïmplementeerd.</li>
-    <li><strong>Anonieme bezoekstatistieken (Vercel Web Analytics)</strong> — volgens de bewaartermijnen van Vercel.</li>
+    <li><strong>Klantaanvragen, partnerantwoorden en klantgroepering</strong>: 24 maanden na sluiting van de aanvraag. Technische handhaving via periodieke server-side retentie (standaard dry-run; verwijderen alleen met expliciete toepassingsinstelling).</li>
+    <li><strong>Partnerinteresse die niet verdergaat</strong>: 12 maanden na laatste activiteit.</li>
+    <li><strong>Onvolledige professionele onboarding</strong>: 12 maanden inactiviteit.</li>
+    <li><strong>Actieve professionele accounts en profielen</strong>: bewaard zolang het account actief is.</li>
+    <li><strong>Na beëindiging van een professioneel account/profiel</strong>: operationele account- en profielgegevens maximaal 24 maanden. Het publieke profiel wordt meteen niet-publiek gemaakt.</li>
+    <li><strong>Portfolio- en (publieke/private) mediabestanden</strong>: na definitieve account-/profielverwijdering worden opgeslagen bestanden binnen 30 dagen verwijderd. Niet-gepubliceerde bestanden blijven privé tot verwijdering.</li>
+    <li><strong>Calculatorrapport / e-mail</strong>: operationele verwerking tot 6 maanden na verzending van het rapport. ELYAN bewaart geen vaste PDF-opslag; PDF’s worden transient gegenereerd. Transactionele e-maillogs bij de e-mailprovider (Resend) volgen diens bewaartermijnen.</li>
+    <li><strong>Control- / auditgeschiedenis</strong>: 24 maanden nadat de gekoppelde aanvraag of het profieltraject is afgesloten.</li>
+    <li><strong>Gewone applicatie- en beveiligingslogs onder ELYAN-beheer</strong>: 90 dagen waar technisch van toepassing (platformlogs buiten onze database volgen de provider).</li>
+    <li><strong>Bewijs bij een beveiligingsincident</strong>: tot 12 maanden, of tot het incident/onderzoek is afgerond.</li>
+    <li><strong>Anonieme aggregaatstatistieken</strong> (<code>analytics_daily_counts</code>, zonder gebruikersidentificatoren): 36 maanden.</li>
   </ul>
-  <p>Specifieke bewaartermijnen en automatische verwijdering worden apart beslist waar nodig. Je kan altijd verwijdering vragen via de contactgegevens hieronder.</p>
+  <p>Verwijdering kan worden opgeschort voor de specifiek relevante gegevens bij een actieve klacht, beveiligings- of fraudeonderzoek, juridisch geschil of wettelijke bewaarplicht. Je kan altijd verwijdering vragen via de contactgegevens hieronder.</p>
 
   <h2>10. Beveiliging</h2>
   <p>We nemen redelijke technische en organisatorische maatregelen om persoonsgegevens te beschermen tegen verlies, misbruik of onbevoegde toegang. Geen enkel online systeem is volledig risicovrij.</p>

@@ -68,10 +68,13 @@
 
 ---
 
-## RETENTION DECISIONS REQUIRED (unchanged from legal sprint)
+## RETENTION (launch)
 
-Customer/partner data retention — see `LEGAL_IDENTITY_PENDING.md` / privacy policy.  
-Analytics aggregate rows contain no user identifiers; no deletion cron in this sprint.
+Policy aligned in `privacybeleid.html` §9 and `server/retention.js`.  
+Weekly cron: `GET /api/cron/retention` (Bearer `CRON_SECRET`), **dry-run by default**.  
+Apply only with `RETENTION_APPLY=true` (+ CLI `CONFIRM_RETENTION_APPLY=YES`).  
+Migration: `supabase/migrations/20260904_retention_policy.sql` (holds + DELETE grants).  
+Analytics aggregates (`analytics_daily_counts`): 36 months; no user identifiers.
 
 ---
 
