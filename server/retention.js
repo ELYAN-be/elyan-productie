@@ -17,8 +17,6 @@
  */
 'use strict';
 
-var blob = require('./blob-storage');
-
 var POLICY = {
   closedRequestMonths: 24,
   interestCandidateMonths: 12,
@@ -149,6 +147,7 @@ async function closePartnerAccount(admin, partnerId, opts) {
 async function purgePartnerAssetBlobs(admin, partnerId, opts) {
   opts = opts || {};
   var dryRun = !!opts.dryRun;
+  var blob = require('./blob-storage');
   var { data, error } = await admin
     .from('partner_profile_assets')
     .select('id, private_storage_key, public_storage_key, public_url, storage_key')
