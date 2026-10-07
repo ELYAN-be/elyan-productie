@@ -135,7 +135,7 @@
 
   var PRAKTISCHE_TIPS = [
     'Vergelijk offertes op scope, niet alleen op totaalprijs: afbraak, afvoer, steiger, btw en garanties.',
-    'Voorzie een buffer gekoppeld aan de onzekerheid van jouw project (typisch 10–15%).',
+    'Voorzie een buffer gekoppeld aan de onzekerheid van jouw project (typisch 10 tot 15%).',
     'Controleer het ondernemingsnummer en erkenning van je aannemer.',
     'Leg timing, meerwerken en betalingsschema schriftelijk vast.'
   ];
@@ -485,7 +485,7 @@
       notes.push('Inbouwapparatuur is indicatief aan 21% btw gehouden. Vaste keukenwerken kunnen onder voorwaarden aan 6% vallen. De aannemer itemiseert dit op de factuur.');
     }
     if (pureHpTemp && !qualifiesReduced && base6 > 0) {
-      notes.push('Tijdelijk 6%-regime (2026–2030) voor zuivere warmtepomp (indicatief). Losse verdelingswerken in een jonge woning volgen het standaardtarief tenzij een andere regel van toepassing is. Hybride valt hier buiten.');
+      notes.push('Tijdelijk 6%-regime (2026 tot 2030) voor zuivere warmtepomp (indicatief). Losse verdelingswerken in een jonge woning volgen het standaardtarief tenzij een andere regel van toepassing is. Hybride valt hier buiten.');
     }
     if (catKey === 'verwarming' && qualifiesReduced && (pt === 'ketel_vervangen' || pt === 'hybride') && base21 > 0) {
       notes.push('Een deel van deze verwarmingsinstallatie kan aan 21% btw onderworpen zijn (fossiel specifiek gedeelte). Niet-specifieke distributie kan onder 6% vallen indien aan alle renovatievoorwaarden is voldaan.');
@@ -496,7 +496,7 @@
       disc = baseDisclaimer + ' Fossiele verwarmingsinstallaties: FOD Financiën circulaire 2025/C/47 (vanaf 29.07.2025).';
     }
     if (pureHpTemp) {
-      disc = baseDisclaimer + ' Zuivere warmtepomp: tijdelijk 6%-regime 01.01.2026–31.12.2030 (indicatief; hybride uitgesloten).';
+      disc = baseDisclaimer + ' Zuivere warmtepomp: tijdelijk 6%-regime 01.01.2026 tot 31.12.2030 (indicatief; hybride uitgesloten).';
     }
 
     return finishMixed(base6, base21, notes.length ? notes.join(' ') : null, disc);
@@ -1801,7 +1801,7 @@
     }
 
     if (a.colors === '2-3') {
-      packages.push(createPackage('colors', 'Meerwerk 2–3 kleuren', {
+      packages.push(createPackage('colors', 'Meerwerk 2 tot 3 kleuren', {
         labourHours: { low: 2, base: 4, high: 6 },
         labourRate: rate,
         material: { low: 40, base: 80, high: 140 }
@@ -2190,7 +2190,7 @@
     packages.push(createPackage('pv-labour', 'Montage zonnepanelen', {
       labourHours: scaleBand(S.labourHoursPerKwp, kwp * lf * accessF * roofF),
       labourRate: rate,
-      reason: a.access === 'moeilijk' ? 'Moeilijke daktoegang +15–25%' : 'Standaard montage'
+      reason: a.access === 'moeilijk' ? 'Moeilijke daktoegang +15 tot 25%' : 'Standaard montage'
     }));
 
     var adapt = S.electricalAdapt[a.electricalAdapt] || S.electricalAdapt.nee;
@@ -2539,7 +2539,7 @@
         pushDriver('Thuisbatterij', { battery: 'nee' }, 'Batterij is een optionele add-on zonder payback-claim.', 'hoog');
       }
       if (answers.access === 'moeilijk') {
-        pushDriver('Moeilijke daktoegang', { access: 'normaal' }, 'Toeslag 15–25% op montage.', 'middel');
+        pushDriver('Moeilijke daktoegang', { access: 'normaal' }, 'Toeslag 15 tot 25% op montage.', 'middel');
       }
       if (answers.electricalAdapt === 'nieuw') {
         pushDriver('Nieuwe elektrische aanpassing', { electricalAdapt: 'nee' }, 'Bord/aanpassing naast PV.', 'middel');

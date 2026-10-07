@@ -312,18 +312,40 @@ function drawCover(doc, cat, prov, reportId, reportDate) {
 
 /* ---------- main builder ---------- */
 
+var buildMasterV4 = require('./pdf-report-v4').buildMasterV4;
+
+function normalizeReportAnswers(data) {
+  var answers = data.answers || {
+    size: data.size, level: data.level, province: data.province, notes: data.notes
+  };
+  if (!answers.province) answers.province = data.province;
+  if (!answers.size) answers.size = data.size;
+  if (!answers.level) answers.level = data.level;
+  return answers;
+}
+
+/** Production Calc1 entry: approved V4 master for verwarming; legacy for other categories. */
 function buildReportPdf(data) {
+  var answers = normalizeReportAnswers(data || {});
+  if (data && data.type === 'verwarming') {
+    return buildMasterV4({
+      type: data.type,
+      province: data.province,
+      answers: answers,
+      result: data.result,
+      reportId: data.reportId || ('EL-' + String(Date.now()).slice(-8))
+    });
+  }
+  return buildReportPdfLegacy(data);
+}
+
+function buildReportPdfLegacy(data) {
   return new Promise(function (resolve, reject) {
     try {
       var cat = pricing.CATEGORIES[data.type];
       var prov = pricing.PROVINCES[data.province];
       var r = data.result;
-      var answers = data.answers || {
-        size: data.size, level: data.level, province: data.province, notes: data.notes
-      };
-      if (!answers.province) answers.province = data.province;
-      if (!answers.size) answers.size = data.size;
-      if (!answers.level) answers.level = data.level;
+      var answers = normalizeReportAnswers(data);
 
       var pack = insightsLib.buildInsights(data.type, answers, r, pricing);
       var nextSteps = insightsLib.buildNextSteps(data.type, answers, r, pricing).slice(0, 4);

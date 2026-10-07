@@ -70,7 +70,7 @@
     } else if (answers.housingAge === 'jong') {
       if (result.vatBreakdown && Number(result.vatBreakdown.taxableBase6) > 0) {
         insights.push(
-          'Indicatief btw-scenario: tijdelijk 6% kan gelden voor zuivere warmtepomp (2026–2030). Overige werken in een jonge woning volgen doorgaans 21%, tenzij een andere regel van toepassing is.'
+          'Indicatief btw-scenario: tijdelijk 6% kan gelden voor zuivere warmtepomp (2026 tot 2030). Overige werken in een jonge woning volgen doorgaans 21%, tenzij een andere regel van toepassing is.'
         );
       } else {
         insights.push('Indicatief btw-scenario 21%: jongere woning. Specifieke uitzonderingen (zoals tijdelijk warmtepompregime) moeten door de aannemer worden bevestigd.');
@@ -95,11 +95,11 @@
     if (lp.labourHours) {
       planning.push('Raming manuren: ca. ' + lp.labourHours + ' u met ploeg van ' + (lp.crewSize || result.crewSize || 2) + ' → ongeveer ' + (lp.workDays || result.workDays) + ' effectieve werkdagen.');
     }
-    planning.push('Indicatieve uitvoeringsduur: ' + result.weeksLow + '–' + result.weeksHigh + ' weken. De kalenderduur kan langer zijn door fasering, levertijden, droogtijden en afstemming tussen vakdisciplines.');
+    planning.push('Indicatieve uitvoeringsduur: ' + result.weeksLow + ' tot ' + result.weeksHigh + ' weken. De kalenderduur kan langer zijn door fasering, levertijden, droogtijden en afstemming tussen vakdisciplines.');
     if (result.contingency) {
       var pctLow = result.contingencyPct ? Math.round(result.contingencyPct.low * 100) : 10;
       var pctHigh = result.contingencyPct ? Math.round(result.contingencyPct.high * 100) : 15;
-      planning.push('Budgetbuffer: ' + pricing.fmtEUR(result.contingency) + ' (indicatief ' + pctLow + '–' + pctHigh + '%), gekoppeld aan de onzekerheid van jouw antwoorden.');
+      planning.push('Budgetbuffer: ' + pricing.fmtEUR(result.contingency) + ' (indicatief ' + pctLow + ' tot ' + pctHigh + '%), gekoppeld aan de onzekerheid van jouw antwoorden.');
     }
 
     if (type === 'badkamer') {
@@ -401,7 +401,7 @@
         recommendations.push('Voor donkere kleuren: reken op geschikte primer en voldoende lagen.');
       }
       if (answers.paintScope === 'buiten' || answers.paintScope === 'beide') {
-        planning.push('Buitenschilderwerken: plan bij droog weer en milde temperaturen (idealiter 10–25°C).');
+        planning.push('Buitenschilderwerken: plan bij droog weer en milde temperaturen (idealiter 10 tot 25°C).');
         riskRows.push({ risk: 'Weersomstandigheden', impact: 'MIDDEL', check: 'Vraag hoe weerverlet wordt aangerekend.' });
       }
       if (answers.wallpaper === 'ja') {
@@ -659,7 +659,7 @@
       insights.push('ELYAN raamde hardware en montage, geen gegarandeerde besparing of terugverdientijd.');
       insights.push('Prijs per Wp is de beste vergelijkingsmaat; batterij maakt totalen niet-direct vergelijkbaar.');
       insights.push('Voor gewone residentiële PV tot 10 kVA is er momenteel geen directe Vlaamse installatiepremie; Mijn VerbouwLening kan onder voorwaarden.');
-      if (answers.access === 'moeilijk') insights.push('Moeilijke daktoegang verhoogt montageuren met ongeveer 15–25%.');
+      if (answers.access === 'moeilijk') insights.push('Moeilijke daktoegang verhoogt montageuren met ongeveer 15 tot 25%.');
       if (answers.battery === 'ja') insights.push('Batterij is een aparte investeringsbeslissing; reken die niet mee in een “pure PV”-vergelijking.');
 
       risks.push('Schaduw, oriëntatie of zwakke dakstructuur kunnen opbrengst of uitvoerbaarheid beperken.');
@@ -783,7 +783,7 @@
 
     var pctLow = result.contingencyPct ? Math.round(result.contingencyPct.low * 100) : 10;
     var pctHigh = result.contingencyPct ? Math.round(result.contingencyPct.high * 100) : 15;
-    var bufferReason = 'Voor dit project adviseren we ' + pctLow + '–' + pctHigh + '% buffer';
+    var bufferReason = 'Voor dit project adviseren we ' + pctLow + ' tot ' + pctHigh + '% buffer';
     if (result.confidence === 'indicatief' || pctHigh >= 18) {
       bufferReason += ' omdat er meerdere onzekerheden in jouw antwoorden zitten.';
     } else if (pctHigh <= 10) {
