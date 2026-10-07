@@ -12,14 +12,14 @@ var pricing = require('./pricing');
 var insightsLib = require('./insights');
 
 var C = {
-  /* Dark olive-grey — brand authority (logo, headers, rules, disclaimer). Solid RGB. */
-  olive: '#41483D',
-  oliveDeep: '#41483D',
-  /* Muted olive-grey — cover motif + secondary accents. Solid RGB, no fillOpacity. */
-  oliveSoft: '#788072',
+  /* Site --primary #3F4A32 — logo, rules, labels, accents. Solid RGB. */
+  olive: '#3F4A32',
+  oliveDeep: '#3F4A32',
+  /* Site --primary-soft #7C8863 — cover motif + secondary accents. Solid RGB. */
+  oliveSoft: '#7C8863',
   page: '#FFFFFF',
-  /* Light mineral/daylight grey cover — solid RGB, no alpha. */
-  cover: '#E1E3E2',
+  /* Site mineral panel grey (homepage insight #E7E7E5). Solid RGB, no alpha. */
+  cover: '#E7E7E5',
   /* Light cool panels on white interior pages */
   panel: '#EEF0F1',
   rule: '#C5CAD0',
@@ -28,9 +28,9 @@ var C = {
   muted: '#5F6563',
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
-  coverMark: '#41483D',
+  coverMark: '#3F4A32',
   /* Solid RGB muted olive-grey motif */
-  coverMotif: '#788072'
+  coverMotif: '#7C8863'
 };
 
 /* A4 portrait, print-safe margins */
