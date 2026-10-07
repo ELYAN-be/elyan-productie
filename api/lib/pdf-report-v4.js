@@ -12,18 +12,29 @@ var pricing = require('./pricing');
 var insightsLib = require('./insights');
 
 var C = {
-  olive: '#3F4A32',
-  oliveDeep: '#2F3626',
-  oliveSoft: '#5A6748',
+  /* Dark ELYAN olive — brand authority (logo, headers, rules, disclaimer). Solid RGB. */
+  olive: '#3A4530',
+  oliveDeep: '#2F3828',
+  /* Muted olive — cover motif + secondary accents. Solid RGB, no fillOpacity. */
+  oliveSoft: '#6B765F',
   page: '#FFFFFF',
-  panel: '#EEF0EC',
-  rule: '#D2D5CE',
-  ink: '#1A1B17',
-  soft: '#3F4138',
-  muted: '#5C5E56',
+  /*
+   * Cool mineral grey — unmistakably grey next to white on iPhone/Safari.
+   * Blue-channel bias (cool); G must NOT dominate (avoids mint/sage from old #EEF0EC).
+   * Explicit DeviceRGB — never alpha-blended.
+   */
+  cover: '#D5D9DC',
+  /* Light cool panels on white interior pages */
+  panel: '#EEF0F1',
+  rule: '#C5CAD0',
+  ink: '#1A1C1B',
+  soft: '#3A3D3A',
+  muted: '#5F6563',
   white: '#FFFFFF',
-  coverMuted: '#C5CBB8',
-  coverMark: '#3A4230'
+  coverMuted: '#9AA3A8',
+  coverMark: '#2F3828',
+  /* Solid RGB muted olive motif */
+  coverMotif: '#6B765F'
 };
 
 /* A4 portrait, print-safe margins */
@@ -263,31 +274,59 @@ function sectionLabel(doc, text, x, y) {
 
 function pageTitle(doc, text, x, y) {
   doc.font(FONTS.displayMed).fontSize(19).fillColor(C.ink)
-    .text(text, x, y, { width: CW, lineGap: 1 });
-  return doc.y + 6;
+    .text(text, x, y, {
+      width: CW,
+      lineGap: 1,
+      height: Math.max(12, BOTTOM - y),
+      ellipsis: true
+    });
+  return Math.min(doc.y + 6, BOTTOM);
 }
 
 function sectionTitle(doc, text, x, y, w) {
   doc.font(FONTS.displayMed).fontSize(12.5).fillColor(C.ink)
-    .text(text, x, y, { width: w || CW });
-  return doc.y + 4;
+    .text(text, x, y, {
+      width: w || CW,
+      height: Math.max(12, BOTTOM - y),
+      ellipsis: true
+    });
+  return Math.min(doc.y + 4, BOTTOM);
 }
 
+/** Text that never auto-paginates: height-clamped to page content bottom. */
 function body(doc, text, x, y, opts) {
   opts = opts || {};
+  var maxH = Math.max(0, BOTTOM - y);
+  if (maxH < 8) return y;
   doc.font(opts.font || FONTS.body).fontSize(opts.size || 9.6).fillColor(opts.color || C.soft)
-    .text(text, x, y, {
+    .text(String(text || ''), x, y, {
       width: opts.w || CW,
       lineGap: opts.gap != null ? opts.gap : 2.6,
-      align: opts.align || 'left'
+      align: opts.align || 'left',
+      height: maxH,
+      ellipsis: true
     });
-  return doc.y;
+  return Math.min(doc.y, BOTTOM);
 }
 
 function meta(doc, text, x, y, w) {
+  var maxH = Math.max(0, BOTTOM - y);
+  if (maxH < 8) return y;
   doc.font(FONTS.body).fontSize(8).fillColor(C.muted)
-    .text(text, x, y, { width: w || CW, lineGap: 2 });
-  return doc.y;
+    .text(String(text || ''), x, y, {
+      width: w || CW,
+      lineGap: 2,
+      height: maxH,
+      ellipsis: true
+    });
+  return Math.min(doc.y, BOTTOM);
+}
+
+/** Keep a block together: if it does not fit, start an intentional continuation page. */
+function ensureBlock(doc, ctx, y, needed) {
+  if (y + needed <= BOTTOM) return y;
+  newPage(doc, ctx);
+  return MT;
 }
 
 function withOpenMargins(doc, fn) {
@@ -310,13 +349,11 @@ function withOpenMargins(doc, fn) {
 
 function drawCover(doc, cat, prov, id, date) {
   withOpenMargins(doc, function () {
-    /* Reuse established report panel grey (#EEF0EC) — mineral, not cream/white */
-    doc.rect(0, 0, W, H).fill(C.panel);
-    doc.rect(0, 0, 5, H).fill(C.oliveSoft);
-    /* Large cropped official mark — restore prior soft watermark (oliveSoft @ 0.72) */
-    doc.save();
-    doc.fillOpacity(0.72);
-    doc.fillColor(C.oliveSoft);
+    /* Cool mineral grey cover — distinct from white inside pages */
+    doc.rect(0, 0, W, H).fill(C.cover);
+    doc.rect(0, 0, 5, H).fill(C.olive);
+    /* Large cropped official mark — solid soft olive (no opacity) */
+    doc.fillColor(C.coverMotif);
     (function () {
       var mx = W - 268;
       var my = H - 390;
@@ -327,7 +364,6 @@ function drawCover(doc, cat, prov, id, date) {
       doc.roundedRect(mx + 13 * s, my + 8 * s, 6 * s, 20 * s, rr).fill();
       doc.roundedRect(mx + 22 * s, my + 2 * s, 6 * s, 26 * s, rr).fill();
     })();
-    doc.restore();
   });
 
   var x = ML + 22;
@@ -388,8 +424,8 @@ function drawCover(doc, cat, prov, id, date) {
   withOpenMargins(doc, function () {
     /* Disclaimer left edge = footer line start (ML) */
     var noteX = ML;
-    doc.rect(noteX, noteY, noteTw, noteH).fill(C.oliveSoft);
-    doc.rect(noteX, noteY, 2.2, noteH).fill(C.olive);
+    doc.rect(noteX, noteY, noteTw, noteH).fill(C.olive);
+    doc.rect(noteX, noteY, 2.2, noteH).fill(C.oliveDeep);
     doc.font(FONTS.body).fontSize(8.2).fillColor(C.white)
       .text(noteText, noteX + notePadX + 2, noteY + notePadY, {
         width: noteTw - notePadX * 2 - 4,
@@ -414,7 +450,7 @@ function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta, pack, type) {
 
   y = sectionLabel(doc, 'Project', ML, y);
   y = pageTitle(doc, 'Projectoverzicht', ML, y);
-  y += 12;
+  y += 10;
 
   var facts = [
     { l: 'Renovatie', v: cat.label },
@@ -425,35 +461,35 @@ function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta, pack, type) {
     projectFactExtra(type, answers, pack, cat)
   ];
 
-  var zoneH = 118;
+  var zoneH = 108;
   doc.rect(ML, y, CW, zoneH).fill(C.panel);
   doc.rect(ML, y, 3, zoneH).fill(C.olive);
 
   var padX = 16;
-  var padY = 16;
+  var padY = 14;
   var colW = (CW - padX * 2 - 20) / 3;
   var gapX = 10;
   facts.forEach(function (f, i) {
     var col = i % 3;
     var row = Math.floor(i / 3);
     var fx = ML + padX + col * (colW + gapX);
-    var fy = y + padY + row * 48;
+    var fy = y + padY + row * 44;
     if (col > 0) {
-      doc.moveTo(fx - gapX / 2, fy).lineTo(fx - gapX / 2, fy + 34)
+      doc.moveTo(fx - gapX / 2, fy).lineTo(fx - gapX / 2, fy + 32)
         .lineWidth(0.4).strokeColor(C.rule).stroke();
     }
     if (row === 1 && col === 0) {
-      greyRule(doc, ML + padX, fy - 10, CW - padX * 2);
+      greyRule(doc, ML + padX, fy - 8, CW - padX * 2);
     }
     doc.font(FONTS.body).fontSize(7.5).fillColor(C.muted).text(f.l, fx, fy);
     doc.font(FONTS.bodySemi).fontSize(10.4).fillColor(C.ink)
       .text(String(f.v), fx, fy + 14, { width: colW - 4 });
   });
-  y += zoneH + 28;
+  y += zoneH + 20;
 
   y = sectionLabel(doc, 'Investering', ML, y);
   y = pageTitle(doc, 'Indicatieve investering', ML, y);
-  y += 18;
+  y += 14;
 
   var leftW = COL * 6.2;
   var rightX = ML + COL * 7;
@@ -478,14 +514,14 @@ function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta, pack, type) {
     doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted).text(s.l, rightX, ry, { width: rightW });
     doc.font(FONTS.displayMed).fontSize(12.5).fillColor(C.ink)
       .text(s.v, rightX, ry + 14, { width: rightW });
-    ry += 36;
+    ry += 32;
   });
 
-  y = Math.max(y + 100, ry) + 14;
+  y = Math.max(y + 96, ry) + 10;
   y = meta(doc,
     'Alle bedragen in dit rapport zijn indicatieve ramingen en geen bindende offerte.',
     ML, y);
-  y += 30;
+  y += 22;
 
   var leftBlockW = COL * 5.8;
   var rightBlockX = ML + COL * 6.5;
@@ -498,34 +534,37 @@ function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta, pack, type) {
     text: (cat && cat.label) || 'Belangrijkste kostendrijver',
     reason: 'De belangrijkste kostendrijver bepaalt een groot deel van jouw raming.'
   };
-  doc.font(FONTS.bodySemi).fontSize(11.4).fillColor(C.ink)
-    .text(driver.text, ML, yL, { width: leftBlockW });
+  doc.font(FONTS.bodySemi).fontSize(11.2).fillColor(C.ink)
+    .text(driver.text, ML, yL, { width: leftBlockW, height: 28, ellipsis: true });
   yL = body(doc, driverReasonCustomer(driver, type), ML, yL + 18, {
-    size: 9.5, w: leftBlockW, color: C.soft, gap: 3
+    size: 9.4, w: leftBlockW, color: C.soft, gap: 2.6
   });
-  yL += 14;
+  yL += 12;
   yL = body(doc,
     'Toets offertes eerst op scope, materialen en uitvoeringsvoorwaarden.',
-    ML, yL, { size: 9.1, w: leftBlockW, color: C.muted });
+    ML, yL, { size: 9, w: leftBlockW, color: C.muted });
 
   var yR = sectionLabel(doc, 'Scope', rightBlockX, y);
   yR = sectionTitle(doc, 'Wat zit in deze raming?', rightBlockX, yR, rightBlockW);
-  yR += 14;
+  yR += 12;
   var scopeItems = (pack && pack.included && pack.included.length)
     ? pack.included.slice(0, 4)
     : (r.costBreakdown || []).filter(function (it) { return it.amount > 0; }).slice(0, 4)
       .map(function (it) { return packageLabel(it); });
   scopeItems.forEach(function (text, idx) {
+    if (yR + 22 > BOTTOM) return;
     if (idx > 0) {
       greyRule(doc, rightBlockX, yR, rightBlockW);
-      yR += 11;
+      yR += 10;
     }
-    doc.font(FONTS.bodySemi).fontSize(9.8).fillColor(C.ink)
-      .text(String(text), rightBlockX, yR, { width: rightBlockW });
-    yR += 22;
+    doc.font(FONTS.bodySemi).fontSize(9.6).fillColor(C.ink)
+      .text(String(text), rightBlockX, yR, {
+        width: rightBlockW, height: 18, ellipsis: true
+      });
+    yR += 20;
   });
 
-  doc.y = Math.max(yL, yR) + 6;
+  doc.y = Math.min(Math.max(yL, yR) + 6, BOTTOM);
 }
 
 /* ---------------- PAGE 3 — budget + buffer ---------------- */
@@ -537,37 +576,44 @@ function pageBudget(doc, ctx, r, cat) {
 
   y = sectionLabel(doc, 'Budget', ML, y);
   y = pageTitle(doc, 'Waar gaat je budget naartoe?', ML, y);
-  y += 5;
+  y += 4;
   y = meta(doc, 'Bedragen excl. btw, opgebouwd uit werkpakketten.', ML, y);
-  y += 14;
+  y += 10;
 
-  doc.rect(ML, y, CW, 25).fill(C.oliveDeep);
+  doc.rect(ML, y, CW, 24).fill(C.oliveDeep);
   doc.font(FONTS.displayMed).fontSize(8).fillColor(C.white)
-    .text('Onderdeel', ML + 12, y + 8)
-    .text('Raming', ML, y + 8, { width: CW - 12, align: 'right' });
-  y += 25;
+    .text('Onderdeel', ML + 12, y + 7)
+    .text('Raming', ML, y + 7, { width: CW - 12, align: 'right' });
+  y += 24;
 
-  var rows = (r.costBreakdown || []).filter(function (it) { return it.amount > 0; }).slice(0, 8);
+  /* Reserve space so market + tip + buffer stay together on this page */
+  var reservedTail = 248;
+  var rowH = 28;
+  var roomForRows = Math.max(rowH * 2, BOTTOM - y - reservedTail);
+  var maxRows = Math.max(2, Math.min(6, Math.floor(roomForRows / rowH)));
+  var rows = (r.costBreakdown || []).filter(function (it) { return it.amount > 0; }).slice(0, maxRows);
   rows.forEach(function (it, idx) {
-    var rh = 32;
+    var rh = rowH;
     if (idx % 2 === 0) doc.rect(ML, y, CW, rh).fill(C.panel);
-    doc.font(FONTS.body).fontSize(9.5).fillColor(C.ink)
-      .text(packageLabel(it), ML + 12, y + 10, { width: CW - 130 });
-    doc.font(FONTS.bodyMed).fontSize(9.5).fillColor(C.ink)
-      .text(euro(it.amount), ML, y + 10, { width: CW - 12, align: 'right' });
+    doc.font(FONTS.body).fontSize(9.2).fillColor(C.ink)
+      .text(packageLabel(it), ML + 12, y + 8, {
+        width: CW - 130, height: rh - 10, ellipsis: true, lineBreak: false
+      });
+    doc.font(FONTS.bodyMed).fontSize(9.2).fillColor(C.ink)
+      .text(euro(it.amount), ML, y + 8, { width: CW - 12, align: 'right', lineBreak: false });
     y += rh;
   });
 
   doc.moveTo(ML, y).lineTo(W - MR, y).lineWidth(1.1).strokeColor(C.olive).stroke();
-  y += 10;
+  y += 8;
   doc.font(FONTS.bodySemi).fontSize(10).fillColor(C.ink)
     .text('Totaal excl. btw', ML + 12, y);
   doc.font(FONTS.displayMed).fontSize(11.5).fillColor(C.olive)
     .text(euro(r.subtotalExVat || r.price), ML, y, { width: CW - 12, align: 'right' });
-  y += 26;
+  y += 22;
 
   y = sectionLabel(doc, 'Samenstelling', ML, y);
-  y += 10;
+  y += 8;
   var parts = [
     { l: 'Materialen', a: r.amounts.materiaal, p: Math.round(r.split.materiaal * 100) },
     { l: 'Arbeid', a: r.amounts.arbeid, p: Math.round(r.split.arbeid * 100) },
@@ -577,16 +623,16 @@ function pageBudget(doc, ctx, r, cat) {
   parts.forEach(function (p, i) {
     var x = ML + i * (pw + 12);
     doc.font(FONTS.body).fontSize(7.8).fillColor(C.muted).text(p.l, x, y);
-    doc.font(FONTS.displayMed).fontSize(14).fillColor(C.ink).text(euro(p.a), x, y + 16);
-    doc.font(FONTS.bodyMed).fontSize(9.2).fillColor(C.olive).text(p.p + '%', x, y + 38);
+    doc.font(FONTS.displayMed).fontSize(14).fillColor(C.ink).text(euro(p.a), x, y + 14);
+    doc.font(FONTS.bodyMed).fontSize(9.2).fillColor(C.olive).text(p.p + '%', x, y + 34);
   });
-  y += 62;
+  y += 54;
   greyRule(doc, ML, y, CW);
-  y += 16;
+  y += 12;
 
   y = sectionLabel(doc, 'Markt', ML, y);
   y = sectionTitle(doc, 'Vergelijking met de markt', ML, y);
-  y += 12;
+  y += 10;
 
   doc.font(FONTS.body).fontSize(7.8).fillColor(C.muted).text('ELYAN-raming', ML, y);
   doc.font(FONTS.displayMed).fontSize(15).fillColor(C.olive).text(euro(r.price), ML, y + 13);
@@ -598,45 +644,56 @@ function pageBudget(doc, ctx, r, cat) {
   doc.font(FONTS.displayMed).fontSize(14).fillColor(C.ink)
     .text(euro(bm.low) + ' tot ' + euro(bm.high), mx, y + 13, { width: COL * 5.8 });
   doc.font(FONTS.body).fontSize(8).fillColor(C.muted).text('excl. btw', mx, y + 34);
-  y += 52;
+  y += 48;
 
   y = body(doc, marketPositionSentence(r, cat), ML, y, { size: 9.4, w: CW * 0.94 });
-  y += 10;
+  y += 8;
   var bmScope = (r.marketBenchmark && r.marketBenchmark.scope)
     ? String(r.marketBenchmark.scope)
     : 'vergelijkbare renovatie, excl. btw';
   y = meta(doc, 'Marktdata gecontroleerd op ' + (fmtAuditDate(r.asOf) || '2026') +
     ' · Scope: ' + bmScope + '.', ML, y);
 
-  y += 16;
-  doc.rect(ML, y, CW, 58).fill(C.panel);
-  doc.rect(ML, y, 3, 58).fill(C.olive);
+  y += 10;
+  /* Tip + Buffer are atomic on this page — never page-break mid-panel */
+  var tipH = 52;
+  var ph = 62;
+  var needTail = tipH + 10 + 12 + ph;
+  if (y + needTail > BOTTOM) {
+    /* Compact previous content already reserved; clamp rather than spawn blank pages */
+    y = Math.min(y, BOTTOM - needTail);
+  }
+  doc.rect(ML, y, CW, tipH).fill(C.panel);
+  doc.rect(ML, y, 3, tipH).fill(C.olive);
   doc.font(FONTS.displayMed).fontSize(7.4).fillColor(C.olive)
-    .text('HOE DEZE TABEL TE GEBRUIKEN', ML + 14, y + 11, { characterSpacing: 0.7 });
+    .text('HOE DEZE TABEL TE GEBRUIKEN', ML + 14, y + 10, {
+      characterSpacing: 0.7, lineBreak: false
+    });
   doc.font(FONTS.body).fontSize(9).fillColor(C.soft)
     .text('Vraag aannemers dezelfde werkpakketten te specificeren. Zo vergelijk je scope, materialen en oplevering, niet alleen een totaalbedrag.',
-      ML + 14, y + 26, { width: CW - 28, lineGap: 2.4 });
-  y += 70;
+      ML + 14, y + 24, { width: CW - 28, lineGap: 2, height: 24, ellipsis: true });
+  y += tipH + 10;
 
-  /* Buffer moved from page 6 — closes the financial story on the budget page */
+  /* Buffer — keep label + panel as one unit */
   y = sectionLabel(doc, 'Buffer', ML, y);
-  var ph = 68;
   doc.rect(ML, y, CW, ph).fill(C.panel);
   doc.rect(ML, y, 3.2, ph).fill(C.olive);
   doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted)
-    .text('Aanbevolen budgetbuffer', ML + 14, y + 12);
+    .text('Aanbevolen budgetbuffer', ML + 14, y + 12, { lineBreak: false });
   doc.font(FONTS.displayMed).fontSize(18).fillColor(C.olive)
-    .text(euro(r.contingency), ML + 14, y + 28);
+    .text(euro(r.contingency), ML + 14, y + 28, { lineBreak: false });
   doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted)
-    .text('Veilig werkbudget', ML + COL * 6.5, y + 12);
+    .text('Veilig werkbudget', ML + COL * 6.5, y + 12, { lineBreak: false });
   doc.font(FONTS.displayMed).fontSize(13).fillColor(C.ink)
-    .text(euro(safe) + ' excl. btw', ML + COL * 6.5, y + 30, { width: COL * 5.2 });
+    .text(euro(safe) + ' excl. btw', ML + COL * 6.5, y + 30, {
+      width: COL * 5.2, lineBreak: false
+    });
   doc.font(FONTS.body).fontSize(8.2).fillColor(C.soft)
-    .text('Voor kleine afwijkingen in uitvoering of materiaalkeuze.', ML + 14, y + 50, {
-      width: COL * 10
+    .text('Voor kleine afwijkingen in uitvoering of materiaalkeuze.', ML + 14, y + 46, {
+      width: COL * 10, lineBreak: false
     });
 
-  doc.y = y + ph + 4;
+  doc.y = Math.min(y + ph + 4, BOTTOM);
 }
 
 /* ---------------- PAGE 4 — execution / planning ---------------- */
@@ -648,7 +705,7 @@ function pageExecution(doc, ctx, r, pack) {
 
   y = sectionLabel(doc, 'Uitvoering', ML, y);
   y = pageTitle(doc, 'Uitvoering en planning', ML, y);
-  y += 14;
+  y += 10;
 
   var cells = [
     { l: 'Arbeidsinspanning', v: String(lp.labourHours || r.labourHours) + ' manuren' },
@@ -664,57 +721,64 @@ function pageExecution(doc, ctx, r, pack) {
     doc.font(FONTS.displayMed).fontSize(12).fillColor(C.ink)
       .text(c.v, x, y + 16, { width: cellW - 4 });
   });
-  y += 48;
+  y += 44;
   greyRule(doc, ML, y, CW);
-  y += 10;
+  y += 8;
   y = meta(doc,
     'Productieve werkdagen zijn effectieve werfdagen. De uitvoeringsduur is kalenderduur (levering, afstemming).',
     ML, y);
-  y += 22;
+  y += 16;
 
   y = sectionLabel(doc, 'Fasering', ML, y);
   y = sectionTitle(doc, 'Indicatieve fasering', ML, y);
-  y += 6;
+  y += 4;
   y = meta(doc,
     'Fasewaarden zijn kalenderinschattingen per fase en geen optelsom van productieve werkdagen.',
     ML, y);
-  y += 14;
+  y += 10;
 
   /* Professional project phasing schedule — no decorative numbering / spine */
   var phases = (pack.timeline || []).slice(0, 3);
   var cFase = COL * 4.2;
   var cWerk = COL * 4.6;
   var cDuur = COL * 3.2;
-  var headerH = 26;
+  var headerH = 24;
   doc.rect(ML, y, CW, headerH).fill(C.oliveDeep);
   doc.font(FONTS.displayMed).fontSize(7.3).fillColor(C.white)
-    .text('Fase', ML + 12, y + 9)
-    .text('Werkzaamheden', ML + cFase + 12, y + 9)
-    .text('Indicatieve duur', ML + cFase + cWerk + 8, y + 9);
+    .text('Fase', ML + 12, y + 8)
+    .text('Werkzaamheden', ML + cFase + 12, y + 8)
+    .text('Indicatieve duur', ML + cFase + cWerk + 8, y + 8);
   y += headerH;
 
   phases.forEach(function (step, i) {
-    var rh = 36;
+    var rh = 32;
     if (i % 2 === 0) doc.rect(ML, y, CW, rh).fill(C.panel);
     doc.font(FONTS.bodySemi).fontSize(9.6).fillColor(C.ink)
-      .text(step.phase, ML + 12, y + 11, { width: cFase - 16 });
+      .text(step.phase, ML + 12, y + 9, {
+        width: cFase - 16, height: rh - 12, ellipsis: true
+      });
     doc.font(FONTS.body).fontSize(9.2).fillColor(C.soft)
-      .text(step.note || '', ML + cFase + 12, y + 11, { width: cWerk - 16 });
+      .text(step.note || '', ML + cFase + 12, y + 9, {
+        width: cWerk - 16, height: rh - 12, ellipsis: true
+      });
     doc.font(FONTS.bodyMed).fontSize(9.2).fillColor(C.ink)
-      .text(phaseDayLabel(step), ML + cFase + cWerk + 8, y + 11, { width: cDuur - 16 });
+      .text(phaseDayLabel(step), ML + cFase + cWerk + 8, y + 9, {
+        width: cDuur - 16, height: rh - 12, ellipsis: true, lineBreak: false
+      });
     y += rh;
   });
-  y += 28;
+  y += 16;
 
   /* Lower page — two distinct editorial zones using remaining height */
   var leftW = COL * 5.8;
   var rightX = ML + COL * 6.4;
   var rightW = COL * 5.6;
   var colTop = y;
+  var colBottom = BOTTOM - 4;
 
   var yL = sectionLabel(doc, 'Aannames', ML, colTop);
   yL = sectionTitle(doc, 'Aannames in deze raming', ML, yL, leftW);
-  yL += 12;
+  yL += 10;
   var assumptionItems = (pack.assumptions && pack.assumptions.length)
     ? pack.assumptions.slice(0, 3)
     : [
@@ -722,18 +786,20 @@ function pageExecution(doc, ctx, r, pack) {
       'Geen structurele verborgen schade buiten wat is aangegeven.'
     ];
   assumptionItems.forEach(function (a, i) {
+    if (yL + 28 > colBottom) return;
     if (i > 0) {
       greyRule(doc, ML, yL, leftW);
-      yL += 10;
+      yL += 8;
     }
-    doc.font(FONTS.body).fontSize(9.1).fillColor(C.soft)
-      .text(a, ML, yL, { width: leftW, lineGap: 2.4 });
-    yL = doc.y + 14;
+    var aH = Math.min(42, colBottom - yL);
+    doc.font(FONTS.body).fontSize(8.9).fillColor(C.soft)
+      .text(a, ML, yL, { width: leftW, lineGap: 2, height: aH, ellipsis: true });
+    yL = Math.min(doc.y + 10, colBottom);
   });
 
   var yR = sectionLabel(doc, 'Onzekerheden', rightX, colTop);
   yR = sectionTitle(doc, 'Uitvoeringsonzekerheden', rightX, yR, rightW);
-  yR += 12;
+  yR += 10;
   var uncertaintyItems = (pack.riskRows && pack.riskRows.length)
     ? pack.riskRows.slice(0, 2).map(function (row) {
       return { t: row.risk, d: row.check || row.impact || '' };
@@ -745,19 +811,22 @@ function pageExecution(doc, ctx, r, pack) {
     uncertaintyItems = [{ t: 'Scopebevestiging', d: 'Laat open punten schriftelijk vastleggen vóór start.' }];
   }
   uncertaintyItems.forEach(function (u, i) {
+    if (yR + 36 > colBottom) return;
     if (i > 0) {
       greyRule(doc, rightX, yR, rightW);
-      yR += 12;
+      yR += 10;
     }
-    doc.font(FONTS.bodySemi).fontSize(10).fillColor(C.ink).text(u.t, rightX, yR, { width: rightW });
+    doc.font(FONTS.bodySemi).fontSize(9.6).fillColor(C.ink)
+      .text(u.t, rightX, yR, { width: rightW, height: 16, ellipsis: true });
     yR += 14;
-    doc.font(FONTS.body).fontSize(9).fillColor(C.soft).text(u.d, rightX, yR, {
-      width: rightW, lineGap: 2.4
+    var uH = Math.min(48, colBottom - yR);
+    doc.font(FONTS.body).fontSize(8.8).fillColor(C.soft).text(u.d, rightX, yR, {
+      width: rightW, lineGap: 2, height: uH, ellipsis: true
     });
-    yR = doc.y + 16;
+    yR = Math.min(doc.y + 12, colBottom);
   });
 
-  doc.y = Math.max(yL, yR);
+  doc.y = Math.min(Math.max(yL, yR), BOTTOM);
 }
 
 /* ---------------- PAGE 5 — offers + next steps ---------------- */
@@ -784,7 +853,7 @@ function pageOfferReview(doc, ctx, nextSteps, pack) {
     .text('Wat moet je controleren?', ML + col1 + col2 + 10, y + 9);
   y += headerH;
 
-  var checkRows = (pack.quoteChecks || []).slice(0, 6).map(function (c) {
+  var checkRows = (pack.quoteChecks || []).slice(0, 5).map(function (c) {
     return {
       point: String(c),
       why: 'Nodig om offertes eerlijk te vergelijken.',
@@ -810,17 +879,25 @@ function pageOfferReview(doc, ctx, nextSteps, pack) {
       }
     ];
   }
-  checkRows.forEach(function (row, idx) {
-    var textH = 44;
+  /* Cap rows so signals + next steps remain on this page */
+  var maxChecks = Math.max(3, Math.min(checkRows.length, Math.floor((BOTTOM - y - 220) / 40)));
+  checkRows.slice(0, maxChecks).forEach(function (row, idx) {
+    var textH = 40;
     if (idx % 2 === 0) doc.rect(ML, y, CW, textH).fill(C.panel);
     doc.moveTo(ML, y + textH).lineTo(W - MR, y + textH)
       .lineWidth(0.35).strokeColor(C.rule).stroke();
-    doc.font(FONTS.bodySemi).fontSize(8.7).fillColor(C.ink)
-      .text(row.point, ML + 10, y + 8, { width: col1 - 14, lineGap: 1.3 });
-    doc.font(FONTS.body).fontSize(8.3).fillColor(C.soft)
-      .text(row.why, ML + col1 + 10, y + 8, { width: col2 - 14, lineGap: 1.5 });
-    doc.font(FONTS.body).fontSize(8.3).fillColor(C.soft)
-      .text(row.check, ML + col1 + col2 + 10, y + 8, { width: col3 - 18, lineGap: 1.5 });
+    doc.font(FONTS.bodySemi).fontSize(8.4).fillColor(C.ink)
+      .text(row.point, ML + 10, y + 7, {
+        width: col1 - 14, height: textH - 12, ellipsis: true
+      });
+    doc.font(FONTS.body).fontSize(8).fillColor(C.soft)
+      .text(row.why, ML + col1 + 10, y + 7, {
+        width: col2 - 14, height: textH - 12, ellipsis: true
+      });
+    doc.font(FONTS.body).fontSize(8).fillColor(C.soft)
+      .text(row.check, ML + col1 + col2 + 10, y + 7, {
+        width: col3 - 18, height: textH - 12, ellipsis: true
+      });
     y += textH;
   });
 
@@ -835,10 +912,12 @@ function pageOfferReview(doc, ctx, nextSteps, pack) {
   var yL = sectionLabel(doc, 'Signalen', ML, y);
   yL = sectionTitle(doc, 'Waarschuwingssignalen', ML, yL, leftW);
   yL += 10;
-  (pack.redFlags || []).slice(0, 4).forEach(function (f) {
-    doc.font(FONTS.body).fontSize(9.1).fillColor(C.soft)
-      .text('·  ' + f, ML, yL, { width: leftW, lineGap: 1.7 });
-    yL = doc.y + 8;
+  (pack.redFlags || []).slice(0, 3).forEach(function (f) {
+    doc.font(FONTS.body).fontSize(8.8).fillColor(C.soft)
+      .text('·  ' + f, ML, yL, {
+        width: leftW, lineGap: 1.4, height: 36, ellipsis: true
+      });
+    yL = Math.min(doc.y + 6, BOTTOM);
   });
 
   var yR = sectionLabel(doc, 'Optimalisatie', rightX, y);
@@ -854,28 +933,34 @@ function pageOfferReview(doc, ctx, nextSteps, pack) {
     }];
   }
   optItems.forEach(function (o) {
-    doc.font(FONTS.bodySemi).fontSize(9.6).fillColor(C.ink)
-      .text(o.t, rightX, yR, { width: rightW });
+    doc.font(FONTS.bodySemi).fontSize(9.4).fillColor(C.ink)
+      .text(o.t, rightX, yR, { width: rightW, lineBreak: false });
     yR += 12;
-    doc.font(FONTS.body).fontSize(8.7).fillColor(C.soft)
-      .text(o.d, rightX, yR, { width: rightW, lineGap: 2 });
-    yR = doc.y + 12;
+    doc.font(FONTS.body).fontSize(8.5).fillColor(C.soft)
+      .text(o.d, rightX, yR, {
+        width: rightW, lineGap: 1.8, height: 48, ellipsis: true
+      });
+    yR = Math.min(doc.y + 10, BOTTOM);
   });
 
-  y = Math.max(yL, yR) + 16;
+  y = Math.max(yL, yR) + 12;
+  if (y + 80 > BOTTOM) y = Math.max(MT, BOTTOM - 80);
   greyRule(doc, ML, y, CW);
-  y += 14;
+  y += 12;
 
-  /* Next steps moved from page 6 */
+  /* Next steps */
   y = sectionLabel(doc, 'Actie', ML, y);
   y = sectionTitle(doc, 'Jouw volgende stappen', ML, y);
-  y += 10;
-  nextSteps.slice(0, 4).forEach(function (step, i) {
+  y += 8;
+  nextSteps.slice(0, 3).forEach(function (step, i) {
+    if (y + 28 > BOTTOM) return;
     doc.font(FONTS.displayMed).fontSize(8.4).fillColor(C.olive)
-      .text(String(i + 1).padStart(2, '0'), ML, y + 1);
-    doc.font(FONTS.body).fontSize(9.3).fillColor(C.soft)
-      .text(step, ML + 26, y, { width: CW - 26, lineGap: 1.8 });
-    y = doc.y + 10;
+      .text(String(i + 1).padStart(2, '0'), ML, y + 1, { lineBreak: false });
+    doc.font(FONTS.body).fontSize(9).fillColor(C.soft)
+      .text(step, ML + 26, y, {
+        width: CW - 26, lineGap: 1.5, height: 28, ellipsis: true
+      });
+    y = Math.min(doc.y + 8, BOTTOM);
   });
 
   doc.y = y;
@@ -900,15 +985,22 @@ function pageFinanceAndClose(doc, ctx, r, pack) {
   var yL = sectionLabel(doc, 'Btw', ML, y);
   yL = sectionTitle(doc, 'Indicatief btw-scenario', ML, yL, leftW);
   yL += 12;
-  doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted).text('Scenario', ML, yL);
-  doc.font(FONTS.bodySemi).fontSize(9.8).fillColor(C.ink)
-    .text(vatScenarioLabel(r, pack), ML, yL + 12, { width: leftW });
+  doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted)
+    .text('Scenario', ML, yL, { lineBreak: false });
+  doc.font(FONTS.bodySemi).fontSize(9.6).fillColor(C.ink)
+    .text(vatScenarioLabel(r, pack), ML, yL + 12, {
+      width: leftW, height: 28, ellipsis: true
+    });
   yL += 36;
-  doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted).text('Indicatieve btw', ML, yL);
-  doc.font(FONTS.displayMed).fontSize(16).fillColor(C.olive).text(euro(r.vatAmount), ML, yL + 14);
+  doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted)
+    .text('Indicatieve btw', ML, yL, { lineBreak: false });
+  doc.font(FONTS.displayMed).fontSize(16).fillColor(C.olive)
+    .text(euro(r.vatAmount), ML, yL + 14, { lineBreak: false });
   yL += 40;
-  doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted).text('Indicatief totaal incl. btw', ML, yL);
-  doc.font(FONTS.displayMed).fontSize(13).fillColor(C.ink).text(euro(r.totalInclVat), ML, yL + 14);
+  doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted)
+    .text('Indicatief totaal incl. btw', ML, yL, { lineBreak: false });
+  doc.font(FONTS.displayMed).fontSize(13).fillColor(C.ink)
+    .text(euro(r.totalInclVat), ML, yL + 14, { lineBreak: false });
   yL += 38;
   yL = meta(doc, 'Het definitieve tarief staat op de factuur van de aannemer.', ML, yL, leftW);
 
@@ -916,50 +1008,53 @@ function pageFinanceAndClose(doc, ctx, r, pack) {
   yR = sectionTitle(doc, 'Premies en steun', rightX, yR, rightW);
   yR += 12;
   if (pr) {
-    doc.font(FONTS.bodySemi).fontSize(10.4).fillColor(C.ink)
+    doc.font(FONTS.bodySemi).fontSize(10.2).fillColor(C.ink)
       .text(pr.scheme === 'Warmtepomppremie (Vlaanderen)'
         ? 'Warmtepomppremie Vlaanderen'
-        : pr.scheme, rightX, yR, { width: rightW });
+        : pr.scheme, rightX, yR, { width: rightW, height: 28, ellipsis: true });
     yR += 16;
-    doc.font(FONTS.body).fontSize(9.1).fillColor(C.soft)
+    doc.font(FONTS.body).fontSize(8.8).fillColor(C.soft)
       .text('Mogelijk relevant op basis van de bekende projectgegevens.', rightX, yR, {
-        width: rightW, lineGap: 2.2
+        width: rightW, lineGap: 2, height: 28, ellipsis: true
       });
-    yR = doc.y + 14;
+    yR = Math.min(doc.y + 12, BOTTOM);
 
     doc.font(FONTS.bodyMed).fontSize(8).fillColor(C.olive)
-      .text('Nog te bevestigen', rightX, yR);
+      .text('Nog te bevestigen', rightX, yR, { lineBreak: false });
     yR += 13;
     ['Inkomenscategorie', 'Eigendomssituatie', 'Technische voorwaarden'].forEach(function (m) {
       doc.font(FONTS.body).fontSize(8.8).fillColor(C.soft)
-        .text('·  ' + m, rightX, yR, { width: rightW });
+        .text('·  ' + m, rightX, yR, { width: rightW, lineBreak: false });
       yR += 14;
     });
 
-    yR += 10;
+    yR += 8;
     greyRule(doc, rightX, yR, rightW);
-    yR += 14;
+    yR += 12;
     doc.font(FONTS.displayMed).fontSize(7.4).fillColor(C.olive)
-      .text('OVER DEZE INSCHATTING', rightX, yR, { characterSpacing: 0.7 });
-    yR += 13;
-    doc.font(FONTS.body).fontSize(8.5).fillColor(C.muted)
+      .text('OVER DEZE INSCHATTING', rightX, yR, {
+        characterSpacing: 0.7, lineBreak: false
+      });
+    yR += 12;
+    doc.font(FONTS.body).fontSize(8.4).fillColor(C.muted)
       .text('ELYAN berekent geen premiebedrag zonder de gegevens die nodig zijn om recht en bedrag correct te bepalen.',
-        rightX, yR, { width: rightW, lineGap: 2.3 });
-    yR = doc.y + 10;
+        rightX, yR, { width: rightW, lineGap: 2, height: 36, ellipsis: true });
+    yR = Math.min(doc.y + 8, BOTTOM);
     yR = meta(doc,
       'Premieregelgeving gecontroleerd op ' + (fmtAuditDate(pr.checkedAt) || fmtAuditDate(pr.regulationDate) || '2026') +
       (pr.regulationDate ? ' · Regeling van ' + fmtAuditDate(pr.regulationDate) : ''),
       rightX, yR, rightW);
   }
 
-  y = Math.max(yL, yR) + 22;
+  y = Math.max(yL, yR) + 16;
+  if (y + 180 > BOTTOM) y = Math.max(MT, BOTTOM - 180);
   greyRule(doc, ML, y, CW);
-  y += 18;
+  y += 14;
 
   /* Premium conclusion zone — one composition, not cards */
   y = sectionLabel(doc, 'Besluit', ML, y);
   y = sectionTitle(doc, 'Wat betekent dit voor jouw project?', ML, y);
-  y += 12;
+  y += 10;
 
   var zoneH = 78;
   doc.rect(ML, y, CW, zoneH).fill(C.panel);
@@ -979,22 +1074,25 @@ function pageFinanceAndClose(doc, ctx, r, pack) {
       doc.moveTo(x - 8, y + 16).lineTo(x - 8, y + zoneH - 16)
         .lineWidth(0.45).strokeColor(C.rule).stroke();
     }
-    doc.font(FONTS.body).fontSize(7.5).fillColor(C.muted).text(item.l, x, y + 18, { width: qw - 4 });
-    doc.font(FONTS.bodySemi).fontSize(11).fillColor(C.ink)
-      .text(item.v, x, y + 36, { width: qw - 4 });
+    doc.font(FONTS.body).fontSize(7.5).fillColor(C.muted)
+      .text(item.l, x, y + 18, { width: qw - 4, lineBreak: false });
+    doc.font(FONTS.bodySemi).fontSize(10.5).fillColor(C.ink)
+      .text(item.v, x, y + 36, { width: qw - 4, height: 32, ellipsis: true });
   });
-  y += zoneH + 16;
+  y += zoneH + 12;
 
   var closing = (pack.executiveConclusion && String(pack.executiveConclusion))
     || 'Gebruik dit rapport om offertes op dezelfde scope te vergelijken vóór je een keuze maakt.';
   if (closing.length > 220) closing = closing.slice(0, 217) + '...';
-  y = body(doc, closing, ML, y, { size: 9.6, w: CW * 0.94, gap: 3 });
-  y += 28;
+  y = body(doc, closing, ML, y, { size: 9.4, w: CW * 0.94, gap: 2.6 });
+  y += 18;
 
   greyRule(doc, ML, y, CW);
-  y += 14;
+  y += 12;
   doc.font(FONTS.displayMed).fontSize(7.4).fillColor(C.olive)
-    .text('BRONNEN EN UITGANGSPUNTEN', ML, y, { characterSpacing: 0.7 });
+    .text('BRONNEN EN UITGANGSPUNTEN', ML, y, {
+      characterSpacing: 0.7, lineBreak: false
+    });
   y += 12;
   var marketDate = fmtAuditDate(r.asOf) || '2026';
   var premieDate = fmtAuditDate(pr && pr.checkedAt) || fmtAuditDate(pr && pr.regulationDate);
@@ -1003,18 +1101,20 @@ function pageFinanceAndClose(doc, ctx, r, pack) {
     (premieDate ? ' · Premieregelgeving gecontroleerd op ' + premieDate : '') +
     '. Gebaseerd op de projectgegevens die ELYAN kent. Vervangt geen offerte op maat.',
     ML, y);
-  y += 18;
-  drawElyanLogo(doc, ML, y, {
-    markSize: 11,
-    wordSize: 9,
-    gap: 6,
-    spacing: 1.3,
-    color: C.olive
-  });
-  doc.font(FONTS.body).fontSize(8.2).fillColor(C.soft)
-    .text('elyan.info@gmail.com', ML + 72, y + 1);
+  y += 14;
+  if (y + 20 <= BOTTOM) {
+    drawElyanLogo(doc, ML, y, {
+      markSize: 11,
+      wordSize: 9,
+      gap: 6,
+      spacing: 1.3,
+      color: C.olive
+    });
+    doc.font(FONTS.body).fontSize(8.2).fillColor(C.soft)
+      .text('elyan.info@gmail.com', ML + 72, y + 1, { lineBreak: false });
+  }
 
-  doc.y = y + 14;
+  doc.y = Math.min(y + 14, BOTTOM);
 }
 
 /* ---------------- BUILD ---------------- */
@@ -1052,7 +1152,7 @@ function buildMasterV4(data) {
 
       var doc = new PDFDocument({
         size: 'A4',
-        margins: { top: MT, bottom: 46, left: ML, right: MR },
+        margins: { top: MT, bottom: H - BOTTOM, left: ML, right: MR },
         info: {
           Title: 'ELYAN Renovatieanalyse: ' + cat.label,
           Author: 'ELYAN',
