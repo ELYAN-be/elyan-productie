@@ -16,7 +16,7 @@ var C = {
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
   /* Soft secondary olive. Solid RGB. */
-  oliveSoft: '#AEB3AB',
+  oliveSoft: '#5F6858',
   page: '#FFFFFF',
   /* Lightest cool grey cover that still reads as grey. Solid RGB, no alpha. */
   cover: '#F3F3F3',
@@ -29,11 +29,8 @@ var C = {
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /*
-   * Cover motif: same deep-olive hue as #5F6858, faded into cover grey
-   * so it nearly disappears (solid RGB, no opacity).
-   */
-  coverMotif: '#AEB3AB'
+  /* Cover motif — deep olive softened so it supports, not dominates. Solid RGB. */
+  coverMotif: '#5F6858'
 };
 
 /* A4 portrait, print-safe margins */
@@ -368,33 +365,33 @@ function drawCover(doc, cat, prov, id, date) {
   var x = ML + 22;
 
   drawElyanLogo(doc, x, 68, {
-    markSize: 22,
-    wordSize: 15,
+    markSize: 23,
+    wordSize: 16,
     gap: 10,
     spacing: 2.4,
     color: C.olive
   });
 
   /* Title block — BOTH lines: Inter (bodyMed / bodySemi). Title uppercase; tighter stack. */
-  doc.font(FONTS.bodyMed).fontSize(10).fillColor(C.muted)
-    .text('Persoonlijke renovatieanalyse', x, 176, {
+  doc.font(FONTS.bodyMed).fontSize(11).fillColor(C.muted)
+    .text('Persoonlijke renovatieanalyse', x, 172, {
       characterSpacing: 1.15,
       lineBreak: false
     });
-  doc.font(FONTS.bodySemi).fontSize(21.85).fillColor(C.ink)
-    .text(String(cat.label).toUpperCase(), x, 192, {
+  doc.font(FONTS.bodySemi).fontSize(23).fillColor(C.ink)
+    .text(String(cat.label).toUpperCase(), x, 190, {
       width: CW - 80,
       lineGap: 4,
       characterSpacing: 0.35
     });
 
-  /* Document identity strip — REGIO | DATUM | REFERENTIE (content frozen; tiny hierarchy polish) */
-  var stripY = 348;
+  /* Document identity strip — REGIO | DATUM | REFERENTIE (raised for balance) */
+  var stripY = 318;
   var stripW = CW - 40;
   var colW = stripW / 3;
   doc.moveTo(x, stripY).lineTo(x + stripW, stripY)
     .lineWidth(0.55).strokeColor(C.rule).stroke();
-  stripY += 18;
+  stripY += 16;
 
   [
     { l: 'Regio', v: prov.label },
@@ -403,40 +400,40 @@ function drawCover(doc, cat, prov, id, date) {
   ].forEach(function (row, i) {
     var cx = x + i * colW;
     if (i > 0) {
-      doc.moveTo(cx - 12, stripY).lineTo(cx - 12, stripY + 34)
+      doc.moveTo(cx - 12, stripY).lineTo(cx - 12, stripY + 40)
         .lineWidth(0.45).strokeColor(C.rule).stroke();
     }
-    doc.font(FONTS.bodyMed).fontSize(6.5).fillColor(C.muted)
-      .text(row.l.toUpperCase(), cx, stripY, { characterSpacing: 1.2 });
-    doc.font(FONTS.bodyMed).fontSize(10.5).fillColor(C.ink)
-      .text(row.v, cx, stripY + 15, { width: colW - 20 });
+    doc.font(FONTS.bodyMed).fontSize(8).fillColor(C.muted)
+      .text(row.l.toUpperCase(), cx, stripY, { characterSpacing: 1.15 });
+    doc.font(FONTS.bodyMed).fontSize(12).fillColor(C.ink)
+      .text(row.v, cx, stripY + 18, { width: colW - 20 });
   });
 
   /* Compact disclaimer — tight to text so brand motif stays visible */
   var noteText = 'Indicatieve renovatieanalyse · geen bindende offerte.';
   var notePadX = 11;
   var notePadY = 8;
-  doc.font(FONTS.body).fontSize(8.2);
+  doc.font(FONTS.body).fontSize(8.6);
   var noteTw = Math.min(doc.widthOfString(noteText) + notePadX * 2 + 8, COL * 6.8);
-  var noteH = 28;
-  var noteY = H - 92;
+  var noteH = 30;
+  var noteY = H - 94;
   withOpenMargins(doc, function () {
     /* Disclaimer left edge = footer line start (ML) */
     var noteX = ML;
     doc.rect(noteX, noteY, noteTw, noteH).fill(C.olive);
     doc.rect(noteX, noteY, 2.2, noteH).fill(C.oliveDeep);
-    doc.font(FONTS.body).fontSize(8.2).fillColor(C.white)
+    doc.font(FONTS.body).fontSize(8.6).fillColor(C.white)
       .text(noteText, noteX + notePadX + 2, noteY + notePadY, {
         width: noteTw - notePadX * 2 - 4,
         lineBreak: false
       });
     doc.moveTo(ML, FOOTER_Y).lineTo(W - MR, FOOTER_Y)
       .lineWidth(0.45).strokeColor(C.rule).stroke();
-    doc.font(FONTS.body).fontSize(7.5).fillColor(C.muted)
+    doc.font(FONTS.body).fontSize(8).fillColor(C.muted)
       .text('ELYAN  ·  Renovatieanalyse  ·  ' + date, ML, FOOTER_Y + 9, {
         width: CW - 60, lineBreak: false
       });
-    doc.font(FONTS.displayMed).fontSize(8).fillColor(C.olive)
+    doc.font(FONTS.displayMed).fontSize(8.5).fillColor(C.olive)
       .text('01', ML, FOOTER_Y + 8, { width: CW, align: 'right', lineBreak: false });
   });
 }
