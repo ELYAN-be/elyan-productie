@@ -324,19 +324,16 @@ function normalizeReportAnswers(data) {
   return answers;
 }
 
-/** Production Calc1 entry: approved V4 master for verwarming; legacy for other categories. */
+/** Production Calc1 entry: approved V4 premium visual system for all Calc1 categories. */
 function buildReportPdf(data) {
   var answers = normalizeReportAnswers(data || {});
-  if (data && data.type === 'verwarming') {
-    return buildMasterV4({
-      type: data.type,
-      province: data.province,
-      answers: answers,
-      result: data.result,
-      reportId: data.reportId || ('EL-' + String(Date.now()).slice(-8))
-    });
-  }
-  return buildReportPdfLegacy(data);
+  return buildMasterV4({
+    type: data.type,
+    province: data.province,
+    answers: answers,
+    result: data.result,
+    reportId: data.reportId || ('EL-' + String(Date.now()).slice(-8))
+  });
 }
 
 function buildReportPdfLegacy(data) {

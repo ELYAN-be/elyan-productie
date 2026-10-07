@@ -1,7 +1,7 @@
 /* ============================================================
    ELYAN Report Master V4 — final art direction + page balance
-   Approved Calc1 visual master. Wired for type=verwarming via pdf-report.buildReportPdf.
-   A4 portrait. Pricing logic frozen. Exactly 6 pages.
+   Approved Calc1 premium visual template for all categories via pdf-report.buildReportPdf.
+   A4 portrait. Pricing logic frozen. Dynamic category content from engine + insights.
    Brand mark: official site #i-logo geometry (api/_pdf-assets/elyan-mark.svg)
    ============================================================ */
 
@@ -97,10 +97,7 @@ function fmtAuditDate(isoOrText) {
 }
 
 function packageLabel(it) {
-  if (it.id === 'unit') return 'Warmtepomptoestel';
-  if (it.id === 'install') return 'Installatie & aansluiting';
-  if (it.id === 'commission') return 'Inregeling & oplevering';
-  return it.label;
+  return (it && it.label) ? String(it.label) : 'Onderdeel';
 }
 
 function systemLabelFromAnswers(answers) {
@@ -113,6 +110,48 @@ function systemLabelFromAnswers(answers) {
   return String(pt || 'Verwarmingssysteem');
 }
 
+function housingAgeLabel(v) {
+  if (v === 'jong') return 'Jonger dan 10 jaar';
+  if (v === 'middel') return '10 tot 25 jaar';
+  if (v === 'oud') return 'Ouder dan 25 jaar';
+  return v ? String(v) : 'Onbekend';
+}
+
+function projectFactExtra(type, answers, pack, cat) {
+  if (type === 'verwarming') {
+    return { l: 'Systeem', v: systemLabelFromAnswers(answers) };
+  }
+  if (pack && pack.included && pack.included[0]) {
+    return { l: 'Scope', v: pack.included[0] };
+  }
+  return { l: 'Renovatie', v: (cat && cat.label) || type };
+}
+
+function marketPositionSentence(r, cat) {
+  var pos = r.marketPosition;
+  var noun = (cat && cat.resultNoun) || 'renovatie';
+  if (pos === 'lager') {
+    return 'De raming ligt onder de gebruikelijke Belgische marktband voor een vergelijkbare ' + noun + '.';
+  }
+  if (pos === 'hoger') {
+    return 'De raming ligt boven de gebruikelijke Belgische marktband voor een vergelijkbare ' + noun + '.';
+  }
+  if (pos === 'niet-direct-vergelijkbaar') {
+    return 'De raming is niet één-op-één te vergelijken met een publicatiemarktband door afwijkende scope.';
+  }
+  return 'De raming ligt binnen de gebruikelijke Belgische marktband voor een vergelijkbare ' + noun + '.';
+}
+
+function vatScenarioLabel(r, pack) {
+  if (r && r.vatLabel) return String(r.vatLabel);
+  if (pack && pack.btwTip) {
+    var tip = String(pack.btwTip);
+    if (tip.length > 72) tip = tip.slice(0, 69) + '...';
+    return tip;
+  }
+  return 'Indicatief btw-scenario op basis van jouw projectgegevens';
+}
+
 /** Consistent calendar/phase notation — not additive productive labour days. */
 function phaseDayLabel(step) {
   if (step.days == null) return '';
@@ -121,12 +160,12 @@ function phaseDayLabel(step) {
 }
 
 /** Customer-facing rewrite of engine driver copy (no internal shorthand). */
-function driverReasonCustomer(driver) {
+function driverReasonCustomer(driver, type) {
   var raw = (driver && driver.reason) || '';
-  if (/WP\b|ketelvervanging/i.test(raw)) {
+  if (type === 'verwarming' && /WP\b|ketelvervanging/i.test(raw)) {
     return 'Een lucht-waterwarmtepomp vraagt doorgaans een grotere investering dan een ketelvervanging.';
   }
-  return raw || 'De installatie vormt het grootste deel van het budget.';
+  return raw || 'De belangrijkste kostendrijver bepaalt een groot deel van jouw raming.';
 }
 
 /* Official ELYAN mark — exact geometry from site symbol #i-logo / elyan-mark.svg
@@ -369,7 +408,7 @@ function drawCover(doc, cat, prov, id, date) {
 
 /* ---------------- PAGE 2 — wow / investment ---------------- */
 
-function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta) {
+function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta, pack, type) {
   newPage(doc, ctx);
   var y = MT;
 
@@ -382,8 +421,8 @@ function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta) {
     { l: 'Locatie', v: prov.label },
     { l: sizeMeta.fieldLabel || 'Oppervlakte', v: sizeMeta.text },
     { l: 'Afwerking', v: (pricing.LEVEL_LABEL && pricing.LEVEL_LABEL[answers.level]) || answers.level },
-    { l: 'Woning', v: answers.housingAge === 'jong' ? 'Jonger dan 10 jaar' : (answers.housingAge === 'middel' ? '10 tot 25 jaar' : answers.housingAge === 'oud' ? 'Ouder dan 25 jaar' : String(answers.housingAge || 'Onbekend')) },
-    { l: 'Systeem', v: systemLabelFromAnswers(answers) }
+    { l: 'Woning', v: housingAgeLabel(answers.housingAge) },
+    projectFactExtra(type, answers, pack, cat)
   ];
 
   var zoneH = 118;
@@ -456,39 +495,34 @@ function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta) {
   yL = sectionTitle(doc, 'Wat bepaalt jouw prijs?', ML, yL, leftBlockW);
   yL += 12;
   var driver = (r.drivers && r.drivers[0]) || {
-    text: 'Lucht-water warmtepomp',
-    reason: 'De installatie vormt het grootste deel van het budget.'
+    text: (cat && cat.label) || 'Belangrijkste kostendrijver',
+    reason: 'De belangrijkste kostendrijver bepaalt een groot deel van jouw raming.'
   };
   doc.font(FONTS.bodySemi).fontSize(11.4).fillColor(C.ink)
     .text(driver.text, ML, yL, { width: leftBlockW });
-  yL = body(doc, driverReasonCustomer(driver), ML, yL + 18, {
+  yL = body(doc, driverReasonCustomer(driver, type), ML, yL + 18, {
     size: 9.5, w: leftBlockW, color: C.soft, gap: 3
   });
   yL += 14;
   yL = body(doc,
-    'Toets offertes eerst op toestelkeuze en dimensionering.',
+    'Toets offertes eerst op scope, materialen en uitvoeringsvoorwaarden.',
     ML, yL, { size: 9.1, w: leftBlockW, color: C.muted });
 
   var yR = sectionLabel(doc, 'Scope', rightBlockX, y);
   yR = sectionTitle(doc, 'Wat zit in deze raming?', rightBlockX, yR, rightBlockW);
   yR += 14;
-  var packNotes = {
-    unit: 'Warmtepomptoestel en kernmateriaal',
-    install: 'Installatie, aansluiting en arbeid',
-    commission: 'Inregeling en oplevering'
-  };
-  var packs = (r.costBreakdown || []).filter(function (it) { return it.amount > 0; });
-  packs.forEach(function (it, idx) {
+  var scopeItems = (pack && pack.included && pack.included.length)
+    ? pack.included.slice(0, 4)
+    : (r.costBreakdown || []).filter(function (it) { return it.amount > 0; }).slice(0, 4)
+      .map(function (it) { return packageLabel(it); });
+  scopeItems.forEach(function (text, idx) {
     if (idx > 0) {
       greyRule(doc, rightBlockX, yR, rightBlockW);
       yR += 11;
     }
     doc.font(FONTS.bodySemi).fontSize(9.8).fillColor(C.ink)
-      .text(packageLabel(it), rightBlockX, yR, { width: rightBlockW });
-    yR += 15;
-    doc.font(FONTS.body).fontSize(8.4).fillColor(C.muted)
-      .text(packNotes[it.id] || '', rightBlockX, yR, { width: rightBlockW });
-    yR += 20;
+      .text(String(text), rightBlockX, yR, { width: rightBlockW });
+    yR += 22;
   });
 
   doc.y = Math.max(yL, yR) + 6;
@@ -496,7 +530,7 @@ function pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta) {
 
 /* ---------------- PAGE 3 — budget + buffer ---------------- */
 
-function pageBudget(doc, ctx, r) {
+function pageBudget(doc, ctx, r, cat) {
   newPage(doc, ctx);
   var y = MT;
   var safe = (r.price || 0) + (r.contingency || 0);
@@ -513,7 +547,7 @@ function pageBudget(doc, ctx, r) {
     .text('Raming', ML, y + 8, { width: CW - 12, align: 'right' });
   y += 25;
 
-  var rows = (r.costBreakdown || []).filter(function (it) { return it.amount > 0; });
+  var rows = (r.costBreakdown || []).filter(function (it) { return it.amount > 0; }).slice(0, 8);
   rows.forEach(function (it, idx) {
     var rh = 32;
     if (idx % 2 === 0) doc.rect(ML, y, CW, rh).fill(C.panel);
@@ -566,12 +600,13 @@ function pageBudget(doc, ctx, r) {
   doc.font(FONTS.body).fontSize(8).fillColor(C.muted).text('excl. btw', mx, y + 34);
   y += 52;
 
-  y = body(doc,
-    'De raming ligt binnen de gebruikelijke Belgische marktband voor een vergelijkbare lucht-waterwarmtepomp.',
-    ML, y, { size: 9.4, w: CW * 0.94 });
+  y = body(doc, marketPositionSentence(r, cat), ML, y, { size: 9.4, w: CW * 0.94 });
   y += 10;
+  var bmScope = (r.marketBenchmark && r.marketBenchmark.scope)
+    ? String(r.marketBenchmark.scope)
+    : 'vergelijkbare renovatie, excl. btw';
   y = meta(doc, 'Marktdata gecontroleerd op ' + (fmtAuditDate(r.asOf) || '2026') +
-    ' · Scope: lucht-waterwarmtepomp all-in (toestel + plaatsing), excl. btw.', ML, y);
+    ' · Scope: ' + bmScope + '.', ML, y);
 
   y += 16;
   doc.rect(ML, y, CW, 58).fill(C.panel);
@@ -579,7 +614,7 @@ function pageBudget(doc, ctx, r) {
   doc.font(FONTS.displayMed).fontSize(7.4).fillColor(C.olive)
     .text('HOE DEZE TABEL TE GEBRUIKEN', ML + 14, y + 11, { characterSpacing: 0.7 });
   doc.font(FONTS.body).fontSize(9).fillColor(C.soft)
-    .text('Vraag aannemers dezelfde drie werkpakketten te specificeren. Zo vergelijk je toestel, installatie en oplevering, niet alleen een totaalbedrag.',
+    .text('Vraag aannemers dezelfde werkpakketten te specificeren. Zo vergelijk je scope, materialen en oplevering, niet alleen een totaalbedrag.',
       ML + 14, y + 26, { width: CW - 28, lineGap: 2.4 });
   y += 70;
 
@@ -680,11 +715,13 @@ function pageExecution(doc, ctx, r, pack) {
   var yL = sectionLabel(doc, 'Aannames', ML, colTop);
   yL = sectionTitle(doc, 'Aannames in deze raming', ML, yL, leftW);
   yL += 12;
-  [
-    'Normale leveromstandigheden; geen uitzonderlijke prijsstijgingen tijdens de werf.',
-    'Geen structurele verborgen schade buiten wat is aangegeven.',
-    'Bestaande afgifte blijft bruikbaar; geen volledige radiatorenrenovatie inbegrepen.'
-  ].forEach(function (a, i) {
+  var assumptionItems = (pack.assumptions && pack.assumptions.length)
+    ? pack.assumptions.slice(0, 3)
+    : [
+      'Normale leveromstandigheden; geen uitzonderlijke prijsstijgingen tijdens de werf.',
+      'Geen structurele verborgen schade buiten wat is aangegeven.'
+    ];
+  assumptionItems.forEach(function (a, i) {
     if (i > 0) {
       greyRule(doc, ML, yL, leftW);
       yL += 10;
@@ -697,10 +734,17 @@ function pageExecution(doc, ctx, r, pack) {
   var yR = sectionLabel(doc, 'Onzekerheden', rightX, colTop);
   yR = sectionTitle(doc, 'Uitvoeringsonzekerheden', rightX, yR, rightW);
   yR += 12;
-  [
-    { t: 'Dimensionering', d: 'Verkeerde capaciteit beïnvloedt comfort én rendement.' },
-    { t: 'Afgiftesysteem', d: 'Radiatoren moeten geschikt zijn voor lagere temperaturen.' }
-  ].forEach(function (u, i) {
+  var uncertaintyItems = (pack.riskRows && pack.riskRows.length)
+    ? pack.riskRows.slice(0, 2).map(function (row) {
+      return { t: row.risk, d: row.check || row.impact || '' };
+    })
+    : (pack.risks || []).slice(0, 2).map(function (t) {
+      return { t: 'Aandachtspunt', d: String(t) };
+    });
+  if (!uncertaintyItems.length) {
+    uncertaintyItems = [{ t: 'Scopebevestiging', d: 'Laat open punten schriftelijk vastleggen vóór start.' }];
+  }
+  uncertaintyItems.forEach(function (u, i) {
     if (i > 0) {
       greyRule(doc, rightX, yR, rightW);
       yR += 12;
@@ -718,7 +762,7 @@ function pageExecution(doc, ctx, r, pack) {
 
 /* ---------------- PAGE 5 — offers + next steps ---------------- */
 
-function pageOfferReview(doc, ctx, nextSteps) {
+function pageOfferReview(doc, ctx, nextSteps, pack) {
   newPage(doc, ctx);
   var y = MT;
 
@@ -740,38 +784,33 @@ function pageOfferReview(doc, ctx, nextSteps) {
     .text('Wat moet je controleren?', ML + col1 + col2 + 10, y + 9);
   y += headerH;
 
-  [
-    {
-      point: 'Vermogen / dimensionering',
-      why: 'Correcte dimensionering bepaalt comfort én efficiëntie.',
-      check: 'Vraag welke warmteverliesberekening het vermogen onderbouwt.'
-    },
-    {
-      point: 'Afgiftesysteem',
-      why: 'Radiatoren of vloerverwarming moeten werken op de bedoelde temperaturen.',
-      check: 'Vraag of aanpassingen aan het afgiftesysteem inbegrepen zijn.'
-    },
-    {
-      point: 'Sanitair warm water',
-      why: 'De oplossing kan boiler of opslag beïnvloeden.',
-      check: 'Bevestig exact wat er voor sanitair warm water is inbegrepen.'
-    },
-    {
-      point: 'Buitenunit / opstelling',
-      why: 'Plaatsing beïnvloedt geluid, leidinglengte en arbeidsuren.',
-      check: 'Vraag waar de unit komt en welke werken zijn inbegrepen.'
-    },
-    {
-      point: 'Inregeling / oplevering',
-      why: 'Correcte inregeling bepaalt werking en rendement.',
-      check: 'Bevestig inregeling, instellingen en oplevering/uitleg.'
-    },
-    {
-      point: 'Btw / garantie',
-      why: 'Offertes moeten onderling vergelijkbaar zijn.',
-      check: 'Controleer btw-behandeling, garanties en uitsluitingen.'
-    }
-  ].forEach(function (row, idx) {
+  var checkRows = (pack.quoteChecks || []).slice(0, 6).map(function (c) {
+    return {
+      point: String(c),
+      why: 'Nodig om offertes eerlijk te vergelijken.',
+      check: 'Vraag schriftelijke bevestiging in elke offerte.'
+    };
+  });
+  if (!checkRows.length) {
+    checkRows = [
+      {
+        point: 'Scope en hoeveelheden',
+        why: 'Zonder scope zijn totalen niet vergelijkbaar.',
+        check: 'Laat alle werkposten expliciet opsommen.'
+      },
+      {
+        point: 'Materialen en merken',
+        why: 'Materiaalkeuze bepaalt prijs en kwaliteit.',
+        check: 'Controleer specificaties en alternatieven.'
+      },
+      {
+        point: 'Btw / garantie',
+        why: 'Offertes moeten onderling vergelijkbaar zijn.',
+        check: 'Controleer btw-behandeling, garanties en uitsluitingen.'
+      }
+    ];
+  }
+  checkRows.forEach(function (row, idx) {
     var textH = 44;
     if (idx % 2 === 0) doc.rect(ML, y, CW, textH).fill(C.panel);
     doc.moveTo(ML, y + textH).lineTo(W - MR, y + textH)
@@ -796,12 +835,7 @@ function pageOfferReview(doc, ctx, nextSteps) {
   var yL = sectionLabel(doc, 'Signalen', ML, y);
   yL = sectionTitle(doc, 'Waarschuwingssignalen', ML, yL, leftW);
   yL += 10;
-  [
-    'Onduidelijke totaalpost zonder scope of hoeveelheden',
-    'Groot voorschot zonder duidelijke planning',
-    'Geen materiaalspecificatie of toestelmodel',
-    'Onduidelijke btw of niet-gespecificeerde meerwerken'
-  ].forEach(function (f) {
+  (pack.redFlags || []).slice(0, 4).forEach(function (f) {
     doc.font(FONTS.body).fontSize(9.1).fillColor(C.soft)
       .text('·  ' + f, ML, yL, { width: leftW, lineGap: 1.7 });
     yL = doc.y + 8;
@@ -810,16 +844,16 @@ function pageOfferReview(doc, ctx, nextSteps) {
   var yR = sectionLabel(doc, 'Optimalisatie', rightX, y);
   yR = sectionTitle(doc, 'Mogelijke optimalisaties', rightX, yR, rightW);
   yR += 10;
-  [
-    {
-      t: 'Schil vóór overdimensionering',
-      d: 'Verbeter kritieke isolatievlakken voordat je de warmtepomp overdimensioneert.'
-    },
-    {
-      t: 'Hybride alleen indien technisch onderbouwd',
-      d: 'Overweeg een hybride oplossing alleen wanneer een volledige warmtepompoplossing technisch of budgettair niet past.'
-    }
-  ].forEach(function (o) {
+  var optItems = (pack.recommendations || []).slice(0, 2).map(function (rec) {
+    return { t: 'Advies', d: String(rec) };
+  });
+  if (!optItems.length) {
+    optItems = [{
+      t: 'Vergelijk op scope',
+      d: 'Vergelijk offertes niet alleen op totaalprijs, maar op dezelfde werkpakketten.'
+    }];
+  }
+  optItems.forEach(function (o) {
     doc.font(FONTS.bodySemi).fontSize(9.6).fillColor(C.ink)
       .text(o.t, rightX, yR, { width: rightW });
     yR += 12;
@@ -849,7 +883,7 @@ function pageOfferReview(doc, ctx, nextSteps) {
 
 /* ---------------- PAGE 6 — financial + calm close ---------------- */
 
-function pageFinanceAndClose(doc, ctx, r) {
+function pageFinanceAndClose(doc, ctx, r, pack) {
   newPage(doc, ctx);
   var y = MT;
   var safe = (r.price || 0) + (r.contingency || 0);
@@ -868,7 +902,7 @@ function pageFinanceAndClose(doc, ctx, r) {
   yL += 12;
   doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted).text('Scenario', ML, yL);
   doc.font(FONTS.bodySemi).fontSize(9.8).fillColor(C.ink)
-    .text('6% tijdelijk zuivere warmtepomp', ML, yL + 12, { width: leftW });
+    .text(vatScenarioLabel(r, pack), ML, yL + 12, { width: leftW });
   yL += 36;
   doc.font(FONTS.body).fontSize(7.7).fillColor(C.muted).text('Indicatieve btw', ML, yL);
   doc.font(FONTS.displayMed).fontSize(16).fillColor(C.olive).text(euro(r.vatAmount), ML, yL + 14);
@@ -931,11 +965,14 @@ function pageFinanceAndClose(doc, ctx, r) {
   doc.rect(ML, y, CW, zoneH).fill(C.panel);
   doc.rect(ML, y, 3.2, zoneH).fill(C.olive);
 
+  var attention = (pack.riskRows && pack.riskRows[0] && pack.riskRows[0].risk)
+    || (r.drivers && r.drivers[0] && r.drivers[0].text)
+    || 'Scopebevestiging';
   var qw = (CW - 40) / 3;
   [
     { l: 'Richtprijs', v: euro(r.price) + ' excl. btw' },
     { l: 'Veilig werkbudget', v: euro(safe) + ' excl. btw' },
-    { l: 'Belangrijkste aandachtspunt', v: 'Dimensionering' }
+    { l: 'Belangrijkste aandachtspunt', v: String(attention) }
   ].forEach(function (item, i) {
     var x = ML + 16 + i * (qw + 8);
     if (i > 0) {
@@ -948,9 +985,10 @@ function pageFinanceAndClose(doc, ctx, r) {
   });
   y += zoneH + 16;
 
-  y = body(doc,
-    'Begin offertevergelijking bij dimensionering: de lucht-waterwarmtepomp bepaalt het grootste deel van het budget.',
-    ML, y, { size: 9.6, w: CW * 0.94, gap: 3 });
+  var closing = (pack.executiveConclusion && String(pack.executiveConclusion))
+    || 'Gebruik dit rapport om offertes op dezelfde scope te vergelijken vóór je een keuze maakt.';
+  if (closing.length > 220) closing = closing.slice(0, 217) + '...';
+  y = body(doc, closing, ML, y, { size: 9.6, w: CW * 0.94, gap: 3 });
   y += 28;
 
   greyRule(doc, ML, y, CW);
@@ -1031,11 +1069,11 @@ function buildMasterV4(data) {
       var ctx = { n: 1, date: reportDate, ref: reportId, isCover: true };
 
       drawCover(doc, cat, prov, reportId, reportDate);
-      pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta);
-      pageBudget(doc, ctx, r);
+      pageInvestment(doc, ctx, cat, prov, answers, r, sizeMeta, pack, data.type);
+      pageBudget(doc, ctx, r, cat);
       pageExecution(doc, ctx, r, pack);
-      pageOfferReview(doc, ctx, nextSteps);
-      pageFinanceAndClose(doc, ctx, r);
+      pageOfferReview(doc, ctx, nextSteps, pack);
+      pageFinanceAndClose(doc, ctx, r, pack);
 
       footer(doc, ctx.n, reportDate);
       doc.end();
