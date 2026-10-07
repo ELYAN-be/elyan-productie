@@ -16,7 +16,7 @@ var C = {
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
   /* Soft secondary olive-grey. Solid RGB. */
-  oliveSoft: '#7A7F77',
+  oliveSoft: '#70756D',
   page: '#FFFFFF',
   /* Cover background — cool-neutral grey (no warm cast). Solid RGB. */
   cover: '#EEF0F2',
@@ -29,8 +29,8 @@ var C = {
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /* Cover motif + side edge — previous grey-army olive. Solid RGB. */
-  coverMotif: '#7A7F77'
+  /* Cover motif — grey-army olive, slightly deeper. Solid RGB. */
+  coverMotif: '#70756D'
 };
 
 /* A4 portrait, print-safe margins */
