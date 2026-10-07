@@ -15,8 +15,8 @@ var C = {
   /* Deep olive — logo, rules, labels, accents. Solid RGB. */
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
-  /* Secondary accents — deep olive. Solid RGB. */
-  oliveSoft: '#3F4A36',
+  /* Soft olive for secondary accents. Solid RGB. */
+  oliveSoft: '#6A7A5C',
   page: '#FFFFFF',
   /* Lightest cool grey cover that still reads as grey. Solid RGB, no alpha. */
   cover: '#F3F3F3',
@@ -29,8 +29,8 @@ var C = {
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /* Cover three-bar motif — deep olive. Solid RGB. */
-  coverMotif: '#3F4A36'
+  /* Cover three-bar motif — softer olive so it blends with light grey. Solid RGB. */
+  coverMotif: '#6A7A5C'
 };
 
 /* A4 portrait, print-safe margins */
