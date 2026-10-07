@@ -18,11 +18,11 @@ var C = {
   /* Soft secondary olive. Solid RGB. */
   oliveSoft: '#5F6858',
   page: '#FFFFFF',
-  /* Neutral white-grey cover — present, no blue cast. Solid RGB, no alpha. */
-  cover: '#E8E8E8',
+  /* Architectural white-grey cover — refined, near-white, no blue cast. Solid RGB. */
+  cover: '#F4F4F4',
   /* Light neutral panels on white interior pages */
-  panel: '#F0F0F0',
-  rule: '#D0D0D0',
+  panel: '#F7F7F7',
+  rule: '#D6D6D6',
   ink: '#1A1C1B',
   soft: '#3A3D3A',
   muted: '#5F6563',
