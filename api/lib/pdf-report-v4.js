@@ -12,15 +12,15 @@ var pricing = require('./pricing');
 var insightsLib = require('./insights');
 
 var C = {
-  /* Site --primary #3F4A32 — logo, rules, labels, accents. Solid RGB. */
-  olive: '#3F4A32',
-  oliveDeep: '#3F4A32',
-  /* Site --primary-soft #7C8863 — cover motif + secondary accents. Solid RGB. */
-  oliveSoft: '#7C8863',
+  /* Brand card OLIJFGROEN #3F4A36 — logo, rules, labels, accents. Solid RGB. */
+  olive: '#3F4A36',
+  oliveDeep: '#3F4A36',
+  /* Soft mint-olive for secondary accents. Solid RGB, no opacity. */
+  oliveSoft: '#6A7A5C',
   page: '#FFFFFF',
-  /* Site mineral panel grey (homepage insight #E7E7E5). Solid RGB, no alpha. */
-  cover: '#E7E7E5',
-  /* Light cool panels on white interior pages */
+  /* Brand card GRIJS #EDEDED — cover background. Solid RGB, no alpha. */
+  cover: '#EDEDED',
+  /* Light panels on white interior pages */
   panel: '#EEF0F1',
   rule: '#C5CAD0',
   ink: '#1A1C1B',
@@ -28,9 +28,9 @@ var C = {
   muted: '#5F6563',
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
-  coverMark: '#3F4A32',
-  /* Solid RGB muted olive-grey motif */
-  coverMotif: '#7C8863'
+  coverMark: '#3F4A36',
+  /* Cover three-bar motif — soft dark olive that blends with grey. Solid RGB. */
+  coverMotif: '#6A7A5C'
 };
 
 /* A4 portrait, print-safe margins */
