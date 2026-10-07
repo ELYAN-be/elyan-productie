@@ -347,7 +347,8 @@ function drawCover(doc, cat, prov, id, date) {
   withOpenMargins(doc, function () {
     /* Cool mineral grey cover — distinct from white inside pages */
     doc.rect(0, 0, W, H).fill(C.cover);
-    doc.rect(0, 0, 5, H).fill(C.olive);
+    /* Side edge — same grey-olive as large cover motif mark, slightly thicker */
+    doc.rect(0, 0, 8, H).fill(C.coverMotif);
     /* Large cropped official mark — solid soft olive (no opacity) */
     doc.fillColor(C.coverMotif);
     (function () {
