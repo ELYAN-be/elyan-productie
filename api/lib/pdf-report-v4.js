@@ -15,13 +15,13 @@ var C = {
   /* Deep olive — logo, rules, labels, accents. Solid RGB. */
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
-  /* Soft secondary olive-grey. Solid RGB. */
-  oliveSoft: '#7A7F77',
+  /* Soft secondary — neutral mid grey (no olive/warm cast). Solid RGB. */
+  oliveSoft: '#7A7A7A',
   page: '#FFFFFF',
-  /* Architectural white-grey — visibly grey, calm, no blue/warm cast. Solid RGB. */
-  cover: '#F2F2F2',
+  /* Architectural cover — cool-neutral white-grey, no warm cast. Solid RGB. */
+  cover: '#F1F2F3',
   /* Light neutral panels on white interior pages */
-  panel: '#F6F6F6',
+  panel: '#F5F5F5',
   rule: '#D4D4D4',
   ink: '#1A1C1B',
   soft: '#3A3D3A',
@@ -29,8 +29,8 @@ var C = {
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /* Cover motif — grey first, subtle deep army-olive undertone. Solid RGB. */
-  coverMotif: '#7A7F77'
+  /* Cover motif + side edge — pure neutral grey, same value as before. Solid RGB. */
+  coverMotif: '#7A7A7A'
 };
 
 /* A4 portrait, print-safe margins */
