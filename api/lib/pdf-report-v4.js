@@ -12,25 +12,25 @@ var pricing = require('./pricing');
 var insightsLib = require('./insights');
 
 var C = {
-  /* Brand card OLIJFGROEN #3F4A36 — logo, rules, labels, accents. Solid RGB. */
+  /* Deep olive — logo, rules, labels, accents. Solid RGB. */
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
-  /* Soft mint-olive for secondary accents. Solid RGB, no opacity. */
-  oliveSoft: '#6A7A5C',
+  /* Secondary accents — deep olive. Solid RGB. */
+  oliveSoft: '#3F4A36',
   page: '#FFFFFF',
-  /* Brand card GRIJS #EDEDED — cover background. Solid RGB, no alpha. */
-  cover: '#EDEDED',
-  /* Light panels on white interior pages */
-  panel: '#EEF0F1',
-  rule: '#C5CAD0',
+  /* Lightest cool grey cover that still reads as grey. Solid RGB, no alpha. */
+  cover: '#F3F3F3',
+  /* Light cool panels on white interior pages */
+  panel: '#F5F5F5',
+  rule: '#D0D0D0',
   ink: '#1A1C1B',
   soft: '#3A3D3A',
   muted: '#5F6563',
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /* Cover three-bar motif — soft dark olive that blends with grey. Solid RGB. */
-  coverMotif: '#6A7A5C'
+  /* Cover three-bar motif — deep olive. Solid RGB. */
+  coverMotif: '#3F4A36'
 };
 
 /* A4 portrait, print-safe margins */
