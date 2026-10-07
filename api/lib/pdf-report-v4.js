@@ -12,18 +12,14 @@ var pricing = require('./pricing');
 var insightsLib = require('./insights');
 
 var C = {
-  /* Dark ELYAN olive — brand authority (logo, headers, rules, disclaimer). Solid RGB. */
-  olive: '#3A4530',
-  oliveDeep: '#2F3828',
-  /* Muted olive — cover motif + secondary accents. Solid RGB, no fillOpacity. */
-  oliveSoft: '#6B765F',
+  /* Dark olive-grey — brand authority (logo, headers, rules, disclaimer). Solid RGB. */
+  olive: '#41483D',
+  oliveDeep: '#41483D',
+  /* Muted olive-grey — cover motif + secondary accents. Solid RGB, no fillOpacity. */
+  oliveSoft: '#788072',
   page: '#FFFFFF',
-  /*
-   * Cool mineral grey — unmistakably grey next to white on iPhone/Safari.
-   * Blue-channel bias (cool); G must NOT dominate (avoids mint/sage from old #EEF0EC).
-   * Explicit DeviceRGB — never alpha-blended.
-   */
-  cover: '#D5D9DC',
+  /* Light mineral/daylight grey cover — solid RGB, no alpha. */
+  cover: '#E1E3E2',
   /* Light cool panels on white interior pages */
   panel: '#EEF0F1',
   rule: '#C5CAD0',
@@ -32,9 +28,9 @@ var C = {
   muted: '#5F6563',
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
-  coverMark: '#2F3828',
-  /* Solid RGB muted olive motif */
-  coverMotif: '#6B765F'
+  coverMark: '#41483D',
+  /* Solid RGB muted olive-grey motif */
+  coverMotif: '#788072'
 };
 
 /* A4 portrait, print-safe margins */
