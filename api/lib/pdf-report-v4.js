@@ -15,8 +15,8 @@ var C = {
   /* Deep olive — logo, rules, labels, accents. Solid RGB. */
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
-  /* Soft secondary — deeper neutral olive (less grey). Solid RGB. */
-  oliveSoft: '#5A6452',
+  /* Soft secondary — dark army khaki olive. Solid RGB. */
+  oliveSoft: '#4A5034',
   page: '#FFFFFF',
   /* Cover background — near-white cool-neutral grey. Solid RGB. */
   cover: '#F6F7F8',
@@ -29,8 +29,8 @@ var C = {
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /* Cover motif — deeper neutral olive, less grey. Solid RGB. */
-  coverMotif: '#5A6452'
+  /* Cover motif — dark army khaki olive. Solid RGB. */
+  coverMotif: '#4A5034'
 };
 
 /* A4 portrait, print-safe margins */
@@ -175,20 +175,19 @@ function driverReasonCustomer(driver, type) {
   return raw || 'De belangrijkste kostendrijver bepaalt een groot deel van jouw raming.';
 }
 
-/* Official ELYAN mark — exact geometry from site symbol #i-logo / elyan-mark.svg
-   viewBox 0 0 32 32:
-   bar1: x=4  y=14 w=6 h=14 rx=2
-   bar2: x=13 y=8  w=6 h=20 rx=2
-   bar3: x=22 y=2  w=6 h=26 rx=2
+/* Official ELYAN mark — rectangular bars (site #i-logo / elyan-mark.svg)
+   viewBox 0 0 32 32 — sharp rects (no rx; not WiFi-like rounded pills):
+   bar1: x=4  y=14 w=6 h=14
+   bar2: x=13 y=8  w=6 h=20
+   bar3: x=22 y=2  w=6 h=26
 */
 function drawElyanMark(doc, x, y, size, color) {
   var s = size / 32;
-  var r = Math.max(0.6, 2 * s);
   doc.save();
   doc.fillColor(color || C.olive);
-  doc.roundedRect(x + 4 * s, y + 14 * s, 6 * s, 14 * s, r).fill();
-  doc.roundedRect(x + 13 * s, y + 8 * s, 6 * s, 20 * s, r).fill();
-  doc.roundedRect(x + 22 * s, y + 2 * s, 6 * s, 26 * s, r).fill();
+  doc.rect(x + 4 * s, y + 14 * s, 6 * s, 14 * s).fill();
+  doc.rect(x + 13 * s, y + 8 * s, 6 * s, 20 * s).fill();
+  doc.rect(x + 22 * s, y + 2 * s, 6 * s, 26 * s).fill();
   doc.restore();
 }
 
@@ -349,17 +348,16 @@ function drawCover(doc, cat, prov, id, date) {
     doc.rect(0, 0, W, H).fill(C.cover);
     /* Side edge — deep logo olive for contrast (mark below stays coverMotif) */
     doc.rect(0, 0, 14, H).fill(C.olive);
-    /* Large cropped official mark — solid soft olive (no opacity) */
+    /* Large cropped official mark — sharp rectangular bars (no opacity) */
     doc.fillColor(C.coverMotif);
     (function () {
       var mx = W - 268;
       var my = H - 390;
       var size = 340;
       var s = size / 32;
-      var rr = Math.max(0.6, 2 * s);
-      doc.roundedRect(mx + 4 * s, my + 14 * s, 6 * s, 14 * s, rr).fill();
-      doc.roundedRect(mx + 13 * s, my + 8 * s, 6 * s, 20 * s, rr).fill();
-      doc.roundedRect(mx + 22 * s, my + 2 * s, 6 * s, 26 * s, rr).fill();
+      doc.rect(mx + 4 * s, my + 14 * s, 6 * s, 14 * s).fill();
+      doc.rect(mx + 13 * s, my + 8 * s, 6 * s, 20 * s).fill();
+      doc.rect(mx + 22 * s, my + 2 * s, 6 * s, 26 * s).fill();
     })();
   });
 
