@@ -39,7 +39,7 @@ assert.ok(heroSlice.indexOf('Persoonlijke opvolging') < 0, 'no trust4');
 assert.ok(heroSlice.indexOf('hp-trust-row') < 0, 'no trust row');
 assert.ok(h.indexOf('id="categorieen"') < 0, 'no category navigator');
 assert.ok(h.indexOf('Waar wil je aan werken?') < 0, 'no category heading');
-assert.ok(h.indexOf('Vakbedrijven bij ELYAN') >= 0, 'professionals title');
+assert.ok(h.indexOf('id="hpProTitle">Vakbedrijven</h2>') >= 0, 'professionals title');
 assert.ok(h.indexOf('Uitgelichte') < 0, 'no Uitgelichte wording');
 assert.ok(h.indexOf('hp-final-band') < 0, 'no duplicate final CTA');
 assert.ok(h.indexOf('id="controle-toelichting"') < 0, 'no separate trust section');
