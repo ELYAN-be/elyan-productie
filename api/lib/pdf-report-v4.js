@@ -15,8 +15,8 @@ var C = {
   /* Deep olive — logo, rules, labels, accents. Solid RGB. */
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
-  /* Soft secondary — dark army khaki olive. Solid RGB. */
-  oliveSoft: '#4A5034',
+  /* Soft secondary — quiet watermark olive-grey. Solid RGB. */
+  oliveSoft: '#A3A99F',
   page: '#FFFFFF',
   /* Cover background — near-white cool-neutral grey. Solid RGB. */
   cover: '#F6F7F8',
@@ -29,8 +29,8 @@ var C = {
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /* Cover motif — dark army khaki olive. Solid RGB. */
-  coverMotif: '#4A5034'
+  /* Cover motif — soft professional watermark (not logo-weight). Solid RGB. */
+  coverMotif: '#A3A99F'
 };
 
 /* A4 portrait, print-safe margins */
