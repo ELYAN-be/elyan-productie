@@ -1,19 +1,33 @@
 /* ============================================================
-   ELYAN — Partners landing (/partners) FINAL
-   Premium editorial rhythm. Partners page only.
+   ELYAN — Partners landing (/partners)
+   Cool grey / white / olive — partners page only.
    ============================================================ */
 
 .page-partners{
-  --partners-beige:#E8E4D6;
-  --partners-panel:#FFFEFA;
-  --partners-olive-soft:#F1F0E8;
-  --partners-line:rgba(63,74,50,.14);
+  --partners-page:#F3F3F1;
+  --partners-soft:#ECECEA;
+  --partners-panel:#FFFFFF;
+  --partners-line:rgba(47,49,43,.12);
+  --partners-ink:#2F312B;
+  --partners-ink-soft:#5C5E56;
+  background:var(--partners-page);
+  color:var(--partners-ink);
+}
+
+.page-partners .site-header{
+  background:rgba(243,243,241,.96);
+  border-bottom:1px solid var(--partners-line);
+}
+
+.page-partners .site-footer{
+  background:var(--partners-page);
+  border-top:1px solid var(--partners-line);
 }
 
 /* ---------- 1. HERO ---------- */
 .partners-hero{
-  padding:calc(72px + clamp(2.5rem,5vw,4rem)) 0 clamp(3rem,6vw,4.5rem);
-  background:var(--sand);
+  padding:calc(72px + clamp(2.25rem,4.5vw,3.5rem)) 0 clamp(2.75rem,5.5vw,4rem);
+  background:var(--partners-page);
   border-bottom:1px solid var(--partners-line);
   overflow:hidden;
 }
@@ -28,17 +42,19 @@
     gap:clamp(2.5rem,5vw,4.75rem);
   }
 }
-.partners-hero-copy{max-width:34rem;}
+.partners-hero-copy{max-width:36rem;}
 .partners-hero h1{
-  max-width:11ch;
+  max-width:16ch;
   margin-bottom:var(--sp-4);
-  font-size:clamp(2.3rem,5vw,3.5rem);
+  font-size:clamp(2.15rem,4.6vw,3.2rem);
   letter-spacing:-.03em;
+  color:var(--partners-ink);
 }
 .partners-hero .lead{
   margin-bottom:var(--sp-6);
-  max-width:33em;
-  font-size:clamp(1.02rem,.35vw + .95rem,1.14rem);
+  max-width:34em;
+  font-size:clamp(1.02rem,.35vw + .95rem,1.12rem);
+  color:var(--partners-ink-soft);
 }
 .partners-hero-actions{
   display:flex;
@@ -63,8 +79,8 @@
   border-radius:20px;
   padding:28px 26px 24px;
   box-shadow:
-    0 1px 0 rgba(20,21,15,.04),
-    0 22px 48px -32px rgba(20,21,15,.32);
+    0 1px 0 rgba(47,49,43,.04),
+    0 22px 48px -32px rgba(47,49,43,.28);
   overflow:hidden;
   isolation:isolate;
 }
@@ -79,7 +95,7 @@
   position:absolute;
   inset:0;
   pointer-events:none;
-  opacity:.22;
+  opacity:.18;
   background-image:
     repeating-linear-gradient(90deg, rgba(63,74,50,.16) 0 1px, transparent 1px 28px),
     repeating-linear-gradient(0deg, rgba(63,74,50,.16) 0 1px, transparent 1px 28px);
@@ -101,7 +117,7 @@
   font-weight:700;
   font-size:1.05rem;
   letter-spacing:-.01em;
-  color:var(--ink);
+  color:var(--partners-ink);
 }
 .partners-pass-brand .icon{
   width:20px;
@@ -121,14 +137,14 @@
   font-weight:600;
   font-size:clamp(1.55rem,3vw,1.85rem);
   letter-spacing:-.02em;
-  color:var(--ink);
+  color:var(--partners-ink);
   line-height:1.1;
 }
 .partners-pass-place{
   margin:0 0 4px;
   font-size:.95rem;
   font-weight:600;
-  color:var(--ink-soft);
+  color:var(--partners-ink-soft);
 }
 .partners-pass-phase{
   margin:0 0 24px;
@@ -153,7 +169,7 @@
   padding-left:16px;
   font-size:.88rem;
   font-weight:500;
-  color:var(--ink-soft);
+  color:var(--partners-ink-soft);
 }
 .partners-pass-points li::before{
   content:"";
@@ -199,78 +215,14 @@
 .partners-pass-mark::before{width:12px;height:1.5px;}
 .partners-pass-mark::after{width:1.5px;height:12px;}
 
-/* ---------- 2. WAT IS ELYAN ---------- */
-.partners-story{
-  padding:clamp(3.25rem,7vw,5.25rem) 0;
-  background:var(--white);
-}
-.partners-story-inner{
-  display:grid;
-  gap:clamp(2rem,4vw,3.5rem);
-}
-@media (min-width:980px){
-  .partners-story-inner{
-    grid-template-columns:minmax(0,.88fr) minmax(0,1.12fr);
-    gap:clamp(2.5rem,5vw,4.5rem);
-    align-items:start;
-  }
-}
-.partners-story-head{max-width:28rem;}
-@media (min-width:980px){
-  .partners-story-head{position:sticky;top:96px;}
-}
-.partners-story-head h2{
-  font-size:clamp(1.85rem,3.3vw,2.6rem);
-  max-width:14ch;
-  margin-bottom:var(--sp-4);
-  letter-spacing:-.03em;
-  line-height:1.12;
-}
-.partners-story-head p{max-width:32em;margin:0;}
-
-.partners-journey{
-  list-style:none;
-  margin:0;
-  padding:0;
-}
-.partners-journey li{
-  display:grid;
-  grid-template-columns:auto 1fr;
-  gap:clamp(1rem,2.4vw,1.65rem);
-  padding:clamp(1.25rem,2.4vw,1.75rem) 0;
-  border-top:1px solid var(--partners-line);
-}
-.partners-journey li:last-child{border-bottom:1px solid var(--partners-line);}
-.partners-journey-num{
-  font-family:var(--font-mono);
-  font-size:clamp(1.55rem,2.6vw,2.05rem);
-  font-weight:700;
-  letter-spacing:-.04em;
-  color:var(--primary);
-  line-height:1;
-  padding-top:2px;
-  min-width:2.35ch;
-}
-.partners-journey-body h3{
-  font-size:clamp(.95rem,1.3vw,1.08rem);
-  margin:0 0 8px;
-  text-transform:uppercase;
-  letter-spacing:.05em;
-}
-.partners-journey-body p{
-  margin:0;
-  max-width:34em;
-  font-size:.94rem;
-}
-
-/* ---------- 3. WAAROM ---------- */
+/* ---------- 2. WAAROM ---------- */
 .partners-why{
-  padding:clamp(3.25rem,7vw,5.25rem) 0;
-  background:var(--sand-deep);
+  padding:clamp(2.75rem,6vw,4.5rem) 0;
+  background:var(--partners-soft);
 }
 .partners-why-layout{
   display:grid;
-  gap:clamp(2rem,4vw,3.5rem);
+  gap:clamp(1.75rem,3.5vw,3rem);
 }
 @media (min-width:900px){
   .partners-why-layout{
@@ -281,18 +233,23 @@
 }
 .partners-why-head{max-width:24rem;}
 .partners-why-head h2{
-  font-size:clamp(1.9rem,3.4vw,2.65rem);
-  max-width:12ch;
+  font-size:clamp(1.75rem,3.2vw,2.4rem);
+  max-width:14ch;
   margin:0 0 var(--sp-4);
   letter-spacing:-.03em;
+  color:var(--partners-ink);
 }
-.partners-why-head p{margin:0;max-width:30em;}
+.partners-why-head p{
+  margin:0;
+  max-width:32em;
+  color:var(--partners-ink-soft);
+}
 
 .partners-why-list{
   list-style:none;
   margin:0;
   padding:0;
-  background:var(--white);
+  background:var(--partners-panel);
   border:1px solid var(--partners-line);
   border-radius:20px;
   overflow:hidden;
@@ -301,7 +258,7 @@
   display:grid;
   grid-template-columns:auto 1fr;
   gap:16px;
-  padding:20px 22px;
+  padding:18px 20px;
   border-bottom:1px solid var(--partners-line);
 }
 .partners-why-list li:last-child{border-bottom:none;}
@@ -314,29 +271,31 @@
   padding-top:5px;
 }
 .partners-why-list h3{
-  font-size:1.02rem;
-  margin:0 0 6px;
+  font-size:1rem;
+  margin:0 0 5px;
+  color:var(--partners-ink);
 }
 .partners-why-list p{
   margin:0;
-  font-size:.9rem;
+  font-size:.88rem;
   max-width:38em;
+  color:var(--partners-ink-soft);
 }
 
-/* ---------- 4. FOUNDING ---------- */
+/* ---------- 3. FOUNDING (compact olive band) ---------- */
 .partners-founding-band{
-  padding:clamp(3.25rem,7vw,5.5rem) 0;
+  padding:clamp(2.5rem,5.5vw,3.75rem) 0;
   background:var(--primary);
   color:rgba(255,255,255,.86);
 }
 .partners-founding-inner{
   display:grid;
-  gap:clamp(2rem,4vw,3.5rem);
+  gap:clamp(1.5rem,3.5vw,2.75rem);
 }
 @media (min-width:900px){
   .partners-founding-inner{
     grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
-    gap:clamp(2.25rem,5vw,4.25rem);
+    gap:clamp(2rem,4.5vw,3.5rem);
     align-items:start;
   }
 }
@@ -350,7 +309,7 @@
   letter-spacing:.1em;
   text-transform:uppercase;
   color:rgba(255,255,255,.62);
-  margin-bottom:var(--sp-4);
+  margin-bottom:var(--sp-3);
 }
 .partners-founding-eyebrow::before{
   content:"";
@@ -361,43 +320,44 @@
 }
 .partners-founding-copy h2{
   color:var(--white);
-  font-size:clamp(1.95rem,3.6vw,2.85rem);
-  max-width:14ch;
-  margin-bottom:var(--sp-4);
+  font-size:clamp(1.7rem,3.2vw,2.35rem);
+  max-width:16ch;
+  margin-bottom:var(--sp-3);
   letter-spacing:-.03em;
 }
 .partners-founding-copy > p{
   color:rgba(255,255,255,.78);
   max-width:38em;
-  margin:0 0 var(--sp-5);
+  margin:0 0 var(--sp-4);
+  font-size:.95rem;
 }
 .partners-founding-price{
-  margin:0 0 var(--sp-5);
-  padding:20px 22px;
-  border-radius:16px;
+  margin:0 0 var(--sp-4);
+  padding:16px 18px;
+  border-radius:14px;
   background:rgba(255,255,255,.08);
   border:1px solid rgba(255,255,255,.16);
   max-width:34em;
 }
 .partners-founding-price-main{
-  margin:0 0 6px !important;
+  margin:0 0 4px !important;
   color:var(--white) !important;
   font-family:var(--font-display);
   font-weight:600;
-  font-size:clamp(1.05rem,2vw,1.2rem);
+  font-size:clamp(1rem,1.8vw,1.12rem);
   letter-spacing:-.01em;
 }
 .partners-founding-price-sub{
   margin:0 !important;
   color:rgba(255,255,255,.72) !important;
-  font-size:.92rem;
+  font-size:.88rem;
 }
 .partners-founding-note{
   margin:0 !important;
-  font-size:.8rem;
+  font-size:.78rem;
   line-height:1.5;
   color:rgba(255,255,255,.5) !important;
-  max-width:36em;
+  max-width:38em;
 }
 
 .partners-founding-perks{
@@ -406,14 +366,14 @@
   padding:0;
   display:flex;
   flex-direction:column;
-  gap:12px;
+  gap:10px;
 }
 .partners-founding-perks li{
   display:grid;
   grid-template-columns:auto 1fr;
-  gap:14px;
-  padding:16px 18px;
-  border-radius:14px;
+  gap:12px;
+  padding:14px 16px;
+  border-radius:12px;
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.12);
 }
@@ -426,30 +386,31 @@
   padding-top:3px;
 }
 .partners-founding-perks h3{
-  margin:0 0 6px;
+  margin:0 0 4px;
   color:var(--white);
-  font-size:.98rem;
+  font-size:.94rem;
 }
 .partners-founding-perks p{
   margin:0;
-  font-size:.86rem;
+  font-size:.84rem;
   color:rgba(255,255,255,.7);
 }
 
-/* ---------- 5. PROCESS ---------- */
+/* ---------- 4. PROCESS ---------- */
 .partners-process{
-  padding:clamp(3.25rem,7vw,5.25rem) 0;
-  background:var(--sand);
+  padding:clamp(2.75rem,6vw,4.5rem) 0;
+  background:var(--partners-page);
 }
 .partners-process-head{
   max-width:28rem;
-  margin-bottom:clamp(2rem,4vw,3rem);
+  margin-bottom:clamp(1.75rem,3.5vw,2.5rem);
 }
 .partners-process-head h2{
-  font-size:clamp(1.85rem,3.2vw,2.5rem);
-  max-width:14ch;
+  font-size:clamp(1.7rem,3vw,2.3rem);
+  max-width:16ch;
   margin:0;
   letter-spacing:-.03em;
+  color:var(--partners-ink);
 }
 .partners-process-track{
   list-style:none;
@@ -471,15 +432,15 @@
     left:7%;
     right:7%;
     height:1px;
-    background:rgba(63,74,50,.18);
+    background:rgba(63,74,50,.16);
   }
 }
 .partners-process-track li{
   position:relative;
-  background:var(--white);
+  background:var(--partners-panel);
   border:1px solid var(--partners-line);
   border-radius:18px;
-  padding:22px 20px 24px;
+  padding:20px 18px 22px;
 }
 @media (min-width:860px){
   .partners-process-track li{
@@ -505,24 +466,26 @@
   margin-bottom:16px;
   position:relative;
   z-index:1;
-  box-shadow:0 0 0 6px var(--sand);
+  box-shadow:0 0 0 6px var(--partners-page);
 }
 .partners-process-track h3{
-  font-size:.92rem;
+  font-size:.9rem;
   margin:0 0 8px;
   text-transform:uppercase;
   letter-spacing:.045em;
+  color:var(--partners-ink);
 }
 .partners-process-track p{
   margin:0;
-  font-size:.88rem;
+  font-size:.86rem;
   max-width:22em;
+  color:var(--partners-ink-soft);
 }
 
-/* ---------- 6. FORM ---------- */
+/* ---------- 5. FORM ---------- */
 .partners-apply{
-  padding:clamp(3.25rem,7vw,5.25rem) 0;
-  background:var(--white);
+  padding:clamp(2.75rem,6vw,4.5rem) 0;
+  background:var(--partners-panel);
 }
 .partners-apply-inner{
   display:grid;
@@ -539,15 +502,20 @@
 }
 .partners-apply-head{max-width:24rem;}
 .partners-apply-head h2{
-  font-size:clamp(1.8rem,3vw,2.4rem);
-  max-width:12ch;
+  font-size:clamp(1.7rem,3vw,2.25rem);
+  max-width:14ch;
   margin-bottom:var(--sp-4);
   letter-spacing:-.03em;
+  color:var(--partners-ink);
 }
-.partners-apply-head p{margin:0;max-width:28em;}
+.partners-apply-head p{
+  margin:0;
+  max-width:30em;
+  color:var(--partners-ink-soft);
+}
 
 .partners-form-card{
-  background:var(--partners-olive-soft);
+  background:var(--partners-soft);
   border:1px solid var(--partners-line);
   border-radius:20px;
   padding:clamp(1.35rem,3vw,2.25rem);
@@ -564,19 +532,20 @@
   display:block;
   font-size:.82rem;
   font-weight:600;
-  color:var(--ink);
+  color:var(--partners-ink);
   margin-bottom:8px;
 }
 .partners-field input,
 .partners-field select,
 .partners-field textarea{
   width:100%;
-  border:1.5px solid rgba(63,74,50,.16);
+  border:1.5px solid rgba(47,49,43,.14);
   border-radius:var(--r-sm);
-  background:var(--white);
+  background:var(--partners-panel);
   padding:0 14px;
   height:48px;
   font-size:.95rem;
+  color:var(--partners-ink);
   transition:border-color .2s ease;
 }
 .partners-field textarea{
@@ -593,7 +562,7 @@
 }
 .partners-field select{
   appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' fill='none' stroke='%235B5D4F' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' fill='none' stroke='%235C5E56' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat:no-repeat;
   background-position:right 14px center;
   padding-right:36px;
@@ -604,7 +573,7 @@
   gap:12px;
   margin:var(--sp-5) 0 var(--sp-4);
   font-size:.9rem;
-  color:var(--ink-soft);
+  color:var(--partners-ink-soft);
   cursor:pointer;
 }
 .partners-check input{
@@ -656,18 +625,20 @@
   max-width:22em;
   margin-left:auto;
   margin-right:auto;
+  color:var(--partners-ink);
 }
 .partners-form-success p{
   font-size:.95rem;
   max-width:32em;
   margin:0 auto;
+  color:var(--partners-ink-soft);
 }
-.partners-form-card.is-success{background:var(--sand-deep);}
+.partners-form-card.is-success{background:var(--partners-page);}
 
-/* ---------- 7. FAQ ---------- */
+/* ---------- 6. FAQ ---------- */
 .partners-faq-section{
-  padding:clamp(2.75rem,6vw,4.25rem) 0;
-  background:var(--sand-deep);
+  padding:clamp(2.5rem,5.5vw,3.75rem) 0;
+  background:var(--partners-soft);
   border-top:1px solid var(--partners-line);
 }
 .partners-faq-layout{
@@ -683,21 +654,22 @@
   }
 }
 .partners-faq-head h2{
-  font-size:clamp(1.65rem,2.8vw,2.15rem);
+  font-size:clamp(1.55rem,2.6vw,2rem);
   max-width:10ch;
   margin:0;
+  color:var(--partners-ink);
 }
 .partners-faq details{
-  border-bottom:1px solid rgba(63,74,50,.14);
+  border-bottom:1px solid var(--partners-line);
   padding:var(--sp-4) 0;
 }
-.partners-faq details:first-child{border-top:1px solid rgba(63,74,50,.14);}
+.partners-faq details:first-child{border-top:1px solid var(--partners-line);}
 .partners-faq summary{
   cursor:pointer;
   font-family:var(--font-display);
   font-weight:600;
   font-size:1.02rem;
-  color:var(--ink);
+  color:var(--partners-ink);
   list-style:none;
   display:flex;
   align-items:center;
@@ -715,33 +687,36 @@
 .partners-faq details[open] summary::after{content:"\2212";}
 .partners-faq details p{
   margin:var(--sp-3) 0 0;
-  font-size:.94rem;
+  font-size:.92rem;
   max-width:42em;
+  color:var(--partners-ink-soft);
 }
 
-/* ---------- 8. CLOSE ---------- */
+/* ---------- 7. CLOSE ---------- */
 .partners-close{
-  padding:clamp(3.25rem,7vw,5rem) 0;
-  background:var(--sand);
+  padding:clamp(2.75rem,6vw,4.25rem) 0;
+  background:var(--partners-page);
   border-top:1px solid var(--partners-line);
 }
 .partners-close-inner{max-width:38rem;}
 .partners-close h2{
-  font-size:clamp(1.9rem,3.4vw,2.7rem);
+  font-size:clamp(1.75rem,3.2vw,2.45rem);
   max-width:16ch;
   margin-bottom:var(--sp-4);
   letter-spacing:-.03em;
+  color:var(--partners-ink);
 }
 .partners-close p{
   max-width:34em;
   margin:0 0 var(--sp-6);
   font-size:1.02rem;
+  color:var(--partners-ink-soft);
 }
 
 /* ---------- Mobile ---------- */
 @media (max-width:720px){
   .partners-hero{
-    padding:calc(56px + 1.75rem) 0 2.5rem;
+    padding:calc(56px + 1.75rem) 0 2.25rem;
   }
   .partners-hero-actions{
     flex-direction:column;
@@ -752,13 +727,9 @@
   .partners-pass-frame{padding:22px 18px 20px;}
   .partners-pass-label{font-size:1.45rem;}
   .partners-why-list li{padding:16px 16px;}
-  .partners-founding-band{padding:2.75rem 0;}
-  .partners-founding-price{padding:16px 16px;}
-  .partners-founding-perks li{padding:14px 14px;}
+  .partners-founding-band{padding:2.35rem 0;}
+  .partners-founding-price{padding:14px 14px;}
+  .partners-founding-perks li{padding:12px 12px;}
   .partners-process-track li{padding:18px 16px 20px;}
   .partners-close .btn{width:100%;}
-}
-
-@media (max-width:979px){
-  .partners-story-head{position:static;}
 }
