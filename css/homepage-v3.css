@@ -1309,7 +1309,7 @@ body.hp-v3 .hp-hero-photo img {
 
   body.hp-v3 .hp-search {
     width: 100%;
-    margin-top: calc(3.85rem + 12px);
+    margin-top: calc(3.85rem + 6px);
     position: relative;
     z-index: 4;
   }
