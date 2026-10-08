@@ -1,13 +1,14 @@
 'use strict';
 
 var { listCategories, listPublishedProfileSlugs } = require('../server/marketplace-public');
+var featureFlags = require('../shared/feature-flags');
 
 var BASE = 'https://www.elyan.be';
 
 var STATIC_URLS = [
   { loc: BASE + '/', priority: '1.0', changefreq: 'weekly' },
   { loc: BASE + '/vakmannen', priority: '0.9', changefreq: 'weekly' },
-  { loc: BASE + '/prijs-berekenen', priority: '0.8', changefreq: 'monthly' },
+  { loc: BASE + '/prijs-berekenen', priority: '0.8', changefreq: 'monthly', requiresCalculators: true },
   { loc: BASE + '/partners', priority: '0.7', changefreq: 'monthly' },
   { loc: BASE + '/over-ons', priority: '0.6', changefreq: 'monthly' },
   { loc: BASE + '/contact', priority: '0.5', changefreq: 'monthly' },
@@ -42,7 +43,10 @@ module.exports = async function handler(req, res) {
     return res.end();
   }
 
-  var urls = STATIC_URLS.slice();
+  var urls = STATIC_URLS.filter(function (entry) {
+    if (entry.requiresCalculators && featureFlags.PUBLIC_CALCULATORS_ENABLED === false) return false;
+    return true;
+  });
 
   var cats = listCategories();
   cats.forEach(function (c) {

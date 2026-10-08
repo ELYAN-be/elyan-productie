@@ -50,6 +50,9 @@
   };
 
   document.addEventListener('DOMContentLoaded', function () {
+    var flags = window.ElyanFeatureFlags;
+    if (!flags || flags.PUBLIC_CALCULATORS_ENABLED !== true) return;
+
     var calculatorOverlay = document.getElementById('calculatorOverlay');
     var resultsOverlay = document.getElementById('resultsOverlay');
     var progressFill = document.getElementById('progressFill');

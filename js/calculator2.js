@@ -12,6 +12,9 @@
   }
 
   ready(function () {
+    var flags = window.ElyanFeatureFlags;
+    if (!flags || flags.PUBLIC_CALCULATORS_ENABLED !== true) return;
+
     var Scope = window.ElyanCalc2Scope;
     var Property = window.ElyanCalc2Property;
     var StateApi = window.ElyanCalc2State;

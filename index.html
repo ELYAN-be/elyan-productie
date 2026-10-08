@@ -211,7 +211,7 @@
       <div class="hp-hero-copy">
         <p class="hp-hero-eyebrow">RENOVATIEPLATFORM VOOR VLAANDEREN</p>
         <h1 id="hpHeroTitle"><span class="hp-h1-line">Vind de juiste vakman</span><br><span class="hp-h1-line">voor je renovatie.</span></h1>
-        <p class="hp-hero-sub">Vergelijk vakbedrijven, ontdek richtprijzen en vraag eenvoudig offertes aan.</p>
+        <p class="hp-hero-sub">Vergelijk vakbedrijven en vraag eenvoudig offertes aan.</p>
 
         <form class="hp-search" id="hpSearchForm" novalidate>
           <div class="hp-search-unit">
@@ -298,7 +298,8 @@
   </div>
 </section>
 
-<section class="hp-section hp-insight" id="prijsinzicht" aria-labelledby="hpPriceTitle" data-hp-reveal>
+<!-- Launch: calculators off — keep markup for restore (PUBLIC_CALCULATORS_ENABLED) -->
+<section class="hp-section hp-insight" id="prijsinzicht" aria-labelledby="hpPriceTitle" data-hp-reveal hidden>
   <div class="hp-container hp-insight-grid">
     <div class="hp-insight-intro">
       <p class="hp-insight-eyebrow">ELYAN Renovatie-inzicht</p>
@@ -347,7 +348,7 @@
         <div>
           <h3>Begrijp je project</h3>
           <p>Start met je project en krijg context over wat realistisch is.</p>
-          <p class="hp-step-trust">Richtprijzen met duidelijke context</p>
+          <p class="hp-step-trust">Duidelijke projectcontext</p>
         </div>
       </div>
       <div class="hp-step-connector" aria-hidden="true"></div>
@@ -396,7 +397,6 @@
         <div class="footer-col">
           <div class="footer-col-title">Consument</div>
           <a href="/vakmannen">Vakmannen</a>
-          <a href="/prijs-berekenen">Prijs berekenen</a>
           <a href="#hoe-elyan-werkt">Hoe ELYAN werkt</a>
         </div>
         <div class="footer-col">
@@ -635,6 +635,7 @@
 
 <script src="/js/analytics.js" defer></script>
 <script src="/js/site.js" defer></script>
+<script src="/shared/feature-flags.js" defer></script>
 <script src="/js/demo-professionals.js" defer></script>
 <script src="/js/homepage-v3.js" defer></script>
 <script src="/shared/market-data-2026.js" defer></script>

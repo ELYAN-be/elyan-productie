@@ -735,6 +735,8 @@
   }
 
   function initCalculatorDeepLink() {
+    var flags = window.ElyanFeatureFlags;
+    if (!flags || flags.PUBLIC_CALCULATORS_ENABLED !== true) return;
     if (location.pathname !== '/' && location.pathname !== '/index.html') return;
     var open = new URLSearchParams(location.search).get('open');
     if (!open) return;

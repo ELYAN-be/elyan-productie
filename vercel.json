@@ -24,6 +24,11 @@
       "source": "/internal/:path*",
       "destination": "/404",
       "permanent": false
+    },
+    {
+      "source": "/prijs-berekenen",
+      "destination": "/",
+      "permanent": false
     }
   ],
   "rewrites": [
