@@ -2586,12 +2586,11 @@ body.hp-v3 .hp-pros-cta {
 
 body.hp-v3 .hp-pros-eyebrow {
   margin: 0 0 0.55rem;
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 650;
-  line-height: 1.12;
-  letter-spacing: -0.02em;
-  color: var(--hp-ink);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--hp-olive-dark);
 }
 
 body.hp-v3 .hp-pros-copy h2 {
