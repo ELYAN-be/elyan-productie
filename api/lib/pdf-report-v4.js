@@ -15,8 +15,8 @@ var C = {
   /* Deep olive — logo, rules, labels, accents. Solid RGB. */
   olive: '#3F4A36',
   oliveDeep: '#3F4A36',
-  /* Soft secondary — quiet watermark olive-grey. Solid RGB. */
-  oliveSoft: '#A3A99F',
+  /* Soft secondary — brand olive as soft shadow tint. Solid RGB. */
+  oliveSoft: '#C8CDC3',
   page: '#FFFFFF',
   /* Cover background — near-white cool-neutral grey. Solid RGB. */
   cover: '#F6F7F8',
@@ -29,8 +29,8 @@ var C = {
   white: '#FFFFFF',
   coverMuted: '#9AA3A8',
   coverMark: '#3F4A36',
-  /* Cover motif — soft professional watermark (not logo-weight). Solid RGB. */
-  coverMotif: '#A3A99F'
+  /* Cover motif — soft olive shadow (on-theme, not grey). Solid RGB. */
+  coverMotif: '#C8CDC3'
 };
 
 /* A4 portrait, print-safe margins */
@@ -195,13 +195,14 @@ function drawElyanMark(doc, x, y, size, color) {
 function drawElyanLogo(doc, x, y, opts) {
   opts = opts || {};
   var markSize = opts.markSize != null ? opts.markSize : 14;
-  var color = opts.color || C.olive;
+  var markColor = opts.color || C.olive;
+  var wordColor = opts.wordColor || C.ink;
   var wordSize = opts.wordSize != null ? opts.wordSize : 11;
   var gap = opts.gap != null ? opts.gap : 7;
   var spacing = opts.spacing != null ? opts.spacing : 1.4;
-  drawElyanMark(doc, x, y, markSize, color);
+  drawElyanMark(doc, x, y, markSize, markColor);
   var textY = y + (markSize - wordSize) * 0.42;
-  doc.font(FONTS.displayBold).fontSize(wordSize).fillColor(color)
+  doc.font(FONTS.displayBold).fontSize(wordSize).fillColor(wordColor)
     .text('ELYAN', x + markSize + gap, textY, {
       characterSpacing: spacing,
       lineBreak: false
