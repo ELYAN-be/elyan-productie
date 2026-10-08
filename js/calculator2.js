@@ -557,90 +557,10 @@
       showAnalysisLoading(ANALYSIS_MESSAGES, renderReview);
     }
 
-    function bindReportCapture(root, project, analysis) {
+    function bindReportCapture(root) {
+      /* Launch: public PDF reports disabled. Re-enable with feature flag + restore email UI. */
       var slot = root.querySelector('#calc2ReportCapture');
-      if (!slot || !UiResults || !UiResults.buildEmailCaptureHtml) return;
-      slot.innerHTML = UiResults.buildEmailCaptureHtml(uiCtx(project, analysis));
-
-      var form = slot.querySelector('#calc2EmailForm');
-      var success = slot.querySelector('#calc2EmailSuccess');
-      var input = slot.querySelector('#calc2EmailInput');
-      var submit = slot.querySelector('#calc2EmailSubmit');
-      var errorEl = slot.querySelector('#calc2EmailError');
-      if (!submit || !input) return;
-
-      function isValidEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ''));
-      }
-
-      function setLoading(on) {
-        submit.disabled = on;
-        submit.classList.toggle('is-loading', on);
-      }
-
-      submit.addEventListener('click', function () {
-        var email = input.value.trim();
-        if (!isValidEmail(email)) {
-          if (errorEl) {
-            errorEl.textContent = 'Vul een geldig e-mailadres in.';
-            errorEl.classList.add('show');
-          }
-          input.focus();
-          return;
-        }
-        if (errorEl) errorEl.classList.remove('show');
-        setLoading(true);
-
-        /* Investor dossier only after finance ran — avoids missing_finance_profile 400 from review CTA */
-        if (state.goal === 'investor' && !(analysis && analysis.ran && !analysis.blocked)) {
-          setLoading(false);
-          if (errorEl) {
-            errorEl.textContent = 'Rond eerst de investeringsanalyse af om het investeringsrapport te ontvangen.';
-            errorEl.classList.add('show');
-          }
-          return;
-        }
-
-        fetch('/api/send-project-report', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            state: JSON.parse(StateApi.serialize(state))
-          })
-        }).then(function (res) {
-          return res.json().then(function (data) {
-            if (!res.ok) {
-              var err = new Error((data && data.error) || 'request_failed');
-              err.code = data && data.error;
-              throw err;
-            }
-            return data;
-          });
-        }).then(function () {
-          if (form) form.hidden = true;
-          if (success) success.hidden = false;
-        }).catch(function (err) {
-          if (errorEl) {
-            var msg = 'Je analyse is klaar, maar het rapport kon niet worden verzonden. Probeer opnieuw.';
-            if (err && err.code === 'missing_finance_profile') {
-              msg = 'Rond eerst de investeringsanalyse af om het investeringsrapport te ontvangen.';
-            } else if (err && err.code === 'investor_not_ready') {
-              msg = 'Je project is nog niet klaar voor de investeringsanalyse. Los eerst de open budgetpunten op.';
-            } else if (err && err.code === 'insufficient_project') {
-              msg = 'Er is nog te weinig projectinformatie voor een rapport. Vul eerst de open onderdelen aan.';
-            }
-            errorEl.textContent = msg;
-            errorEl.classList.add('show');
-          }
-        }).finally(function () {
-          setLoading(false);
-        });
-      });
-
-      input.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') { e.preventDefault(); submit.click(); }
-      });
+      if (slot) slot.innerHTML = '';
     }
 
     function bindReviewInteractions(project) {

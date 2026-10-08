@@ -390,9 +390,8 @@
       '</div>' +
 
       /* Investor report requires completed finance analysis — CTA lives on finance result only */
-      (state.goal === 'investor'
-        ? '<p class="calc2-review-note">Wil je het investeringsrapport per e-mail? Rond eerst de investeringsanalyse af.</p>'
-        : '<div id="calc2ReportCapture"></div>') +
+      /* PDF email capture disabled for launch */
+      '' +
 
       '<div class="calc2-nav">' +
         '<button type="button" class="btn btn-ghost btn-lg" id="calc2Restart">Nieuw plan</button>' +
@@ -547,8 +546,7 @@
             '<ul class="calc2-risk-list">' + nextSteps + '</ul></div>'
         : '') +
 
-      '<div id="calc2ReportCapture"></div>' +
-
+      /* PDF email capture slot omitted for launch */
       '<div class="calc2-nav">' +
         '<button type="button" class="btn btn-ghost btn-lg" id="finBackEdit">Aannames wijzigen</button>' +
         '<button type="button" class="btn btn-primary btn-lg" id="calc2CloseDone">Sluiten</button>' +
@@ -556,32 +554,9 @@
     '</div>';
   }
 
-  function buildEmailCaptureHtml(ctx) {
-    var escapeHtml = ctx.escapeHtml;
-    var isInvestor = ctx.state && ctx.state.goal === 'investor';
-    var title = isInvestor
-      ? 'Ontvang je renovatie- & investeringsrapport'
-      : 'Ontvang je renovatierapport';
-    var desc = isInvestor
-      ? 'Een PDF met budget, scenario\'s en aannames, indicatief, geen garantie.'
-      : 'Een PDF met budget, werkpakketten en vervolgstappen op maat van jouw antwoorden.';
-
-    return '<div class="calc2-email-card">' +
-      '<h3>' + escapeHtml(title) + '</h3>' +
-      '<p>' + escapeHtml(desc) + '</p>' +
-      '<div id="calc2EmailForm">' +
-        '<label class="calc2-field"><span>E-mailadres</span>' +
-          '<input type="email" id="calc2EmailInput" autocomplete="email" placeholder="jouw@email.com"></label>' +
-        '<button type="button" class="btn btn-primary" id="calc2EmailSubmit">' +
-          '<span class="btn-spinner" aria-hidden="true"></span>' +
-          '<span class="btn-label">Ontvang mijn rapport</span></button>' +
-        '<p class="calc2-email-error" id="calc2EmailError" role="alert"></p>' +
-      '</div>' +
-      '<div class="calc2-email-success" id="calc2EmailSuccess" hidden>' +
-        '<p><strong>Bedankt!</strong> Je rapport is onderweg. Kijk ook in je spamfolder als je niets ziet.</p>' +
-      '</div>' +
-      '<p class="calc2-review-note">Geen spam · niet doorverkocht · direct verzonden</p>' +
-    '</div>';
+  function buildEmailCaptureHtml() {
+    /* Launch: no public PDF report CTA — keep API for later re-enable */
+    return '';
   }
 
   function buildAnalysisLoadingHtml(messages) {

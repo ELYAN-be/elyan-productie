@@ -305,9 +305,9 @@
     <div class="hp-insight-intro">
       <p class="hp-insight-eyebrow">ELYAN Renovatie-inzicht</p>
       <h2 id="hpPriceTitle">Meer dan alleen een prijs.</h2>
-      <p class="hp-insight-lead">Je ontvangt een persoonlijk renovatierapport met inzicht in kosten, arbeid, planning en aandachtspunten.</p>
+      <p class="hp-insight-lead">Je krijgt direct inzicht in kosten, arbeid, planning en aandachtspunten voor jouw renovatieproject.</p>
     </div>
-    <div class="hp-report-visual" id="hpReportVisual" aria-hidden="true">
+    <div class="hp-report-visual" id="hpReportVisual" aria-hidden="true" hidden>
       <div class="hp-report-stack">
         <div class="hp-report-page hp-report-page--back">
           <img src="/assets/report/page-checklist.png" alt="" width="595" height="842" loading="lazy" decoding="async" data-hp-report-img>
@@ -596,7 +596,8 @@
       </div>
     </div>
 
-    <div class="cta-card">
+    <!-- PDF email capture hidden for launch; generators retained server-side -->
+    <div class="cta-card" id="reportEmailCta" hidden aria-hidden="true">
       <h3><svg class="icon"><use href="#i-mail"></use></svg> Ontvang je renovatiebudgetrapport</h3>
       <p>Een premium PDF-rapport op maat van jouw antwoorden: prijsvork, kostenuitsplitsing, inzichten, planning en volgende stappen.</p>
       <ul class="cta-benefits">

@@ -87,7 +87,7 @@
       id: 'urgency',
       type: 'cards',
       question: 'Wanneer wil je bij voorkeur starten?',
-      hint: 'We gebruiken dit voor realistische planningstips in je rapport.',
+      hint: 'We gebruiken dit voor realistische planningstips in je resultaat.',
       options: URGENCY_OPTIONS,
       autoAdvance: true
     };
@@ -98,7 +98,7 @@
       id: 'notes',
       type: 'notes',
       question: 'Nog specifieke wensen of opmerkingen?',
-      hint: 'Optioneel. Hoe meer detail, hoe nuttiger je rapport.',
+      hint: 'Optioneel. Hoe meer detail, hoe nuttiger je prijsindicatie.',
       optional: true
     };
   }

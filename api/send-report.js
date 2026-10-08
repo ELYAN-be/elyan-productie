@@ -7,6 +7,7 @@
 var pricing = require('./lib/pricing');
 var questions = require('./lib/questions');
 var buildReportPdf = require('./lib/pdf-report').buildReportPdf;
+var featureFlags = require('../shared/feature-flags');
 var { rateLimit, clientKey } = require('../server/rate-limit');
 var { incrementAnalyticsEvent } = require('../server/analytics');
 
@@ -78,6 +79,11 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'method_not_allowed' });
+  }
+
+  /* Launch: PDF report generation/email disabled — code retained for later. */
+  if (!featureFlags.PUBLIC_PDF_REPORTS_ENABLED) {
+    return res.status(503).json({ error: 'report_disabled' });
   }
 
   var rl = rateLimit(clientKey(req, 'send_report'), 5, 10 * 60 * 1000);

@@ -485,7 +485,7 @@
         'Jouw antwoorden analyseren...',
         'Belgische richtprijzen vergelijken in ' + provinceLabel + '...',
         'Kostenposten berekenen...',
-        'Persoonlijk rapport voorbereiden...'
+        'Jouw prijsindicatie afronden...'
       ];
       var i = 0;
       loadingTextEl.textContent = messages[0];
@@ -587,12 +587,14 @@
       premieLinkEl.textContent = regionLink.label;
       premieLinkEl.href = regionLink.url;
 
-      document.getElementById('emailCaptureForm').style.display = '';
-      document.getElementById('emailSuccessState').classList.remove('show');
-      document.getElementById('emailInput').value = '';
-      document.getElementById('emailInput').classList.remove('invalid');
-      document.getElementById('emailErrorMsg').classList.remove('show');
-      setSubmitLoading(false);
+      /* PDF report email capture disabled for launch */
+      var reportCta = document.getElementById('reportEmailCta');
+      if (reportCta) {
+        reportCta.hidden = true;
+        reportCta.setAttribute('aria-hidden', 'true');
+      }
+      var emailForm = document.getElementById('emailCaptureForm');
+      if (emailForm) emailForm.style.display = 'none';
 
       showView('results');
       setTimeout(function () {
@@ -606,59 +608,26 @@
       return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
     }
 
+    /* PDF report request handlers retained but inactive while launch flag is off */
     var submitBtn = document.getElementById('submitEmailBtn');
     function setSubmitLoading(loading) {
+      if (!submitBtn) return;
       submitBtn.classList.toggle('is-loading', loading);
       submitBtn.disabled = loading;
     }
 
     function requestReport() {
-      var input = document.getElementById('emailInput');
-      var email = input.value.trim();
-      var errorEl = document.getElementById('emailErrorMsg');
-      if (!isValidEmail(email)) {
-        errorEl.textContent = 'Vul een geldig e-mailadres in.';
-        errorEl.classList.add('show');
-        input.classList.add('invalid');
-        input.focus();
-        return;
-      }
-      errorEl.classList.remove('show');
-      input.classList.remove('invalid');
-      setSubmitLoading(true);
-
-      var answers = Object.assign({}, state.answers);
-      fetch('/api/send-report', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: email,
-          type: state.type,
-          province: answers.province,
-          size: answers.size,
-          level: answers.level,
-          notes: (answers.notes || '').slice(0, 500),
-          answers: answers
-        })
-      }).then(function (res) {
-        if (!res.ok) throw new Error('request_failed');
-        return res.json();
-      }).then(function () {
-        state.email = email;
-        document.getElementById('emailCaptureForm').style.display = 'none';
-        document.getElementById('emailSuccessState').classList.add('show');
-      }).catch(function () {
-        errorEl.textContent = 'Er ging iets mis bij het verzenden. Probeer het opnieuw of mail ons op elyan.info@gmail.com.';
-        errorEl.classList.add('show');
-      }).finally(function () {
-        setSubmitLoading(false);
-      });
+      /* Disabled for launch — API also returns report_disabled */
+      return;
     }
 
-    submitBtn.addEventListener('click', requestReport);
-    document.getElementById('emailInput').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') { e.preventDefault(); requestReport(); }
-    });
+    if (submitBtn) submitBtn.addEventListener('click', requestReport);
+    var emailInputEl = document.getElementById('emailInput');
+    if (emailInputEl) {
+      emailInputEl.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') { e.preventDefault(); requestReport(); }
+      });
+    }
 
     document.querySelectorAll('[data-action="restart"]').forEach(function (btn) {
       btn.addEventListener('click', function () {
