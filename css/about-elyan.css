@@ -259,6 +259,10 @@
     background: var(--ab-card);
   }
 
+  .page-about .ab2-pillars .ab2-journey-rail {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
   .page-about .ab2-journey-step {
     grid-template-columns: 1fr;
     padding: 1.1rem 1rem;
@@ -469,9 +473,17 @@
   }
 }
 
-/* ---- Final CTA (inside trust section) ---- */
+/* ---- Closing ---- */
+.page-about .ab2-close-note {
+  margin: 0;
+  max-width: 48ch;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: rgba(92, 94, 86, 0.8);
+}
+
 .page-about .ab2-cta {
-  margin-top: 2rem;
+  margin-top: 1.75rem;
   padding-top: 1.75rem;
   border-top: 1px solid var(--ab-line);
 }
