@@ -40,8 +40,10 @@
   position:absolute;
   /* Crop ~7/32 of the mark = half of bar 3 (logo geometry) out of view */
   right:calc(var(--mark-size) * -7 / 32);
-  top:48%;
-  transform:translateY(-44%);
+  /* Sit on the hero bottom edge / divider, still inside section 1 */
+  top:auto;
+  bottom:0;
+  transform:none;
   width:var(--mark-size);
   height:auto;
   aspect-ratio:1;
@@ -996,10 +998,10 @@
   }
   .partners-hero-mark{
     --mark-size:min(78vw,22rem);
-    /* Same half-bar-3 crop on mobile */
+    /* Same half-bar-3 crop; flush to the section divider */
     right:calc(var(--mark-size) * -7 / 32);
     top:auto;
-    bottom:0.55rem;
+    bottom:0;
     transform:none;
     width:var(--mark-size);
     color:rgba(63,74,50,.12);
