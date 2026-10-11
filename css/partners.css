@@ -992,12 +992,13 @@
     padding:calc(56px + 1.35rem) 0 1.85rem;
   }
   .partners-hero-mark{
-    /* Keep all 3 bars in view; only a light bleed on the right edge */
-    width:min(52vw,14.5rem);
-    right:-6%;
-    top:52%;
-    transform:translateY(-12%);
-    color:rgba(63,74,50,.11);
+    /* Larger mark; bleed below the section (premium), keep all 3 bars in view */
+    width:min(78vw,22rem);
+    right:-10%;
+    top:auto;
+    bottom:-26%;
+    transform:none;
+    color:rgba(63,74,50,.125);
   }
   .partners-hero-actions{
     flex-direction:column;
