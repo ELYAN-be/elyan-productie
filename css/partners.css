@@ -256,17 +256,17 @@
 
 /* ---------- 2. WAAROM ---------- */
 .partners-why{
-  padding:clamp(2.1rem,4.5vw,3.25rem) 0;
+  padding:clamp(2.55rem,5.25vw,3.85rem) 0;
   background:var(--partners-soft);
 }
 .partners-why-layout{
   display:grid;
-  gap:clamp(1.75rem,3.5vw,3rem);
+  gap:clamp(2rem,4vw,3.5rem);
 }
 @media (min-width:900px){
   .partners-why-layout{
     grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
-    gap:clamp(2rem,5vw,4.25rem);
+    gap:clamp(2.35rem,5.5vw,4.75rem);
     align-items:start;
   }
 }
@@ -300,7 +300,7 @@
   display:grid;
   grid-template-columns:auto 1fr;
   gap:14px;
-  padding:15px 18px;
+  padding:17px 18px;
   border-bottom:1px solid var(--partners-line);
 }
 .partners-why-list li:last-child{border-bottom:none;}
@@ -326,7 +326,7 @@
 
 /* ---------- PRODUCT / PROFILE ---------- */
 .partners-product{
-  padding:clamp(2.1rem,4.5vw,3.25rem) 0;
+  padding:clamp(2.55rem,5.25vw,3.85rem) 0;
   background:var(--partners-page);
 }
 .partners-product-inner{
@@ -481,12 +481,12 @@
 
 /* ---------- DASHBOARD ---------- */
 .partners-dashboard{
-  padding:clamp(2.1rem,4.5vw,3.25rem) 0;
+  padding:clamp(2.55rem,5.25vw,3.85rem) 0;
   background:var(--partners-soft);
 }
 .partners-section-head{
   max-width:40rem;
-  margin-bottom:clamp(1.1rem,2.5vw,1.5rem);
+  margin-bottom:clamp(1.35rem,2.8vw,1.85rem);
 }
 .partners-section-head h2{
   font-size:clamp(1.7rem,3.1vw,2.3rem);
@@ -505,16 +505,16 @@
   margin:0;
   padding:0;
   display:grid;
-  gap:10px;
+  gap:12px;
 }
 @media (min-width:800px){
   .partners-feature-grid{
     grid-template-columns:1fr 1fr;
-    gap:12px;
+    gap:14px;
   }
 }
 .partners-feature-grid li{
-  padding:16px 16px;
+  padding:18px 17px;
   border-radius:14px;
   background:var(--partners-panel);
   border:1px solid var(--partners-line);
@@ -616,7 +616,7 @@
 
 /* ---------- FOUNDING (light refined band) ---------- */
 .partners-founding-band{
-  padding:clamp(2rem,4vw,2.85rem) 0;
+  padding:clamp(2.4rem,4.75vw,3.35rem) 0;
   background:var(--partners-page);
   color:var(--partners-ink);
   border-top:1px solid var(--partners-line);
@@ -685,12 +685,12 @@
 
 /* ---------- PROCESS (compact timeline) ---------- */
 .partners-process{
-  padding:clamp(2rem,4vw,2.85rem) 0;
+  padding:clamp(2.4rem,4.75vw,3.35rem) 0;
   background:var(--partners-soft);
 }
 .partners-process-head{
   max-width:32rem;
-  margin-bottom:clamp(1rem,2.5vw,1.4rem);
+  margin-bottom:clamp(1.25rem,2.8vw,1.7rem);
 }
 .partners-process-head h2{
   font-size:clamp(1.65rem,3vw,2.2rem);
@@ -720,7 +720,7 @@
   display:grid;
   grid-template-columns:2.1rem minmax(0,1fr);
   gap:10px;
-  padding:14px 15px;
+  padding:16px 16px;
   border-top:1px solid var(--partners-line);
 }
 .partners-process-track li:first-child{border-top:0;}
@@ -728,7 +728,7 @@
   .partners-process-track li{
     grid-template-columns:1fr;
     gap:8px;
-    padding:16px 15px;
+    padding:18px 16px;
     border-top:0;
     border-left:1px solid var(--partners-line);
   }
@@ -759,18 +759,18 @@
 
 /* ---------- 5. FORM ---------- */
 .partners-apply{
-  padding:clamp(2.1rem,4.5vw,3.25rem) 0;
+  padding:clamp(2.55rem,5.25vw,3.85rem) 0;
   background:var(--partners-panel);
 }
 .partners-apply-inner{
   display:grid;
-  gap:clamp(1.75rem,3vw,2.75rem);
+  gap:clamp(2rem,3.5vw,3.15rem);
   max-width:920px;
 }
 @media (min-width:900px){
   .partners-apply-inner{
     grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);
-    gap:clamp(2rem,4vw,3.5rem);
+    gap:clamp(2.35rem,4.5vw,3.85rem);
     align-items:start;
     max-width:1100px;
   }
@@ -912,13 +912,13 @@
 
 /* ---------- 6. FAQ ---------- */
 .partners-faq-section{
-  padding:clamp(2rem,4vw,2.85rem) 0;
+  padding:clamp(2.4rem,4.75vw,3.35rem) 0;
   background:var(--partners-soft);
   border-top:1px solid var(--partners-line);
 }
 .partners-faq-layout{
   display:grid;
-  gap:clamp(1.5rem,3vw,2.5rem);
+  gap:clamp(1.75rem,3.5vw,2.85rem);
   max-width:920px;
 }
 @media (min-width:860px){
@@ -936,7 +936,7 @@
 }
 .partners-faq details{
   border-bottom:1px solid var(--partners-line);
-  padding:var(--sp-4) 0;
+  padding:calc(var(--sp-4) + 2px) 0;
 }
 .partners-faq details:first-child{border-top:1px solid var(--partners-line);}
 .partners-faq summary{
@@ -969,7 +969,7 @@
 
 /* ---------- CLOSE ---------- */
 .partners-close{
-  padding:clamp(2.1rem,4.5vw,3rem) 0;
+  padding:clamp(2.55rem,5.25vw,3.6rem) 0;
   background:var(--partners-page);
   border-top:1px solid var(--partners-line);
 }
@@ -1021,12 +1021,12 @@
   .partners-process,
   .partners-faq-section,
   .partners-close{
-    padding-top:1.75rem;
-    padding-bottom:1.75rem;
+    padding-top:2.15rem;
+    padding-bottom:2.15rem;
   }
-  .partners-why-list li{padding:12px 14px;}
-  .partners-process-track li{padding:11px 12px;}
-  .partners-feature-grid li{padding:13px;}
+  .partners-why-list li{padding:14px 15px;}
+  .partners-process-track li{padding:13px 13px;}
+  .partners-feature-grid li{padding:15px;}
   .partners-close .btn{width:100%;}
-  .partners-apply{padding-top:1.85rem;padding-bottom:1.85rem;}
+  .partners-apply{padding-top:2.25rem;padding-bottom:2.25rem;}
 }
