@@ -1033,11 +1033,11 @@
     padding:calc(56px + 1.25rem) 0 1.65rem;
   }
   .partners-hero--photo{
-    /* Compact, with top band so face stays free above copy */
+    /* Slightly taller, still compact vs full-screen */
     min-height:0;
     height:auto;
     align-items:flex-end;
-    padding:calc(56px + 7.25rem) 0 1.05rem;
+    padding:calc(56px + 8.5rem) 0 1.15rem;
     background:#1a1c18;
   }
   .partners-hero-media{
@@ -1046,14 +1046,14 @@
     bottom:0;
     left:0;
     background-color:transparent;
-    /* Hi-res extract: face/shoulders, wall-hand cropped out */
+    /* Sharpest 2x original; mild zoom, face in, wall-hand out */
     background-image:image-set(
-      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=24") type("image/avif"),
-      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=24") type("image/webp"),
-      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=24") type("image/jpeg")
+      url("/assets/photos/partners-hero-craftsman-2x.avif") type("image/avif"),
+      url("/assets/photos/partners-hero-craftsman-2x.webp") type("image/webp"),
+      url("/assets/photos/partners-hero-craftsman-2x.jpg") type("image/jpeg")
     );
-    background-size:cover;
-    background-position:40% 8%;
+    background-size:145% auto;
+    background-position:76% 18%;
   }
   .partners-hero-shade{
     top:0;
@@ -1061,7 +1061,7 @@
     bottom:0;
     left:0;
     background:
-      linear-gradient(180deg, rgba(22,24,20,.1) 0%, rgba(22,24,20,.2) 34%, rgba(22,24,20,.58) 64%, rgba(22,24,20,.8) 100%);
+      linear-gradient(180deg, rgba(22,24,20,.28) 0%, rgba(22,24,20,.42) 34%, rgba(22,24,20,.72) 64%, rgba(22,24,20,.88) 100%);
   }
   .partners-hero-copy{
     margin:0;
