@@ -54,17 +54,17 @@
   background-repeat:no-repeat;
   background-size:cover;
   /* Desktop: man on the right; keep hand/wall contact out of frame */
-  background-position:72% 22%;
+  background-position:82% 18%;
 }
 .partners-hero-shade{
   position:absolute;
   inset:0;
   z-index:1;
   pointer-events:none;
-  /* Lighter overall; readable text via left scrim only */
+  /* Light overall; readability via left/bottom scrim + copy panel */
   background:
-    linear-gradient(100deg, rgba(24,26,22,.5) 0%, rgba(24,26,22,.22) 36%, rgba(24,26,22,.06) 60%, rgba(24,26,22,0) 100%),
-    linear-gradient(180deg, rgba(24,26,22,.06) 0%, rgba(24,26,22,0) 50%, rgba(24,26,22,.22) 100%);
+    linear-gradient(100deg, rgba(24,26,22,.38) 0%, rgba(24,26,22,.14) 34%, rgba(24,26,22,.04) 58%, rgba(24,26,22,0) 100%),
+    linear-gradient(180deg, rgba(24,26,22,.04) 0%, rgba(24,26,22,0) 48%, rgba(24,26,22,.18) 100%);
 }
 .partners-hero-inner{
   position:relative;
@@ -82,7 +82,7 @@
   padding:1.15rem 1.2rem 1.2rem;
   margin-left:-.35rem;
   border-radius:14px;
-  background:linear-gradient(135deg, rgba(18,20,16,.42) 0%, rgba(18,20,16,.18) 55%, rgba(18,20,16,.04) 100%);
+  background:linear-gradient(135deg, rgba(18,20,16,.34) 0%, rgba(18,20,16,.14) 55%, rgba(18,20,16,.02) 100%);
   backdrop-filter:blur(2px);
   -webkit-backdrop-filter:blur(2px);
 }
@@ -1034,29 +1034,49 @@
     padding:calc(56px + 1.25rem) 0 1.65rem;
   }
   .partners-hero--photo{
-    min-height:min(88vh,40rem);
+    /* Extra headroom so face/shoulders stay visible above the copy */
+    min-height:min(96vh,48rem);
     align-items:flex-end;
     padding:calc(56px + 1rem) 0 1.75rem;
   }
   .partners-hero-media{
-    /* Dedicated mobile crop: face/shoulders/upper body, man right, hand out */
+    /* Start below sticky header so the face isn't clipped by the nav */
+    top:56px;
+    /* Same original photo, tight extract: face/shoulders/upper body, wall-hand out */
     background-image:image-set(
-      url("/assets/photos/partners-hero-craftsman-mobile.avif") type("image/avif"),
-      url("/assets/photos/partners-hero-craftsman-mobile.webp") type("image/webp"),
-      url("/assets/photos/partners-hero-craftsman-mobile.jpg") type("image/jpeg")
+      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=17") type("image/avif"),
+      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=17") type("image/webp"),
+      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=17") type("image/jpeg")
     );
     background-size:cover;
-    background-position:70% 10%;
+    background-position:18% 8%;
   }
   .partners-hero-shade{
+    top:56px;
     background:
-      linear-gradient(180deg, rgba(24,26,22,.02) 0%, rgba(24,26,22,.03) 50%, rgba(24,26,22,.32) 100%),
-      linear-gradient(100deg, rgba(24,26,22,.22) 0%, rgba(24,26,22,.05) 60%, rgba(24,26,22,0) 100%);
+      linear-gradient(180deg, rgba(24,26,22,0) 0%, rgba(24,26,22,0) 50%, rgba(24,26,22,.08) 78%, rgba(24,26,22,.26) 100%),
+      linear-gradient(105deg, rgba(24,26,22,.1) 0%, rgba(24,26,22,.02) 42%, rgba(24,26,22,0) 100%);
   }
   .partners-hero-copy{
     margin-left:0;
-    padding:.85rem .9rem .95rem;
-    background:linear-gradient(180deg, rgba(18,20,16,.26) 0%, rgba(18,20,16,.14) 100%);
+    padding:.65rem .7rem .75rem;
+    background:linear-gradient(180deg, rgba(18,20,16,.04) 0%, rgba(18,20,16,.16) 100%);
+  }
+  .partners-hero--photo h1{
+    font-size:clamp(1.7rem,7vw,2.05rem);
+    margin-bottom:.7rem;
+  }
+  .partners-hero--photo .lead{
+    margin-bottom:.55rem;
+    font-size:.95rem;
+  }
+  .partners-hero--photo .partners-hero-support{
+    margin-bottom:.9rem;
+    font-size:.88rem;
+    line-height:1.45;
+  }
+  .partners-hero--photo .partners-hero-note{
+    margin-top:.65rem;
   }
   .partners-hero-actions{
     flex-direction:column;
