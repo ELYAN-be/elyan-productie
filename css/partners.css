@@ -1044,12 +1044,12 @@
     top:56px;
     /* Same original photo, tight extract: face/shoulders/upper body, wall-hand out */
     background-image:image-set(
-      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=20") type("image/avif"),
-      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=20") type("image/webp"),
-      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=20") type("image/jpeg")
+      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=21") type("image/avif"),
+      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=21") type("image/webp"),
+      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=21") type("image/jpeg")
     );
     background-size:cover;
-    background-position:12% 6%;
+    background-position:10% 6%;
   }
   .partners-hero-shade{
     top:56px;
