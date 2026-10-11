@@ -28,8 +28,8 @@
 /* ---------- 1. HERO ---------- */
 .partners-hero{
   position:relative;
-  /* Extra top air after the header */
-  padding:calc(72px + clamp(2.75rem,5.5vw,4.25rem)) 0 clamp(2.65rem,5vw,3.6rem);
+  /* Extra top air after the header — title starts a bit lower */
+  padding:calc(72px + clamp(3.35rem,6.5vw,5rem)) 0 clamp(2.65rem,5vw,3.6rem);
   background:var(--partners-page);
   border-bottom:1px solid var(--partners-line);
   /* Clip mark so the third bar is almost full, with a slice out of view */
@@ -992,7 +992,7 @@
 /* ---------- Mobile ---------- */
 @media (max-width:720px){
   .partners-hero{
-    padding:calc(56px + 2.1rem) 0 2.1rem;
+    padding:calc(56px + 2.65rem) 0 2.1rem;
   }
   .partners-hero-mark{
     --mark-size:min(64vw,17.5rem);
