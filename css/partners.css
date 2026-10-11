@@ -1051,8 +1051,9 @@
       url("/assets/photos/partners-hero-craftsman-2x.webp") type("image/webp"),
       url("/assets/photos/partners-hero-craftsman-2x.jpg") type("image/jpeg")
     );
-    background-size:cover;
-    background-position:66% 18%;
+    /* Zoom past wall-hand; keep face/shoulders in frame */
+    background-size:185% auto;
+    background-position:78% 20%;
   }
   .partners-hero-shade{
     top:0;
