@@ -52,6 +52,16 @@
   pointer-events:none;
   z-index:0;
 }
+/* Desktop only — soft brand green mark, balanced bottom-right */
+@media (min-width:721px){
+  .partners-hero-mark{
+    --mark-size:min(48vw,34rem);
+    right:calc(var(--mark-size) * -7 / 32);
+    bottom:calc(var(--mark-size) * -4 / 32);
+    /* Soft brand green (primary-soft) */
+    color:rgba(124,136,99,.38);
+  }
+}
 .partners-hero-inner{
   position:relative;
   z-index:1;
