@@ -36,12 +36,13 @@
   overflow:hidden;
 }
 .partners-hero-mark{
+  --mark-size:min(44vw,30rem);
   position:absolute;
-  /* Shift right so bar 3 is mostly visible but cropped at the edge (rapport-style) */
-  right:clamp(-5.5rem,-9vw,-3.25rem);
+  /* Crop ~7/32 of the mark = half of bar 3 (logo geometry) out of view */
+  right:calc(var(--mark-size) * -7 / 32);
   top:48%;
   transform:translateY(-44%);
-  width:min(44vw,30rem);
+  width:var(--mark-size);
   height:auto;
   aspect-ratio:1;
   color:rgba(63,74,50,.14);
@@ -994,12 +995,13 @@
     padding:calc(56px + 2.1rem) 0 2.1rem;
   }
   .partners-hero-mark{
-    /* Almost full mark; small crop on the right so bar 3 peeks out of view */
-    width:min(64vw,17.5rem);
-    right:-2.4rem;
+    --mark-size:min(64vw,17.5rem);
+    /* Same half-bar-3 crop on mobile */
+    right:calc(var(--mark-size) * -7 / 32);
     top:auto;
     bottom:0.55rem;
     transform:none;
+    width:var(--mark-size);
     color:rgba(63,74,50,.12);
   }
   .partners-hero-actions{
