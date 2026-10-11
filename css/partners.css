@@ -40,9 +40,10 @@
   position:absolute;
   /* Crop ~7/32 of the mark = half of bar 3 (logo geometry) out of view */
   right:calc(var(--mark-size) * -7 / 32);
-  /* Sit on the hero bottom edge / divider, still inside section 1 */
+  /* Bars end at y=28/32 — hang empty viewBox past the edge so ink sits
+     flush against the start of section 2 (still clipped inside section 1) */
   top:auto;
-  bottom:0;
+  bottom:calc(var(--mark-size) * -4 / 32);
   transform:none;
   width:var(--mark-size);
   height:auto;
@@ -998,10 +999,10 @@
   }
   .partners-hero-mark{
     --mark-size:min(78vw,22rem);
-    /* Same half-bar-3 crop; flush to the section divider */
+    /* Same half-bar-3 crop; bars flush to start of section 2 */
     right:calc(var(--mark-size) * -7 / 32);
     top:auto;
-    bottom:0;
+    bottom:calc(var(--mark-size) * -4 / 32);
     transform:none;
     width:var(--mark-size);
     color:rgba(63,74,50,.12);
