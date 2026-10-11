@@ -1033,27 +1033,27 @@
     padding:calc(56px + 1.25rem) 0 1.65rem;
   }
   .partners-hero--photo{
-    min-height:min(92vh,44rem);
-    align-items:flex-start;
-    padding:calc(56px + 10vh) 0 1.85rem;
+    min-height:min(88vh,40rem);
+    align-items:flex-end;
+    padding:calc(56px + 1rem) 0 1.75rem;
   }
   .partners-hero-media{
-    top:0;
-    /* High-res original; crop via size/position for face + upper body */
+    inset:0;
+    /* High-res original; cover fills hero (no black band under photo) */
     background-image:image-set(
       url("/assets/photos/partners-hero-craftsman-2x.avif") type("image/avif"),
       url("/assets/photos/partners-hero-craftsman-2x.webp") type("image/webp"),
       url("/assets/photos/partners-hero-craftsman-2x.jpg") type("image/jpeg")
     );
-    background-size:205% auto;
-    background-position:74% 16%;
+    background-size:cover;
+    background-position:70% 14%;
   }
   .partners-hero-shade{
-    top:0;
-    /* Even dark overlay, first-version tone */
+    inset:0;
+    /* Light top (face free), darker behind lower text */
     background:
-      linear-gradient(180deg, rgba(22,24,20,.46) 0%, rgba(22,24,20,.52) 38%, rgba(22,24,20,.68) 100%),
-      linear-gradient(90deg, rgba(22,24,20,.42) 0%, rgba(22,24,20,.28) 100%);
+      linear-gradient(180deg, rgba(22,24,20,.14) 0%, rgba(22,24,20,.22) 32%, rgba(22,24,20,.58) 62%, rgba(22,24,20,.78) 100%),
+      linear-gradient(100deg, rgba(22,24,20,.18) 0%, rgba(22,24,20,.06) 55%, rgba(22,24,20,0) 100%);
   }
   .partners-hero-copy{
     margin:0;
