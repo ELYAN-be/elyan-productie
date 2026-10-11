@@ -53,8 +53,8 @@
   );
   background-repeat:no-repeat;
   background-size:cover;
-  /* Desktop: man right, clean wall left for copy */
-  background-position:72% 28%;
+  /* Desktop: man on the right */
+  background-position:82% 18%;
 }
 .partners-hero-shade{
   position:absolute;
@@ -1043,12 +1043,12 @@
     top:56px;
     /* Same original photo, tight extract: face/shoulders/upper body, wall-hand out */
     background-image:image-set(
-      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=22") type("image/avif"),
-      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=22") type("image/webp"),
-      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=22") type("image/jpeg")
+      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=23") type("image/avif"),
+      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=23") type("image/webp"),
+      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=23") type("image/jpeg")
     );
     background-size:cover;
-    background-position:70% 12%;
+    background-position:10% 6%;
   }
   .partners-hero-shade{
     top:56px;
