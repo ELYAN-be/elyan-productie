@@ -36,7 +36,7 @@
   overflow:hidden;
 }
 .partners-hero-mark{
-  --mark-size:min(44vw,30rem);
+  --mark-size:min(56vw,38rem);
   position:absolute;
   /* Crop ~7/32 of the mark = half of bar 3 (logo geometry) out of view */
   right:calc(var(--mark-size) * -7 / 32);
@@ -995,7 +995,7 @@
     padding:calc(56px + 2.65rem) 0 2.1rem;
   }
   .partners-hero-mark{
-    --mark-size:min(64vw,17.5rem);
+    --mark-size:min(78vw,22rem);
     /* Same half-bar-3 crop on mobile */
     right:calc(var(--mark-size) * -7 / 32);
     top:auto;
