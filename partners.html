@@ -23,7 +23,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/styles.css">
-<link rel="stylesheet" href="/css/partners.css?v=partners-hero-photo-1">
+<link rel="stylesheet" href="/css/partners.css?v=partners-hero-sharp-2">
+<link rel="preload" as="image" href="/assets/photos/partners-hero-craftsman-2x.avif" type="image/avif" imagesrcset="/assets/photos/partners-hero-craftsman.avif 1024w, /assets/photos/partners-hero-craftsman-2x.avif 1600w" imagesizes="100vw">
 </head>
 <body class="page-partners">
 <a href="#main" class="skip-link">Ga naar inhoud</a>
@@ -50,14 +51,20 @@
 <!-- 1. HERO -->
 <section class="partners-hero partners-hero--photo" aria-labelledby="partnersHeroTitle">
   <div class="partners-hero-media" aria-hidden="true">
-    <img
-      src="/assets/photos/partners-hero-craftsman.jpg"
-      alt=""
-      width="1600"
-      height="1067"
-      decoding="async"
-      fetchpriority="high"
-    >
+    <picture>
+      <source type="image/avif" srcset="/assets/photos/partners-hero-craftsman.avif 1024w, /assets/photos/partners-hero-craftsman-2x.avif 1600w" sizes="100vw">
+      <source type="image/webp" srcset="/assets/photos/partners-hero-craftsman.webp 1024w, /assets/photos/partners-hero-craftsman-2x.webp 1600w" sizes="100vw">
+      <img
+        src="/assets/photos/partners-hero-craftsman-2x.jpg"
+        srcset="/assets/photos/partners-hero-craftsman.jpg 1024w, /assets/photos/partners-hero-craftsman-2x.jpg 1600w"
+        sizes="100vw"
+        alt=""
+        width="1600"
+        height="1200"
+        decoding="async"
+        fetchpriority="high"
+      >
+    </picture>
   </div>
   <div class="partners-hero-shade" aria-hidden="true"></div>
   <div class="container partners-hero-inner">
