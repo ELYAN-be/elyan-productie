@@ -54,11 +54,11 @@
 }
 .partners-hero-media img{
   object-fit:cover;
-  object-position:54% 26%;
+  object-position:68% 30%;
   image-rendering:auto;
   -webkit-user-select:none;
-  transform:translateZ(0) scale(1.02);
-  transform-origin:54% 30%;
+  transform:translateZ(0) scale(1.035);
+  transform-origin:68% 32%;
 }
 .partners-hero-shade{
   position:absolute;
@@ -66,8 +66,8 @@
   z-index:1;
   pointer-events:none;
   background:
-    linear-gradient(105deg, rgba(20,22,18,.72) 0%, rgba(20,22,18,.42) 38%, rgba(20,22,18,.12) 68%, rgba(20,22,18,.05) 100%),
-    linear-gradient(180deg, rgba(20,22,18,.18) 0%, rgba(20,22,18,.04) 42%, rgba(20,22,18,.48) 100%);
+    linear-gradient(100deg, rgba(18,20,16,.78) 0%, rgba(18,20,16,.5) 34%, rgba(18,20,16,.14) 62%, rgba(18,20,16,.04) 100%),
+    linear-gradient(180deg, rgba(18,20,16,.16) 0%, rgba(18,20,16,.02) 45%, rgba(18,20,16,.42) 100%);
 }
 .partners-hero-inner{
   position:relative;
@@ -1034,14 +1034,14 @@
     padding:calc(56px + 1rem) 0 1.75rem;
   }
   .partners-hero-media img{
-    object-position:52% 20%;
-    transform:translateZ(0) scale(1.04);
-    transform-origin:50% 24%;
+    object-position:72% 26%;
+    transform:translateZ(0) scale(1.06);
+    transform-origin:70% 28%;
   }
   .partners-hero-shade{
     background:
-      linear-gradient(180deg, rgba(20,22,18,.16) 0%, rgba(20,22,18,.12) 34%, rgba(20,22,18,.72) 100%),
-      linear-gradient(90deg, rgba(20,22,18,.48) 0%, rgba(20,22,18,.18) 100%);
+      linear-gradient(180deg, rgba(18,20,16,.14) 0%, rgba(18,20,16,.1) 30%, rgba(18,20,16,.76) 100%),
+      linear-gradient(90deg, rgba(18,20,16,.52) 0%, rgba(18,20,16,.16) 100%);
   }
   .partners-hero-actions{
     flex-direction:column;
