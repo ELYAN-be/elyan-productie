@@ -1037,22 +1037,22 @@
     height:auto;
     align-items:flex-end;
     padding:calc(56px + 7.75rem) 0 1.1rem;
-    background:#1a1c18;
+    background:transparent;
   }
   .partners-hero-media{
     top:0;
     right:0;
     bottom:0;
     left:0;
-    background-color:transparent;
-    /* Hi-res face crop from 2x master; wall-hand out */
+    background-color:#1a1c18;
+    /* Sharp hi-res crop; cover fills hero (no black band) */
     background-image:image-set(
-      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=25") type("image/avif"),
-      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=25") type("image/webp"),
-      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=25") type("image/jpeg")
+      url("/assets/photos/partners-hero-craftsman-mobile.avif?v=26") type("image/avif"),
+      url("/assets/photos/partners-hero-craftsman-mobile.webp?v=26") type("image/webp"),
+      url("/assets/photos/partners-hero-craftsman-mobile.jpg?v=26") type("image/jpeg")
     );
     background-size:cover;
-    background-position:35% 10%;
+    background-position:42% 12%;
   }
   .partners-hero-shade{
     top:0;
