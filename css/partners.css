@@ -28,21 +28,23 @@
 /* ---------- 1. HERO ---------- */
 .partners-hero{
   position:relative;
-  padding:calc(72px + clamp(2.15rem,4.2vw,3.35rem)) 0 clamp(2.65rem,5vw,3.6rem);
+  /* Extra top air after the header */
+  padding:calc(72px + clamp(2.75rem,5.5vw,4.25rem)) 0 clamp(2.65rem,5vw,3.6rem);
   background:var(--partners-page);
   border-bottom:1px solid var(--partners-line);
-  /* Keep mark fully inside this section */
+  /* Clip mark so the third bar is almost full, with a slice out of view */
   overflow:hidden;
 }
 .partners-hero-mark{
   position:absolute;
-  right:clamp(0.5rem,3vw,2.5rem);
-  top:50%;
-  transform:translateY(-46%);
-  width:min(40vw,28rem);
+  /* Shift right so bar 3 is mostly visible but cropped at the edge (rapport-style) */
+  right:clamp(-5.5rem,-9vw,-3.25rem);
+  top:48%;
+  transform:translateY(-44%);
+  width:min(44vw,30rem);
   height:auto;
   aspect-ratio:1;
-  color:rgba(63,74,50,.13);
+  color:rgba(63,74,50,.14);
   pointer-events:none;
   z-index:0;
 }
@@ -989,16 +991,16 @@
 /* ---------- Mobile ---------- */
 @media (max-width:720px){
   .partners-hero{
-    padding:calc(56px + 1.5rem) 0 2.1rem;
+    padding:calc(56px + 2.1rem) 0 2.1rem;
   }
   .partners-hero-mark{
-    /* Fully inside section; all 3 bars visible; third fades via SVG gradient */
-    width:min(56vw,15.5rem);
-    right:0.35rem;
+    /* Almost full mark; small crop on the right so bar 3 peeks out of view */
+    width:min(64vw,17.5rem);
+    right:-2.4rem;
     top:auto;
-    bottom:0.4rem;
+    bottom:0.55rem;
     transform:none;
-    color:rgba(63,74,50,.11);
+    color:rgba(63,74,50,.12);
   }
   .partners-hero-actions{
     flex-direction:column;
