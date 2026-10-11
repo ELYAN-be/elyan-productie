@@ -12,6 +12,7 @@
   --partners-ink-soft:#5C5E56;
   background:var(--partners-page);
   color:var(--partners-ink);
+  overflow-x:clip;
 }
 
 .page-partners .site-header{
@@ -30,17 +31,18 @@
   padding:calc(72px + clamp(2rem,4vw,3.1rem)) 0 clamp(2.4rem,4.5vw,3.25rem);
   background:var(--partners-page);
   border-bottom:1px solid var(--partners-line);
-  overflow:hidden;
+  /* Allow mark to bleed outside for a premium edge */
+  overflow:visible;
 }
 .partners-hero-mark{
   position:absolute;
-  right:clamp(-2rem,-2vw,0);
-  top:54%;
-  transform:translateY(-50%);
-  width:min(38vw,26rem);
+  right:-10%;
+  top:42%;
+  transform:translateY(-18%);
+  width:min(52vw,34rem);
   height:auto;
   aspect-ratio:1;
-  color:rgba(63,74,50,.075);
+  color:rgba(63,74,50,.14);
   pointer-events:none;
   z-index:0;
 }
@@ -990,10 +992,11 @@
     padding:calc(56px + 1.35rem) 0 1.85rem;
   }
   .partners-hero-mark{
-    width:min(58vw,16.5rem);
-    right:-18%;
-    top:58%;
-    color:rgba(63,74,50,.045);
+    width:min(72vw,20rem);
+    right:-28%;
+    top:48%;
+    transform:translateY(-10%);
+    color:rgba(63,74,50,.09);
   }
   .partners-hero-actions{
     flex-direction:column;
