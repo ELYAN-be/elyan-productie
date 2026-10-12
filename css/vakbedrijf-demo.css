@@ -932,12 +932,11 @@
 /* Services — lead / core / also-accepts */
 .vbd-service-lead {
   margin: 0.85rem 0 0;
-  padding: 0.95rem 1rem;
-  border-radius: 12px;
-  background:
-    linear-gradient(135deg, rgba(63, 74, 50, 0.08), rgba(63, 74, 50, 0.02)),
-    var(--grey);
-  border: 1px solid rgba(63, 74, 50, 0.12);
+  padding: 0.75rem 0 0.85rem;
+  border-radius: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
 }
 .vbd-service-lead strong {
   display: block;
@@ -945,7 +944,7 @@
   font-size: 1.12rem;
   font-weight: 700;
   letter-spacing: -0.03em;
-  color: var(--olive-dark);
+  color: var(--ink);
 }
 .vbd-service-lead p {
   margin: 0.3rem 0 0;
