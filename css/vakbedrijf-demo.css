@@ -826,6 +826,7 @@
   }
 }
 
+.vbd-section > .vbd-help { margin-top: 0.85rem; }
 .vbd-help {
   margin: 0;
   padding: 0;
