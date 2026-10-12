@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Noord Dakatelier | ELYAN</title>
-<meta name="description" content="Noord Dakatelier — hellende dakwerken in Antwerpen. Projectfoto's, richtprijzen en plaatsbezoek plannen.">
+<meta name="description" content="Noord Dakatelier — hellende dakwerken in Antwerpen. Bekijk realisaties, richtprijzen en plan een plaatsbezoek.">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#3F4A32">
 <link rel="canonical" href="https://www.elyan.be/vakbedrijf-demo">
@@ -12,54 +12,70 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=11">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=12">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
 
 <svg style="display:none" aria-hidden="true"><defs>
   <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.6 7.2 18.1l.9-5.4L4.2 8.9l5.4-.8L12 3.2z" fill="currentColor"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 32 32"><rect x="4" y="14" width="6" height="14" fill="currentColor"/><rect x="13" y="8" width="6" height="20" fill="currentColor"/><rect x="22" y="2" width="6" height="26" fill="currentColor"/></symbol>
 </defs></svg>
 
 <header class="vbd-top">
   <div class="vbd-top-inner">
     <a class="vbd-logo" href="/" aria-label="ELYAN home">
-      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-        <rect x="4" y="14" width="6" height="14" fill="currentColor"/>
-        <rect x="13" y="8" width="6" height="20" fill="currentColor"/>
-        <rect x="22" y="2" width="6" height="26" fill="currentColor"/>
-      </svg>
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#i-logo"></use></svg>
       ELYAN
     </a>
+    <span class="vbd-top-pill">Vakbedrijf</span>
   </div>
 </header>
 
-<div class="vbd-shell" id="vbd-content">
-
-  <!-- Booking-style photo mosaic -->
-  <div class="vbd-mosaic" id="vbdMosaic" aria-label="Projectfoto's">
-    <button type="button" class="vbd-mosaic-main" data-photo="0" aria-label="Foto 1">
-      <img src="/assets/photos/hero.jpg" alt="Hellend dak">
-    </button>
-    <div class="vbd-mosaic-side">
-      <button type="button" class="vbd-mosaic-tile" data-photo="1" aria-label="Foto 2">
-        <img src="/assets/photos/why.jpg" alt="">
-      </button>
-      <button type="button" class="vbd-mosaic-tile" data-photo="2" aria-label="Foto 3">
-        <img src="/assets/photos/editorial.jpg" alt="">
-      </button>
-      <button type="button" class="vbd-mosaic-tile" data-photo="3" aria-label="Foto 4">
-        <img src="/assets/photos/about.jpg" alt="">
-      </button>
-      <button type="button" class="vbd-mosaic-tile" data-photo="4" aria-label="Foto 5">
-        <img src="/assets/photos/elyan-hero-craftsman-workbench.jpg" alt="">
-        <span class="vbd-mosaic-more">+5 foto's</span>
-      </button>
-    </div>
+<!-- 1. Naam / logo / reviews EERST -->
+<section class="vbd-hero" id="vbd-content">
+  <svg class="vbd-hero-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+    <rect x="4" y="14" width="6" height="14" fill="currentColor"/>
+    <rect x="13" y="8" width="6" height="20" fill="currentColor"/>
+    <rect x="22" y="2" width="6" height="26" fill="currentColor"/>
+  </svg>
+  <div class="vbd-hero-inner">
+    <header class="vbd-identity">
+      <div class="vbd-mark" data-has-logo="false">
+        <span class="vbd-mark-fallback" aria-hidden="true">ND</span>
+        <span class="vbd-sr">Bedrijfslogo</span>
+      </div>
+      <div>
+        <p class="vbd-kicker">Dakwerken</p>
+        <h1 class="vbd-title">Noord Dakatelier</h1>
+        <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
+        <div class="vbd-meta-row">
+          <p class="vbd-place"><strong>Antwerpen</strong> · + 25 km</p>
+          <span class="vbd-dot" aria-hidden="true"></span>
+          <p class="vbd-google">
+            <span class="vbd-google-stars" aria-hidden="true">
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+            </span>
+            4,8 <em>· 47 Google</em>
+          </p>
+        </div>
+        <div class="vbd-hero-cta">
+          <a class="vbd-btn vbd-btn-primary" href="#vbdBook">Plan plaatsbezoek <span aria-hidden="true">→</span></a>
+          <a class="vbd-btn vbd-btn-ghost" href="#vbdPhotos">Bekijk realisaties</a>
+        </div>
+      </div>
+    </header>
   </div>
+</section>
 
-  <!-- Mobile gallery -->
-  <section class="vbd-gallery-mobile" aria-label="Projectfoto's">
+<div class="vbd-shell">
+
+  <!-- 2. Foto's -->
+  <section class="vbd-gallery" id="vbdPhotos" aria-label="Projectfoto's">
     <div class="vbd-gallery-stage">
       <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
       <div class="vbd-gallery-nav">
@@ -71,46 +87,12 @@
     <div class="vbd-thumbs" id="vbdThumbs"></div>
   </section>
 
-  <!-- Title + score -->
-  <div class="vbd-titlebar">
-    <div class="vbd-titlebar-main">
-      <div class="vbd-mark" data-has-logo="false">
-        <span class="vbd-mark-fallback" aria-hidden="true">ND</span>
-        <span class="vbd-sr">Bedrijfslogo</span>
-      </div>
-      <div>
-        <p class="vbd-kicker">Dakwerken</p>
-        <h1 class="vbd-title">Noord Dakatelier</h1>
-        <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
-        <p class="vbd-place"><strong>Antwerpen</strong> · + 25 km</p>
-      </div>
-    </div>
-    <div class="vbd-score">
-      <div class="vbd-score-box" aria-hidden="true">4,8</div>
-      <div class="vbd-score-copy">
-        <strong>Uitstekend</strong>
-        <span>47 Google-beoordelingen</span>
-      </div>
-    </div>
-  </div>
-
   <div class="vbd-layout">
-
-    <!-- Left content -->
-    <div class="vbd-content">
-
-      <section class="vbd-section">
-        <h2>Hoogtepunten</h2>
-        <ul class="vbd-highlights">
-          <li><strong>Antwerpen</strong><span>+ 25 km werkgebied</span></li>
-          <li><strong>Projectstart</strong><span>vanaf oktober 2026</span></li>
-          <li><strong>Google</strong><span>4,8 / 5</span></li>
-          <li><strong>Focus</strong><span>Hellende daken</span></li>
-        </ul>
-      </section>
+    <div class="vbd-maincol">
 
       <section class="vbd-section">
         <h2>Wat kan dit vakbedrijf voor je doen?</h2>
+        <p class="vbd-section-lead">Duidelijke specialisaties — geen jargon.</p>
         <ul class="vbd-help">
           <li>
             <strong>Volledige dakrenovatie</strong>
@@ -132,12 +114,8 @@
       </section>
 
       <section class="vbd-section">
-        <h2>Over dit vakbedrijf</h2>
-        <p class="vbd-about">Noord Dakatelier focust op hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf en een prijsindicatie vóór de start.</p>
-      </section>
-
-      <section class="vbd-section">
         <h2>Richtprijzen</h2>
+        <p class="vbd-section-lead">Door het vakbedrijf zelf opgegeven.</p>
         <ul class="vbd-prices">
           <li class="vbd-price">
             <div class="vbd-price-row">
@@ -170,8 +148,13 @@
         </ul>
       </section>
 
+      <section class="vbd-section">
+        <h2>Over Noord Dakatelier</h2>
+        <p class="vbd-about">Hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf en een prijsindicatie vóór de start.</p>
+      </section>
+
       <section class="vbd-section" aria-labelledby="vbdReviewsTitle">
-        <h2 id="vbdReviewsTitle">Beoordelingen van gasten</h2>
+        <h2 id="vbdReviewsTitle">Wat klanten zeggen</h2>
         <div class="vbd-reviews-head">
           <p class="vbd-reviews-score">4,8 <span>op 5 · 47 Google-beoordelingen</span></p>
           <a class="vbd-reviews-link" href="https://www.google.com/maps/search/?api=1&amp;query=Noord+Dakatelier+Antwerpen" target="_blank" rel="noopener noreferrer">
@@ -221,12 +204,11 @@
       <p class="vbd-foot">© ELYAN</p>
     </div>
 
-    <!-- Right sticky booking card -->
-    <aside class="vbd-book" aria-label="Offerte aanvragen">
-      <p class="vbd-book-price">Vanaf € 45<em> / m²</em></p>
-      <p class="vbd-book-hint">Richtprijs · door het vakbedrijf opgegeven</p>
+    <!-- Sticky book card -->
+    <aside class="vbd-book" id="vbdBook" aria-label="Plaatsbezoek plannen">
+      <p class="vbd-book-kicker">Aanvraag</p>
+      <h2>Wanneer wil je starten?</h2>
 
-      <h3>Wanneer wil je starten?</h3>
       <div class="vbd-timing" role="group" aria-label="Renovatieperiode">
         <button type="button" class="vbd-chip" data-timing="asap">Zo snel mogelijk</button>
         <button type="button" class="vbd-chip" data-timing="3m">Binnen 3 maanden</button>
@@ -240,7 +222,7 @@
 
       <div id="vbdAgendaRoot" data-has-agenda="true">
         <div class="vbd-cal-panel" id="vbdCalPanel" hidden>
-          <p class="vbd-cal-label">Plaatsbezoek — beschikbare momenten</p>
+          <p class="vbd-cal-label">Kies een moment voor het plaatsbezoek</p>
           <div class="vbd-cal-tabs" role="tablist" aria-label="Maand">
             <button type="button" class="vbd-cal-tab is-active" data-cal-mode="this">Deze maand</button>
             <button type="button" class="vbd-cal-tab" data-cal-mode="next">Volgende maand</button>
@@ -268,13 +250,13 @@
       <button type="button" class="vbd-cta vbd-cta-desktop" data-vbd-offer disabled>
         Vraag offerte aan <span aria-hidden="true">→</span>
       </button>
-      <p class="vbd-book-note">Kies eerst een moment voor het plaatsbezoek</p>
+      <p class="vbd-book-note">Eerst een moment kiezen voor het plaatsbezoek</p>
     </aside>
   </div>
 </div>
 
-<div class="vbd-sticky" id="vbdSticky">
-  <button type="button" class="vbd-cta vbd-cta--pill" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
+<div class="vbd-sticky">
+  <button type="button" class="vbd-cta" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
 </div>
 
 <div class="vbd-toast" id="vbdToast" role="status" aria-live="polite">Offerteaanvraag voorbereid.</div>
@@ -295,58 +277,40 @@
   var hero = document.getElementById('vbdHero');
   var count = document.getElementById('vbdCount');
   var thumbs = document.getElementById('vbdThumbs');
-
   function showPhoto(n) {
     i = (n + photos.length) % photos.length;
-    if (hero) {
-      hero.style.opacity = '0.35';
-      setTimeout(function () {
-        hero.src = photos[i].src;
-        hero.alt = photos[i].alt;
-        hero.style.opacity = '1';
-      }, 100);
-    }
-    if (count) count.textContent = (i + 1) + ' / ' + photos.length;
-    if (thumbs) {
-      Array.prototype.forEach.call(thumbs.children, function (btn, idx) {
-        btn.classList.toggle('is-active', idx === i);
-      });
-    }
-  }
-
-  if (thumbs) {
-    photos.forEach(function (p, idx) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.setAttribute('aria-label', 'Foto ' + (idx + 1));
-      btn.innerHTML = '<img src="' + p.src + '" alt="">';
-      if (!idx) btn.classList.add('is-active');
-      btn.addEventListener('click', function () { showPhoto(idx); });
-      thumbs.appendChild(btn);
+    hero.style.opacity = '0.35';
+    setTimeout(function () {
+      hero.src = photos[i].src;
+      hero.alt = photos[i].alt;
+      hero.style.opacity = '1';
+    }, 110);
+    count.textContent = (i + 1) + ' / ' + photos.length;
+    Array.prototype.forEach.call(thumbs.children, function (btn, idx) {
+      btn.classList.toggle('is-active', idx === i);
     });
   }
-  var prev = document.getElementById('vbdPrev');
-  var next = document.getElementById('vbdNext');
-  if (prev) prev.addEventListener('click', function () { showPhoto(i - 1); });
-  if (next) next.addEventListener('click', function () { showPhoto(i + 1); });
-
-  Array.prototype.forEach.call(document.querySelectorAll('[data-photo]'), function (el) {
-    el.addEventListener('click', function () {
-      showPhoto(Number(el.getAttribute('data-photo')));
-    });
+  photos.forEach(function (p, idx) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Foto ' + (idx + 1));
+    btn.innerHTML = '<img src="' + p.src + '" alt="">';
+    if (!idx) btn.classList.add('is-active');
+    btn.addEventListener('click', function () { showPhoto(idx); });
+    thumbs.appendChild(btn);
   });
+  document.getElementById('vbdPrev').addEventListener('click', function () { showPhoto(i - 1); });
+  document.getElementById('vbdNext').addEventListener('click', function () { showPhoto(i + 1); });
 
-  if (hero) {
-    var startX = 0;
-    hero.addEventListener('touchstart', function (e) {
-      startX = e.changedTouches[0].clientX;
-    }, { passive: true });
-    hero.addEventListener('touchend', function (e) {
-      var dx = e.changedTouches[0].clientX - startX;
-      if (Math.abs(dx) < 40) return;
-      showPhoto(dx < 0 ? i + 1 : i - 1);
-    }, { passive: true });
-  }
+  var startX = 0;
+  hero.addEventListener('touchstart', function (e) {
+    startX = e.changedTouches[0].clientX;
+  }, { passive: true });
+  hero.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) < 40) return;
+    showPhoto(dx < 0 ? i + 1 : i - 1);
+  }, { passive: true });
 
   var toast = document.getElementById('vbdToast');
   var toastTimer;
