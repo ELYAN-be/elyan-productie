@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=12">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=13">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -28,11 +28,11 @@
       <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><use href="#i-logo"></use></svg>
       ELYAN
     </a>
-    <span class="vbd-top-pill">Vakbedrijf</span>
+    <a class="vbd-top-cta" href="/partners">Start gratis</a>
   </div>
 </header>
 
-<!-- 1. Naam / logo / reviews EERST -->
+<!-- 1. Identiteit + kerngegevens BOVEN de offerteknop -->
 <section class="vbd-hero" id="vbd-content">
   <svg class="vbd-hero-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
     <rect x="4" y="14" width="6" height="14" fill="currentColor"/>
@@ -40,35 +40,43 @@
     <rect x="22" y="2" width="6" height="26" fill="currentColor"/>
   </svg>
   <div class="vbd-hero-inner">
+    <a class="vbd-back" href="/vakmannen">← Terug naar vakmannen</a>
+
     <header class="vbd-identity">
-      <div class="vbd-mark" data-has-logo="false">
-        <span class="vbd-mark-fallback" aria-hidden="true">ND</span>
-        <span class="vbd-sr">Bedrijfslogo</span>
+      <div class="vbd-mark">
+        <img src="/assets/photos/hero.jpg" alt="">
       </div>
-      <div>
-        <p class="vbd-kicker">Dakwerken</p>
+      <div class="vbd-identity-copy">
+        <span class="vbd-cat-pill">Dakwerken</span>
         <h1 class="vbd-title">Noord Dakatelier</h1>
-        <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
-        <div class="vbd-meta-row">
-          <p class="vbd-place"><strong>Antwerpen</strong> · + 25 km</p>
-          <span class="vbd-dot" aria-hidden="true"></span>
-          <p class="vbd-google">
-            <span class="vbd-google-stars" aria-hidden="true">
-              <svg><use href="#i-star"></use></svg>
-              <svg><use href="#i-star"></use></svg>
-              <svg><use href="#i-star"></use></svg>
-              <svg><use href="#i-star"></use></svg>
-              <svg><use href="#i-star"></use></svg>
-            </span>
-            4,8 <em>· 47 Google</em>
-          </p>
-        </div>
-        <div class="vbd-hero-cta">
-          <a class="vbd-btn vbd-btn-primary" href="#vbdBook">Plan plaatsbezoek <span aria-hidden="true">→</span></a>
-          <a class="vbd-btn vbd-btn-ghost" href="#vbdPhotos">Bekijk realisaties</a>
-        </div>
+        <p class="vbd-place">Antwerpen</p>
+        <p class="vbd-google">
+          <svg aria-hidden="true"><use href="#i-star"></use></svg>
+          4,8 · 47 Google-beoordelingen
+        </p>
       </div>
     </header>
+
+    <div class="vbd-glance" aria-label="Kerngegevens">
+      <div>
+        <span>Werkgebied</span>
+        <strong>Antwerpen + 25 km</strong>
+      </div>
+      <div>
+        <span>Eerste mogelijke start</span>
+        <strong>Oktober 2026</strong>
+      </div>
+      <div class="is-price">
+        <span>Prijsindicatie</span>
+        <strong>€ 160 – € 230 / m²</strong>
+      </div>
+      <div>
+        <span>Plaatsbezoek</span>
+        <strong>meestal binnen 7 tot 14 dagen</strong>
+      </div>
+    </div>
+
+    <a class="vbd-btn vbd-btn-primary vbd-btn-block" href="#vbdBook">Offerte aanvragen</a>
   </div>
 </section>
 
