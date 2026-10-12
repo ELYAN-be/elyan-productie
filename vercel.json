@@ -27,12 +27,22 @@
     },
     {
       "source": "/demo/vakman",
-      "destination": "/vakman-demo",
+      "destination": "/vakmannen/noord-dakatelier",
       "permanent": false
     },
     {
       "source": "/demo/vakman-profiel",
-      "destination": "/vakman-demo",
+      "destination": "/vakmannen/noord-dakatelier",
+      "permanent": false
+    },
+    {
+      "source": "/vakman-demo",
+      "destination": "/vakmannen/noord-dakatelier",
+      "permanent": false
+    },
+    {
+      "source": "/vakbedrijf-demo",
+      "destination": "/vakmannen/noord-dakatelier",
       "permanent": false
     },
     {
@@ -42,6 +52,10 @@
     }
   ],
   "rewrites": [
+    {
+      "source": "/vakmannen/noord-dakatelier",
+      "destination": "/vakbedrijf-demo.html"
+    },
     {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap.xml"
