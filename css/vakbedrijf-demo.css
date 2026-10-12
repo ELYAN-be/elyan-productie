@@ -794,6 +794,38 @@
 .vbd-cta-desktop { margin-top: 0.15rem; }
 
 /* Services */
+/* Job types the vakbedrijf confirmed accepting */
+.vbd-jobs-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem 1.1rem;
+}
+.vbd-jobs-list li {
+  position: relative;
+  padding: 0.15rem 0 0.15rem 1.45rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.35;
+}
+.vbd-jobs-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  top: 0.15rem;
+  color: var(--olive);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+@media (min-width: 560px) {
+  .vbd-jobs-list {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
 .vbd-help {
   margin: 0;
   padding: 0;
