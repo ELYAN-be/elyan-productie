@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=16">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=18">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -63,18 +63,34 @@
 
 <div class="vbd-shell">
 
-  <!-- 2. Foto's -->
+  <!-- 2. Foto's: grote hoofdbeeld + rest in hetzelfde vlak -->
   <section class="vbd-gallery" id="vbdPhotos" aria-label="Projectfoto's">
-    <div class="vbd-gallery-stage">
+    <button type="button" class="vbd-gallery-main" id="vbdOpenGallery" aria-label="Bekijk alle foto's">
       <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
-      <div class="vbd-gallery-nav">
-        <button type="button" id="vbdPrev" aria-label="Vorige foto">‹</button>
-        <button type="button" id="vbdNext" aria-label="Volgende foto">›</button>
-      </div>
-      <div class="vbd-gallery-count" id="vbdCount" aria-live="polite">1 / 5</div>
+      <span class="vbd-gallery-count" id="vbdCount">1 / 5</span>
+      <span class="vbd-gallery-open">Bekijk alle foto's</span>
+    </button>
+    <div class="vbd-gallery-rail" aria-hidden="true">
+      <button type="button" class="vbd-rail-tile" data-jump="1">
+        <img src="/assets/photos/why.jpg" alt="">
+      </button>
+      <button type="button" class="vbd-rail-tile" data-jump="2">
+        <img src="/assets/photos/editorial.jpg" alt="">
+      </button>
+      <button type="button" class="vbd-rail-tile" data-jump="3">
+        <img src="/assets/photos/about.jpg" alt="">
+        <span class="vbd-rail-more">+2</span>
+      </button>
     </div>
-    <div class="vbd-thumbs" id="vbdThumbs"></div>
   </section>
+
+  <div class="vbd-lightbox" id="vbdLightbox" hidden>
+    <button type="button" class="vbd-lb-close" id="vbdLbClose" aria-label="Sluiten">×</button>
+    <button type="button" class="vbd-lb-nav vbd-lb-prev" id="vbdPrev" aria-label="Vorige foto">‹</button>
+    <img id="vbdLbImg" src="/assets/photos/hero.jpg" alt="">
+    <button type="button" class="vbd-lb-nav vbd-lb-next" id="vbdNext" aria-label="Volgende foto">›</button>
+    <p class="vbd-lb-count" id="vbdLbCount" aria-live="polite">1 / 5</p>
+  </div>
 
   <div class="vbd-layout">
     <div class="vbd-maincol">
@@ -265,41 +281,50 @@
   var i = 0;
   var hero = document.getElementById('vbdHero');
   var count = document.getElementById('vbdCount');
-  var thumbs = document.getElementById('vbdThumbs');
+  var lb = document.getElementById('vbdLightbox');
+  var lbImg = document.getElementById('vbdLbImg');
+  var lbCount = document.getElementById('vbdLbCount');
+
   function showPhoto(n) {
     i = (n + photos.length) % photos.length;
-    hero.style.opacity = '0.35';
-    setTimeout(function () {
-      hero.src = photos[i].src;
-      hero.alt = photos[i].alt;
-      hero.style.opacity = '1';
-    }, 110);
+    hero.src = photos[i].src;
+    hero.alt = photos[i].alt;
     count.textContent = (i + 1) + ' / ' + photos.length;
-    Array.prototype.forEach.call(thumbs.children, function (btn, idx) {
-      btn.classList.toggle('is-active', idx === i);
-    });
+    if (lbImg) {
+      lbImg.src = photos[i].src;
+      lbImg.alt = photos[i].alt;
+    }
+    if (lbCount) lbCount.textContent = (i + 1) + ' / ' + photos.length;
   }
-  photos.forEach(function (p, idx) {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.setAttribute('aria-label', 'Foto ' + (idx + 1));
-    btn.innerHTML = '<img src="' + p.src + '" alt="">';
-    if (!idx) btn.classList.add('is-active');
-    btn.addEventListener('click', function () { showPhoto(idx); });
-    thumbs.appendChild(btn);
-  });
+  function openLb(n) {
+    if (typeof n === 'number') showPhoto(n);
+    else showPhoto(i);
+    lb.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLb() {
+    lb.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  document.getElementById('vbdOpenGallery').addEventListener('click', function () { openLb(i); });
+  document.getElementById('vbdLbClose').addEventListener('click', closeLb);
   document.getElementById('vbdPrev').addEventListener('click', function () { showPhoto(i - 1); });
   document.getElementById('vbdNext').addEventListener('click', function () { showPhoto(i + 1); });
-
-  var startX = 0;
-  hero.addEventListener('touchstart', function (e) {
-    startX = e.changedTouches[0].clientX;
-  }, { passive: true });
-  hero.addEventListener('touchend', function (e) {
-    var dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) < 40) return;
-    showPhoto(dx < 0 ? i + 1 : i - 1);
-  }, { passive: true });
+  lb.addEventListener('click', function (e) {
+    if (e.target === lb) closeLb();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (lb.hidden) return;
+    if (e.key === 'Escape') closeLb();
+    if (e.key === 'ArrowLeft') showPhoto(i - 1);
+    if (e.key === 'ArrowRight') showPhoto(i + 1);
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-jump]'), function (el) {
+    el.addEventListener('click', function () {
+      openLb(Number(el.getAttribute('data-jump')));
+    });
+  });
 
   var toast = document.getElementById('vbdToast');
   var toastTimer;
