@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=18">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=19">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -57,7 +57,10 @@
       </div>
     </header>
 
-    <a class="vbd-btn vbd-btn-primary vbd-btn-block" href="#vbdBook">Offerte aanvragen</a>
+    <div class="vbd-actions">
+      <a class="vbd-btn vbd-btn-call" href="tel:+3230000000">Bel vakman</a>
+      <a class="vbd-btn vbd-btn-primary" href="#vbdBook">Vraag offerte aan</a>
+    </div>
   </div>
 </section>
 
@@ -260,8 +263,8 @@
   </div>
 </div>
 
-<div class="vbd-sticky">
-  <button type="button" class="vbd-cta" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
+<div class="vbd-sticky" id="vbdSticky">
+  <a class="vbd-cta" href="#vbdBook">Vraag offerte aan <span aria-hidden="true">→</span></a>
 </div>
 
 <div class="vbd-toast" id="vbdToast" role="status" aria-live="polite">Offerteaanvraag voorbereid.</div>

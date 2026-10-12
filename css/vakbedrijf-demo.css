@@ -245,18 +245,42 @@
   transition: transform 0.2s var(--ease), background 0.18s ease, box-shadow 0.2s ease;
 }
 .vbd-btn:hover { transform: translateY(-1px); }
+.vbd-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem;
+}
+.vbd-actions .vbd-btn {
+  width: 100%;
+  min-height: 46px;
+  padding: 0 0.75rem;
+  font-size: 0.86rem;
+  text-align: center;
+}
 .vbd-btn-primary,
 .page-vbd a.vbd-btn-primary {
   background: var(--olive);
   color: #ffffff;
-  box-shadow: 0 8px 22px rgba(63, 74, 50, 0.22);
+  box-shadow: 0 6px 18px rgba(63, 74, 50, 0.2);
 }
 .vbd-btn-primary:hover,
 .page-vbd a.vbd-btn-primary:hover {
   background: var(--olive-dark);
   color: #ffffff;
 }
-.vbd-btn-block { width: 100%; }
+.vbd-btn-call,
+.page-vbd a.vbd-btn-call {
+  background: var(--white);
+  color: var(--olive-dark);
+  border: 1.5px solid rgba(63, 74, 50, 0.28);
+  box-shadow: none;
+}
+.vbd-btn-call:hover,
+.page-vbd a.vbd-btn-call:hover {
+  background: rgba(63, 74, 50, 0.06);
+  color: var(--olive-dark);
+  border-color: var(--olive);
+}
 .vbd-btn:disabled {
   opacity: 0.4;
   cursor: default;
@@ -670,7 +694,8 @@
   color: var(--muted);
 }
 
-.vbd-cta {
+.vbd-cta,
+.page-vbd a.vbd-cta {
   display: flex;
   width: 100%;
   align-items: center;
@@ -687,8 +712,10 @@
   cursor: pointer;
   box-shadow: 0 10px 24px rgba(63, 74, 50, 0.22);
   transition: background 0.15s ease, transform 0.15s var(--ease);
+  text-decoration: none;
 }
-.vbd-cta:hover:not(:disabled) {
+.vbd-cta:hover:not(:disabled),
+.page-vbd a.vbd-cta:hover {
   background: var(--olive-dark);
   color: #ffffff;
   transform: translateY(-1px);
@@ -919,7 +946,14 @@
   }
   .vbd-glance > div:nth-child(2n) { border-right: 1px solid rgba(63, 74, 50, 0.1); }
   .vbd-glance > div:last-child { border-right: 0; }
-  .vbd-btn-block { max-width: 320px; }
+  .vbd-actions {
+    max-width: 420px;
+    gap: 0.65rem;
+  }
+  .vbd-actions .vbd-btn {
+    min-height: 48px;
+    font-size: 0.9rem;
+  }
   .vbd-shell { padding: 0 1.75rem 3rem; }
   .vbd-gallery {
     grid-template-columns: 1.7fr 0.75fr;
