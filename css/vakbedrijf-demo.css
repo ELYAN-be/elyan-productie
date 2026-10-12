@@ -939,37 +939,52 @@
 
 /* Reviews */
 .vbd-reviews-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.95rem;
-  padding-bottom: 0.9rem;
+  display: grid;
+  gap: 0.35rem;
+  margin: 0.85rem 0 0.95rem;
+  padding-bottom: 0.95rem;
   border-bottom: 1px solid var(--line);
 }
 .vbd-reviews-score {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   margin: 0;
+}
+.vbd-reviews-score strong {
   font-family: var(--display);
-  font-size: 1.65rem;
+  font-size: 1.45rem;
   font-weight: 700;
   letter-spacing: -0.03em;
+  color: var(--ink);
 }
-.vbd-reviews-score span {
-  display: block;
-  margin-top: 0.2rem;
-  font-family: var(--body);
-  font-size: 0.76rem;
-  font-weight: 500;
+.vbd-reviews-stars {
+  display: inline-flex;
+  gap: 2px;
+  color: var(--olive);
+}
+.vbd-reviews-stars svg {
+  width: 16px;
+  height: 16px;
+}
+.vbd-reviews-source {
+  margin: 0;
+  font-size: 0.88rem;
   color: var(--muted);
 }
 .vbd-reviews-link {
-  font-size: 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+  width: fit-content;
+  font-size: 0.86rem;
   font-weight: 700;
   color: var(--olive);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+.vbd-reviews-link:hover { color: var(--olive-dark); }
 .vbd-review {
   padding: 0.85rem 0;
   border-top: 1px solid var(--line);

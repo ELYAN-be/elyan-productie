@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=25">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=26">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -210,11 +210,21 @@
       </section>
 
       <section class="vbd-section" aria-labelledby="vbdReviewsTitle">
-        <h2 id="vbdReviewsTitle">Wat klanten zeggen</h2>
+        <h2 id="vbdReviewsTitle">Ervaringen van klanten</h2>
         <div class="vbd-reviews-head">
-          <p class="vbd-reviews-score">4,8 <span>op 5 · 47 Google-beoordelingen</span></p>
+          <div class="vbd-reviews-score" aria-label="4,8 van 5">
+            <span class="vbd-reviews-stars" aria-hidden="true">
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+            </span>
+            <strong>4,8/5</strong>
+          </div>
+          <p class="vbd-reviews-source">Gebaseerd op 47 Google-beoordelingen</p>
           <a class="vbd-reviews-link" href="https://www.google.com/maps/search/?api=1&amp;query=Noord+Dakatelier+Antwerpen" target="_blank" rel="noopener noreferrer">
-            Bekijk op Google ↗
+            Bekijk beoordelingen op Google <span aria-hidden="true">↗</span>
           </a>
         </div>
         <article class="vbd-review">
