@@ -26,16 +26,22 @@
       "permanent": false
     },
     {
+      "source": "/demo/vakman",
+      "destination": "/vakman-demo",
+      "permanent": false
+    },
+    {
+      "source": "/demo/vakman-profiel",
+      "destination": "/vakman-demo",
+      "permanent": false
+    },
+    {
       "source": "/prijs-berekenen",
       "destination": "/",
       "permanent": false
     }
   ],
   "rewrites": [
-    {
-      "source": "/demo/vakman",
-      "destination": "/demo/vakman-profiel.html"
-    },
     {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap.xml"

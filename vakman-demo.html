@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demoprofiel vakman | ELYAN</title>
+<meta name="description" content="Voorbeeld van hoe een ELYAN-vakbedrijfsprofiel eruitziet. Fictieve demodata.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#3F4A32">
+<link rel="canonical" href="https://www.elyan.be/vakman-demo">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/partner-lab.css">
+<link rel="stylesheet" href="/css/vakmannen.css?v=demo-profile-2">
+<style>
+  .demo-banner{
+    position:sticky;top:0;z-index:90;
+    background:#3F4A32;color:rgba(255,255,255,.92);
+    border-bottom:1px solid rgba(255,255,255,.1);
+  }
+  .demo-banner-inner{
+    max-width:1200px;margin:0 auto;padding:12px 20px;
+    display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;
+  }
+  .demo-banner-badge{
+    font-family:var(--font-mono);font-size:.62rem;font-weight:700;
+    letter-spacing:.1em;text-transform:uppercase;
+    padding:4px 8px;border-radius:999px;background:rgba(255,255,255,.14);
+  }
+  .demo-banner p{margin:0;font-size:.88rem;line-height:1.4;}
+  .demo-banner a{color:#fff;text-decoration:underline;text-underline-offset:2px;}
+  .page-demo-vakman .vk-site-main{padding-top:0;}
+  .page-demo-vakman .site-header{position:relative;}
+</style>
+</head>
+<body class="page-partner-lab page-vakmannen page-demo-vakman">
+<a href="#main" class="skip-link">Ga naar inhoud</a>
+
+<div class="demo-banner" role="status">
+  <div class="demo-banner-inner">
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;">
+      <span class="demo-banner-badge">Demo</span>
+      <p><strong>Voorbeeldprofiel</strong> — fictieve data, zo ziet een vakbedrijf eruit op ELYAN.</p>
+    </div>
+    <a href="/vakmannen">Naar echte vakmannen →</a>
+  </div>
+</div>
+
+<svg style="display:none" aria-hidden="true"><defs>
+<symbol id="i-logo" viewBox="0 0 32 32"><rect x="4" y="14" width="6" height="14" fill="currentColor"/><rect x="13" y="8" width="6" height="20" fill="currentColor"/><rect x="22" y="2" width="6" height="26" fill="currentColor"/></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.2l2.4 4.9 5.4.8-3.9 3.8.9 5.4L12 15.6 7.2 18.1l.9-5.4L4.2 8.9l5.4-.8L12 3.2z" fill="currentColor"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+</defs></svg>
+
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a href="/" class="logo"><svg class="icon" aria-hidden="true"><use href="#i-logo"></use></svg> ELYAN</a>
+    <nav class="nav-links" aria-label="Hoofdnavigatie">
+      <a href="/vakmannen">Vakmannen</a>
+      <a href="/vakman-demo" aria-current="page">Demo profiel</a>
+      <a href="/partners">Voor vakbedrijven</a>
+      <a href="/over-ons.html">Over ELYAN</a>
+    </nav>
+    <a href="/vakmannen" class="btn btn-primary btn-sm">Vind vakmannen</a>
+  </div>
+</header>
+
+<main id="main" class="vk-site-main">
+  <div id="vk-app"></div>
+</main>
+
+<div class="lab-lightbox" id="labLightbox" hidden aria-hidden="true">
+  <div class="lab-lightbox-backdrop" data-close-lightbox></div>
+  <button type="button" class="lab-lightbox-close" data-close-lightbox aria-label="Sluiten"><svg class="icon"><use href="#i-close"></use></svg></button>
+  <button type="button" class="vk-lb-nav vk-lb-prev" id="vkLbPrev" aria-label="Vorige foto" hidden>‹</button>
+  <button type="button" class="vk-lb-nav vk-lb-next" id="vkLbNext" aria-label="Volgende foto" hidden>›</button>
+  <div class="vk-lb-stage" id="vkLbStage">
+    <img id="labLightboxImg" src="" alt="Projectfoto">
+  </div>
+  <div class="vk-lb-counter" id="vkLbCounter" hidden></div>
+</div>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-bottom" style="padding-top:24px;">
+      <p class="footer-meta">© <span id="footerYear">2026</span> ELYAN · Demopagina · geen echt vakbedrijf</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/shared/vakmannen/categories.js"></script>
+<script src="/shared/vakmannen/partners-data.js"></script>
+<script src="/js/demo-vakman-profile.js?v=2" defer></script>
+<script>document.getElementById('footerYear').textContent = new Date().getFullYear();</script>
+</body>
+</html>
