@@ -958,59 +958,6 @@
   color: var(--muted);
 }
 
-.vbd-jobs-compact {
-  margin-top: 1rem;
-  padding-top: 0.95rem;
-  border-top: 1px solid var(--line);
-  background: var(--grey);
-  margin-left: -1.15rem;
-  margin-right: -1.15rem;
-  margin-bottom: -1.3rem;
-  padding: 0.95rem 1.15rem 1.1rem;
-  border-radius: 0 0 15px 15px;
-}
-.vbd-jobs-compact h3 {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-.vbd-jobs-note {
-  margin: 0.2rem 0 0.65rem;
-  font-size: 0.76rem;
-  color: var(--muted);
-}
-.vbd-jobs-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 0.55rem;
-}
-.vbd-jobs-list li {
-  position: relative;
-  padding: 0.28rem 0.65rem 0.28rem 1.35rem;
-  border-radius: 999px;
-  background: var(--white);
-  border: 1px solid rgba(63, 74, 50, 0.14);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1.3;
-}
-.vbd-jobs-list li::before {
-  content: "✓";
-  position: absolute;
-  left: 0.45rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--olive);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
 .vbd-about {
   margin: 0;
   font-size: 0.92rem;
