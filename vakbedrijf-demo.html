@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=17">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=16">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -63,53 +63,18 @@
 
 <div class="vbd-shell">
 
-  <!-- Foto's + snelle bedrijfsinfo -->
-  <div class="vbd-media-band" id="vbdPhotos">
-    <section class="vbd-gallery" aria-label="Projectfoto's">
-      <div class="vbd-gallery-stage">
-        <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
-        <div class="vbd-gallery-nav">
-          <button type="button" id="vbdPrev" aria-label="Vorige foto">‹</button>
-          <button type="button" id="vbdNext" aria-label="Volgende foto">›</button>
-        </div>
-        <div class="vbd-gallery-count" id="vbdCount" aria-live="polite">1 / 5</div>
+  <!-- 2. Foto's -->
+  <section class="vbd-gallery" id="vbdPhotos" aria-label="Projectfoto's">
+    <div class="vbd-gallery-stage">
+      <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
+      <div class="vbd-gallery-nav">
+        <button type="button" id="vbdPrev" aria-label="Vorige foto">‹</button>
+        <button type="button" id="vbdNext" aria-label="Volgende foto">›</button>
       </div>
-      <div class="vbd-gallery-side" aria-hidden="true">
-        <button type="button" class="vbd-side-tile" data-jump="1">
-          <img src="/assets/photos/why.jpg" alt="">
-        </button>
-        <button type="button" class="vbd-side-tile" data-jump="2">
-          <img src="/assets/photos/editorial.jpg" alt="">
-          <span class="vbd-side-more">+3</span>
-        </button>
-      </div>
-    </section>
-
-    <aside class="vbd-intro">
-      <h2>Over dit vakbedrijf</h2>
-      <p class="vbd-about">Hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf en een prijsindicatie vóór de start.</p>
-      <div class="vbd-glance" aria-label="Kerngegevens">
-        <div>
-          <span>Werkgebied</span>
-          <strong>Antwerpen + 25 km</strong>
-        </div>
-        <div>
-          <span>Eerste start</span>
-          <strong>Oktober 2026</strong>
-        </div>
-        <div class="is-price">
-          <span>Prijsindicatie</span>
-          <strong>€ 160 – € 230 / m²</strong>
-        </div>
-        <div>
-          <span>Plaatsbezoek</span>
-          <strong>binnen 7–14 dagen</strong>
-        </div>
-      </div>
-    </aside>
-  </div>
-
-  <div class="vbd-thumbs" id="vbdThumbs" hidden></div>
+      <div class="vbd-gallery-count" id="vbdCount" aria-live="polite">1 / 5</div>
+    </div>
+    <div class="vbd-thumbs" id="vbdThumbs"></div>
+  </section>
 
   <div class="vbd-layout">
     <div class="vbd-maincol">
@@ -170,6 +135,11 @@
             <p class="vbd-price-note">Na plaatsbezoek</p>
           </li>
         </ul>
+      </section>
+
+      <section class="vbd-section">
+        <h2>Over Noord Dakatelier</h2>
+        <p class="vbd-about">Hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf en een prijsindicatie vóór de start.</p>
       </section>
 
       <section class="vbd-section" aria-labelledby="vbdReviewsTitle">
@@ -305,30 +275,21 @@
       hero.style.opacity = '1';
     }, 110);
     count.textContent = (i + 1) + ' / ' + photos.length;
-    if (thumbs) {
-      Array.prototype.forEach.call(thumbs.children, function (btn, idx) {
-        btn.classList.toggle('is-active', idx === i);
-      });
-    }
-  }
-  if (thumbs) {
-    photos.forEach(function (p, idx) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.setAttribute('aria-label', 'Foto ' + (idx + 1));
-      btn.innerHTML = '<img src="' + p.src + '" alt="">';
-      if (!idx) btn.classList.add('is-active');
-      btn.addEventListener('click', function () { showPhoto(idx); });
-      thumbs.appendChild(btn);
+    Array.prototype.forEach.call(thumbs.children, function (btn, idx) {
+      btn.classList.toggle('is-active', idx === i);
     });
   }
+  photos.forEach(function (p, idx) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Foto ' + (idx + 1));
+    btn.innerHTML = '<img src="' + p.src + '" alt="">';
+    if (!idx) btn.classList.add('is-active');
+    btn.addEventListener('click', function () { showPhoto(idx); });
+    thumbs.appendChild(btn);
+  });
   document.getElementById('vbdPrev').addEventListener('click', function () { showPhoto(i - 1); });
   document.getElementById('vbdNext').addEventListener('click', function () { showPhoto(i + 1); });
-  Array.prototype.forEach.call(document.querySelectorAll('[data-jump]'), function (el) {
-    el.addEventListener('click', function () {
-      showPhoto(Number(el.getAttribute('data-jump')));
-    });
-  });
 
   var startX = 0;
   hero.addEventListener('touchstart', function (e) {
