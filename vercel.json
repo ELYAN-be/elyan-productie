@@ -41,11 +41,6 @@
       "permanent": false
     },
     {
-      "source": "/vakbedrijf-demo",
-      "destination": "/vakmannen/noord-dakatelier",
-      "permanent": false
-    },
-    {
       "source": "/prijs-berekenen",
       "destination": "/",
       "permanent": false
@@ -54,7 +49,7 @@
   "rewrites": [
     {
       "source": "/vakmannen/noord-dakatelier",
-      "destination": "/vakbedrijf-demo.html"
+      "destination": "/vakbedrijf-demo"
     },
     {
       "source": "/sitemap.xml",
