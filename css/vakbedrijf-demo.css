@@ -31,30 +31,6 @@
   overflow-x: clip;
 }
 
-/* Real site shell: profile sits under sticky homepage header */
-.page-vbd.hp-v3 .vbd-site-main {
-  padding-top: 56px;
-  background: var(--hp-page);
-}
-.page-vbd .vbd-wrap {
-  max-width: var(--vbd-max);
-  margin: 0 auto;
-  padding: 0.65rem 1rem 0;
-}
-.page-vbd .vbd-back {
-  display: inline-flex;
-  margin: 0 0 0.65rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--hp-ink-soft);
-}
-.page-vbd .vbd-back:hover {
-  color: var(--hp-ink);
-}
-.page-vbd .hp-footer {
-  margin-top: 0.5rem;
-}
-
 .page-vbd *,
 .page-vbd *::before,
 .page-vbd *::after { box-sizing: border-box; }
@@ -72,9 +48,54 @@
   background: var(--hp-ink); color: #fff; padding: 10px 14px;
 }
 
+/* —— Demo flag —— */
+.vbd-flag {
+  background: var(--hp-olive);
+  color: rgba(255,255,255,.92);
+  font-size: .7rem;
+  line-height: 1.3;
+}
+.vbd-flag-inner {
+  max-width: var(--vbd-max);
+  margin: 0 auto;
+  padding: .4rem 1rem;
+  display: flex; flex-wrap: wrap; gap: .25rem .6rem; align-items: center;
+}
+.vbd-flag-badge {
+  font-family: var(--font-mono);
+  font-size: .52rem; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: .12rem .35rem;
+  border: 1px solid rgba(255,255,255,.28);
+}
+.vbd-flag p { margin: 0; opacity: .9; }
+
+/* —— Top —— */
+.vbd-top {
+  background: rgba(247,243,234,.94);
+  border-bottom: 1px solid var(--hp-line);
+  backdrop-filter: blur(8px);
+}
+.vbd-top-inner {
+  max-width: var(--vbd-max);
+  margin: 0 auto;
+  padding: .5rem 1rem;
+  min-height: 48px;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.vbd-logo {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--font-display);
+  font-weight: 700; font-size: .9rem; letter-spacing: .04em;
+  color: var(--hp-ink);
+}
+.vbd-logo svg { width: 20px; height: 20px; color: var(--hp-olive); }
+.vbd-top-note { font-size: .7rem; color: var(--hp-ink-soft); }
+
 /* —— Layout —— */
 .vbd-main {
-  margin: 0;
+  max-width: var(--vbd-max);
+  margin: 0 auto;
   padding: 0 0 4.1rem;
   display: flex;
   flex-direction: column;
@@ -87,7 +108,7 @@
   grid-template-columns: auto 1fr;
   gap: .7rem .8rem;
   align-items: start;
-  padding: 0 0 .75rem;
+  padding: .85rem 1rem .75rem;
 }
 .vbd-mark {
   position: relative;
@@ -226,7 +247,7 @@
 /* —— Body —— */
 .vbd-body {
   order: 3;
-  padding: .8rem 0 0;
+  padding: .8rem 1rem 0;
 }
 
 /* Booking-style key facts — no cards */
@@ -384,6 +405,13 @@
   color: var(--hp-ink-soft) !important;
 }
 
+.vbd-foot {
+  margin: 0;
+  padding: .9rem 0 1.15rem;
+  font-size: .66rem;
+  color: var(--hp-ink-soft);
+}
+
 /* Sticky CTA */
 .vbd-sticky {
   position: fixed;
@@ -416,12 +444,6 @@
 .vbd-toast.is-on { opacity: 1; }
 
 @media (min-width: 860px) {
-  .page-vbd .vbd-wrap {
-    padding: 1rem 1.75rem 0;
-  }
-  .page-vbd.hp-v3 .vbd-site-main {
-    padding-top: 64px;
-  }
   .vbd-main {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr);
@@ -429,7 +451,7 @@
       "gallery identity"
       "gallery body";
     gap: 0 2.5rem;
-    padding: 0.35rem 0 2.75rem;
+    padding: 1.5rem 1.75rem 2.75rem;
     align-items: start;
   }
   .vbd-gallery {
@@ -464,6 +486,11 @@
     font-size: .95rem;
   }
   .vbd-sticky { display: none; }
+  .vbd-flag-inner,
+  .vbd-top-inner {
+    padding-left: 1.75rem;
+    padding-right: 1.75rem;
+  }
   .vbd-toast { bottom: 2rem; }
 }
 
