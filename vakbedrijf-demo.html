@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=20">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=21">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -93,6 +93,16 @@
     <button type="button" class="vbd-lb-nav vbd-lb-next" id="vbdNext" aria-label="Volgende foto">›</button>
     <p class="vbd-lb-count" id="vbdLbCount" aria-live="polite">1 / 5</p>
   </div>
+
+  <!-- Compact availability: status only if vakman provided it; else op aanvraag -->
+  <section class="vbd-avail" id="vbdAvail" data-avail="request" aria-labelledby="vbdAvailTitle">
+    <div class="vbd-avail-copy">
+      <h2 id="vbdAvailTitle">Beschikbaarheid</h2>
+      <p class="vbd-avail-status">Beschikbaarheid op aanvraag</p>
+      <p class="vbd-avail-meta">Regio: Antwerpen en omgeving</p>
+    </div>
+    <button type="button" class="vbd-avail-btn" data-vbd-request-avail>Vraag beschikbaarheid aan</button>
+  </section>
 
   <div class="vbd-layout">
     <div class="vbd-maincol">
@@ -344,7 +354,10 @@
     b.addEventListener('click', function () { if (!b.disabled) ping(); });
   });
   Array.prototype.forEach.call(document.querySelectorAll('[data-vbd-request-avail]'), function (b) {
-    b.addEventListener('click', ping);
+    b.addEventListener('click', function () {
+      toast.textContent = 'Beschikbaarheidsvraag verstuurd.';
+      ping();
+    });
   });
 
   var timing = null;
