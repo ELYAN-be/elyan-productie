@@ -526,6 +526,14 @@
   font-size: 0.9rem;
   color: var(--muted);
 }
+.vbd-section-lead + .vbd-price-updated {
+  margin-top: -0.65rem;
+}
+.vbd-price-updated {
+  margin: 0 0 1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
 
 /* Booking card — Takeaway/Booking sticky feel */
 .vbd-book {
