@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=3">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=5">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -45,9 +45,8 @@
 <main class="vbd-main" id="vbd-content">
   <header class="vbd-identity">
     <div class="vbd-mark" data-has-logo="false">
-      <!-- Logo: data-has-logo="true" + <img class="vbd-mark-img" src="..." alt=""> -->
       <span class="vbd-mark-fallback" aria-hidden="true">ND</span>
-      <span class="vbd-sr">Bedrijfslogo: initialen ND (geen beeldlogo in deze demo)</span>
+      <span class="vbd-sr">Bedrijfslogo: initialen ND</span>
     </div>
     <div class="vbd-identity-copy">
       <p class="vbd-kicker">Dakwerken</p>
@@ -62,9 +61,9 @@
     </div>
   </header>
 
-  <section class="vbd-gallery" aria-label="Projectfoto’s">
+  <section class="vbd-gallery" aria-label="Projectfoto's">
     <div class="vbd-gallery-stage">
-      <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1 — demogalerij">
+      <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
       <div class="vbd-gallery-nav">
         <button type="button" id="vbdPrev" aria-label="Vorige foto">‹</button>
         <button type="button" id="vbdNext" aria-label="Volgende foto">›</button>
@@ -75,43 +74,46 @@
   </section>
 
   <div class="vbd-body">
-    <div class="vbd-facts" aria-label="Belangrijke info">
-      <div class="vbd-fact">
-        <span>Beschikbaarheid</span>
-        <strong>Beperkt</strong>
-      </div>
-      <div class="vbd-fact">
-        <span>Eerste start</span>
-        <strong>Okt. 2026</strong>
-      </div>
-      <div class="vbd-fact">
-        <span>Plaatsbezoek</span>
-        <strong>Binnen 2 weken</strong>
-      </div>
-      <div class="vbd-fact">
-        <span>Werkgebied</span>
-        <strong>Antwerpen + 25 km</strong>
-      </div>
-    </div>
+    <p class="vbd-meta-line"><strong>Werkgebied</strong> Antwerpen + 25 km · eerste projectstart oktober 2026</p>
 
     <div class="vbd-cta-wrap">
-      <button type="button" class="vbd-cta" data-vbd-offer>Vraag offerte aan <span aria-hidden="true">→</span></button>
-      <p class="vbd-cta-note">Via ELYAN · geen rechtstreeks contact · demo verstuurt niets</p>
+      <button type="button" class="vbd-cta" id="vbdOfferBtn" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
+      <p class="vbd-cta-note">Kies eerst een gewenste dag voor het plaatsbezoek · demo verstuurt niets</p>
     </div>
 
+    <section class="vbd-section" aria-labelledby="vbdCalTitle">
+      <h2 id="vbdCalTitle">Wanneer kan dit vakbedrijf langskomen?</h2>
+      <p class="vbd-cal-intro">Kies een voorgestelde dag voor een plaatsbezoek.</p>
+      <div class="vbd-cal" id="vbdCal" role="listbox" aria-label="Beschikbare dagen"></div>
+      <p class="vbd-cal-selected" id="vbdCalSelected" aria-live="polite"></p>
+      <p class="vbd-cal-note">Je vraagt een plaatsbezoek aan. Het vakbedrijf bevestigt de afspraak.</p>
+    </section>
+
     <section class="vbd-section">
-      <h2>Specialisaties</h2>
-      <ul class="vbd-specs">
-        <li>Dakrenovatie</li>
-        <li>Dakisolatie</li>
-        <li>Hellende daken</li>
-        <li>Dakvensters</li>
-      </ul>
+      <h2>Waarmee kan dit bedrijf je helpen?</h2>
+      <div class="vbd-help">
+        <div class="vbd-help-item">
+          <strong>Volledige dakrenovatie</strong>
+          <p>Oud dak vervangen of grondig vernieuwen, inclusief onderdak en afwerking.</p>
+        </div>
+        <div class="vbd-help-item">
+          <strong>Dakisolatie</strong>
+          <p>Je dak isoleren zodat je woning warmer blijft en je energiekosten dalen.</p>
+        </div>
+        <div class="vbd-help-item">
+          <strong>Hellende daken</strong>
+          <p>Werken aan klassieke schuine daken met pannen of leien.</p>
+        </div>
+        <div class="vbd-help-item">
+          <strong>Dakvensters plaatsen</strong>
+          <p>Een dakraam laten plaatsen voor meer licht op zolder of in de badkamer.</p>
+        </div>
+      </div>
     </section>
 
     <section class="vbd-section">
       <h2>Over dit vakbedrijf</h2>
-      <p>Noord Dakatelier (demo) focust op hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf en duidelijke prijsindicaties vóór de start.</p>
+      <p>Noord Dakatelier focust op hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf en duidelijke prijsindicaties vóór de start.</p>
     </section>
 
     <section class="vbd-section">
@@ -125,23 +127,57 @@
     </section>
 
     <section class="vbd-section" aria-labelledby="vbdReviewsTitle">
-      <div class="vbd-reviews-head">
-        <h2 id="vbdReviewsTitle">Google-beoordelingen</h2>
-        <p class="vbd-reviews-score">4,8 <span>/ 5 · 47 reviews</span></p>
+      <h2 id="vbdReviewsTitle">Google-beoordelingen</h2>
+      <div class="vbd-reviews">
+        <div class="vbd-reviews-top">
+          <div class="vbd-reviews-brand">
+            <span class="vbd-reviews-g" aria-hidden="true">G</span>
+            <p class="vbd-reviews-score-lg">4,8 <span>op 5 · 47 beoordelingen</span></p>
+          </div>
+          <a class="vbd-reviews-link" href="https://www.google.com/maps/search/?api=1&amp;query=Noord+Dakatelier+Antwerpen" target="_blank" rel="noopener noreferrer">
+            Bekijk op Google <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <article class="vbd-review">
+          <div class="vbd-review-head">
+            <strong>Annelies V.</strong>
+            <span class="vbd-review-stars" aria-label="5 van 5 sterren">
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            </span>
+          </div>
+          <p>Nette werf, duidelijke planning en nette afwerking van het hellend dak.</p>
+        </article>
+        <article class="vbd-review">
+          <div class="vbd-review-head">
+            <strong>Pieter D.</strong>
+            <span class="vbd-review-stars" aria-label="5 van 5 sterren">
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            </span>
+          </div>
+          <p>Goede uitleg over isolatieopties. Prijs bleef dicht bij de indicatie.</p>
+        </article>
+        <article class="vbd-review">
+          <div class="vbd-review-head">
+            <strong>Sofie M.</strong>
+            <span class="vbd-review-stars" aria-label="4 van 5 sterren">
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+              <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            </span>
+          </div>
+          <p>Correcte oplevering en snelle opvolging bij een kleine herstelling.</p>
+        </article>
+        <p class="vbd-reviews-attr">Demo · beoordelingen zijn fictief · in productie via Google met toestemming van het vakbedrijf</p>
       </div>
-      <article class="vbd-review">
-        <strong>Annelies V.</strong>
-        <p>Nette werf, duidelijke planning en nette afwerking van het hellend dak.</p>
-      </article>
-      <article class="vbd-review">
-        <strong>Pieter D.</strong>
-        <p>Goede uitleg over isolatieopties. Prijs bleef dicht bij de indicatie.</p>
-      </article>
-      <article class="vbd-review">
-        <strong>Sofie M.</strong>
-        <p>Correcte oplevering en snelle opvolging bij een kleine herstelling.</p>
-      </article>
-      <p class="vbd-reviews-attr">Demo-weergave · beoordelingen zijn fictief · in productie via Google (met toestemming)</p>
     </section>
 
     <p class="vbd-foot">© ELYAN · Tijdelijke demopagina · alle bedrijfsgegevens zijn fictief</p>
@@ -149,7 +185,7 @@
 </main>
 
 <div class="vbd-sticky">
-  <button type="button" class="vbd-cta vbd-cta--compact" data-vbd-offer>Vraag offerte aan <span aria-hidden="true">→</span></button>
+  <button type="button" class="vbd-cta vbd-cta--compact" id="vbdOfferSticky" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
 </div>
 
 <div class="vbd-toast" id="vbdToast" role="status" aria-live="polite">Dit is een demo — er wordt geen offerteaanvraag verstuurd.</div>
@@ -169,6 +205,7 @@
   var thumbs = document.getElementById('vbdThumbs');
   var toast = document.getElementById('vbdToast');
   var toastTimer;
+  var selectedDate = null;
 
   function show(n) {
     i = (n + photos.length) % photos.length;
@@ -209,12 +246,65 @@
     show(dx < 0 ? i + 1 : i - 1);
   }, { passive: true });
 
+  /* Compact visit calendar — next available weekdays */
+  var cal = document.getElementById('vbdCal');
+  var calSelected = document.getElementById('vbdCalSelected');
+  var offerBtns = document.querySelectorAll('[data-vbd-offer]');
+  var weekdays = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
+  var months = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
+  var slots = [];
+  var cursor = new Date();
+  cursor.setHours(12, 0, 0, 0);
+  while (slots.length < 6) {
+    cursor.setDate(cursor.getDate() + 1);
+    var day = cursor.getDay();
+    if (day === 0 || day === 6) continue;
+    slots.push(new Date(cursor.getTime()));
+  }
+
+  function enableOffer(on) {
+    Array.prototype.forEach.call(offerBtns, function (btn) {
+      btn.disabled = !on;
+      btn.classList.toggle('is-disabled', !on);
+    });
+  }
+
+  slots.forEach(function (date, idx) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'vbd-cal-day' + (idx === 4 ? ' is-full' : '');
+    btn.setAttribute('role', 'option');
+    btn.setAttribute('aria-selected', 'false');
+    if (idx === 4) {
+      btn.disabled = true;
+      btn.setAttribute('aria-disabled', 'true');
+    }
+    btn.innerHTML =
+      '<span class="d">' + date.getDate() + ' ' + months[date.getMonth()] + '</span>' +
+      '<span class="w">' + weekdays[date.getDay()] + (idx === 4 ? ' · vol' : '') + '</span>';
+    btn.addEventListener('click', function () {
+      if (btn.disabled) return;
+      Array.prototype.forEach.call(cal.querySelectorAll('.vbd-cal-day'), function (el) {
+        el.classList.remove('is-selected');
+        el.setAttribute('aria-selected', 'false');
+      });
+      btn.classList.add('is-selected');
+      btn.setAttribute('aria-selected', 'true');
+      selectedDate = date;
+      var label = weekdays[date.getDay()] + ' ' + date.getDate() + ' ' + months[date.getMonth()];
+      calSelected.textContent = 'Gekozen: ' + label;
+      enableOffer(true);
+    });
+    cal.appendChild(btn);
+  });
+
   function ping() {
+    if (!selectedDate) return;
     toast.classList.add('is-on');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
   }
-  Array.prototype.forEach.call(document.querySelectorAll('[data-vbd-offer]'), function (btn) {
+  Array.prototype.forEach.call(offerBtns, function (btn) {
     btn.addEventListener('click', ping);
   });
 })();
