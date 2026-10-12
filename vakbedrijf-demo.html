@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=5">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=6">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -43,171 +43,247 @@
 </header>
 
 <main class="vbd-main" id="vbd-content">
-  <header class="vbd-identity">
-    <div class="vbd-mark" data-has-logo="false">
-      <span class="vbd-mark-fallback" aria-hidden="true">ND</span>
-      <span class="vbd-sr">Bedrijfslogo: initialen ND</span>
-    </div>
-    <div class="vbd-identity-copy">
-      <p class="vbd-kicker">Dakwerken</p>
-      <h1 class="vbd-title">Noord Dakatelier</h1>
-      <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
-      <p class="vbd-place"><strong>Antwerpen</strong> · + 25 km</p>
-      <p class="vbd-google-score">
-        <svg aria-hidden="true"><use href="#i-star"></use></svg>
-        4,8
-        <em>· 47 Google-beoordelingen</em>
-      </p>
-    </div>
-  </header>
-
-  <section class="vbd-gallery" aria-label="Projectfoto's">
-    <div class="vbd-gallery-stage">
-      <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
-      <div class="vbd-gallery-nav">
-        <button type="button" id="vbdPrev" aria-label="Vorige foto">‹</button>
-        <button type="button" id="vbdNext" aria-label="Volgende foto">›</button>
+  <!-- Zone 1: identity + photos (white) -->
+  <div class="vbd-zone vbd-zone--white vbd-zone--identity">
+    <header class="vbd-identity">
+      <div class="vbd-mark" data-has-logo="false">
+        <span class="vbd-mark-fallback" aria-hidden="true">ND</span>
+        <span class="vbd-sr">Bedrijfslogo: initialen ND</span>
       </div>
-      <div class="vbd-gallery-count" id="vbdCount" aria-live="polite">1 / 5</div>
-    </div>
-    <div class="vbd-thumbs" id="vbdThumbs" role="tablist" aria-label="Miniaturen"></div>
-  </section>
+      <div class="vbd-identity-copy">
+        <p class="vbd-kicker">Dakwerken</p>
+        <h1 class="vbd-title">Noord Dakatelier</h1>
+        <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
+        <p class="vbd-place"><strong>Antwerpen</strong> · + 25 km</p>
+        <div class="vbd-ratings-inline">
+          <p class="vbd-google-score">
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            4,8/5
+            <em>· Google</em>
+          </p>
+          <p class="vbd-elyan-score" title="Demo-element — nog niet actief op echte profielen">
+            <span class="vbd-elyan-badge">Demo</span>
+            ELYAN 8,7/10
+            <em>· binnenkort</em>
+          </p>
+        </div>
+      </div>
+    </header>
+  </div>
 
-  <div class="vbd-body">
-    <p class="vbd-meta-line"><strong>Werkgebied</strong> Antwerpen + 25 km · eerste projectstart oktober 2026</p>
+  <div class="vbd-zone vbd-zone--white vbd-zone--gallery">
+    <section class="vbd-gallery" aria-label="Projectfoto's">
+      <div class="vbd-gallery-stage">
+        <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
+        <div class="vbd-gallery-nav">
+          <button type="button" id="vbdPrev" aria-label="Vorige foto">‹</button>
+          <button type="button" id="vbdNext" aria-label="Volgende foto">›</button>
+        </div>
+        <div class="vbd-gallery-count" id="vbdCount" aria-live="polite">1 / 5</div>
+      </div>
+      <div class="vbd-thumbs" id="vbdThumbs" role="tablist" aria-label="Miniaturen"></div>
+    </section>
+  </div>
+
+  <!-- Zone 2: availability + services (light grey) -->
+  <div class="vbd-zone vbd-zone--grey">
+    <p class="vbd-meta-line"><strong>Werkgebied</strong> Antwerpen + 25 km</p>
 
     <div class="vbd-cta-wrap">
-      <button type="button" class="vbd-cta" id="vbdOfferBtn" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
-      <p class="vbd-cta-note">Kies eerst een gewenste dag voor het plaatsbezoek · demo verstuurt niets</p>
+      <button type="button" class="vbd-cta" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
+      <p class="vbd-cta-note" id="vbdCtaNote">Kies eerst een gewenste dag voor het plaatsbezoek · demo verstuurt niets</p>
     </div>
 
     <section class="vbd-section" aria-labelledby="vbdCalTitle">
-      <h2 id="vbdCalTitle">Wanneer kan dit vakbedrijf langskomen?</h2>
-      <p class="vbd-cal-intro">Kies een voorgestelde dag voor een plaatsbezoek.</p>
-      <div class="vbd-cal" id="vbdCal" role="listbox" aria-label="Beschikbare dagen"></div>
-      <p class="vbd-cal-selected" id="vbdCalSelected" aria-live="polite"></p>
-      <p class="vbd-cal-note">Je vraagt een plaatsbezoek aan. Het vakbedrijf bevestigt de afspraak.</p>
+      <h2 id="vbdCalTitle">Wanneer wil je een plaatsbezoek?</h2>
+      <p class="vbd-lead">Kies wanneer iemand bij je kan langskomen om het project te bekijken.</p>
+
+      <!-- Demo: HAS_AGENDA = true. Zet data-has-agenda="false" om lege staat te tonen. -->
+      <div id="vbdAgendaRoot" data-has-agenda="true">
+        <div class="vbd-cal-tabs" role="tablist" aria-label="Maand kiezen">
+          <button type="button" class="vbd-cal-tab is-active" data-cal-mode="this">Deze maand</button>
+          <button type="button" class="vbd-cal-tab" data-cal-mode="next">Volgende maand</button>
+          <label class="vbd-sr" for="vbdMonthPick">Kies een maand</label>
+          <select class="vbd-cal-month-select" id="vbdMonthPick" data-cal-mode="pick" aria-label="Kies een maand"></select>
+        </div>
+
+        <div class="vbd-cal-head">
+          <strong id="vbdCalLabel">Maand</strong>
+          <div class="vbd-cal-nav">
+            <button type="button" id="vbdCalPrev" aria-label="Vorige maand">‹</button>
+            <button type="button" id="vbdCalNext" aria-label="Volgende maand">›</button>
+          </div>
+        </div>
+        <div class="vbd-cal-grid" id="vbdCalGrid" aria-label="Maandkalender"></div>
+        <p class="vbd-cal-selected" id="vbdCalSelected" aria-live="polite"></p>
+        <p class="vbd-cal-note">Je vraagt een plaatsbezoek aan. Het vakbedrijf bevestigt de afspraak.</p>
+
+        <div class="vbd-cal-split">
+          <strong>Start van de werken</strong>
+          Eerste mogelijke projectstart: oktober 2026 · dat is apart van het plaatsbezoek.
+        </div>
+      </div>
+
+      <div id="vbdAgendaEmpty" class="vbd-avail-empty" hidden>
+        <p>Dit vakbedrijf heeft zijn agenda nog niet gedeeld. Vraag beschikbaarheid aan via ELYAN.</p>
+        <button type="button" class="vbd-cta" data-vbd-request-avail>Beschikbaarheid aanvragen <span aria-hidden="true">→</span></button>
+      </div>
     </section>
 
     <section class="vbd-section">
       <h2>Waarmee kan dit bedrijf je helpen?</h2>
-      <div class="vbd-help">
-        <div class="vbd-help-item">
+      <ul class="vbd-help">
+        <li>
           <strong>Volledige dakrenovatie</strong>
-          <p>Oud dak vervangen of grondig vernieuwen, inclusief onderdak en afwerking.</p>
-        </div>
-        <div class="vbd-help-item">
+          <p>Je bestaande dak volledig laten vernieuwen.</p>
+        </li>
+        <li>
           <strong>Dakisolatie</strong>
-          <p>Je dak isoleren zodat je woning warmer blijft en je energiekosten dalen.</p>
-        </div>
-        <div class="vbd-help-item">
+          <p>Je woning beter isoleren en warmteverlies beperken.</p>
+        </li>
+        <li>
           <strong>Hellende daken</strong>
-          <p>Werken aan klassieke schuine daken met pannen of leien.</p>
-        </div>
-        <div class="vbd-help-item">
+          <p>Werken aan schuine daken met pannen of leien.</p>
+        </li>
+        <li>
           <strong>Dakvensters plaatsen</strong>
-          <p>Een dakraam laten plaatsen voor meer licht op zolder of in de badkamer.</p>
-        </div>
-      </div>
+          <p>Meer daglicht op zolder of in de badkamer.</p>
+        </li>
+      </ul>
     </section>
+  </div>
 
-    <section class="vbd-section">
+  <!-- Zone 3: story + pricing (white) -->
+  <div class="vbd-zone vbd-zone--white vbd-zone--white-body">
+    <section class="vbd-section" style="padding-top:0;border:0;margin:0;">
       <h2>Over dit vakbedrijf</h2>
       <p>Noord Dakatelier focust op hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf en duidelijke prijsindicaties vóór de start.</p>
     </section>
 
     <section class="vbd-section">
       <h2>Prijsindicatie</h2>
-      <div class="vbd-prices">
-        <div class="vbd-price"><span>Dakrenovatie</span><strong>€ 160 – € 230 / m²</strong></div>
-        <div class="vbd-price"><span>Dakisolatie</span><strong>€ 45 – € 75 / m²</strong></div>
-        <div class="vbd-price"><span>Dakvenster</span><strong>Vanaf € 1.200</strong></div>
-      </div>
-      <p class="vbd-price-hint">Door het vakbedrijf aangeleverde indicatie · geen offerte · fictieve demodata</p>
-    </section>
-
-    <section class="vbd-section" aria-labelledby="vbdReviewsTitle">
-      <h2 id="vbdReviewsTitle">Google-beoordelingen</h2>
-      <div class="vbd-reviews">
-        <div class="vbd-reviews-top">
-          <div class="vbd-reviews-brand">
-            <span class="vbd-reviews-g" aria-hidden="true">G</span>
-            <p class="vbd-reviews-score-lg">4,8 <span>op 5 · 47 beoordelingen</span></p>
+      <ul class="vbd-prices">
+        <li class="vbd-price">
+          <div class="vbd-price-row">
+            <span>Dakrenovatie</span>
+            <strong>€ 160 – € 230 / m²</strong>
           </div>
-          <a class="vbd-reviews-link" href="https://www.google.com/maps/search/?api=1&amp;query=Noord+Dakatelier+Antwerpen" target="_blank" rel="noopener noreferrer">
-            Bekijk op Google <span aria-hidden="true">↗</span>
-          </a>
+          <p class="vbd-price-note">Incl. materialen en plaatsing · excl. btw · excl. afbraak van asbesthoudende lagen</p>
+        </li>
+        <li class="vbd-price">
+          <div class="vbd-price-row">
+            <span>Dakisolatie</span>
+            <strong>€ 45 – € 75 / m²</strong>
+          </div>
+          <p class="vbd-price-note">Incl. isolatiemateriaal en plaatsing · excl. btw · vanaf 40 m²</p>
+        </li>
+        <li class="vbd-price">
+          <div class="vbd-price-row">
+            <span>Complexe dakwerken</span>
+            <strong>Prijs op aanvraag</strong>
+          </div>
+          <p class="vbd-price-note">Geen vaste band — eerst plaatsbezoek nodig voor een correcte inschatting</p>
+        </li>
+      </ul>
+      <p class="vbd-price-hint">Toelichting door het vakbedrijf · indicatief · geen offerte · fictieve demodata</p>
+    </section>
+  </div>
+
+  <!-- Zone 4: ratings (light grey) -->
+  <div class="vbd-zone vbd-zone--grey vbd-zone--reviews">
+    <section class="vbd-section" style="padding-top:0;border:0;margin:0;" aria-labelledby="vbdReviewsTitle">
+      <h2 id="vbdReviewsTitle">Beoordelingen</h2>
+
+      <div class="vbd-scoreboard">
+        <div class="vbd-score-card">
+          <span class="label">Google-beoordeling</span>
+          <div class="value">4,8/5</div>
+          <span class="sub">47 beoordelingen</span>
         </div>
-        <article class="vbd-review">
-          <div class="vbd-review-head">
-            <strong>Annelies V.</strong>
-            <span class="vbd-review-stars" aria-label="5 van 5 sterren">
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-            </span>
-          </div>
-          <p>Nette werf, duidelijke planning en nette afwerking van het hellend dak.</p>
-        </article>
-        <article class="vbd-review">
-          <div class="vbd-review-head">
-            <strong>Pieter D.</strong>
-            <span class="vbd-review-stars" aria-label="5 van 5 sterren">
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-            </span>
-          </div>
-          <p>Goede uitleg over isolatieopties. Prijs bleef dicht bij de indicatie.</p>
-        </article>
-        <article class="vbd-review">
-          <div class="vbd-review-head">
-            <strong>Sofie M.</strong>
-            <span class="vbd-review-stars" aria-label="4 van 5 sterren">
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-              <svg aria-hidden="true"><use href="#i-star"></use></svg>
-            </span>
-          </div>
-          <p>Correcte oplevering en snelle opvolging bij een kleine herstelling.</p>
-        </article>
-        <p class="vbd-reviews-attr">Demo · beoordelingen zijn fictief · in productie via Google met toestemming van het vakbedrijf</p>
+        <div class="vbd-score-card is-demo">
+          <span class="label">ELYAN-score</span>
+          <div class="value">8,7/10</div>
+          <span class="sub">Op basis van reactiesnelheid, afspraken &amp; klantfeedback</span>
+          <span class="demo-tag">Demo · nog niet actief</span>
+        </div>
       </div>
-    </section>
 
-    <p class="vbd-foot">© ELYAN · Tijdelijke demopagina · alle bedrijfsgegevens zijn fictief</p>
+      <div class="vbd-reviews-top">
+        <span class="vbd-sr">Google-reviews</span>
+        <a class="vbd-reviews-link" href="https://www.google.com/maps/search/?api=1&amp;query=Noord+Dakatelier+Antwerpen" target="_blank" rel="noopener noreferrer">
+          Bekijk oorspronkelijke beoordelingen op Google ↗
+        </a>
+      </div>
+
+      <article class="vbd-review">
+        <div class="vbd-review-head">
+          <strong>Annelies V.</strong>
+          <span class="vbd-review-stars" aria-label="5 van 5">
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+          </span>
+        </div>
+        <p>Nette werf, duidelijke planning en nette afwerking van het hellend dak.</p>
+      </article>
+      <article class="vbd-review">
+        <div class="vbd-review-head">
+          <strong>Pieter D.</strong>
+          <span class="vbd-review-stars" aria-label="5 van 5">
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+          </span>
+        </div>
+        <p>Goede uitleg over isolatieopties. Prijs bleef dicht bij de indicatie.</p>
+      </article>
+      <article class="vbd-review">
+        <div class="vbd-review-head">
+          <strong>Sofie M.</strong>
+          <span class="vbd-review-stars" aria-label="4 van 5">
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+            <svg aria-hidden="true"><use href="#i-star"></use></svg>
+          </span>
+        </div>
+        <p>Correcte oplevering en snelle opvolging bij een kleine herstelling.</p>
+      </article>
+      <p class="vbd-reviews-attr">Demo · Google-reviews fictief · ELYAN-score is een voorbeeldelement en nog niet publiek actief</p>
+    </section>
   </div>
 </main>
 
+<p class="vbd-foot">© ELYAN · Tijdelijke demopagina · alle bedrijfsgegevens zijn fictief</p>
+
 <div class="vbd-sticky">
-  <button type="button" class="vbd-cta vbd-cta--compact" id="vbdOfferSticky" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
+  <button type="button" class="vbd-cta vbd-cta--compact" data-vbd-offer disabled>Vraag offerte aan <span aria-hidden="true">→</span></button>
 </div>
 
 <div class="vbd-toast" id="vbdToast" role="status" aria-live="polite">Dit is een demo — er wordt geen offerteaanvraag verstuurd.</div>
 
 <script>
 (function () {
+  var MONTHS_NL = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  var DOW = ['ma','di','wo','do','vr','za','zo'];
   var photos = [
-    { src: '/assets/photos/hero.jpg', alt: 'Hellend dak — demofoto 1' },
-    { src: '/assets/photos/why.jpg', alt: 'Renovatie-detail — demofoto 2' },
-    { src: '/assets/photos/editorial.jpg', alt: 'Afwerking — demofoto 3' },
-    { src: '/assets/photos/about.jpg', alt: 'Vakwerk — demofoto 4' },
-    { src: '/assets/photos/elyan-hero-craftsman-workbench.jpg', alt: 'Atelier — demofoto 5' }
+    { src: '/assets/photos/hero.jpg', alt: 'Hellend dak' },
+    { src: '/assets/photos/why.jpg', alt: 'Renovatie-detail' },
+    { src: '/assets/photos/editorial.jpg', alt: 'Afwerking' },
+    { src: '/assets/photos/about.jpg', alt: 'Vakwerk' },
+    { src: '/assets/photos/elyan-hero-craftsman-workbench.jpg', alt: 'Atelier' }
   ];
+
+  /* Gallery */
   var i = 0;
   var hero = document.getElementById('vbdHero');
   var count = document.getElementById('vbdCount');
   var thumbs = document.getElementById('vbdThumbs');
-  var toast = document.getElementById('vbdToast');
-  var toastTimer;
-  var selectedDate = null;
-
-  function show(n) {
+  function showPhoto(n) {
     i = (n + photos.length) % photos.length;
     hero.style.opacity = '0.35';
     setTimeout(function () {
@@ -218,95 +294,197 @@
     count.textContent = (i + 1) + ' / ' + photos.length;
     Array.prototype.forEach.call(thumbs.children, function (btn, idx) {
       btn.classList.toggle('is-active', idx === i);
-      btn.setAttribute('aria-selected', idx === i ? 'true' : 'false');
     });
   }
-
   photos.forEach(function (p, idx) {
     var btn = document.createElement('button');
     btn.type = 'button';
-    btn.setAttribute('role', 'tab');
     btn.setAttribute('aria-label', 'Foto ' + (idx + 1));
     btn.innerHTML = '<img src="' + p.src + '" alt="">';
-    if (idx === 0) btn.classList.add('is-active');
-    btn.addEventListener('click', function () { show(idx); });
+    if (!idx) btn.classList.add('is-active');
+    btn.addEventListener('click', function () { showPhoto(idx); });
     thumbs.appendChild(btn);
   });
+  document.getElementById('vbdPrev').addEventListener('click', function () { showPhoto(i - 1); });
+  document.getElementById('vbdNext').addEventListener('click', function () { showPhoto(i + 1); });
 
-  document.getElementById('vbdPrev').addEventListener('click', function () { show(i - 1); });
-  document.getElementById('vbdNext').addEventListener('click', function () { show(i + 1); });
-
-  var startX = 0;
-  hero.addEventListener('touchstart', function (e) {
-    startX = e.changedTouches[0].clientX;
-  }, { passive: true });
-  hero.addEventListener('touchend', function (e) {
-    var dx = e.changedTouches[0].clientX - startX;
-    if (Math.abs(dx) < 40) return;
-    show(dx < 0 ? i + 1 : i - 1);
-  }, { passive: true });
-
-  /* Compact visit calendar — next available weekdays */
-  var cal = document.getElementById('vbdCal');
-  var calSelected = document.getElementById('vbdCalSelected');
+  /* Toast / CTA */
+  var toast = document.getElementById('vbdToast');
+  var toastTimer;
   var offerBtns = document.querySelectorAll('[data-vbd-offer]');
-  var weekdays = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
-  var months = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', 'okt', 'nov', 'dec'];
-  var slots = [];
-  var cursor = new Date();
-  cursor.setHours(12, 0, 0, 0);
-  while (slots.length < 6) {
-    cursor.setDate(cursor.getDate() + 1);
-    var day = cursor.getDay();
-    if (day === 0 || day === 6) continue;
-    slots.push(new Date(cursor.getTime()));
-  }
-
+  var selectedKey = null;
   function enableOffer(on) {
-    Array.prototype.forEach.call(offerBtns, function (btn) {
-      btn.disabled = !on;
-      btn.classList.toggle('is-disabled', !on);
-    });
+    Array.prototype.forEach.call(offerBtns, function (b) { b.disabled = !on; });
   }
-
-  slots.forEach(function (date, idx) {
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'vbd-cal-day' + (idx === 4 ? ' is-full' : '');
-    btn.setAttribute('role', 'option');
-    btn.setAttribute('aria-selected', 'false');
-    if (idx === 4) {
-      btn.disabled = true;
-      btn.setAttribute('aria-disabled', 'true');
-    }
-    btn.innerHTML =
-      '<span class="d">' + date.getDate() + ' ' + months[date.getMonth()] + '</span>' +
-      '<span class="w">' + weekdays[date.getDay()] + (idx === 4 ? ' · vol' : '') + '</span>';
-    btn.addEventListener('click', function () {
-      if (btn.disabled) return;
-      Array.prototype.forEach.call(cal.querySelectorAll('.vbd-cal-day'), function (el) {
-        el.classList.remove('is-selected');
-        el.setAttribute('aria-selected', 'false');
-      });
-      btn.classList.add('is-selected');
-      btn.setAttribute('aria-selected', 'true');
-      selectedDate = date;
-      var label = weekdays[date.getDay()] + ' ' + date.getDate() + ' ' + months[date.getMonth()];
-      calSelected.textContent = 'Gekozen: ' + label;
-      enableOffer(true);
-    });
-    cal.appendChild(btn);
-  });
-
   function ping() {
-    if (!selectedDate) return;
     toast.classList.add('is-on');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
   }
-  Array.prototype.forEach.call(offerBtns, function (btn) {
-    btn.addEventListener('click', ping);
+  Array.prototype.forEach.call(offerBtns, function (b) {
+    b.addEventListener('click', function () { if (!b.disabled) ping(); });
   });
+  Array.prototype.forEach.call(document.querySelectorAll('[data-vbd-request-avail]'), function (b) {
+    b.addEventListener('click', ping);
+  });
+
+  /* Agenda: true = filled calendar, false = "Beschikbaarheid aanvragen" */
+  var root = document.getElementById('vbdAgendaRoot');
+  var empty = document.getElementById('vbdAgendaEmpty');
+  var hasAgenda = root.getAttribute('data-has-agenda') === 'true';
+  if (!hasAgenda) {
+    root.hidden = true;
+    empty.hidden = false;
+    document.getElementById('vbdCtaNote').textContent = 'Vraag eerst beschikbaarheid aan · demo verstuurt niets';
+    return;
+  }
+  empty.hidden = true;
+
+  var today = new Date();
+  today.setHours(12, 0, 0, 0);
+  var minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  var maxMonth = new Date(today.getFullYear(), today.getMonth() + 11, 1);
+  var view = new Date(minMonth.getTime());
+  var grid = document.getElementById('vbdCalGrid');
+  var label = document.getElementById('vbdCalLabel');
+  var selectedEl = document.getElementById('vbdCalSelected');
+  var monthPick = document.getElementById('vbdMonthPick');
+  var prevBtn = document.getElementById('vbdCalPrev');
+  var nextBtn = document.getElementById('vbdCalNext');
+
+  /* Demo availability: weekdays where (date % 3 !== 0), not past */
+  function isAvailable(d) {
+    if (d < today) return false;
+    var day = d.getDay();
+    if (day === 0 || day === 6) return false;
+    return d.getDate() % 3 !== 0;
+  }
+  function keyOf(d) {
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  }
+  function clampView() {
+    if (view < minMonth) view = new Date(minMonth.getTime());
+    if (view > maxMonth) view = new Date(maxMonth.getTime());
+  }
+  function fillMonthSelect() {
+    monthPick.innerHTML = '';
+    var opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = 'Kies een maand';
+    monthPick.appendChild(opt0);
+    for (var m = 0; m < 12; m++) {
+      var d = new Date(today.getFullYear(), today.getMonth() + m, 1);
+      var o = document.createElement('option');
+      o.value = d.getFullYear() + '-' + d.getMonth();
+      o.textContent = MONTHS_NL[d.getMonth()] + ' ' + d.getFullYear();
+      monthPick.appendChild(o);
+    }
+  }
+  function setTabActive(mode) {
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.toggle('is-active', t.getAttribute('data-cal-mode') === mode);
+    });
+  }
+  function renderCal() {
+    clampView();
+    label.textContent = MONTHS_NL[view.getMonth()] + ' ' + view.getFullYear();
+    prevBtn.disabled = view.getFullYear() === minMonth.getFullYear() && view.getMonth() === minMonth.getMonth();
+    nextBtn.disabled = view.getFullYear() === maxMonth.getFullYear() && view.getMonth() === maxMonth.getMonth();
+    monthPick.value = view.getFullYear() + '-' + view.getMonth();
+
+    grid.innerHTML = '';
+    DOW.forEach(function (d) {
+      var el = document.createElement('div');
+      el.className = 'vbd-cal-dow';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    var y = view.getFullYear();
+    var m = view.getMonth();
+    var first = new Date(y, m, 1);
+    var startPad = (first.getDay() + 6) % 7; /* Monday-first */
+    var daysInMonth = new Date(y, m + 1, 0).getDate();
+    var total = startPad + daysInMonth;
+    var cells = Math.ceil(total / 7) * 7;
+
+    for (var c = 0; c < cells; c++) {
+      var dayNum = c - startPad + 1;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'vbd-cal-cell';
+      if (dayNum < 1 || dayNum > daysInMonth) {
+        btn.classList.add('is-muted');
+        btn.disabled = true;
+        btn.textContent = '';
+        grid.appendChild(btn);
+        continue;
+      }
+      var date = new Date(y, m, dayNum, 12, 0, 0, 0);
+      btn.textContent = String(dayNum);
+      var avail = isAvailable(date);
+      var k = keyOf(date);
+      if (date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate()) {
+        btn.classList.add('is-today');
+      }
+      if (avail) {
+        btn.classList.add('is-available');
+        btn.setAttribute('aria-label', dayNum + ' ' + MONTHS_NL[m] + ' beschikbaar');
+        if (selectedKey === k) btn.classList.add('is-selected');
+        btn.addEventListener('click', function (dd, kk) {
+          return function () {
+            selectedKey = kk;
+            selectedEl.textContent = 'Gekozen plaatsbezoek: ' + dd.getDate() + ' ' + MONTHS_NL[dd.getMonth()] + ' ' + dd.getFullYear();
+            enableOffer(true);
+            renderCal();
+          };
+        }(date, k));
+      } else {
+        btn.disabled = true;
+        btn.classList.add('is-muted');
+      }
+      grid.appendChild(btn);
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (tab) {
+    tab.addEventListener('click', function () {
+      var mode = tab.getAttribute('data-cal-mode');
+      if (mode === 'this') view = new Date(minMonth.getTime());
+      if (mode === 'next') view = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      setTabActive(mode);
+      renderCal();
+    });
+  });
+  monthPick.addEventListener('change', function () {
+    if (!monthPick.value) return;
+    var parts = monthPick.value.split('-');
+    view = new Date(Number(parts[0]), Number(parts[1]), 1);
+    setTabActive('pick');
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.remove('is-active');
+    });
+    renderCal();
+  });
+  prevBtn.addEventListener('click', function () {
+    view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+    setTabActive('pick');
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.remove('is-active');
+    });
+    renderCal();
+  });
+  nextBtn.addEventListener('click', function () {
+    view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+    setTabActive('pick');
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.remove('is-active');
+    });
+    renderCal();
+  });
+
+  fillMonthSelect();
+  renderCal();
 })();
 </script>
 </body>
