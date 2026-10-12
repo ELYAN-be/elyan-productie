@@ -243,12 +243,17 @@
   transition: transform 0.2s var(--ease), background 0.18s ease, box-shadow 0.2s ease;
 }
 .vbd-btn:hover { transform: translateY(-1px); }
-.vbd-btn-primary {
+.vbd-btn-primary,
+.page-vbd a.vbd-btn-primary {
   background: var(--olive);
-  color: #fff;
+  color: #ffffff;
   box-shadow: 0 8px 22px rgba(63, 74, 50, 0.22);
 }
-.vbd-btn-primary:hover { background: var(--olive-dark); }
+.vbd-btn-primary:hover,
+.page-vbd a.vbd-btn-primary:hover {
+  background: var(--olive-dark);
+  color: #ffffff;
+}
 .vbd-btn-block { width: 100%; }
 .vbd-btn:disabled {
   opacity: 0.4;
@@ -611,7 +616,7 @@
   border: 0;
   border-radius: 999px;
   background: var(--olive);
-  color: #fff;
+  color: #ffffff;
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
@@ -620,10 +625,13 @@
 }
 .vbd-cta:hover:not(:disabled) {
   background: var(--olive-dark);
+  color: #ffffff;
   transform: translateY(-1px);
 }
 .vbd-cta:disabled {
-  opacity: 0.4;
+  opacity: 1;
+  background: #6b7560;
+  color: #ffffff;
   cursor: default;
   transform: none;
   box-shadow: none;
