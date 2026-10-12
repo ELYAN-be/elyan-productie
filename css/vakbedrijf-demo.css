@@ -937,6 +937,71 @@
   color: var(--muted);
 }
 
+/* Werkgebied + postcode */
+.vbd-area-base {
+  margin: 0.85rem 0 0.2rem;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+.vbd-area-active {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+.vbd-area-form {
+  margin-top: 1rem;
+  padding-top: 0.95rem;
+  border-top: 1px solid var(--line);
+}
+.vbd-area-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+.vbd-area-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border: 1.5px solid rgba(63, 74, 50, 0.22);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.92rem;
+}
+.vbd-area-input::placeholder { color: #8a8c84; }
+.vbd-area-input:focus {
+  outline: none;
+  border-color: var(--olive);
+  box-shadow: 0 0 0 3px rgba(63, 74, 50, 0.12);
+}
+.vbd-area-check {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 0;
+  border-radius: 12px;
+  background: var(--olive);
+  color: #fff;
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s var(--ease);
+}
+.vbd-area-check:hover { background: var(--olive-dark); }
+.vbd-area-result {
+  margin: 0.7rem 0 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.vbd-area-result.is-ok { color: var(--olive-dark); }
+.vbd-area-result.is-no { color: var(--muted); font-weight: 500; }
+
 /* Reviews */
 .vbd-reviews-head {
   display: grid;

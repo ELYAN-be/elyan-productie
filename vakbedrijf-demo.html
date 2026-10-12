@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=26">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=27">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -207,6 +207,38 @@
             <dd>Antwerpen en omgeving</dd>
           </div>
         </dl>
+      </section>
+
+      <!-- Alleen positieve match tonen als werkgebied echt is ingesteld -->
+      <section
+        class="vbd-section vbd-area"
+        id="vbdArea"
+        aria-labelledby="vbdAreaTitle"
+        data-areas-configured="true"
+        data-area-ranges="2000-2180,2500-2660"
+      >
+        <h2 id="vbdAreaTitle">Werkgebied</h2>
+        <p class="vbd-area-base">Gevestigd in Antwerpen</p>
+        <p class="vbd-area-active">Actief in Antwerpen en omliggende gemeenten.</p>
+
+        <form class="vbd-area-form" id="vbdAreaForm" novalidate>
+          <label class="vbd-sr" for="vbdPostcode">Postcode</label>
+          <div class="vbd-area-row">
+            <input
+              id="vbdPostcode"
+              class="vbd-area-input"
+              type="text"
+              inputmode="numeric"
+              autocomplete="postal-code"
+              maxlength="4"
+              pattern="[0-9]{4}"
+              placeholder="Vul je postcode in"
+              required
+            >
+            <button type="submit" class="vbd-area-check">Controleer</button>
+          </div>
+          <p class="vbd-area-result" id="vbdAreaResult" role="status" aria-live="polite" hidden></p>
+        </form>
       </section>
 
       <section class="vbd-section" aria-labelledby="vbdReviewsTitle">
@@ -408,6 +440,64 @@
       ping();
     });
   });
+
+  /* Werkgebied: postcode check only when areas are configured */
+  (function initAreaCheck() {
+    var area = document.getElementById('vbdArea');
+    if (!area) return;
+    var form = document.getElementById('vbdAreaForm');
+    var input = document.getElementById('vbdPostcode');
+    var result = document.getElementById('vbdAreaResult');
+    var configured = area.getAttribute('data-areas-configured') === 'true';
+    if (!configured) {
+      if (form) form.hidden = true;
+      return;
+    }
+    function parseRanges(raw) {
+      return String(raw || '').split(',').map(function (part) {
+        var bits = part.trim().split('-');
+        var a = parseInt(bits[0], 10);
+        var b = parseInt(bits[1] || bits[0], 10);
+        if (!a || !b) return null;
+        return [Math.min(a, b), Math.max(a, b)];
+      }).filter(Boolean);
+    }
+    var ranges = parseRanges(area.getAttribute('data-area-ranges'));
+    function inArea(code) {
+      var n = parseInt(code, 10);
+      for (var r = 0; r < ranges.length; r++) {
+        if (n >= ranges[r][0] && n <= ranges[r][1]) return true;
+      }
+      return false;
+    }
+    function showResult(ok, text) {
+      result.hidden = false;
+      result.textContent = text;
+      result.classList.toggle('is-ok', ok);
+      result.classList.toggle('is-no', !ok);
+    }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var code = String(input.value || '').replace(/\D/g, '').slice(0, 4);
+      input.value = code;
+      if (code.length !== 4) {
+        showResult(false, 'Vul een geldige Belgische postcode in (4 cijfers).');
+        return;
+      }
+      if (inArea(code)) {
+        showResult(true, '✓ Dit bedrijf werkt in jouw regio.');
+      } else {
+        showResult(false, 'Buiten het opgegeven werkgebied.');
+      }
+    });
+    input.addEventListener('input', function () {
+      input.value = String(input.value || '').replace(/\D/g, '').slice(0, 4);
+      if (result && !result.hidden) {
+        result.hidden = true;
+        result.classList.remove('is-ok', 'is-no');
+      }
+    });
+  })();
 
   var timing = null;
   var revealBtn = document.getElementById('vbdRevealCal');
