@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="nl-BE">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Demo vakbedrijfprofiel | ELYAN</title>
+<meta name="description" content="Tijdelijke demopagina: zo kan een publiek ELYAN-vakbedrijfprofiel eruitzien. Fictieve data.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#3F4A32">
+<link rel="canonical" href="https://www.elyan.be/vakbedrijf-demo">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=1">
+</head>
+<body class="page-vbd">
+<a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
+
+<div class="vbd-flag" role="status">
+  <div class="vbd-flag-inner">
+    <span class="vbd-flag-badge">Demo</span>
+    <p>Fictief voorbeeldprofiel · geen echt vakbedrijf · tijdelijke pagina</p>
+  </div>
+</div>
+
+<header class="vbd-top">
+  <div class="vbd-top-inner">
+    <a class="vbd-logo" href="/" aria-label="ELYAN home">
+      <svg viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+        <rect x="4" y="14" width="6" height="14" fill="currentColor"/>
+        <rect x="13" y="8" width="6" height="20" fill="currentColor"/>
+        <rect x="22" y="2" width="6" height="26" fill="currentColor"/>
+      </svg>
+      ELYAN
+    </a>
+    <span class="vbd-top-note">Profielvoorbeeld</span>
+  </div>
+</header>
+
+<main class="vbd-main" id="vbd-content">
+  <section class="vbd-gallery" aria-label="Projectfoto’s">
+    <div class="vbd-gallery-stage">
+      <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1 — demogalerij">
+      <div class="vbd-gallery-nav">
+        <button type="button" id="vbdPrev" aria-label="Vorige foto">‹</button>
+        <button type="button" id="vbdNext" aria-label="Volgende foto">›</button>
+      </div>
+      <div class="vbd-gallery-count" id="vbdCount" aria-live="polite">1 / 5</div>
+    </div>
+    <div class="vbd-thumbs" id="vbdThumbs" role="tablist" aria-label="Miniaturen"></div>
+  </section>
+
+  <div class="vbd-body">
+    <p class="vbd-kicker">Dakwerken · Demo</p>
+    <h1 class="vbd-title">Noord Dakatelier</h1>
+    <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
+    <div class="vbd-meta">
+      <span><strong>Antwerpen</strong> + 25 km</span>
+      <span class="vbd-pill">Beperkt beschikbaar</span>
+      <span>Start vanaf okt. 2026</span>
+    </div>
+
+    <div class="vbd-cta-wrap">
+      <button type="button" class="vbd-cta" data-vbd-offer>Vraag offerte aan <span aria-hidden="true">→</span></button>
+      <p class="vbd-cta-note">Via ELYAN · geen rechtstreeks contact · demo verstuurt niets</p>
+    </div>
+
+    <section class="vbd-block">
+      <h2>Specialisaties</h2>
+      <div class="vbd-chips">
+        <span class="vbd-chip">Volledige dakrenovatie</span>
+        <span class="vbd-chip">Dakisolatie</span>
+        <span class="vbd-chip">Hellende daken</span>
+        <span class="vbd-chip">Dakvensters</span>
+      </div>
+    </section>
+
+    <section class="vbd-block">
+      <h2>Werkgebied</h2>
+      <div class="vbd-facts">
+        <div class="vbd-fact"><span>Regio</span><strong>Antwerpen e.o.</strong></div>
+        <div class="vbd-fact"><span>Straal</span><strong>Tot 25 km</strong></div>
+        <div class="vbd-fact"><span>Plaatsbezoek</span><strong>Binnen 2 weken</strong></div>
+      </div>
+    </section>
+
+    <section class="vbd-block">
+      <h2>Over dit vakbedrijf</h2>
+      <p>Noord Dakatelier (demo) focust op hellende dakrenovaties voor gezinswoningen. Heldere planning, nette werf en duidelijke prijsindicaties vóór de start.</p>
+    </section>
+
+    <section class="vbd-block">
+      <h2>Prijsindicatie</h2>
+      <div class="vbd-prices">
+        <div class="vbd-price"><span>Dakrenovatie</span><strong>€ 160 – € 230 / m²</strong></div>
+        <div class="vbd-price"><span>Dakisolatie</span><strong>€ 45 – € 75 / m²</strong></div>
+        <div class="vbd-price"><span>Dakvenster</span><strong>Vanaf € 1.200</strong></div>
+      </div>
+      <p class="vbd-price-hint">Door het vakbedrijf aangeleverde indicatie · geen offerte · fictieve demodata</p>
+    </section>
+
+    <p class="vbd-foot">© ELYAN · Tijdelijke demopagina · alle bedrijfsgegevens en foto’s zijn fictief / illustratief</p>
+  </div>
+</main>
+
+<div class="vbd-sticky" aria-hidden="false">
+  <button type="button" class="vbd-cta" data-vbd-offer>Vraag offerte aan <span aria-hidden="true">→</span></button>
+</div>
+
+<div class="vbd-toast" id="vbdToast" role="status" aria-live="polite">Dit is een demo — er wordt geen offerteaanvraag verstuurd.</div>
+
+<script>
+(function () {
+  var photos = [
+    { src: '/assets/photos/hero.jpg', alt: 'Hellend dak — demofoto 1' },
+    { src: '/assets/photos/why.jpg', alt: 'Renovatie-detail — demofoto 2' },
+    { src: '/assets/photos/editorial.jpg', alt: 'Afwerking — demofoto 3' },
+    { src: '/assets/photos/about.jpg', alt: 'Vakwerk — demofoto 4' },
+    { src: '/assets/photos/elyan-hero-craftsman-workbench.jpg', alt: 'Atelier — demofoto 5' }
+  ];
+  var i = 0;
+  var hero = document.getElementById('vbdHero');
+  var count = document.getElementById('vbdCount');
+  var thumbs = document.getElementById('vbdThumbs');
+  var toast = document.getElementById('vbdToast');
+  var toastTimer;
+
+  function show(n) {
+    i = (n + photos.length) % photos.length;
+    hero.style.opacity = '0.35';
+    setTimeout(function () {
+      hero.src = photos[i].src;
+      hero.alt = photos[i].alt;
+      hero.style.opacity = '1';
+    }, 120);
+    count.textContent = (i + 1) + ' / ' + photos.length;
+    Array.prototype.forEach.call(thumbs.children, function (btn, idx) {
+      btn.classList.toggle('is-active', idx === i);
+      btn.setAttribute('aria-selected', idx === i ? 'true' : 'false');
+    });
+  }
+
+  photos.forEach(function (p, idx) {
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.setAttribute('role', 'tab');
+    btn.setAttribute('aria-label', 'Foto ' + (idx + 1));
+    btn.innerHTML = '<img src="' + p.src + '" alt="">';
+    if (idx === 0) btn.classList.add('is-active');
+    btn.addEventListener('click', function () { show(idx); });
+    thumbs.appendChild(btn);
+  });
+
+  document.getElementById('vbdPrev').addEventListener('click', function () { show(i - 1); });
+  document.getElementById('vbdNext').addEventListener('click', function () { show(i + 1); });
+
+  var startX = 0;
+  hero.addEventListener('touchstart', function (e) {
+    startX = e.changedTouches[0].clientX;
+  }, { passive: true });
+  hero.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].clientX - startX;
+    if (Math.abs(dx) < 40) return;
+    show(dx < 0 ? i + 1 : i - 1);
+  }, { passive: true });
+
+  function ping() {
+    toast.classList.add('is-on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toast.classList.remove('is-on'); }, 2600);
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('[data-vbd-offer]'), function (btn) {
+    btn.addEventListener('click', ping);
+  });
+})();
+</script>
+</body>
+</html>
