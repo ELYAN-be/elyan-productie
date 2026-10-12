@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=27">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=28">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -31,7 +31,7 @@
   </div>
 </header>
 
-<!-- 1. Identiteit + kerngegevens BOVEN de offerteknop -->
+<!-- 01. Bedrijfsidentiteit -->
 <section class="vbd-hero" id="vbd-content">
   <svg class="vbd-hero-mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
     <rect x="4" y="14" width="6" height="14" fill="currentColor"/>
@@ -65,7 +65,7 @@
 
 <div class="vbd-shell">
 
-  <!-- 2. Foto's: grote hoofdbeeld + rest in hetzelfde vlak -->
+  <!-- 02. Fotogalerij -->
   <section class="vbd-gallery" id="vbdPhotos" aria-label="Projectfoto's">
     <button type="button" class="vbd-gallery-main" id="vbdOpenGallery" aria-label="Bekijk alle foto's">
       <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
@@ -94,7 +94,7 @@
     <p class="vbd-lb-count" id="vbdLbCount" aria-live="polite">1 / 5</p>
   </div>
 
-  <!-- Compact availability: status only if vakman provided it; else op aanvraag -->
+  <!-- 03. Beschikbaarheid (status alleen als vakman die heeft opgegeven) -->
   <section class="vbd-avail" id="vbdAvail" data-avail="request" aria-labelledby="vbdAvailTitle">
     <div class="vbd-avail-copy">
       <h2 id="vbdAvailTitle">Beschikbaarheid</h2>
@@ -107,19 +107,7 @@
   <div class="vbd-layout">
     <div class="vbd-maincol">
 
-      <!-- Alleen opties die het vakbedrijf zelf heeft bevestigd -->
-      <section class="vbd-section vbd-jobs" aria-labelledby="vbdJobsTitle">
-        <h2 id="vbdJobsTitle">Welke opdrachten neemt dit bedrijf aan?</h2>
-        <p class="vbd-section-lead">Door het vakbedrijf zelf bevestigd.</p>
-        <ul class="vbd-jobs-list">
-          <li>Volledige renovaties</li>
-          <li>Dakisolatie</li>
-          <li>Kleine herstellingen</li>
-          <li>Dakonderhoud</li>
-          <li>Dringende dakherstellingen</li>
-        </ul>
-      </section>
-
+      <!-- 04. Diensten en specialisaties -->
       <section class="vbd-section">
         <h2>Diensten en specialisaties</h2>
         <ul class="vbd-help">
@@ -142,6 +130,20 @@
         </ul>
       </section>
 
+      <!-- 05. Soorten opdrachten — alleen door vakbedrijf bevestigd -->
+      <section class="vbd-section vbd-jobs" aria-labelledby="vbdJobsTitle">
+        <h2 id="vbdJobsTitle">Soorten opdrachten</h2>
+        <p class="vbd-section-lead">Door het vakbedrijf zelf bevestigd.</p>
+        <ul class="vbd-jobs-list">
+          <li>Volledige renovaties</li>
+          <li>Dakonderhoud</li>
+          <li>Kleine herstellingen</li>
+          <li>Dringende dakherstellingen</li>
+          <li>Dakisolatie</li>
+        </ul>
+      </section>
+
+      <!-- 06. Richtprijzen -->
       <section class="vbd-section" aria-labelledby="vbdPricesTitle">
         <h2 id="vbdPricesTitle">Richtprijzen</h2>
         <p class="vbd-section-lead">Door het vakbedrijf zelf opgegeven.</p>
@@ -178,38 +180,7 @@
         </ul>
       </section>
 
-      <section class="vbd-section" aria-labelledby="vbdAboutTitle">
-        <h2 id="vbdAboutTitle">Over Noord Dakatelier</h2>
-        <p class="vbd-about">
-          Noord Dakatelier is een dakbedrijf uit Antwerpen, gespecialiseerd in hellende dakrenovaties voor gezinswoningen.
-          Het team werkt met eigen dakwerkers — van inspectie en prijsindicatie tot oplevering — zodat planning en uitvoering bij dezelfde mensen blijven.
-          Op de werf houden ze het netjes en voorspelbaar: duidelijke afspraken vooraf, en een prijsindicatie vóór de start.
-        </p>
-        <dl class="vbd-facts">
-          <div>
-            <dt>Ervaring</dt>
-            <dd>18 jaar in dakwerken</dd>
-          </div>
-          <div>
-            <dt>Vestiging</dt>
-            <dd>Antwerpen</dd>
-          </div>
-          <div>
-            <dt>Specialisatie</dt>
-            <dd>Hellende dakrenovaties</dd>
-          </div>
-          <div>
-            <dt>Team</dt>
-            <dd>Eigen dakwerkers</dd>
-          </div>
-          <div>
-            <dt>Werkgebied</dt>
-            <dd>Antwerpen en omgeving</dd>
-          </div>
-        </dl>
-      </section>
-
-      <!-- Alleen positieve match tonen als werkgebied echt is ingesteld -->
+      <!-- 07. Werkgebied -->
       <section
         class="vbd-section vbd-area"
         id="vbdArea"
@@ -241,6 +212,35 @@
         </form>
       </section>
 
+      <!-- 08. Over het bedrijf -->
+      <section class="vbd-section" aria-labelledby="vbdAboutTitle">
+        <h2 id="vbdAboutTitle">Over het bedrijf</h2>
+        <p class="vbd-about">
+          Noord Dakatelier is een dakbedrijf uit Antwerpen, gespecialiseerd in hellende dakrenovaties voor gezinswoningen.
+          Het team werkt met eigen dakwerkers — van inspectie en prijsindicatie tot oplevering — zodat planning en uitvoering bij dezelfde mensen blijven.
+          Op de werf houden ze het netjes en voorspelbaar: duidelijke afspraken vooraf, en een prijsindicatie vóór de start.
+        </p>
+        <dl class="vbd-facts">
+          <div>
+            <dt>Ervaring</dt>
+            <dd>18 jaar in dakwerken</dd>
+          </div>
+          <div>
+            <dt>Vestiging</dt>
+            <dd>Antwerpen</dd>
+          </div>
+          <div>
+            <dt>Specialisatie</dt>
+            <dd>Hellende dakrenovaties</dd>
+          </div>
+          <div>
+            <dt>Team</dt>
+            <dd>Eigen dakwerkers</dd>
+          </div>
+        </dl>
+      </section>
+
+      <!-- 09. Klantbeoordelingen -->
       <section class="vbd-section" aria-labelledby="vbdReviewsTitle">
         <h2 id="vbdReviewsTitle">Ervaringen van klanten</h2>
         <div class="vbd-reviews-head">
@@ -299,13 +299,24 @@
         </article>
       </section>
 
+      <!-- 10. Contact (mobiel: boekingskaart volgt hierna) -->
+      <section class="vbd-section vbd-contact" aria-labelledby="vbdContactTitle">
+        <h2 id="vbdContactTitle">Contact</h2>
+        <p class="vbd-contact-lead">Vraag een offerte of beschikbaarheid aan bij Noord Dakatelier.</p>
+        <div class="vbd-actions vbd-contact-actions">
+          <a class="vbd-btn vbd-btn-call" href="tel:+3230000000">Bel vakman</a>
+          <a class="vbd-btn vbd-btn-primary" href="#vbdBook">Vraag offerte aan</a>
+        </div>
+        <button type="button" class="vbd-avail-btn vbd-contact-avail" data-vbd-request-avail>Vraag beschikbaarheid aan</button>
+      </section>
+
       <p class="vbd-foot">© ELYAN</p>
     </div>
 
-    <!-- Sticky book card -->
-    <aside class="vbd-book" id="vbdBook" aria-label="Plaatsbezoek plannen">
-      <p class="vbd-book-kicker">Aanvraag</p>
-      <h2>Wanneer wil je starten?</h2>
+    <!-- 10. Contact / aanvraag — desktop sticky; mobiel onderaan na reviews -->
+    <aside class="vbd-book" id="vbdBook" aria-label="Contact en offerte">
+      <p class="vbd-book-kicker">Contact</p>
+      <h2>Offerte of plaatsbezoek</h2>
 
       <div class="vbd-timing" role="group" aria-label="Renovatieperiode">
         <button type="button" class="vbd-chip" data-timing="asap">Zo snel mogelijk</button>
