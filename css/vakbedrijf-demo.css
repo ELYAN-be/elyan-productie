@@ -509,10 +509,15 @@
 .vbd-maincol {
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
+  gap: 1.75rem;
 }
 
-/* Primary panels — only decision-critical blocks get card weight */
+/* Regel: belangrijke info = kaarten */
+.vbd-primary {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
 .vbd-panel {
   background: var(--white);
   border: 1px solid var(--line);
@@ -536,21 +541,30 @@
   line-height: 1.4;
 }
 
-/* Compact info bands — no heavy cards */
-.vbd-band {
-  display: grid;
-  gap: 0.75rem;
-  padding: 0.85rem 0;
+/* Regel: ondersteunende info = eenvoudige secties met lijnen */
+.vbd-support {
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.15rem;
   border-top: 1px solid var(--line);
+}
+.vbd-support-item {
+  padding: 1rem 0;
   border-bottom: 1px solid var(--line);
 }
-.vbd-band-copy h2 {
-  margin: 0 0 0.2rem;
+.vbd-support-item h2,
+.vbd-support-item > summary > span:first-child {
   font-family: var(--display);
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: -0.02em;
 }
+
+.vbd-band {
+  display: grid;
+  gap: 0.75rem;
+}
+.vbd-band-copy h2 { margin: 0 0 0.2rem; }
 .vbd-band-copy p {
   margin: 0;
   font-size: 0.88rem;
@@ -558,17 +572,9 @@
   line-height: 1.4;
 }
 
-/* Secondary cluster + foldouts */
-.vbd-secondary {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  padding-top: 0.15rem;
-}
 .vbd-fold {
-  border-top: 1px solid var(--line);
+  border: 0;
 }
-.vbd-fold:last-child { border-bottom: 1px solid var(--line); }
 .vbd-fold > summary {
   list-style: none;
   display: flex;
@@ -576,7 +582,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 0.35rem 1rem;
-  padding: 0.85rem 0;
+  padding: 0;
   cursor: pointer;
   font-family: var(--display);
   font-size: 1rem;
@@ -600,54 +606,32 @@
   font-weight: 500;
   color: var(--muted);
 }
-.vbd-fold-body {
-  padding: 0 0 1rem;
-}
+.vbd-fold-body { padding: 0.75rem 0 0.15rem; }
 .vbd-fold-nested {
-  border-top: 1px solid rgba(100, 102, 98, 0.1);
-  border-bottom: 0;
+  margin-top: 0.75rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(100, 102, 98, 0.12);
 }
 .vbd-fold-nested > summary {
   font-size: 0.9rem;
-  padding: 0.7rem 0;
 }
 
-/* Reviews summary band */
-.vbd-reviews-band {
-  border-top: 1px solid var(--line);
-  padding-top: 0.85rem;
-}
 .vbd-reviews-band .vbd-reviews-head {
   margin: 0;
   padding: 0;
   border: 0;
   gap: 0.25rem;
 }
-.vbd-reviews-band h2 {
-  margin: 0 0 0.35rem;
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
+.vbd-reviews-band h2 { margin: 0 0 0.35rem; }
 
-/* Mobile contact bar — not a full card */
 .vbd-contact-bar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem 1rem;
-  padding: 0.9rem 0;
-  border-top: 1px solid var(--line);
 }
-.vbd-contact-bar h2 {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
+.vbd-contact-bar h2 { margin: 0; }
 .vbd-contact-bar p {
   margin: 0.15rem 0 0;
   font-size: 0.82rem;
@@ -1332,6 +1316,8 @@
   .vbd-panel {
     padding: 1.4rem 1.35rem 1.45rem;
   }
+  .vbd-primary { gap: 1rem; }
+  .vbd-maincol { gap: 2rem; }
   .vbd-band {
     grid-template-columns: minmax(0, 1fr) minmax(240px, 280px);
     align-items: end;

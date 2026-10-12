@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=34">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=35">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -107,6 +107,9 @@
   <div class="vbd-layout">
     <div class="vbd-maincol">
 
+      <!-- Primair: belangrijke info = kaarten -->
+      <div class="vbd-primary">
+
       <!-- 04. Diensten — één sectie, interne hiërarchie -->
       <section class="vbd-panel" aria-labelledby="vbdServicesTitle">
         <div class="vbd-panel-head">
@@ -182,9 +185,14 @@
         </ul>
       </section>
 
-      <!-- 07. Werkgebied — compacte band -->
+      </div>
+
+      <!-- Ondersteunend: eenvoudige secties, geen kaarten -->
+      <div class="vbd-support">
+
+      <!-- 07. Werkgebied -->
       <section
-        class="vbd-band"
+        class="vbd-support-item vbd-band"
         id="vbdArea"
         aria-labelledby="vbdAreaTitle"
         data-areas-configured="true"
@@ -214,109 +222,108 @@
         </form>
       </section>
 
-      <!-- 08 + 09: secundair — uitklapbaar / samengevat -->
-      <div class="vbd-secondary">
-        <details class="vbd-fold">
+      <!-- 08. Over het bedrijf -->
+      <details class="vbd-support-item vbd-fold">
+        <summary>
+          <span>Over het bedrijf</span>
+          <span class="vbd-fold-hint">18 jaar · Eigen team · Antwerpen</span>
+        </summary>
+        <div class="vbd-fold-body">
+          <p class="vbd-about">
+            Noord Dakatelier is een dakbedrijf uit Antwerpen, gespecialiseerd in hellende dakrenovaties voor gezinswoningen.
+            Het team werkt met eigen dakwerkers — van inspectie en prijsindicatie tot oplevering — zodat planning en uitvoering bij dezelfde mensen blijven.
+            Op de werf houden ze het netjes en voorspelbaar: duidelijke afspraken vooraf, en een prijsindicatie vóór de start.
+          </p>
+          <dl class="vbd-facts">
+            <div>
+              <dt>Ervaring</dt>
+              <dd>18 jaar in dakwerken</dd>
+            </div>
+            <div>
+              <dt>Vestiging</dt>
+              <dd>Antwerpen</dd>
+            </div>
+            <div>
+              <dt>Specialisatie</dt>
+              <dd>Hellende dakrenovaties</dd>
+            </div>
+            <div>
+              <dt>Team</dt>
+              <dd>Eigen dakwerkers</dd>
+            </div>
+          </dl>
+        </div>
+      </details>
+
+      <!-- 09. Reviews -->
+      <section class="vbd-support-item vbd-reviews-band" aria-labelledby="vbdReviewsTitle">
+        <div class="vbd-reviews-head">
+          <h2 id="vbdReviewsTitle">Ervaringen van klanten</h2>
+          <div class="vbd-reviews-score" aria-label="4,8 van 5">
+            <span class="vbd-reviews-stars" aria-hidden="true">
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+              <svg><use href="#i-star"></use></svg>
+            </span>
+            <strong>4,8/5</strong>
+          </div>
+          <p class="vbd-reviews-source">Gebaseerd op 47 Google-beoordelingen</p>
+          <a class="vbd-reviews-link" href="https://www.google.com/maps/search/?api=1&amp;query=Noord+Dakatelier+Antwerpen" target="_blank" rel="noopener noreferrer">
+            Bekijk beoordelingen op Google <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+        <details class="vbd-fold vbd-fold-nested">
           <summary>
-            <span>Over het bedrijf</span>
-            <span class="vbd-fold-hint">18 jaar · Eigen team · Antwerpen</span>
+            <span>Recente beoordelingen</span>
+            <span class="vbd-fold-hint">3 tonen</span>
           </summary>
           <div class="vbd-fold-body">
-            <p class="vbd-about">
-              Noord Dakatelier is een dakbedrijf uit Antwerpen, gespecialiseerd in hellende dakrenovaties voor gezinswoningen.
-              Het team werkt met eigen dakwerkers — van inspectie en prijsindicatie tot oplevering — zodat planning en uitvoering bij dezelfde mensen blijven.
-              Op de werf houden ze het netjes en voorspelbaar: duidelijke afspraken vooraf, en een prijsindicatie vóór de start.
-            </p>
-            <dl class="vbd-facts">
-              <div>
-                <dt>Ervaring</dt>
-                <dd>18 jaar in dakwerken</dd>
+            <article class="vbd-review">
+              <div class="vbd-review-head">
+                <strong>Annelies V.</strong>
+                <span class="vbd-review-stars" aria-label="5 van 5">
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                </span>
               </div>
-              <div>
-                <dt>Vestiging</dt>
-                <dd>Antwerpen</dd>
+              <p>Nette werf, duidelijke planning en nette afwerking van het hellend dak.</p>
+            </article>
+            <article class="vbd-review">
+              <div class="vbd-review-head">
+                <strong>Pieter D.</strong>
+                <span class="vbd-review-stars" aria-label="5 van 5">
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                </span>
               </div>
-              <div>
-                <dt>Specialisatie</dt>
-                <dd>Hellende dakrenovaties</dd>
+              <p>Goede uitleg over isolatieopties. Prijs bleef dicht bij de indicatie.</p>
+            </article>
+            <article class="vbd-review">
+              <div class="vbd-review-head">
+                <strong>Sofie M.</strong>
+                <span class="vbd-review-stars" aria-label="4 van 5">
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                  <svg aria-hidden="true"><use href="#i-star"></use></svg>
+                </span>
               </div>
-              <div>
-                <dt>Team</dt>
-                <dd>Eigen dakwerkers</dd>
-              </div>
-            </dl>
+              <p>Correcte oplevering en snelle opvolging bij een kleine herstelling.</p>
+            </article>
           </div>
         </details>
+      </section>
 
-        <section class="vbd-reviews-band" aria-labelledby="vbdReviewsTitle">
-          <div class="vbd-reviews-head">
-            <h2 id="vbdReviewsTitle">Ervaringen van klanten</h2>
-            <div class="vbd-reviews-score" aria-label="4,8 van 5">
-              <span class="vbd-reviews-stars" aria-hidden="true">
-                <svg><use href="#i-star"></use></svg>
-                <svg><use href="#i-star"></use></svg>
-                <svg><use href="#i-star"></use></svg>
-                <svg><use href="#i-star"></use></svg>
-                <svg><use href="#i-star"></use></svg>
-              </span>
-              <strong>4,8/5</strong>
-            </div>
-            <p class="vbd-reviews-source">Gebaseerd op 47 Google-beoordelingen</p>
-            <a class="vbd-reviews-link" href="https://www.google.com/maps/search/?api=1&amp;query=Noord+Dakatelier+Antwerpen" target="_blank" rel="noopener noreferrer">
-              Bekijk beoordelingen op Google <span aria-hidden="true">↗</span>
-            </a>
-          </div>
-          <details class="vbd-fold vbd-fold-nested">
-            <summary>
-              <span>Recente beoordelingen</span>
-              <span class="vbd-fold-hint">3 tonen</span>
-            </summary>
-            <div class="vbd-fold-body">
-              <article class="vbd-review">
-                <div class="vbd-review-head">
-                  <strong>Annelies V.</strong>
-                  <span class="vbd-review-stars" aria-label="5 van 5">
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                  </span>
-                </div>
-                <p>Nette werf, duidelijke planning en nette afwerking van het hellend dak.</p>
-              </article>
-              <article class="vbd-review">
-                <div class="vbd-review-head">
-                  <strong>Pieter D.</strong>
-                  <span class="vbd-review-stars" aria-label="5 van 5">
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                  </span>
-                </div>
-                <p>Goede uitleg over isolatieopties. Prijs bleef dicht bij de indicatie.</p>
-              </article>
-              <article class="vbd-review">
-                <div class="vbd-review-head">
-                  <strong>Sofie M.</strong>
-                  <span class="vbd-review-stars" aria-label="4 van 5">
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                    <svg aria-hidden="true"><use href="#i-star"></use></svg>
-                  </span>
-                </div>
-                <p>Correcte oplevering en snelle opvolging bij een kleine herstelling.</p>
-              </article>
-            </div>
-          </details>
-        </section>
-      </div>
-
-      <!-- 10. Contact — dunne actiebalk (mobiel); desktop = boekingskaart -->
-      <section class="vbd-contact-bar" aria-labelledby="vbdContactTitle">
+      <!-- 10. Contact — mobiel; desktop = boekingskaart -->
+      <section class="vbd-support-item vbd-contact-bar" aria-labelledby="vbdContactTitle">
         <div>
           <h2 id="vbdContactTitle">Contact</h2>
           <p>Offerte of beschikbaarheid aanvragen</p>
@@ -326,6 +333,8 @@
           <a class="vbd-btn vbd-btn-primary" href="#vbdBook">Offerte</a>
         </div>
       </section>
+
+      </div>
 
       <p class="vbd-foot">© ELYAN</p>
     </div>
