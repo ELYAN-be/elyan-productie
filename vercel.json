@@ -33,6 +33,10 @@
   ],
   "rewrites": [
     {
+      "source": "/demo/vakman",
+      "destination": "/demo/vakman-profiel.html"
+    },
+    {
       "source": "/sitemap.xml",
       "destination": "/api/sitemap.xml"
     },
