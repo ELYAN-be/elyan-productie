@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=31">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=32">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -94,14 +94,13 @@
     <p class="vbd-lb-count" id="vbdLbCount" aria-live="polite">1 / 5</p>
   </div>
 
-  <!-- 03. Beschikbaarheid (status alleen als vakman die heeft opgegeven) -->
+  <!-- 03. Beschikbaarheid — info only; aanvraag via offerte -->
   <section class="vbd-avail" id="vbdAvail" data-avail="request" aria-labelledby="vbdAvailTitle">
     <div class="vbd-avail-copy">
       <h2 id="vbdAvailTitle">Beschikbaarheid</h2>
       <p class="vbd-avail-status">Beschikbaarheid op aanvraag</p>
-      <p class="vbd-avail-meta">Regio: Antwerpen en omgeving</p>
+      <p class="vbd-avail-meta">Meenemen in je offerteaanvraag · Antwerpen en omgeving</p>
     </div>
-    <button type="button" class="vbd-avail-btn" data-vbd-request-avail>Vraag beschikbaarheid aan</button>
   </section>
 
   <div class="vbd-layout">
@@ -196,20 +195,16 @@
         </div>
         <form class="vbd-area-form" id="vbdAreaForm" novalidate>
           <label class="vbd-sr" for="vbdPostcode">Postcode</label>
-          <div class="vbd-area-row">
-            <input
-              id="vbdPostcode"
-              class="vbd-area-input"
-              type="text"
-              inputmode="numeric"
-              autocomplete="postal-code"
-              maxlength="4"
-              pattern="[0-9]{4}"
-              placeholder="Vul je postcode in"
-              required
-            >
-            <button type="submit" class="vbd-area-check">Controleer</button>
-          </div>
+          <input
+            id="vbdPostcode"
+            class="vbd-area-input"
+            type="text"
+            inputmode="numeric"
+            autocomplete="postal-code"
+            maxlength="4"
+            pattern="[0-9]{4}"
+            placeholder="Vul je postcode in"
+          >
           <p class="vbd-area-result" id="vbdAreaResult" role="status" aria-live="polite" hidden></p>
         </form>
       </section>
@@ -315,25 +310,14 @@
         </section>
       </div>
 
-      <!-- 10. Contact — dunne actiebalk (mobiel); desktop = boekingskaart -->
-      <section class="vbd-contact-bar" aria-labelledby="vbdContactTitle">
-        <div>
-          <h2 id="vbdContactTitle">Contact</h2>
-          <p>Offerte of beschikbaarheid aanvragen</p>
-        </div>
-        <div class="vbd-contact-bar-actions">
-          <a class="vbd-btn vbd-btn-call" href="tel:+3230000000">Bel</a>
-          <a class="vbd-btn vbd-btn-primary" href="#vbdBook">Offerte</a>
-        </div>
-      </section>
-
       <p class="vbd-foot">© ELYAN</p>
     </div>
 
-    <!-- 10. Contact / aanvraag — desktop sticky; mobiel onderaan na reviews -->
-    <aside class="vbd-book" id="vbdBook" aria-label="Contact en offerte">
-      <p class="vbd-book-kicker">Contact</p>
-      <h2>Offerte of plaatsbezoek</h2>
+    <!-- 10. Aanvraag — één primaire actie; desktop sticky, mobiel onderaan -->
+    <aside class="vbd-book" id="vbdBook" aria-label="Offerte aanvragen">
+      <p class="vbd-book-kicker">Aanvraag</p>
+      <h2>Vraag een offerte aan</h2>
+      <p class="vbd-book-lead">Kies wanneer je wilt starten. Een plaatsbezoekmoment is optioneel.</p>
 
       <div class="vbd-timing" role="group" aria-label="Renovatieperiode">
         <button type="button" class="vbd-chip" data-timing="asap">Zo snel mogelijk</button>
@@ -342,13 +326,9 @@
         <button type="button" class="vbd-chip" data-timing="flex">Ik ben flexibel</button>
       </div>
 
-      <button type="button" class="vbd-btn-reveal" id="vbdRevealCal" disabled>
-        Bekijk beschikbare momenten <span aria-hidden="true">→</span>
-      </button>
-
       <div id="vbdAgendaRoot" data-has-agenda="true">
         <div class="vbd-cal-panel" id="vbdCalPanel" hidden>
-          <p class="vbd-cal-label">Kies een moment voor het plaatsbezoek</p>
+          <p class="vbd-cal-label">Optioneel: kies een moment voor het plaatsbezoek</p>
           <div class="vbd-cal-tabs" role="tablist" aria-label="Maand">
             <button type="button" class="vbd-cal-tab is-active" data-cal-mode="this">Deze maand</button>
             <button type="button" class="vbd-cal-tab" data-cal-mode="next">Volgende maand</button>
@@ -369,14 +349,13 @@
       </div>
 
       <div id="vbdAgendaEmpty" class="vbd-avail-empty" hidden>
-        <p>Nog geen momenten vrijgegeven.</p>
-        <button type="button" class="vbd-cta" data-vbd-request-avail>Beschikbaarheid aanvragen <span aria-hidden="true">→</span></button>
+        <p>Nog geen momenten vrijgegeven. Je kunt toch een offerteaanvraag versturen.</p>
       </div>
 
-      <button type="button" class="vbd-cta vbd-cta-desktop" data-vbd-offer disabled>
+      <button type="button" class="vbd-cta" data-vbd-offer disabled>
         Vraag offerte aan <span aria-hidden="true">→</span>
       </button>
-      <p class="vbd-book-note">Eerst een moment kiezen voor het plaatsbezoek</p>
+      <p class="vbd-book-note">Kies eerst wanneer je wilt starten</p>
     </aside>
   </div>
 </div>
@@ -460,16 +439,14 @@
     toastTimer = setTimeout(function () { toast.classList.remove('is-on'); }, 2200);
   }
   Array.prototype.forEach.call(offerBtns, function (b) {
-    b.addEventListener('click', function () { if (!b.disabled) ping(); });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('[data-vbd-request-avail]'), function (b) {
     b.addEventListener('click', function () {
-      toast.textContent = 'Beschikbaarheidsvraag verstuurd.';
+      if (b.disabled) return;
+      toast.textContent = 'Offerteaanvraag voorbereid.';
       ping();
     });
   });
 
-  /* Werkgebied: postcode check only when areas are configured */
+  /* Werkgebied: auto-check bij 4 cijfers — geen aparte knop */
   (function initAreaCheck() {
     var area = document.getElementById('vbdArea');
     if (!area) return;
@@ -504,48 +481,35 @@
       result.classList.toggle('is-ok', ok);
       result.classList.toggle('is-no', !ok);
     }
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+    function check() {
       var code = String(input.value || '').replace(/\D/g, '').slice(0, 4);
       input.value = code;
-      if (code.length !== 4) {
-        showResult(false, 'Vul een geldige Belgische postcode in (4 cijfers).');
-        return;
-      }
-      if (inArea(code)) {
-        showResult(true, '✓ Dit bedrijf werkt in jouw regio.');
-      } else {
-        showResult(false, 'Buiten het opgegeven werkgebied.');
-      }
-    });
-    input.addEventListener('input', function () {
-      input.value = String(input.value || '').replace(/\D/g, '').slice(0, 4);
-      if (result && !result.hidden) {
+      if (code.length < 4) {
         result.hidden = true;
         result.classList.remove('is-ok', 'is-no');
+        return;
       }
+      if (inArea(code)) showResult(true, '✓ Dit bedrijf werkt in jouw regio.');
+      else showResult(false, 'Buiten het opgegeven werkgebied.');
+    }
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      check();
     });
+    input.addEventListener('input', check);
   })();
 
   var timing = null;
-  var revealBtn = document.getElementById('vbdRevealCal');
   var calPanel = document.getElementById('vbdCalPanel');
   var root = document.getElementById('vbdAgendaRoot');
   var empty = document.getElementById('vbdAgendaEmpty');
+  var bookNote = document.querySelector('.vbd-book-note');
   var hasAgenda = root.getAttribute('data-has-agenda') === 'true';
 
-  Array.prototype.forEach.call(document.querySelectorAll('[data-timing]'), function (btn) {
-    btn.addEventListener('click', function () {
-      Array.prototype.forEach.call(document.querySelectorAll('[data-timing]'), function (b) {
-        b.classList.toggle('is-active', b === btn);
-      });
-      timing = btn.getAttribute('data-timing');
-      revealBtn.disabled = false;
-    });
-  });
-
-  revealBtn.addEventListener('click', function () {
+  function revealAgenda() {
     if (!timing) return;
+    enableOffer(true);
+    if (bookNote) bookNote.textContent = 'Plaatsbezoekmoment is optioneel';
     if (!hasAgenda) {
       empty.hidden = false;
       if (calPanel) calPanel.hidden = true;
@@ -553,6 +517,16 @@
     }
     empty.hidden = true;
     calPanel.hidden = false;
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-timing]'), function (btn) {
+    btn.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('[data-timing]'), function (b) {
+        b.classList.toggle('is-active', b === btn);
+      });
+      timing = btn.getAttribute('data-timing');
+      revealAgenda();
+    });
   });
 
   if (!hasAgenda) return;

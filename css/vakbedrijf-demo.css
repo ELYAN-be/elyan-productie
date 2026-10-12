@@ -462,28 +462,6 @@
   font-size: 0.82rem;
   color: var(--muted);
 }
-.vbd-avail-btn {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 0 1rem;
-  border: 1.5px solid rgba(63, 74, 50, 0.28);
-  border-radius: 999px;
-  background: var(--white);
-  color: var(--olive-dark);
-  font-family: inherit;
-  font-size: 0.84rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s var(--ease), border-color 0.15s var(--ease), transform 0.15s var(--ease);
-}
-.vbd-avail-btn:hover {
-  background: rgba(63, 74, 50, 0.06);
-  border-color: var(--olive);
-  transform: translateY(-1px);
-}
 
 /* Future calendar-backed states — only when vakman set availability */
 .vbd-avail[data-avail="open"] .vbd-avail-status::before,
@@ -631,37 +609,6 @@
   letter-spacing: -0.02em;
 }
 
-/* Mobile contact bar — not a full card */
-.vbd-contact-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem 1rem;
-  padding: 0.9rem 0;
-  border-top: 1px solid var(--line);
-}
-.vbd-contact-bar h2 {
-  margin: 0;
-  font-family: var(--display);
-  font-size: 1rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-.vbd-contact-bar p {
-  margin: 0.15rem 0 0;
-  font-size: 0.82rem;
-  color: var(--muted);
-}
-.vbd-contact-bar-actions {
-  display: flex;
-  gap: 0.45rem;
-}
-.vbd-contact-bar-actions .vbd-btn {
-  min-height: 42px;
-  padding: 0 0.95rem;
-  font-size: 0.84rem;
-}
 
 /* Booking card — Takeaway/Booking sticky feel */
 .vbd-book {
@@ -680,11 +627,17 @@
   color: var(--olive);
 }
 .vbd-book h2 {
-  margin: 0 0 0.85rem;
+  margin: 0 0 0.35rem;
   font-family: var(--display);
   font-size: 1.3rem;
   font-weight: 700;
   letter-spacing: -0.03em;
+}
+.vbd-book-lead {
+  margin: 0 0 0.9rem;
+  font-size: 0.84rem;
+  color: var(--muted);
+  line-height: 1.4;
 }
 
 .vbd-timing {
@@ -714,36 +667,6 @@
   background: rgba(63, 74, 50, 0.08);
   color: var(--olive-dark);
   box-shadow: inset 0 0 0 1px var(--olive);
-}
-
-.vbd-btn-reveal {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  min-height: 48px;
-  margin-bottom: 0.75rem;
-  padding: 0 1rem;
-  border: 0;
-  border-radius: 999px;
-  background: var(--olive);
-  color: #fff;
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(63, 74, 50, 0.2);
-  transition: background 0.15s ease, transform 0.15s var(--ease), opacity 0.15s ease;
-}
-.vbd-btn-reveal:hover:not(:disabled) {
-  background: var(--olive-dark);
-  transform: translateY(-1px);
-}
-.vbd-btn-reveal:disabled {
-  opacity: 0.38;
-  cursor: default;
-  transform: none;
-  box-shadow: none;
 }
 
 .vbd-cal-panel {
@@ -927,8 +850,6 @@
   color: var(--muted);
   text-align: center;
 }
-.vbd-cta-desktop { margin-top: 0.15rem; }
-
 /* Services — lead / core / also-accepts */
 .vbd-service-lead {
   margin: 0.85rem 0 0;
@@ -1098,17 +1019,10 @@
   color: var(--muted);
 }
 
-/* Werkgebied postcode inside band */
-.vbd-band .vbd-area-form { margin: 0; padding: 0; border: 0; }
-.vbd-area-row {
-  display: flex;
-  gap: 0.45rem;
-  align-items: stretch;
-  max-width: 22rem;
-}
+/* Werkgebied postcode — veld, geen knop */
+.vbd-band .vbd-area-form { margin: 0; padding: 0; border: 0; max-width: 16rem; }
 .vbd-area-input {
-  flex: 1 1 auto;
-  min-width: 0;
+  width: 100%;
   min-height: 40px;
   padding: 0 0.8rem;
   border: 1.5px solid rgba(63, 74, 50, 0.22);
@@ -1124,24 +1038,9 @@
   border-color: var(--olive);
   box-shadow: 0 0 0 3px rgba(63, 74, 50, 0.12);
 }
-.vbd-area-check {
-  flex: 0 0 auto;
-  min-height: 40px;
-  padding: 0 0.9rem;
-  border: 0;
-  border-radius: 10px;
-  background: var(--olive);
-  color: #fff;
-  font-family: inherit;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s var(--ease);
-}
-.vbd-area-check:hover { background: var(--olive-dark); }
 .vbd-area-result {
-  margin: 0.55rem 0 0;
-  font-size: 0.86rem;
+  margin: 0.45rem 0 0;
+  font-size: 0.84rem;
   font-weight: 600;
   line-height: 1.4;
 }
@@ -1182,9 +1081,9 @@
   gap: 0.25rem;
   margin-top: 0.2rem;
   width: fit-content;
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--olive);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--muted);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
@@ -1261,17 +1160,11 @@
     display: flex;
     flex-direction: column;
   }
-  .vbd-cta-desktop { display: none; }
   .vbd-gallery {
     margin-left: -1.15rem;
     margin-right: -1.15rem;
     border-radius: 0;
   }
-  .vbd-avail {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .vbd-avail-btn { width: 100%; }
 }
 
 @media (min-width: 900px) {
@@ -1342,8 +1235,6 @@
   .vbd-toast { bottom: 2rem; }
   .vbd-foot { text-align: left; }
   .vbd-top-inner { padding-left: 1.75rem; padding-right: 1.75rem; }
-  /* Desktop: contact leeft in de sticky boekingskaart */
-  .vbd-contact-bar { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
