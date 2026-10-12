@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=1">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=2">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -39,6 +39,21 @@
 </header>
 
 <main class="vbd-main" id="vbd-content">
+  <!-- Identity first on mobile: name / specialty / location before deep scroll -->
+  <header class="vbd-identity">
+    <div class="vbd-mark" data-has-logo="false">
+      <!-- Optional logo: set data-has-logo="true" and add <img class="vbd-mark-img" src="..." alt=""> -->
+      <span class="vbd-mark-fallback" aria-hidden="true">ND</span>
+      <span class="vbd-sr">Logo Noord Dakatelier (initialen, geen beeldlogo in deze demo)</span>
+    </div>
+    <div class="vbd-identity-copy">
+      <p class="vbd-kicker">Dakwerken</p>
+      <h1 class="vbd-title">Noord Dakatelier</h1>
+      <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
+      <p class="vbd-place"><strong>Antwerpen</strong> · + 25 km</p>
+    </div>
+  </header>
+
   <section class="vbd-gallery" aria-label="Projectfoto’s">
     <div class="vbd-gallery-stage">
       <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1 — demogalerij">
@@ -52,60 +67,54 @@
   </section>
 
   <div class="vbd-body">
-    <p class="vbd-kicker">Dakwerken · Demo</p>
-    <h1 class="vbd-title">Noord Dakatelier</h1>
-    <p class="vbd-tagline">Hellende daken met nette planning en afwerking.</p>
-    <div class="vbd-meta">
-      <span><strong>Antwerpen</strong> + 25 km</span>
+    <div class="vbd-status-row">
       <span class="vbd-pill">Beperkt beschikbaar</span>
-      <span>Start vanaf okt. 2026</span>
+      <span class="vbd-status-sep">Start okt. 2026</span>
     </div>
 
     <div class="vbd-cta-wrap">
       <button type="button" class="vbd-cta" data-vbd-offer>Vraag offerte aan <span aria-hidden="true">→</span></button>
-      <p class="vbd-cta-note">Via ELYAN · geen rechtstreeks contact · demo verstuurt niets</p>
+      <p class="vbd-cta-note">Via ELYAN · demo verstuurt niets</p>
     </div>
 
-    <section class="vbd-block">
-      <h2>Specialisaties</h2>
-      <div class="vbd-chips">
-        <span class="vbd-chip">Volledige dakrenovatie</span>
-        <span class="vbd-chip">Dakisolatie</span>
-        <span class="vbd-chip">Hellende daken</span>
-        <span class="vbd-chip">Dakvensters</span>
-      </div>
-    </section>
+    <div class="vbd-sheet">
+      <section class="vbd-block">
+        <h2>Specialisaties</h2>
+        <div class="vbd-chips">
+          <span class="vbd-chip">Dakrenovatie</span>
+          <span class="vbd-chip">Dakisolatie</span>
+          <span class="vbd-chip">Hellende daken</span>
+          <span class="vbd-chip">Dakvensters</span>
+        </div>
+      </section>
 
-    <section class="vbd-block">
-      <h2>Werkgebied</h2>
-      <div class="vbd-facts">
-        <div class="vbd-fact"><span>Regio</span><strong>Antwerpen e.o.</strong></div>
-        <div class="vbd-fact"><span>Straal</span><strong>Tot 25 km</strong></div>
-        <div class="vbd-fact"><span>Plaatsbezoek</span><strong>Binnen 2 weken</strong></div>
-      </div>
-    </section>
+      <section class="vbd-block">
+        <h2>Werkgebied & timing</h2>
+        <p class="vbd-inline">Antwerpen e.o. · tot 25 km · plaatsbezoek binnen 2 weken</p>
+      </section>
 
-    <section class="vbd-block">
-      <h2>Over dit vakbedrijf</h2>
-      <p>Noord Dakatelier (demo) focust op hellende dakrenovaties voor gezinswoningen. Heldere planning, nette werf en duidelijke prijsindicaties vóór de start.</p>
-    </section>
+      <section class="vbd-block">
+        <h2>Over</h2>
+        <p>Focust op hellende dakrenovaties voor gezinswoningen: heldere planning, nette werf, duidelijke prijsindicaties.</p>
+      </section>
 
-    <section class="vbd-block">
-      <h2>Prijsindicatie</h2>
-      <div class="vbd-prices">
-        <div class="vbd-price"><span>Dakrenovatie</span><strong>€ 160 – € 230 / m²</strong></div>
-        <div class="vbd-price"><span>Dakisolatie</span><strong>€ 45 – € 75 / m²</strong></div>
-        <div class="vbd-price"><span>Dakvenster</span><strong>Vanaf € 1.200</strong></div>
-      </div>
-      <p class="vbd-price-hint">Door het vakbedrijf aangeleverde indicatie · geen offerte · fictieve demodata</p>
-    </section>
+      <section class="vbd-block vbd-block--last">
+        <h2>Prijsindicatie</h2>
+        <div class="vbd-prices">
+          <div class="vbd-price"><span>Dakrenovatie</span><strong>€ 160 – € 230 / m²</strong></div>
+          <div class="vbd-price"><span>Dakisolatie</span><strong>€ 45 – € 75 / m²</strong></div>
+          <div class="vbd-price"><span>Dakvenster</span><strong>Vanaf € 1.200</strong></div>
+        </div>
+        <p class="vbd-price-hint">Indicatie · geen offerte · fictieve demodata</p>
+      </section>
+    </div>
 
-    <p class="vbd-foot">© ELYAN · Tijdelijke demopagina · alle bedrijfsgegevens en foto’s zijn fictief / illustratief</p>
+    <p class="vbd-foot">© ELYAN · Tijdelijke demopagina · fictieve gegevens</p>
   </div>
 </main>
 
-<div class="vbd-sticky" aria-hidden="false">
-  <button type="button" class="vbd-cta" data-vbd-offer>Vraag offerte aan <span aria-hidden="true">→</span></button>
+<div class="vbd-sticky">
+  <button type="button" class="vbd-cta vbd-cta--compact" data-vbd-offer>Vraag offerte aan <span aria-hidden="true">→</span></button>
 </div>
 
 <div class="vbd-toast" id="vbdToast" role="status" aria-live="polite">Dit is een demo — er wordt geen offerteaanvraag verstuurd.</div>
