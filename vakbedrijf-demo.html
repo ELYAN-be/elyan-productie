@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=33">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=31">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -330,41 +330,53 @@
       <p class="vbd-foot">© ELYAN</p>
     </div>
 
-    <!-- 10. Aanvraag: startperiode ≠ plaatsbezoek -->
-    <aside class="vbd-book" id="vbdBook" aria-label="Offerte aanvragen">
-      <p class="vbd-book-kicker">Aanvraag</p>
-      <h2>Vraag een offerte aan</h2>
+    <!-- 10. Contact / aanvraag — desktop sticky; mobiel onderaan na reviews -->
+    <aside class="vbd-book" id="vbdBook" aria-label="Contact en offerte">
+      <p class="vbd-book-kicker">Contact</p>
+      <h2>Offerte of plaatsbezoek</h2>
 
-      <div class="vbd-step">
-        <p class="vbd-step-label">1. Wanneer wil je de werken starten?</p>
-        <div class="vbd-timing" role="group" aria-label="Gewenste start van de werken">
-          <button type="button" class="vbd-chip" data-timing="asap">Zo snel mogelijk</button>
-          <button type="button" class="vbd-chip" data-timing="3m">Binnen 3 maanden</button>
-          <button type="button" class="vbd-chip" data-timing="6m">Binnen 6 maanden</button>
-          <button type="button" class="vbd-chip" data-timing="flex">Ik ben flexibel</button>
+      <div class="vbd-timing" role="group" aria-label="Renovatieperiode">
+        <button type="button" class="vbd-chip" data-timing="asap">Zo snel mogelijk</button>
+        <button type="button" class="vbd-chip" data-timing="3m">Binnen 3 maanden</button>
+        <button type="button" class="vbd-chip" data-timing="6m">Binnen 6 maanden</button>
+        <button type="button" class="vbd-chip" data-timing="flex">Ik ben flexibel</button>
+      </div>
+
+      <button type="button" class="vbd-btn-reveal" id="vbdRevealCal" disabled>
+        Bekijk beschikbare momenten <span aria-hidden="true">→</span>
+      </button>
+
+      <div id="vbdAgendaRoot" data-has-agenda="true">
+        <div class="vbd-cal-panel" id="vbdCalPanel" hidden>
+          <p class="vbd-cal-label">Kies een moment voor het plaatsbezoek</p>
+          <div class="vbd-cal-tabs" role="tablist" aria-label="Maand">
+            <button type="button" class="vbd-cal-tab is-active" data-cal-mode="this">Deze maand</button>
+            <button type="button" class="vbd-cal-tab" data-cal-mode="next">Volgende maand</button>
+            <label class="vbd-sr" for="vbdMonthPick">Kies een maand</label>
+            <select class="vbd-cal-month-select" id="vbdMonthPick" aria-label="Kies een maand"></select>
+          </div>
+          <div class="vbd-cal-head">
+            <strong id="vbdCalLabel">Maand</strong>
+            <div class="vbd-cal-nav">
+              <button type="button" id="vbdCalPrev" aria-label="Vorige maand">‹</button>
+              <button type="button" id="vbdCalNext" aria-label="Volgende maand">›</button>
+            </div>
+          </div>
+          <div class="vbd-cal-grid" id="vbdCalGrid" aria-label="Maandkalender"></div>
+          <p class="vbd-cal-selected" id="vbdCalSelected" aria-live="polite"></p>
+          <p class="vbd-cal-sub" id="vbdCalSub" hidden>Aanvraag · nog niet bevestigd</p>
         </div>
       </div>
 
-      <div class="vbd-step vbd-step-visit" id="vbdVisitStep" hidden>
-        <p class="vbd-step-label">2. Plaatsbezoek <span>(optioneel)</span></p>
-        <p class="vbd-step-hint">Los van de start van de werken — wanneer mag de vakman langskomen?</p>
-
-        <div id="vbdAgendaRoot" data-has-agenda="true">
-          <div class="vbd-slots" id="vbdSlots" role="group" aria-label="Voorgestelde plaatsbezoekmomenten"></div>
-          <button type="button" class="vbd-slot-skip is-active" id="vbdSlotSkip" data-visit="later">
-            Vakman plant het plaatsbezoek later in
-          </button>
-        </div>
-
-        <div id="vbdAgendaEmpty" class="vbd-avail-empty" hidden>
-          <p>Nog geen momenten vrijgegeven. De vakman plant het plaatsbezoek na je aanvraag.</p>
-        </div>
+      <div id="vbdAgendaEmpty" class="vbd-avail-empty" hidden>
+        <p>Nog geen momenten vrijgegeven.</p>
+        <button type="button" class="vbd-cta" data-vbd-request-avail>Beschikbaarheid aanvragen <span aria-hidden="true">→</span></button>
       </div>
 
-      <button type="button" class="vbd-cta" data-vbd-offer disabled>
+      <button type="button" class="vbd-cta vbd-cta-desktop" data-vbd-offer disabled>
         Vraag offerte aan <span aria-hidden="true">→</span>
       </button>
-      <p class="vbd-book-note" id="vbdBookNote">Kies eerst wanneer je wilt starten</p>
+      <p class="vbd-book-note">Eerst een moment kiezen voor het plaatsbezoek</p>
     </aside>
   </div>
 </div>
@@ -378,6 +390,7 @@
 <script>
 (function () {
   var MONTHS_NL = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
+  var DOW = ['ma','di','wo','do','vr','za','zo'];
   var photos = [
     { src: '/assets/photos/hero.jpg', alt: 'Hellend dak' },
     { src: '/assets/photos/why.jpg', alt: 'Renovatie-detail' },
@@ -515,71 +528,11 @@
   })();
 
   var timing = null;
-  var visitChoice = 'later';
-  var visitStep = document.getElementById('vbdVisitStep');
+  var revealBtn = document.getElementById('vbdRevealCal');
+  var calPanel = document.getElementById('vbdCalPanel');
   var root = document.getElementById('vbdAgendaRoot');
   var empty = document.getElementById('vbdAgendaEmpty');
-  var slotsEl = document.getElementById('vbdSlots');
-  var skipBtn = document.getElementById('vbdSlotSkip');
-  var bookNote = document.getElementById('vbdBookNote');
-  var hasAgenda = root && root.getAttribute('data-has-agenda') === 'true';
-  var DOW_FULL = ['zondag','maandag','dinsdag','woensdag','donderdag','vrijdag','zaterdag'];
-
-  function setVisitActive(el) {
-    Array.prototype.forEach.call(document.querySelectorAll('.vbd-slot, .vbd-slot-skip'), function (b) {
-      b.classList.toggle('is-active', b === el);
-    });
-  }
-
-  function nextVisitSlots(count) {
-    var out = [];
-    var d = new Date();
-    d.setHours(12, 0, 0, 0);
-    d.setDate(d.getDate() + 1);
-    var guard = 0;
-    while (out.length < count && guard < 40) {
-      guard++;
-      var day = d.getDay();
-      if (day !== 0 && day !== 6 && d.getDate() % 3 !== 0) {
-        out.push(new Date(d.getTime()));
-      }
-      d.setDate(d.getDate() + 1);
-    }
-    return out;
-  }
-
-  function renderSlots() {
-    if (!slotsEl) return;
-    slotsEl.innerHTML = '';
-    nextVisitSlots(3).forEach(function (d, idx) {
-      var btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'vbd-slot';
-      btn.setAttribute('data-visit', d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate());
-      btn.innerHTML =
-        '<strong>' + DOW_FULL[d.getDay()] + '</strong>' +
-        '<span>' + d.getDate() + ' ' + MONTHS_NL[d.getMonth()] + '</span>';
-      btn.addEventListener('click', function () {
-        visitChoice = btn.getAttribute('data-visit');
-        selectedKey = visitChoice;
-        setVisitActive(btn);
-        if (bookNote) bookNote.textContent = 'Plaatsbezoek aangevraagd · nog niet bevestigd';
-      });
-      slotsEl.appendChild(btn);
-      if (idx === 0 && visitChoice !== 'later' && !selectedKey) {
-        /* keep default on skip */
-      }
-    });
-  }
-
-  if (skipBtn) {
-    skipBtn.addEventListener('click', function () {
-      visitChoice = 'later';
-      selectedKey = null;
-      setVisitActive(skipBtn);
-      if (bookNote) bookNote.textContent = 'Je kunt nu je offerteaanvraag versturen';
-    });
-  }
+  var hasAgenda = root.getAttribute('data-has-agenda') === 'true';
 
   Array.prototype.forEach.call(document.querySelectorAll('[data-timing]'), function (btn) {
     btn.addEventListener('click', function () {
@@ -587,20 +540,170 @@
         b.classList.toggle('is-active', b === btn);
       });
       timing = btn.getAttribute('data-timing');
-      enableOffer(true);
-      if (visitStep) visitStep.hidden = false;
-      if (hasAgenda) {
-        if (empty) empty.hidden = true;
-        if (root) root.hidden = false;
-        renderSlots();
-        if (skipBtn) setVisitActive(skipBtn);
-      } else {
-        if (root) root.hidden = true;
-        if (empty) empty.hidden = false;
-      }
-      if (bookNote) bookNote.textContent = 'Je kunt nu je offerteaanvraag versturen';
+      revealBtn.disabled = false;
     });
   });
+
+  revealBtn.addEventListener('click', function () {
+    if (!timing) return;
+    if (!hasAgenda) {
+      empty.hidden = false;
+      if (calPanel) calPanel.hidden = true;
+      return;
+    }
+    empty.hidden = true;
+    calPanel.hidden = false;
+  });
+
+  if (!hasAgenda) return;
+
+  var today = new Date();
+  today.setHours(12, 0, 0, 0);
+  var minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+  var maxMonth = new Date(today.getFullYear(), today.getMonth() + 11, 1);
+  var view = new Date(minMonth.getTime());
+  var grid = document.getElementById('vbdCalGrid');
+  var label = document.getElementById('vbdCalLabel');
+  var selectedEl = document.getElementById('vbdCalSelected');
+  var subEl = document.getElementById('vbdCalSub');
+  var monthPick = document.getElementById('vbdMonthPick');
+  var prevBtn = document.getElementById('vbdCalPrev');
+  var nextBtn = document.getElementById('vbdCalNext');
+  var pickMode = false;
+
+  function isAvailable(d) {
+    if (d < today) return false;
+    var day = d.getDay();
+    if (day === 0 || day === 6) return false;
+    return d.getDate() % 3 !== 0;
+  }
+  function keyOf(d) {
+    return d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
+  }
+  function clampView() {
+    if (view < minMonth) view = new Date(minMonth.getTime());
+    if (view > maxMonth) view = new Date(maxMonth.getTime());
+  }
+  function fillMonthSelect() {
+    monthPick.innerHTML = '';
+    var opt0 = document.createElement('option');
+    opt0.value = '';
+    opt0.textContent = 'Kies een maand';
+    monthPick.appendChild(opt0);
+    for (var m = 0; m < 12; m++) {
+      var d = new Date(today.getFullYear(), today.getMonth() + m, 1);
+      var o = document.createElement('option');
+      o.value = d.getFullYear() + '-' + d.getMonth();
+      o.textContent = MONTHS_NL[d.getMonth()] + ' ' + d.getFullYear();
+      monthPick.appendChild(o);
+    }
+  }
+  function setTabActive(mode) {
+    pickMode = mode === 'pick';
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.toggle('is-active', t.getAttribute('data-cal-mode') === mode);
+    });
+  }
+  function renderCal() {
+    clampView();
+    label.textContent = MONTHS_NL[view.getMonth()] + ' ' + view.getFullYear();
+    prevBtn.disabled = view.getFullYear() === minMonth.getFullYear() && view.getMonth() === minMonth.getMonth();
+    nextBtn.disabled = view.getFullYear() === maxMonth.getFullYear() && view.getMonth() === maxMonth.getMonth();
+    monthPick.value = pickMode ? (view.getFullYear() + '-' + view.getMonth()) : '';
+
+    grid.innerHTML = '';
+    DOW.forEach(function (d) {
+      var el = document.createElement('div');
+      el.className = 'vbd-cal-dow';
+      el.textContent = d;
+      grid.appendChild(el);
+    });
+
+    var y = view.getFullYear();
+    var m = view.getMonth();
+    var first = new Date(y, m, 1);
+    var startPad = (first.getDay() + 6) % 7;
+    var daysInMonth = new Date(y, m + 1, 0).getDate();
+    var cells = Math.ceil((startPad + daysInMonth) / 7) * 7;
+
+    for (var c = 0; c < cells; c++) {
+      var dayNum = c - startPad + 1;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'vbd-cal-cell';
+      if (dayNum < 1 || dayNum > daysInMonth) {
+        btn.classList.add('is-muted');
+        btn.disabled = true;
+        btn.textContent = '';
+        grid.appendChild(btn);
+        continue;
+      }
+      var date = new Date(y, m, dayNum, 12, 0, 0, 0);
+      btn.textContent = String(dayNum);
+      var avail = isAvailable(date);
+      var k = keyOf(date);
+      if (date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate()) {
+        btn.classList.add('is-today');
+      }
+      if (avail) {
+        btn.classList.add('is-available');
+        btn.setAttribute('aria-label', dayNum + ' ' + MONTHS_NL[m]);
+        if (selectedKey === k) btn.classList.add('is-selected');
+        btn.addEventListener('click', (function (dd, kk) {
+          return function () {
+            selectedKey = kk;
+            selectedEl.textContent = 'Plaatsbezoek: ' + dd.getDate() + ' ' + MONTHS_NL[dd.getMonth()] + ' ' + dd.getFullYear();
+            subEl.hidden = false;
+            enableOffer(true);
+            renderCal();
+          };
+        })(date, k));
+      } else {
+        btn.disabled = true;
+        btn.classList.add('is-muted');
+      }
+      grid.appendChild(btn);
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (tab) {
+    tab.addEventListener('click', function () {
+      var mode = tab.getAttribute('data-cal-mode');
+      if (mode === 'this') view = new Date(minMonth.getTime());
+      if (mode === 'next') view = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+      setTabActive(mode);
+      renderCal();
+    });
+  });
+  monthPick.addEventListener('change', function () {
+    if (!monthPick.value) return;
+    var parts = monthPick.value.split('-');
+    view = new Date(Number(parts[0]), Number(parts[1]), 1);
+    setTabActive('pick');
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.remove('is-active');
+    });
+    renderCal();
+  });
+  prevBtn.addEventListener('click', function () {
+    view = new Date(view.getFullYear(), view.getMonth() - 1, 1);
+    setTabActive('pick');
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.remove('is-active');
+    });
+    renderCal();
+  });
+  nextBtn.addEventListener('click', function () {
+    view = new Date(view.getFullYear(), view.getMonth() + 1, 1);
+    setTabActive('pick');
+    Array.prototype.forEach.call(document.querySelectorAll('.vbd-cal-tab'), function (t) {
+      t.classList.remove('is-active');
+    });
+    renderCal();
+  });
+
+  fillMonthSelect();
+  renderCal();
 })();
 </script>
 </body>
