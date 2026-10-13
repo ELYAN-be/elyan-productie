@@ -482,13 +482,13 @@
 .vbd-layout {
   display: grid;
   gap: 1.35rem;
-  margin-top: 1.1rem;
+  margin-top: 0.88rem;
   align-items: start;
 }
 .vbd-maincol {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 1.4rem;
 }
 
 /* Regel: belangrijke info = kaarten */
@@ -834,7 +834,7 @@
 /* Expertise — editorial list on page background, no card */
 .vbd-expertise {
   margin: 0;
-  padding: 1.15rem 0 0.35rem;
+  padding: 0.9rem 0 0.28rem;
 }
 .vbd-expertise-kicker {
   margin: 0 0 0.45rem;
@@ -949,14 +949,14 @@
 }
 .vbd-expertise-urgent {
   margin-top: 1rem;
-  padding: 0.85rem 0.95rem;
+  padding: 0.76rem 0.95rem;
   border: 0;
   border-radius: 12px;
   background: rgba(142, 168, 118, 0.14);
   box-shadow: none;
 }
 .vbd-expertise-urgent-q {
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.3rem;
   font-size: 0.92rem;
   font-weight: 600;
   color: var(--ink);
@@ -1025,7 +1025,7 @@
 
 /* Richtprijzen — compacte info-kaart (niet dezelfde vorm als expertise) */
 .vbd-rates {
-  margin: 0.35rem 0 0;
+  margin: 0.15rem 0 0;
   padding: 1rem 1.05rem 1.05rem;
   background: var(--white);
   border: 1px solid var(--line);
@@ -1316,7 +1316,7 @@
   .vbd-layout {
     grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
     gap: 1.75rem;
-    margin-top: 1.65rem;
+    margin-top: 1.32rem;
   }
   .vbd-book {
     position: sticky;
@@ -1326,7 +1326,7 @@
     padding: 1.15rem 1.15rem 1.2rem;
   }
   .vbd-primary { gap: 1rem; }
-  .vbd-maincol { gap: 2rem; }
+  .vbd-maincol { gap: 1.6rem; }
   .vbd-band {
     grid-template-columns: minmax(0, 1fr) minmax(240px, 280px);
     align-items: end;
