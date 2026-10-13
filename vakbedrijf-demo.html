@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=58">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=59">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -168,9 +168,10 @@
       </section>
 
       <!-- 06. Prijzen & kosten — flexibele prijslijst (geen zware tabel) -->
-      <section class="vbd-rates" id="vbdRates" aria-labelledby="vbdRatesTitle" hidden>
-        <h2 class="vbd-rates-title" id="vbdRatesTitle">Prijzen &amp; kosten</h2>
+      <section class="vbd-rates" id="vbdRates" aria-labelledby="vbdRatesLead" hidden>
+        <p class="vbd-rates-kicker">Prijzen &amp; kosten</p>
         <p class="vbd-rates-lead" id="vbdRatesLead">Ontdek de richtprijzen van dit vakbedrijf.</p>
+        <h2 class="vbd-sr">Prijzen &amp; kosten</h2>
 
         <ul class="vbd-rates-list" id="vbdRatesList"></ul>
         <button type="button" class="vbd-rates-more" id="vbdRatesMore" hidden>Bekijk alle prijzen</button>
@@ -383,8 +384,8 @@
   <div class="vbd-rates-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="vbdRatesSheetTitle">
     <div class="vbd-rates-sheet-head">
       <div>
-        <h2 class="vbd-rates-sheet-title" id="vbdRatesSheetTitle">Prijzen &amp; kosten</h2>
-        <p class="vbd-rates-sheet-lead">Alle richtprijzen en voorwaarden van dit vakbedrijf.</p>
+        <p class="vbd-rates-kicker">Prijzen &amp; kosten</p>
+        <p class="vbd-rates-lead" id="vbdRatesSheetTitle">Alle richtprijzen en voorwaarden van dit vakbedrijf.</p>
       </div>
       <button type="button" class="vbd-rates-sheet-close" id="vbdRatesSheetClose" aria-label="Sluiten">×</button>
     </div>
