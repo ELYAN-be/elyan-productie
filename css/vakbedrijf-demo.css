@@ -897,16 +897,16 @@
   line-height: 1.2;
 }
 .vbd-expertise-name {
-  font-family: var(--display);
-  font-size: 1.06rem; /* ~17px */
+  font-family: var(--body);
+  font-size: 1.0625rem; /* ~17px */
   font-weight: 500;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  line-height: 1.25;
+  letter-spacing: -0.01em;
+  color: #3a3c36;
+  line-height: 1.3;
   transition: color 0.15s ease;
 }
 .vbd-expertise-list details[open] .vbd-expertise-name {
-  color: var(--olive-dark);
+  color: #3a3c36;
 }
 .vbd-expertise-list details p {
   margin: 0 0 0.8rem;
