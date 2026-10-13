@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=60">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=59">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -96,10 +96,11 @@
   </div>
 
   <!-- 03. Projectbeschikbaarheid (renovatie) ≠ plaatsbezoekmomenten -->
-  <section class="vbd-avail" id="vbdAvail" data-avail="open" aria-labelledby="vbdAvailTitle">
+  <section class="vbd-avail" id="vbdAvail" data-avail="open" aria-labelledby="vbdAvailStatus">
     <div class="vbd-avail-copy">
-      <h2 class="vbd-section-title" id="vbdAvailTitle">Beschikbaarheid</h2>
-      <p class="vbd-section-sub vbd-avail-status" id="vbdAvailStatus">Nieuwe projecten vanaf november 2026</p>
+      <p class="vbd-avail-kicker">Beschikbaarheid</p>
+      <h2 class="vbd-sr">Beschikbaarheid</h2>
+      <p class="vbd-avail-status" id="vbdAvailStatus">Nieuwe projecten vanaf november 2026</p>
       <p class="vbd-avail-meta">Plaatsbezoeken afzonderlijk in te plannen</p>
     </div>
   </section>
@@ -108,9 +109,10 @@
     <div class="vbd-maincol">
 
       <!-- 04. Expertise — editorial, geen kaart; beschrijving pas bij openklappen -->
-      <section class="vbd-expertise" aria-labelledby="vbdExpertiseTitle">
-        <h2 class="vbd-section-title" id="vbdExpertiseTitle">Expertise</h2>
-        <p class="vbd-section-sub">Gespecialiseerd in dakwerken</p>
+      <section class="vbd-expertise" aria-labelledby="vbdExpertiseLead">
+        <p class="vbd-expertise-kicker">Expertise</p>
+        <p class="vbd-expertise-lead" id="vbdExpertiseLead">Gespecialiseerd in dakwerken</p>
+        <h2 class="vbd-sr">Diensten en specialisaties</h2>
 
         <ul class="vbd-expertise-list">
           <li>
@@ -166,9 +168,10 @@
       </section>
 
       <!-- 06. Prijzen & kosten — flexibele prijslijst (geen zware tabel) -->
-      <section class="vbd-rates" id="vbdRates" aria-labelledby="vbdRatesTitle" hidden>
-        <h2 class="vbd-section-title" id="vbdRatesTitle">Richtprijzen</h2>
-        <p class="vbd-section-sub">Wat kosten deze werken?</p>
+      <section class="vbd-rates" id="vbdRates" aria-labelledby="vbdRatesLead" hidden>
+        <p class="vbd-rates-kicker">Prijzen &amp; kosten</p>
+        <p class="vbd-rates-lead" id="vbdRatesLead">Ontdek de richtprijzen van dit vakbedrijf.</p>
+        <h2 class="vbd-sr">Prijzen &amp; kosten</h2>
 
         <ul class="vbd-rates-list" id="vbdRatesList"></ul>
         <button type="button" class="vbd-rates-more" id="vbdRatesMore" hidden>Bekijk alle prijzen</button>
@@ -188,8 +191,8 @@
         data-area-ranges="2000-2180,2500-2660"
       >
         <div class="vbd-band-copy">
-          <h2 class="vbd-section-title" id="vbdAreaTitle">Werkgebied</h2>
-          <p class="vbd-section-sub">Gevestigd in Antwerpen · Actief in Antwerpen en omliggende gemeenten</p>
+          <h2 id="vbdAreaTitle">Werkgebied</h2>
+          <p>Gevestigd in Antwerpen · Actief in Antwerpen en omliggende gemeenten</p>
         </div>
         <form class="vbd-area-form" id="vbdAreaForm" novalidate>
           <label class="vbd-sr" for="vbdPostcode">Postcode</label>
@@ -214,8 +217,8 @@
       <!-- 08. Over het bedrijf -->
       <details class="vbd-support-item vbd-fold">
         <summary>
-          <span class="vbd-section-title vbd-fold-title">Over het bedrijf</span>
-          <span class="vbd-section-sub vbd-fold-hint">18 jaar ervaring · Eigen team</span>
+          <span class="vbd-fold-title">Over het bedrijf</span>
+          <span class="vbd-fold-hint">18 jaar ervaring · Eigen team</span>
         </summary>
         <div class="vbd-fold-body">
           <p class="vbd-about">
@@ -247,7 +250,7 @@
       <!-- 09. Reviews -->
       <section class="vbd-support-item vbd-reviews-band" aria-labelledby="vbdReviewsTitle">
         <div class="vbd-reviews-head">
-          <h2 class="vbd-section-title" id="vbdReviewsTitle">Klantbeoordelingen</h2>
+          <h2 id="vbdReviewsTitle">Ervaringen van klanten</h2>
           <div class="vbd-reviews-score" aria-label="4,8 van 5">
             <span class="vbd-reviews-stars" aria-hidden="true">
               <svg><use href="#i-star"></use></svg>
@@ -314,8 +317,8 @@
       <!-- 10. Contact — mobiel; desktop = boekingskaart -->
       <section class="vbd-support-item vbd-contact-bar" aria-labelledby="vbdContactTitle">
         <div>
-          <h2 class="vbd-section-title" id="vbdContactTitle">Contact</h2>
-          <p class="vbd-section-sub">Offerte of beschikbaarheid aanvragen</p>
+          <h2 id="vbdContactTitle">Contact</h2>
+          <p>Offerte of beschikbaarheid aanvragen</p>
         </div>
         <div class="vbd-contact-bar-actions">
           <a class="vbd-btn vbd-btn-call" href="tel:+3230000000">Bel</a>
@@ -381,8 +384,8 @@
   <div class="vbd-rates-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="vbdRatesSheetTitle">
     <div class="vbd-rates-sheet-head">
       <div>
-        <h2 class="vbd-section-title" id="vbdRatesSheetTitle">Richtprijzen</h2>
-        <p class="vbd-section-sub">Alle richtprijzen en voorwaarden van dit vakbedrijf.</p>
+        <p class="vbd-rates-kicker">Prijzen &amp; kosten</p>
+        <p class="vbd-rates-lead" id="vbdRatesSheetTitle">Alle richtprijzen en voorwaarden van dit vakbedrijf.</p>
       </div>
       <button type="button" class="vbd-rates-sheet-close" id="vbdRatesSheetClose" aria-label="Sluiten">×</button>
     </div>
