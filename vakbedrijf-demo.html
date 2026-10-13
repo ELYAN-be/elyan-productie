@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=64">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=65">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -66,28 +66,24 @@
 
 <div class="vbd-shell">
 
-  <!-- 02. Realisaties -->
-  <section class="vbd-realisaties" id="vbdPhotos" aria-labelledby="vbdRealLead">
-    <p class="vbd-sec-kicker">Realisaties</p>
-    <p class="vbd-sec-lead" id="vbdRealLead">Bekijk eerder uitgevoerde projecten.</p>
-    <div class="vbd-gallery">
-      <button type="button" class="vbd-gallery-main" id="vbdOpenGallery" aria-label="Bekijk alle foto's">
-        <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
-        <span class="vbd-gallery-count" id="vbdCount">1 / 5</span>
-        <span class="vbd-gallery-open">Bekijk alle foto's</span>
+  <!-- 02. Fotogalerij -->
+  <section class="vbd-gallery" id="vbdPhotos" aria-label="Projectfoto's">
+    <button type="button" class="vbd-gallery-main" id="vbdOpenGallery" aria-label="Bekijk alle foto's">
+      <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
+      <span class="vbd-gallery-count" id="vbdCount">1 / 5</span>
+      <span class="vbd-gallery-open">Bekijk alle foto's</span>
+    </button>
+    <div class="vbd-gallery-rail" aria-hidden="true">
+      <button type="button" class="vbd-rail-tile" data-jump="1">
+        <img src="/assets/photos/why.jpg" alt="">
       </button>
-      <div class="vbd-gallery-rail" aria-hidden="true">
-        <button type="button" class="vbd-rail-tile" data-jump="1">
-          <img src="/assets/photos/why.jpg" alt="">
-        </button>
-        <button type="button" class="vbd-rail-tile" data-jump="2">
-          <img src="/assets/photos/editorial.jpg" alt="">
-        </button>
-        <button type="button" class="vbd-rail-tile" data-jump="3">
-          <img src="/assets/photos/about.jpg" alt="">
-          <span class="vbd-rail-more">+2</span>
-        </button>
-      </div>
+      <button type="button" class="vbd-rail-tile" data-jump="2">
+        <img src="/assets/photos/editorial.jpg" alt="">
+      </button>
+      <button type="button" class="vbd-rail-tile" data-jump="3">
+        <img src="/assets/photos/about.jpg" alt="">
+        <span class="vbd-rail-more">+2</span>
+      </button>
     </div>
   </section>
 

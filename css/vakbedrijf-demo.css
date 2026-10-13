@@ -283,17 +283,11 @@
   padding: 0 1.15rem calc(var(--sticky) + 1rem);
 }
 
-.vbd-realisaties {
-  margin: 1.15rem 0 0;
-}
-.vbd-realisaties .vbd-sec-lead {
-  margin-bottom: 0.75rem;
-}
 .vbd-gallery {
   display: grid;
   grid-template-columns: 1fr;
   gap: 4px;
-  margin: 0;
+  margin: 1.15rem 0 0;
   border-radius: 18px;
   overflow: hidden;
   background: #181916;
@@ -1412,9 +1406,9 @@
     font-size: 0.9rem;
   }
   .vbd-shell { padding: 0 1.75rem 3rem; }
-  .vbd-realisaties { margin-top: 1.35rem; }
   .vbd-gallery {
     grid-template-columns: 1.7fr 0.75fr;
+    margin-top: 1.35rem;
     border-radius: 18px;
     align-items: stretch;
   }
