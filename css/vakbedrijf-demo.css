@@ -445,11 +445,12 @@
 }
 /* Sectiekoppen — alleen kleine groene titel in lichtgrijze balk */
 .vbd-sec-head {
-  display: block;
+  display: inline-block;
   box-sizing: border-box;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   margin: 0 0 0.45rem;
-  padding: 0.45rem 0.75rem;
+  padding: 0.35rem 0.55rem;
   background: #eeeeec;
   border: 0;
   border-radius: 0;
