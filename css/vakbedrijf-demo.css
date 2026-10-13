@@ -497,7 +497,7 @@
 .vbd-layout {
   display: grid;
   gap: 1.35rem;
-  margin-top: 0.99rem;
+  margin-top: 1.45rem;
   align-items: start;
 }
 .vbd-maincol {
@@ -1425,7 +1425,7 @@
   .vbd-layout {
     grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
     gap: 1.75rem;
-    margin-top: 1.48rem;
+    margin-top: 1.9rem;
   }
   .vbd-book {
     position: sticky;
