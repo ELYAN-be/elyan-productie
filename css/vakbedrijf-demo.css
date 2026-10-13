@@ -866,13 +866,28 @@
 .vbd-expertise-list summary {
   list-style: none;
   display: grid;
-  grid-template-columns: 2rem 1fr;
+  grid-template-columns: 2rem 1fr auto;
   align-items: baseline;
   gap: 0.65rem 0.85rem;
   padding: 0.85rem 0;
   cursor: pointer;
 }
 .vbd-expertise-list summary::-webkit-details-marker { display: none; }
+.vbd-expertise-list summary::after {
+  content: "+";
+  font-family: var(--body);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.2;
+}
+.vbd-expertise-list details[open] summary::after {
+  content: "–";
+  color: var(--olive-dark);
+}
+.vbd-expertise-list summary:hover .vbd-expertise-name {
+  color: var(--olive-dark);
+}
 .vbd-expertise-num {
   font-family: var(--display);
   font-size: 0.8rem;
@@ -887,6 +902,7 @@
   letter-spacing: -0.025em;
   color: var(--ink);
   line-height: 1.25;
+  transition: color 0.15s ease;
 }
 .vbd-expertise-list details[open] .vbd-expertise-name {
   color: var(--olive-dark);
