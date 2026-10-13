@@ -846,7 +846,7 @@
   line-height: 1.4;
 }
 
-/* Expertise — verfijnde open dienstenlijst */
+/* Expertise — editorial list on page background, no card */
 .vbd-expertise {
   margin: 0;
   padding: 1.04rem 0 0.32rem;
@@ -858,50 +858,89 @@
   border-top: 1px solid var(--line);
 }
 .vbd-expertise-list > li {
-  padding: 0.9rem 0;
   border-bottom: 1px solid var(--line);
 }
-.vbd-expertise-name {
-  margin: 0;
+.vbd-expertise-list details { margin: 0; }
+.vbd-expertise-list summary {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1.65rem 1fr auto;
+  align-items: center;
+  column-gap: 0.7rem;
+  min-height: 2.75rem;
+  padding: 0.72rem 0;
+  cursor: pointer;
+}
+.vbd-expertise-list summary::-webkit-details-marker { display: none; }
+.vbd-expertise-list summary::after {
+  content: "+";
+  grid-column: 3;
   font-family: var(--body);
-  font-size: 0.97rem;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--muted);
+  line-height: 1.2;
+}
+.vbd-expertise-list details[open] summary::after {
+  content: "–";
+  color: var(--olive-dark);
+}
+.vbd-expertise-list summary:hover .vbd-expertise-name {
+  color: var(--olive-dark);
+}
+.vbd-expertise-num {
+  font-family: var(--display);
+  font-size: 0.85rem; /* ~13–14px */
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  line-height: 1.2;
+}
+.vbd-expertise-name {
+  font-family: var(--body);
+  font-size: 0.97rem; /* iets kleiner dan 17px */
   font-weight: 500;
   letter-spacing: -0.01em;
   color: #3a3c36;
   line-height: 1.3;
+  transition: color 0.15s ease;
 }
-.vbd-expertise-desc {
-  margin: 0.25rem 0 0;
+.vbd-expertise-list details[open] .vbd-expertise-name {
+  color: #3a3c36;
+}
+.vbd-expertise-list details p {
+  margin: 0 0 0.8rem;
+  padding-left: calc(1.65rem + 0.7rem);
   max-width: 34rem;
-  font-size: 0.86rem;
-  font-weight: 400;
+  font-size: 0.88rem;
   color: var(--muted);
-  line-height: 1.4;
+  line-height: 1.45;
 }
 @media (max-width: 899px) {
   .vbd-expertise {
     padding-top: 1.25rem;
   }
+  .vbd-expertise-list summary {
+    min-height: 2.6rem;
+    padding: 0.62rem 0;
+  }
 }
 .vbd-expertise-also {
-  margin-top: 1.4rem;
-  padding-top: 1.15rem;
-  border-top: 1px solid var(--line);
+  margin-top: 1.15rem;
 }
 .vbd-expertise-also-label {
-  margin: 0 0 0.3rem;
-  font-family: var(--body);
-  font-size: 0.92rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  color: #3a3c36;
-  line-height: 1.35;
+  margin: 0 0 0.35rem;
+  font-size: 0.8125rem; /* ~13px */
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
 }
 .vbd-expertise-also-items {
   margin: 0;
-  font-size: 0.86rem;
+  font-size: 0.97rem; /* ~15–16px */
   font-weight: 400;
-  color: var(--muted);
+  color: var(--ink);
   line-height: 1.45;
 }
 .vbd-expertise-urgent {
