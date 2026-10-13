@@ -445,9 +445,9 @@
 }
 .vbd-avail-kicker {
   margin: 0 0 0.4rem;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--olive);
 }
@@ -838,9 +838,9 @@
 }
 .vbd-expertise-kicker {
   margin: 0 0 0.45rem;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--olive);
 }
@@ -1035,9 +1035,9 @@
 .vbd-rates[hidden] { display: none !important; }
 .vbd-rates-kicker {
   margin: 0 0 0.45rem;
-  font-size: 0.68rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--olive);
 }
