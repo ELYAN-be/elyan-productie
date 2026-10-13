@@ -828,97 +828,51 @@
   line-height: 1.4;
 }
 
-/* Services — lead / core / also-accepts */
-.vbd-service-lead {
-  margin: 0.85rem 0 0;
-  padding: 0.75rem 0 0.85rem;
-  border-radius: 0;
-  background: transparent;
-  border: 0;
-  border-bottom: 1px solid var(--line);
+/* Services — compact groups, equal weight for renovatie & spoed */
+.vbd-service-group {
+  margin-top: 0.95rem;
 }
-.vbd-service-lead strong {
-  display: block;
-  font-family: var(--display);
-  font-size: 1.12rem;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: var(--ink);
-}
-.vbd-service-lead p {
-  margin: 0.3rem 0 0;
-  font-size: 0.9rem;
-  color: var(--muted);
-  line-height: 1.45;
-}
-
-.vbd-help {
-  margin: 0.35rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-.vbd-help li {
-  display: grid;
-  gap: 0.1rem;
-  padding: 0.7rem 0;
+.vbd-service-group + .vbd-service-group {
+  margin-top: 1.05rem;
+  padding-top: 0.95rem;
   border-top: 1px solid var(--line);
 }
-.vbd-help li:first-child {
-  border-top: 0;
-}
-.vbd-help strong {
-  font-family: var(--display);
-  font-size: 0.95rem;
+.vbd-service-group-title {
+  margin: 0 0 0.55rem;
+  font-size: 0.7rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-}
-.vbd-help p {
-  margin: 0;
-  font-size: 0.84rem;
-  color: var(--muted);
-}
-
-.vbd-service-also {
-  margin-top: 0.35rem;
-  padding-top: 0.85rem;
-  border-top: 1px solid var(--line);
-}
-.vbd-service-also-label {
-  margin: 0 0 0.5rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--muted);
 }
-.vbd-service-tags {
+.vbd-service-grid {
   margin: 0;
   padding: 0;
   list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.55rem 1rem;
 }
-.vbd-service-tags li {
-  padding: 0.32rem 0.7rem 0.32rem 1.35rem;
-  position: relative;
-  border-radius: 999px;
-  background: var(--grey);
-  border: 1px solid rgba(63, 74, 50, 0.12);
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--ink);
-  line-height: 1.3;
+.vbd-service-grid li {
+  display: grid;
+  gap: 0.12rem;
+  min-width: 0;
 }
-.vbd-service-tags li::before {
-  content: "✓";
-  position: absolute;
-  left: 0.45rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--olive);
-  font-size: 0.75rem;
+.vbd-service-grid strong {
+  font-family: var(--display);
+  font-size: 0.9rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.vbd-service-grid span {
+  font-size: 0.78rem;
+  color: var(--muted);
+  line-height: 1.35;
+}
+@media (max-width: 420px) {
+  .vbd-service-grid { grid-template-columns: 1fr; gap: 0.55rem; }
 }
 
 .vbd-about {

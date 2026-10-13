@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=37">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=39">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -109,39 +109,50 @@
       <!-- Primair: belangrijke info = kaarten -->
       <div class="vbd-primary">
 
-      <!-- 04. Diensten — één sectie, interne hiërarchie -->
-      <section class="vbd-panel" aria-labelledby="vbdServicesTitle">
+      <!-- 04. Diensten — compact, gelijke status voor renovatie én spoed -->
+      <section class="vbd-panel vbd-services" aria-labelledby="vbdServicesTitle">
         <div class="vbd-panel-head">
           <h2 id="vbdServicesTitle">Diensten en specialisaties</h2>
           <p class="vbd-panel-meta">Door het vakbedrijf zelf bevestigd</p>
         </div>
 
-        <article class="vbd-service-lead">
-          <strong>Volledige dakrenovatie</strong>
-          <p>Vernieuwing van bestaande daken, inclusief onderdak en afwerking.</p>
-        </article>
+        <div class="vbd-service-group">
+          <h3 class="vbd-service-group-title">Renovatie</h3>
+          <ul class="vbd-service-grid">
+            <li>
+              <strong>Volledige dakrenovatie</strong>
+              <span>Incl. onderdak en afwerking</span>
+            </li>
+            <li>
+              <strong>Dakisolatie</strong>
+              <span>Hellende en platte daken</span>
+            </li>
+            <li>
+              <strong>Hellende daken</strong>
+              <span>Pannen of leien</span>
+            </li>
+            <li>
+              <strong>Dakvensters</strong>
+              <span>Plaatsing en vervanging</span>
+            </li>
+          </ul>
+        </div>
 
-        <ul class="vbd-help">
-          <li>
-            <strong>Dakisolatie</strong>
-            <p>Isolatie van hellende en platte daken.</p>
-          </li>
-          <li>
-            <strong>Hellende daken</strong>
-            <p>Herstelling en vernieuwing van hellende daken in pannen of leien.</p>
-          </li>
-          <li>
-            <strong>Dakvensters</strong>
-            <p>Plaatsing en vervanging van dakramen.</p>
-          </li>
-        </ul>
-
-        <div class="vbd-service-also">
-          <p class="vbd-service-also-label">Neemt ook aan</p>
-          <ul class="vbd-service-tags">
-            <li>Dakonderhoud</li>
-            <li>Kleine herstellingen</li>
-            <li>Dringende dakherstellingen</li>
+        <div class="vbd-service-group">
+          <h3 class="vbd-service-group-title">Onderhoud &amp; spoed</h3>
+          <ul class="vbd-service-grid">
+            <li>
+              <strong>Dringende dakherstellingen</strong>
+              <span>Lekken en stormschade</span>
+            </li>
+            <li>
+              <strong>Kleine herstellingen</strong>
+              <span>Lokale herstellingen</span>
+            </li>
+            <li>
+              <strong>Dakonderhoud</strong>
+              <span>Preventief onderhoud</span>
+            </li>
           </ul>
         </div>
       </section>
