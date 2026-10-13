@@ -948,8 +948,11 @@
 }
 .vbd-expertise-urgent {
   margin-top: 1rem;
-  padding-top: 0.95rem;
-  border-top: 1px solid var(--line);
+  padding: 0.85rem 0.95rem;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(142, 168, 118, 0.14);
+  box-shadow: none;
 }
 .vbd-expertise-urgent-q {
   margin: 0 0 0.35rem;
