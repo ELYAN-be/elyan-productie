@@ -851,6 +851,10 @@
   margin: 0;
   padding: 1.04rem 0 0.32rem;
 }
+.vbd-expertise .vbd-sec-lead {
+  font-size: 1.25rem; /* ~20px */
+  font-weight: 600;
+}
 .vbd-expertise-list {
   margin: 0;
   padding: 0;
@@ -890,7 +894,7 @@
 }
 .vbd-expertise-num {
   font-family: var(--display);
-  font-size: 0.72rem;
+  font-size: 0.85rem; /* ~13–14px */
   font-weight: 500;
   letter-spacing: 0.04em;
   color: var(--muted);
@@ -898,11 +902,11 @@
 }
 .vbd-expertise-name {
   font-family: var(--display);
-  font-size: 1.02rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: 1.06rem; /* ~17px */
+  font-weight: 500;
+  letter-spacing: -0.02em;
   color: var(--ink);
-  line-height: 1.2;
+  line-height: 1.25;
   transition: color 0.15s ease;
 }
 .vbd-expertise-list details[open] .vbd-expertise-name {
@@ -924,24 +928,22 @@
     min-height: 2.6rem;
     padding: 0.62rem 0;
   }
-  .vbd-expertise-name { font-size: 1rem; }
-  .vbd-expertise-num { font-size: 0.68rem; }
 }
 .vbd-expertise-also {
   margin-top: 1.15rem;
 }
 .vbd-expertise-also-label {
   margin: 0 0 0.35rem;
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-size: 0.8125rem; /* ~13px */
+  font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
 }
 .vbd-expertise-also-items {
   margin: 0;
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.97rem; /* ~15–16px */
+  font-weight: 400;
   color: var(--ink);
   line-height: 1.45;
 }
