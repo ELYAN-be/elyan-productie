@@ -866,7 +866,7 @@
 .vbd-expertise-list summary {
   list-style: none;
   display: grid;
-  grid-template-columns: 2rem 1fr auto;
+  grid-template-columns: 2rem 1fr;
   align-items: baseline;
   gap: 0.65rem 0.85rem;
   padding: 0.85rem 0;
@@ -888,14 +888,8 @@
   color: var(--ink);
   line-height: 1.25;
 }
-.vbd-expertise-mark {
-  font-size: 0.95rem;
-  color: var(--muted);
-  transition: transform 0.2s var(--ease), color 0.15s ease;
-}
-.vbd-expertise-list details[open] .vbd-expertise-mark {
-  transform: rotate(90deg);
-  color: var(--olive);
+.vbd-expertise-list details[open] .vbd-expertise-name {
+  color: var(--olive-dark);
 }
 .vbd-expertise-list details p {
   margin: 0 0 0.95rem;
