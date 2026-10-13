@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=93">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=94">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -98,8 +98,10 @@
   <!-- 03. Projectbeschikbaarheid (renovatie) ≠ plaatsbezoekmomenten -->
   <section class="vbd-avail" id="vbdAvail" data-avail="open" aria-labelledby="vbdAvailStatus">
     <div class="vbd-avail-copy">
-      <div class="vbd-sec-head">
-        <p class="vbd-sec-kicker">Beschikbaarheid</p>
+      <div class="vbd-sec-block">
+        <div class="vbd-sec-head">
+          <p class="vbd-sec-kicker">Beschikbaarheid</p>
+        </div>
       </div>
       <h2 class="vbd-sr">Beschikbaarheid</h2>
       <p class="vbd-avail-status" id="vbdAvailStatus">Nieuwe projecten vanaf november 2026</p>
@@ -112,10 +114,12 @@
 
       <!-- 04. Expertise — editorial, geen kaart; beschrijving pas bij openklappen -->
       <section class="vbd-expertise" aria-labelledby="vbdExpertiseLead">
-        <div class="vbd-sec-head">
-          <p class="vbd-sec-kicker">Expertise</p>
+        <div class="vbd-sec-block">
+          <div class="vbd-sec-head">
+            <p class="vbd-sec-kicker">Expertise</p>
+          </div>
+          <p class="vbd-sec-lead" id="vbdExpertiseLead">Gespecialiseerd in dakwerken</p>
         </div>
-        <p class="vbd-sec-lead" id="vbdExpertiseLead">Gespecialiseerd in dakwerken</p>
         <h2 class="vbd-sr">Expertise</h2>
 
         <ul class="vbd-expertise-list">
@@ -173,10 +177,12 @@
 
       <!-- 06. Prijzen & kosten — flexibele prijslijst (geen zware tabel) -->
       <section class="vbd-rates" id="vbdRates" aria-labelledby="vbdRatesLead" hidden>
-        <div class="vbd-sec-head">
-          <p class="vbd-sec-kicker">Richtprijzen</p>
+        <div class="vbd-sec-block">
+          <div class="vbd-sec-head">
+            <p class="vbd-sec-kicker">Richtprijzen</p>
+          </div>
+          <p class="vbd-sec-lead" id="vbdRatesLead">Wat kosten deze werken?</p>
         </div>
-        <p class="vbd-sec-lead" id="vbdRatesLead">Wat kosten deze werken?</p>
         <h2 class="vbd-sr">Richtprijzen</h2>
         <p class="vbd-rates-source">Prijzen opgegeven door dit vakbedrijf</p>
 
@@ -198,10 +204,12 @@
         data-area-ranges="2000-2180,2500-2660"
       >
         <div class="vbd-band-copy">
-          <div class="vbd-sec-head">
-            <p class="vbd-sec-kicker" id="vbdAreaTitle">Werkgebied</p>
+          <div class="vbd-sec-block">
+            <div class="vbd-sec-head">
+              <p class="vbd-sec-kicker" id="vbdAreaTitle">Werkgebied</p>
+            </div>
+            <p class="vbd-sec-lead">Waar is dit vakbedrijf actief?</p>
           </div>
-          <p class="vbd-sec-lead">Waar is dit vakbedrijf actief?</p>
           <h2 class="vbd-sr">Werkgebied</h2>
           <p class="vbd-avail-meta">Gevestigd in Antwerpen · Actief in Antwerpen en omliggende gemeenten</p>
         </div>
@@ -227,10 +235,12 @@
 
       <!-- 08. Over het bedrijf -->
       <section class="vbd-support-item vbd-about-block" aria-labelledby="vbdAboutLead">
-        <div class="vbd-sec-head">
-          <p class="vbd-sec-kicker">Over het bedrijf</p>
+        <div class="vbd-sec-block">
+          <div class="vbd-sec-head">
+            <p class="vbd-sec-kicker">Over het bedrijf</p>
+          </div>
+          <p class="vbd-sec-lead" id="vbdAboutLead">Maak kennis met dit vakbedrijf.</p>
         </div>
-        <p class="vbd-sec-lead" id="vbdAboutLead">Maak kennis met dit vakbedrijf.</p>
         <details class="vbd-fold">
           <summary>
             <span class="vbd-fold-title">Meer over Noord Dakatelier</span>
@@ -267,10 +277,12 @@
       <!-- 09. Reviews -->
       <section class="vbd-support-item vbd-reviews-band" aria-labelledby="vbdReviewsLead">
         <div class="vbd-reviews-head">
-          <div class="vbd-sec-head">
-            <p class="vbd-sec-kicker">Klantenervaringen</p>
+          <div class="vbd-sec-block">
+            <div class="vbd-sec-head">
+              <p class="vbd-sec-kicker">Klantenervaringen</p>
+            </div>
+            <p class="vbd-sec-lead" id="vbdReviewsLead">Wat zeggen eerdere klanten?</p>
           </div>
-          <p class="vbd-sec-lead" id="vbdReviewsLead">Wat zeggen eerdere klanten?</p>
           <h2 class="vbd-sr">Klantenervaringen</h2>
           <div class="vbd-reviews-score" aria-label="4,8 van 5">
             <span class="vbd-reviews-stars" aria-hidden="true">
@@ -338,10 +350,12 @@
       <!-- 10. Contact — mobiel; desktop = boekingskaart -->
       <section class="vbd-support-item vbd-contact-bar" aria-labelledby="vbdContactLead">
         <div>
-          <div class="vbd-sec-head">
-            <p class="vbd-sec-kicker" id="vbdContactTitle">Contact</p>
+          <div class="vbd-sec-block">
+            <div class="vbd-sec-head">
+              <p class="vbd-sec-kicker" id="vbdContactTitle">Contact</p>
+            </div>
+            <p class="vbd-sec-lead" id="vbdContactLead">Bespreek je project rechtstreeks met het vakbedrijf.</p>
           </div>
-          <p class="vbd-sec-lead" id="vbdContactLead">Bespreek je project rechtstreeks met het vakbedrijf.</p>
           <h2 class="vbd-sr">Contact</h2>
         </div>
         <div class="vbd-contact-bar-actions">
@@ -407,7 +421,7 @@
 <div class="vbd-rates-sheet" id="vbdRatesSheet" hidden>
   <div class="vbd-rates-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="vbdRatesSheetTitle">
     <div class="vbd-rates-sheet-head">
-      <div>
+      <div class="vbd-sec-block">
         <div class="vbd-sec-head">
           <p class="vbd-sec-kicker">Richtprijzen</p>
         </div>
