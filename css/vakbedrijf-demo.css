@@ -1022,13 +1022,17 @@
   }
 }
 
-/* Richtprijzen — editorial, aligned with expertise */
+/* Richtprijzen — compacte info-kaart (niet dezelfde vorm als expertise) */
 .vbd-rates {
-  margin: 0;
-  padding: 0.35rem 0 0.15rem;
+  margin: 0.35rem 0 0;
+  padding: 1rem 1.05rem 1.05rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: none;
 }
 .vbd-rates-kicker {
-  margin: 0 0 0.45rem;
+  margin: 0 0 0.35rem;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -1036,12 +1040,12 @@
   color: var(--olive);
 }
 .vbd-rates-lead {
-  margin: 0 0 1rem;
+  margin: 0 0 0.85rem;
   font-family: var(--display);
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.3;
+  line-height: 1.25;
   color: var(--ink);
 }
 .vbd-rates-table {
@@ -1051,13 +1055,13 @@
 .vbd-rates-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.75rem 1rem;
+  gap: 0.65rem 1rem;
   align-items: baseline;
-  padding: 0.75rem 0;
+  padding: 0.65rem 0;
   border-bottom: 1px solid var(--line);
 }
 .vbd-rates-head {
-  padding: 0.55rem 0;
+  padding: 0.5rem 0;
 }
 .vbd-rates-head span {
   font-size: 0.68rem;
@@ -1068,7 +1072,7 @@
 }
 .vbd-rates-row span {
   font-family: var(--display);
-  font-size: 1rem;
+  font-size: 0.98rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -1076,7 +1080,7 @@
 }
 .vbd-rates-row strong {
   font-family: var(--display);
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: -0.02em;
   color: var(--olive-dark);
@@ -1084,9 +1088,9 @@
   text-align: right;
 }
 .vbd-rates-note {
-  margin: 0.85rem 0 0;
+  margin: 0.75rem 0 0;
   max-width: 36rem;
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   color: var(--muted);
   line-height: 1.45;
 }
