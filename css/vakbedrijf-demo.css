@@ -926,22 +926,26 @@
   }
 }
 .vbd-expertise-also {
-  margin-top: 1.15rem;
+  margin-top: 0.7rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(100, 102, 98, 0.1);
 }
 .vbd-expertise-also-label {
-  margin: 0 0 0.35rem;
-  font-size: 0.8125rem; /* ~13px */
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
+  margin: 0 0 0.2rem;
+  font-family: var(--body);
+  font-size: 0.88rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: #3a3c36;
+  line-height: 1.35;
 }
 .vbd-expertise-also-items {
   margin: 0;
-  font-size: 0.97rem; /* ~15–16px */
+  font-size: 0.84rem;
   font-weight: 400;
-  color: var(--ink);
-  line-height: 1.45;
+  color: var(--muted);
+  line-height: 1.4;
 }
 .vbd-expertise-urgent {
   margin-top: 1rem;
