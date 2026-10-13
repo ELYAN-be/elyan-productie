@@ -898,7 +898,7 @@
 }
 .vbd-expertise-name {
   font-family: var(--body);
-  font-size: 1.0625rem; /* ~17px */
+  font-size: 0.97rem; /* iets kleiner dan 17px */
   font-weight: 500;
   letter-spacing: -0.01em;
   color: #3a3c36;
