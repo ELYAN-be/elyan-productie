@@ -1019,16 +1019,19 @@
   }
 }
 
-/* Prijzen & kosten — editorial prijslijst, geen zware tabel/kaarten */
+/* Richtprijzen — rustig info-kader */
 .vbd-rates {
-  margin: 0.32rem 0 0;
-  padding: 0.85rem 0 0.2rem;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  box-shadow: none;
+  margin: 0;
+  padding: 1.15rem 1.15rem 1.2rem;
+  background: var(--white);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(47, 49, 43, 0.04);
 }
 .vbd-rates[hidden] { display: none !important; }
+.vbd-rates .vbd-sec-lead {
+  margin-bottom: 0.85rem;
+}
 .vbd-rates-list {
   margin: 0;
   padding: 0;
@@ -1044,7 +1047,7 @@
     "cond";
   gap: 0.22rem;
   align-items: start;
-  padding: 0.85rem 0.35rem 0.85rem 0;
+  padding: 0.8rem 0;
   border-bottom: 1px solid var(--line);
 }
 .vbd-rates-item[hidden] { display: none !important; }
@@ -1117,6 +1120,9 @@
   line-height: 1.45;
 }
 @media (min-width: 760px) {
+  .vbd-rates {
+    padding: 1.25rem 1.3rem 1.3rem;
+  }
   .vbd-rates-item {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
@@ -1124,7 +1130,6 @@
       "cond cond";
     column-gap: 1.75rem;
     row-gap: 0.2rem;
-    padding-right: 0.75rem;
   }
   .vbd-rates-price {
     text-align: right;
@@ -1132,7 +1137,6 @@
   }
   .vbd-rates-cond {
     max-width: none;
-    padding-right: 0;
   }
 }
 
