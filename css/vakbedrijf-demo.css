@@ -1023,12 +1023,13 @@
   }
 }
 
-/* Richtprijzen — licht editorial, geen zwaar vlak */
+/* Richtprijzen — licht editorial, duidelijk gescheiden van expertise */
 .vbd-rates {
-  margin: 0;
-  padding: 0.2rem 0 0.2rem;
+  margin: 0.35rem 0 0;
+  padding: 1.35rem 0 0.2rem;
   background: transparent;
   border: 0;
+  border-top: 1px solid var(--line);
   border-radius: 0;
   box-shadow: none;
 }
