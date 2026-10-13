@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=80">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=79">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -108,7 +108,7 @@
   <div class="vbd-layout">
     <div class="vbd-maincol">
 
-      <!-- 04. Expertise — verfijnde open dienstenlijst -->
+      <!-- 04. Expertise — editorial, geen kaart; beschrijving pas bij openklappen -->
       <section class="vbd-expertise" aria-labelledby="vbdExpertiseLead">
         <p class="vbd-sec-kicker">Expertise</p>
         <p class="vbd-sec-lead" id="vbdExpertiseLead">Gespecialiseerd in dakwerken</p>
@@ -116,25 +116,45 @@
 
         <ul class="vbd-expertise-list">
           <li>
-            <p class="vbd-expertise-name">Volledige dakrenovatie</p>
-            <p class="vbd-expertise-desc">Vernieuwing van bestaande daken</p>
+            <details>
+              <summary>
+                <span class="vbd-expertise-num">01</span>
+                <span class="vbd-expertise-name">Volledige dakrenovatie</span>
+              </summary>
+              <p>Vernieuwing van bestaande daken, inclusief onderdak en afwerking.</p>
+            </details>
           </li>
           <li>
-            <p class="vbd-expertise-name">Dakisolatie</p>
-            <p class="vbd-expertise-desc">Isolatie van hellende en platte daken</p>
+            <details>
+              <summary>
+                <span class="vbd-expertise-num">02</span>
+                <span class="vbd-expertise-name">Dakisolatie</span>
+              </summary>
+              <p>Isolatie van hellende en platte daken.</p>
+            </details>
           </li>
           <li>
-            <p class="vbd-expertise-name">Hellende daken</p>
-            <p class="vbd-expertise-desc">Herstelling en vernieuwing</p>
+            <details>
+              <summary>
+                <span class="vbd-expertise-num">03</span>
+                <span class="vbd-expertise-name">Hellende daken</span>
+              </summary>
+              <p>Herstelling en vernieuwing van hellende daken in pannen of leien.</p>
+            </details>
           </li>
           <li>
-            <p class="vbd-expertise-name">Dakvensters</p>
-            <p class="vbd-expertise-desc">Plaatsing en vervanging</p>
+            <details>
+              <summary>
+                <span class="vbd-expertise-num">04</span>
+                <span class="vbd-expertise-name">Dakvensters</span>
+              </summary>
+              <p>Plaatsing en vervanging van dakramen.</p>
+            </details>
           </li>
         </ul>
 
         <div class="vbd-expertise-also">
-          <p class="vbd-expertise-also-label">Ook voor onderhoud en herstellingen</p>
+          <p class="vbd-expertise-also-label">Onderhoud &amp; herstellingen</p>
           <p class="vbd-expertise-also-items">Dakonderhoud · Kleine herstellingen</p>
         </div>
 
@@ -439,6 +459,16 @@
   Array.prototype.forEach.call(document.querySelectorAll('[data-jump]'), function (el) {
     el.addEventListener('click', function () {
       openLb(Number(el.getAttribute('data-jump')));
+    });
+  });
+
+  /* Expertise: één dienst tegelijk open */
+  Array.prototype.forEach.call(document.querySelectorAll('.vbd-expertise-list details'), function (d) {
+    d.addEventListener('toggle', function () {
+      if (!d.open) return;
+      Array.prototype.forEach.call(document.querySelectorAll('.vbd-expertise-list details'), function (other) {
+        if (other !== d) other.open = false;
+      });
     });
   });
 
