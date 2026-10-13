@@ -1019,12 +1019,12 @@
   }
 }
 
-/* Richtprijzen — editorial, met duidelijk vlak t.o.v. expertise */
+/* Richtprijzen — zacht olive-vlak, zonder kader */
 .vbd-rates {
   margin: 0;
   padding: 1.05rem 1.05rem 1.1rem;
   background: rgba(142, 168, 118, 0.08);
-  border: 1px solid rgba(63, 74, 50, 0.12);
+  border: 0;
   border-radius: 14px;
   box-shadow: none;
 }
