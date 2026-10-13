@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=56">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=57">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -379,6 +379,20 @@
 
 <div class="vbd-toast" id="vbdToast" role="status" aria-live="polite">Aanvraag verstuurd.</div>
 
+<div class="vbd-rates-sheet" id="vbdRatesSheet" hidden>
+  <div class="vbd-rates-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="vbdRatesSheetTitle">
+    <div class="vbd-rates-sheet-head">
+      <div>
+        <h2 class="vbd-rates-sheet-title" id="vbdRatesSheetTitle">Prijzen &amp; kosten</h2>
+        <p class="vbd-rates-sheet-lead">Alle richtprijzen en voorwaarden van dit vakbedrijf.</p>
+      </div>
+      <button type="button" class="vbd-rates-sheet-close" id="vbdRatesSheetClose" aria-label="Sluiten">×</button>
+    </div>
+    <ul class="vbd-rates-list vbd-rates-list--sheet" id="vbdRatesSheetList"></ul>
+    <p class="vbd-rates-note">Indicatieve prijzen opgegeven door het vakbedrijf. De definitieve prijs hangt af van de werkzaamheden.</p>
+  </div>
+</div>
+
 <script>
 (function () {
   var MONTHS_NL = ['januari','februari','maart','april','mei','juni','juli','augustus','september','oktober','november','december'];
@@ -448,14 +462,33 @@
     });
   });
 
-  /* Prijzen & kosten — bestaande gegevens, flexibele presentatie */
+  /* Prijzen & kosten — bestaande gegevens; voorwaarden alleen indien opgegeven */
   (function initRates() {
     var PREVIEW = 3;
-    /* types: from | range | fixed | on_request — alleen items met geldige prijsinfo */
+    /* types: from | range | fixed | on_request — conditions alleen tonen als aanwezig */
     var rates = [
-      { name: 'Dakrenovatie', type: 'range', min: 160, max: 230, unit: '/ m²' },
-      { name: 'Dakisolatie', type: 'range', min: 45, max: 75, unit: '/ m²' },
-      { name: 'Dakvenster', type: 'from', amount: 1200 },
+      {
+        name: 'Dakrenovatie',
+        type: 'range',
+        min: 160,
+        max: 230,
+        unit: '/ m²',
+        conditions: 'Indicatie · Inclusief materiaal en plaatsing'
+      },
+      {
+        name: 'Dakisolatie',
+        type: 'range',
+        min: 45,
+        max: 75,
+        unit: '/ m²',
+        conditions: 'Indicatie · Vanaf 40 m²'
+      },
+      {
+        name: 'Dakvenster',
+        type: 'from',
+        amount: 1200,
+        conditions: 'Standaarduitvoering'
+      },
       { name: 'Complexe werken', type: 'on_request' }
     ];
 
@@ -512,18 +545,9 @@
       }
     }
 
-    var section = document.getElementById('vbdRates');
-    var list = document.getElementById('vbdRatesList');
-    var moreBtn = document.getElementById('vbdRatesMore');
-    if (!section || !list) return;
-
-    var visible = rates.filter(hasPriceInfo);
-    if (!visible.length) return;
-
-    visible.forEach(function (item, idx) {
+    function buildItem(item) {
       var li = document.createElement('li');
       li.className = 'vbd-rates-item';
-      if (idx >= PREVIEW) li.hidden = true;
 
       var name = document.createElement('p');
       name.className = 'vbd-rates-name';
@@ -542,23 +566,59 @@
         cond.textContent = item.conditions;
         li.appendChild(cond);
       }
+      return li;
+    }
 
+    var section = document.getElementById('vbdRates');
+    var list = document.getElementById('vbdRatesList');
+    var moreBtn = document.getElementById('vbdRatesMore');
+    var sheet = document.getElementById('vbdRatesSheet');
+    var sheetList = document.getElementById('vbdRatesSheetList');
+    var sheetClose = document.getElementById('vbdRatesSheetClose');
+    if (!section || !list) return;
+
+    var visible = rates.filter(hasPriceInfo);
+    if (!visible.length) return;
+
+    visible.forEach(function (item, idx) {
+      var li = buildItem(item);
+      if (idx >= PREVIEW) li.hidden = true;
       list.appendChild(li);
     });
 
     section.hidden = false;
 
+    function openSheet() {
+      if (!sheet || !sheetList) return;
+      sheetList.textContent = '';
+      visible.forEach(function (item) {
+        sheetList.appendChild(buildItem(item));
+      });
+      sheet.hidden = false;
+      document.body.style.overflow = 'hidden';
+      if (sheetClose) sheetClose.focus();
+    }
+
+    function closeSheet() {
+      if (!sheet || sheet.hidden) return;
+      sheet.hidden = true;
+      document.body.style.overflow = '';
+      if (moreBtn) moreBtn.focus();
+    }
+
     if (visible.length > PREVIEW && moreBtn) {
-      var expanded = false;
       moreBtn.hidden = false;
-      moreBtn.addEventListener('click', function () {
-        expanded = !expanded;
-        Array.prototype.forEach.call(list.children, function (li, idx) {
-          if (idx >= PREVIEW) li.hidden = !expanded;
-        });
-        moreBtn.textContent = expanded ? 'Toon minder prijzen' : 'Bekijk alle prijzen';
+      moreBtn.addEventListener('click', openSheet);
+    }
+    if (sheetClose) sheetClose.addEventListener('click', closeSheet);
+    if (sheet) {
+      sheet.addEventListener('click', function (e) {
+        if (e.target === sheet) closeSheet();
       });
     }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeSheet();
+    });
   })();
 
   var toast = document.getElementById('vbdToast');
