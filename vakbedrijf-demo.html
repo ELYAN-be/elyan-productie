@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=55">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=56">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -167,36 +167,15 @@
         </div>
       </section>
 
-      <!-- 06. Richtprijzen — compacte kaart (informatie), anders dan expertise -->
-      <section class="vbd-rates" aria-labelledby="vbdRatesLead">
-        <p class="vbd-rates-kicker">Richtprijzen</p>
-        <p class="vbd-rates-lead" id="vbdRatesLead">Wat kosten deze werken?</p>
-        <h2 class="vbd-sr">Richtprijzen</h2>
+      <!-- 06. Prijzen & kosten — flexibele prijslijst (geen zware tabel) -->
+      <section class="vbd-rates" id="vbdRates" aria-labelledby="vbdRatesTitle" hidden>
+        <h2 class="vbd-rates-title" id="vbdRatesTitle">Prijzen &amp; kosten</h2>
+        <p class="vbd-rates-lead" id="vbdRatesLead">Ontdek de richtprijzen van dit vakbedrijf.</p>
 
-        <div class="vbd-rates-table" role="table" aria-label="Richtprijzen">
-          <div class="vbd-rates-head" role="row">
-            <span role="columnheader">Dienst</span>
-            <span role="columnheader">Richtprijs</span>
-          </div>
-          <div class="vbd-rates-row" role="row">
-            <span role="cell">Dakrenovatie</span>
-            <strong role="cell">€&nbsp;160 – €&nbsp;230 / m²</strong>
-          </div>
-          <div class="vbd-rates-row" role="row">
-            <span role="cell">Dakisolatie</span>
-            <strong role="cell">€&nbsp;45 – €&nbsp;75 / m²</strong>
-          </div>
-          <div class="vbd-rates-row" role="row">
-            <span role="cell">Dakvenster</span>
-            <strong role="cell">Vanaf €&nbsp;1.200</strong>
-          </div>
-          <div class="vbd-rates-row" role="row">
-            <span role="cell">Complexe werken</span>
-            <strong role="cell">Prijs op aanvraag</strong>
-          </div>
-        </div>
+        <ul class="vbd-rates-list" id="vbdRatesList"></ul>
+        <button type="button" class="vbd-rates-more" id="vbdRatesMore" hidden>Bekijk alle prijzen</button>
 
-        <p class="vbd-rates-note">Indicatieve prijzen opgegeven door het bedrijf. Definitieve prijs afhankelijk van de werken.</p>
+        <p class="vbd-rates-note">Indicatieve prijzen opgegeven door het vakbedrijf. De definitieve prijs hangt af van de werkzaamheden.</p>
       </section>
 
       <!-- Ondersteunend: eenvoudige secties, geen kaarten -->
@@ -468,6 +447,119 @@
       });
     });
   });
+
+  /* Prijzen & kosten — bestaande gegevens, flexibele presentatie */
+  (function initRates() {
+    var PREVIEW = 3;
+    /* types: from | range | fixed | on_request — alleen items met geldige prijsinfo */
+    var rates = [
+      { name: 'Dakrenovatie', type: 'range', min: 160, max: 230, unit: '/ m²' },
+      { name: 'Dakisolatie', type: 'range', min: 45, max: 75, unit: '/ m²' },
+      { name: 'Dakvenster', type: 'from', amount: 1200 },
+      { name: 'Complexe werken', type: 'on_request' }
+    ];
+
+    function formatEuro(n) {
+      var parts = String(Math.round(Number(n))).split('');
+      var out = [];
+      for (var i = parts.length - 1, c = 0; i >= 0; i--, c++) {
+        if (c && c % 3 === 0) out.unshift('.');
+        out.unshift(parts[i]);
+      }
+      return '€\u00a0' + out.join('');
+    }
+
+    function hasPriceInfo(item) {
+      if (!item || !item.name) return false;
+      if (item.type === 'from' || item.type === 'fixed') {
+        return item.amount != null && !isNaN(Number(item.amount));
+      }
+      if (item.type === 'range') {
+        return item.min != null && item.max != null &&
+          !isNaN(Number(item.min)) && !isNaN(Number(item.max));
+      }
+      if (item.type === 'on_request') return true;
+      return false;
+    }
+
+    function fillPrice(el, item) {
+      el.textContent = '';
+      function addUnit() {
+        if (!item.unit) return;
+        el.appendChild(document.createTextNode(' '));
+        var u = document.createElement('span');
+        u.className = 'vbd-rates-unit';
+        u.textContent = item.unit;
+        el.appendChild(u);
+      }
+      if (item.type === 'from') {
+        el.appendChild(document.createTextNode('Vanaf ' + formatEuro(item.amount)));
+        addUnit();
+        return;
+      }
+      if (item.type === 'fixed') {
+        el.appendChild(document.createTextNode(formatEuro(item.amount)));
+        addUnit();
+        return;
+      }
+      if (item.type === 'range') {
+        el.appendChild(document.createTextNode(formatEuro(item.min) + ' – ' + formatEuro(item.max)));
+        addUnit();
+        return;
+      }
+      if (item.type === 'on_request') {
+        el.appendChild(document.createTextNode('Prijs op aanvraag'));
+      }
+    }
+
+    var section = document.getElementById('vbdRates');
+    var list = document.getElementById('vbdRatesList');
+    var moreBtn = document.getElementById('vbdRatesMore');
+    if (!section || !list) return;
+
+    var visible = rates.filter(hasPriceInfo);
+    if (!visible.length) return;
+
+    visible.forEach(function (item, idx) {
+      var li = document.createElement('li');
+      li.className = 'vbd-rates-item';
+      if (idx >= PREVIEW) li.hidden = true;
+
+      var name = document.createElement('p');
+      name.className = 'vbd-rates-name';
+      name.textContent = item.name;
+
+      var price = document.createElement('p');
+      price.className = 'vbd-rates-price';
+      fillPrice(price, item);
+
+      li.appendChild(name);
+      li.appendChild(price);
+
+      if (item.conditions) {
+        var cond = document.createElement('p');
+        cond.className = 'vbd-rates-cond';
+        cond.textContent = item.conditions;
+        li.appendChild(cond);
+      }
+
+      list.appendChild(li);
+    });
+
+    section.hidden = false;
+
+    if (visible.length > PREVIEW && moreBtn) {
+      var expanded = false;
+      moreBtn.hidden = false;
+      moreBtn.addEventListener('click', function () {
+        expanded = !expanded;
+        Array.prototype.forEach.call(list.children, function (li, idx) {
+          if (idx >= PREVIEW) li.hidden = !expanded;
+        });
+        moreBtn.textContent = expanded ? 'Toon minder prijzen' : 'Bekijk alle prijzen';
+      });
+    }
+  })();
 
   var toast = document.getElementById('vbdToast');
   var toastTimer;
