@@ -830,60 +830,98 @@
   line-height: 1.4;
 }
 
-/* Services — compact groups, equal weight for renovatie & spoed */
-.vbd-service-group {
-  margin-top: 0.8rem;
+/* Expertise — editorial list on page background, no card */
+.vbd-expertise {
+  margin: 0;
+  padding: 0.15rem 0 0.35rem;
 }
-.vbd-service-group + .vbd-service-group {
-  margin-top: 0.9rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid var(--line);
-}
-.vbd-service-group-title {
+.vbd-expertise-kicker {
   margin: 0 0 0.45rem;
-  font-family: var(--body);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--olive);
 }
-.vbd-service-grid {
+.vbd-expertise-lead {
+  margin: 0 0 1.15rem;
+  font-family: var(--display);
+  font-size: clamp(1.35rem, 3.8vw, 1.65rem);
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  line-height: 1.2;
+  color: var(--ink);
+  max-width: 18ch;
+}
+.vbd-expertise-list {
   margin: 0;
   padding: 0;
   list-style: none;
+  border-top: 1px solid var(--line);
+}
+.vbd-expertise-list > li {
+  border-bottom: 1px solid var(--line);
+}
+.vbd-expertise-list details { margin: 0; }
+.vbd-expertise-list summary {
+  list-style: none;
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.45rem 0.9rem;
+  grid-template-columns: 2rem 1fr auto;
+  align-items: baseline;
+  gap: 0.65rem 0.85rem;
+  padding: 0.85rem 0;
+  cursor: pointer;
 }
-.vbd-service-grid--3 {
-  grid-template-columns: 1fr;
-}
-.vbd-service-grid li {
-  display: grid;
-  gap: 0.1rem;
-  min-width: 0;
-}
-.vbd-service-grid strong {
-  font-family: var(--body);
-  font-size: 0.88rem;
+.vbd-expertise-list summary::-webkit-details-marker { display: none; }
+.vbd-expertise-num {
+  font-family: var(--display);
+  font-size: 0.8rem;
   font-weight: 600;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+.vbd-expertise-name {
+  font-family: var(--display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   color: var(--ink);
   line-height: 1.25;
 }
-.vbd-service-grid span {
-  font-size: 0.76rem;
+.vbd-expertise-mark {
+  font-size: 0.95rem;
   color: var(--muted);
-  line-height: 1.35;
+  transition: transform 0.2s var(--ease), color 0.15s ease;
 }
-@media (min-width: 560px) {
-  .vbd-service-grid--3 {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+.vbd-expertise-list details[open] .vbd-expertise-mark {
+  transform: rotate(90deg);
+  color: var(--olive);
 }
-@media (max-width: 420px) {
-  .vbd-service-grid { grid-template-columns: 1fr; gap: 0.45rem; }
+.vbd-expertise-list details p {
+  margin: 0 0 0.95rem;
+  padding-left: calc(2rem + 0.85rem);
+  max-width: 34rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.vbd-expertise-also {
+  margin-top: 1.15rem;
+}
+.vbd-expertise-also-label {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.vbd-expertise-also-items {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.45;
 }
 
 .vbd-about {
