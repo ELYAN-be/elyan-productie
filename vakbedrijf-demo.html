@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=62">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=61">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -66,28 +66,24 @@
 
 <div class="vbd-shell">
 
-  <!-- 02. Realisaties -->
-  <section class="vbd-realisaties" id="vbdPhotos" aria-labelledby="vbdRealLead">
-    <p class="vbd-sec-kicker">Realisaties</p>
-    <p class="vbd-sec-lead" id="vbdRealLead">Bekijk eerder uitgevoerde projecten.</p>
-    <div class="vbd-gallery">
-      <button type="button" class="vbd-gallery-main" id="vbdOpenGallery" aria-label="Bekijk alle foto's">
-        <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
-        <span class="vbd-gallery-count" id="vbdCount">1 / 5</span>
-        <span class="vbd-gallery-open">Bekijk alle foto's</span>
+  <!-- 02. Fotogalerij -->
+  <section class="vbd-gallery" id="vbdPhotos" aria-label="Projectfoto's">
+    <button type="button" class="vbd-gallery-main" id="vbdOpenGallery" aria-label="Bekijk alle foto's">
+      <img id="vbdHero" src="/assets/photos/hero.jpg" alt="Projectfoto 1">
+      <span class="vbd-gallery-count" id="vbdCount">1 / 5</span>
+      <span class="vbd-gallery-open">Bekijk alle foto's</span>
+    </button>
+    <div class="vbd-gallery-rail" aria-hidden="true">
+      <button type="button" class="vbd-rail-tile" data-jump="1">
+        <img src="/assets/photos/why.jpg" alt="">
       </button>
-      <div class="vbd-gallery-rail" aria-hidden="true">
-        <button type="button" class="vbd-rail-tile" data-jump="1">
-          <img src="/assets/photos/why.jpg" alt="">
-        </button>
-        <button type="button" class="vbd-rail-tile" data-jump="2">
-          <img src="/assets/photos/editorial.jpg" alt="">
-        </button>
-        <button type="button" class="vbd-rail-tile" data-jump="3">
-          <img src="/assets/photos/about.jpg" alt="">
-          <span class="vbd-rail-more">+2</span>
-        </button>
-      </div>
+      <button type="button" class="vbd-rail-tile" data-jump="2">
+        <img src="/assets/photos/editorial.jpg" alt="">
+      </button>
+      <button type="button" class="vbd-rail-tile" data-jump="3">
+        <img src="/assets/photos/about.jpg" alt="">
+        <span class="vbd-rail-more">+2</span>
+      </button>
     </div>
   </section>
 
@@ -100,10 +96,9 @@
   </div>
 
   <!-- 03. Projectbeschikbaarheid (renovatie) ≠ plaatsbezoekmomenten -->
-  <section class="vbd-avail" id="vbdAvail" data-avail="open" aria-labelledby="vbdAvailLead">
+  <section class="vbd-avail" id="vbdAvail" data-avail="open" aria-labelledby="vbdAvailStatus">
     <div class="vbd-avail-copy">
-      <p class="vbd-sec-kicker">Beschikbaarheid</p>
-      <p class="vbd-sec-lead" id="vbdAvailLead">Wanneer kan dit vakbedrijf starten?</p>
+      <p class="vbd-avail-kicker">Beschikbaarheid</p>
       <h2 class="vbd-sr">Beschikbaarheid</h2>
       <p class="vbd-avail-status" id="vbdAvailStatus">Nieuwe projecten vanaf november 2026</p>
       <p class="vbd-avail-meta">Plaatsbezoeken afzonderlijk in te plannen</p>
@@ -115,9 +110,9 @@
 
       <!-- 04. Expertise — editorial, geen kaart; beschrijving pas bij openklappen -->
       <section class="vbd-expertise" aria-labelledby="vbdExpertiseLead">
-        <p class="vbd-sec-kicker">Expertise</p>
-        <p class="vbd-sec-lead" id="vbdExpertiseLead">Gespecialiseerd in dakwerken</p>
-        <h2 class="vbd-sr">Expertise</h2>
+        <p class="vbd-expertise-kicker">Expertise</p>
+        <p class="vbd-expertise-lead" id="vbdExpertiseLead">Gespecialiseerd in dakwerken</p>
+        <h2 class="vbd-sr">Diensten en specialisaties</h2>
 
         <ul class="vbd-expertise-list">
           <li>
@@ -174,9 +169,9 @@
 
       <!-- 06. Prijzen & kosten — flexibele prijslijst (geen zware tabel) -->
       <section class="vbd-rates" id="vbdRates" aria-labelledby="vbdRatesLead" hidden>
-        <p class="vbd-sec-kicker">Richtprijzen</p>
-        <p class="vbd-sec-lead" id="vbdRatesLead">Wat kosten deze werken?</p>
-        <h2 class="vbd-sr">Richtprijzen</h2>
+        <p class="vbd-rates-kicker">Prijzen &amp; kosten</p>
+        <p class="vbd-rates-lead" id="vbdRatesLead">Ontdek de richtprijzen van dit vakbedrijf.</p>
+        <h2 class="vbd-sr">Prijzen &amp; kosten</h2>
 
         <ul class="vbd-rates-list" id="vbdRatesList"></ul>
         <button type="button" class="vbd-rates-more" id="vbdRatesMore" hidden>Bekijk alle prijzen</button>
@@ -196,10 +191,8 @@
         data-area-ranges="2000-2180,2500-2660"
       >
         <div class="vbd-band-copy">
-          <p class="vbd-sec-kicker" id="vbdAreaTitle">Werkgebied</p>
-          <p class="vbd-sec-lead">Waar is dit vakbedrijf actief?</p>
-          <h2 class="vbd-sr">Werkgebied</h2>
-          <p class="vbd-avail-meta">Gevestigd in Antwerpen · Actief in Antwerpen en omliggende gemeenten</p>
+          <h2 id="vbdAreaTitle">Werkgebied</h2>
+          <p>Gevestigd in Antwerpen · Actief in Antwerpen en omliggende gemeenten</p>
         </div>
         <form class="vbd-area-form" id="vbdAreaForm" novalidate>
           <label class="vbd-sr" for="vbdPostcode">Postcode</label>
@@ -222,48 +215,42 @@
       </section>
 
       <!-- 08. Over het bedrijf -->
-      <section class="vbd-support-item vbd-about-block" aria-labelledby="vbdAboutLead">
-        <p class="vbd-sec-kicker">Over het bedrijf</p>
-        <p class="vbd-sec-lead" id="vbdAboutLead">Maak kennis met dit vakbedrijf.</p>
-        <details class="vbd-fold">
-          <summary>
-            <span class="vbd-fold-title">Meer over Noord Dakatelier</span>
-            <span class="vbd-fold-hint">18 jaar ervaring · Eigen team</span>
-          </summary>
-          <div class="vbd-fold-body">
-            <p class="vbd-about">
-              Noord Dakatelier is een dakbedrijf uit Antwerpen, gespecialiseerd in hellende dakrenovaties voor gezinswoningen.
-              Het team werkt met eigen dakwerkers — van inspectie en prijsindicatie tot oplevering — zodat planning en uitvoering bij dezelfde mensen blijven.
-              Op de werf houden ze het netjes en voorspelbaar: duidelijke afspraken vooraf, en een prijsindicatie vóór de start.
-            </p>
-            <dl class="vbd-facts">
-              <div>
-                <dt>Ervaring</dt>
-                <dd>18 jaar in dakwerken</dd>
-              </div>
-              <div>
-                <dt>Vestiging</dt>
-                <dd>Antwerpen</dd>
-              </div>
-              <div>
-                <dt>Specialisatie</dt>
-                <dd>Hellende dakrenovaties</dd>
-              </div>
-              <div>
-                <dt>Team</dt>
-                <dd>Eigen dakwerkers</dd>
-              </div>
-            </dl>
-          </div>
-        </details>
-      </section>
+      <details class="vbd-support-item vbd-fold">
+        <summary>
+          <span class="vbd-fold-title">Over het bedrijf</span>
+          <span class="vbd-fold-hint">18 jaar ervaring · Eigen team</span>
+        </summary>
+        <div class="vbd-fold-body">
+          <p class="vbd-about">
+            Noord Dakatelier is een dakbedrijf uit Antwerpen, gespecialiseerd in hellende dakrenovaties voor gezinswoningen.
+            Het team werkt met eigen dakwerkers — van inspectie en prijsindicatie tot oplevering — zodat planning en uitvoering bij dezelfde mensen blijven.
+            Op de werf houden ze het netjes en voorspelbaar: duidelijke afspraken vooraf, en een prijsindicatie vóór de start.
+          </p>
+          <dl class="vbd-facts">
+            <div>
+              <dt>Ervaring</dt>
+              <dd>18 jaar in dakwerken</dd>
+            </div>
+            <div>
+              <dt>Vestiging</dt>
+              <dd>Antwerpen</dd>
+            </div>
+            <div>
+              <dt>Specialisatie</dt>
+              <dd>Hellende dakrenovaties</dd>
+            </div>
+            <div>
+              <dt>Team</dt>
+              <dd>Eigen dakwerkers</dd>
+            </div>
+          </dl>
+        </div>
+      </details>
 
       <!-- 09. Reviews -->
-      <section class="vbd-support-item vbd-reviews-band" aria-labelledby="vbdReviewsLead">
+      <section class="vbd-support-item vbd-reviews-band" aria-labelledby="vbdReviewsTitle">
         <div class="vbd-reviews-head">
-          <p class="vbd-sec-kicker">Klantenervaringen</p>
-          <p class="vbd-sec-lead" id="vbdReviewsLead">Wat zeggen eerdere klanten?</p>
-          <h2 class="vbd-sr">Klantenervaringen</h2>
+          <h2 id="vbdReviewsTitle">Ervaringen van klanten</h2>
           <div class="vbd-reviews-score" aria-label="4,8 van 5">
             <span class="vbd-reviews-stars" aria-hidden="true">
               <svg><use href="#i-star"></use></svg>
@@ -328,11 +315,10 @@
       </section>
 
       <!-- 10. Contact — mobiel; desktop = boekingskaart -->
-      <section class="vbd-support-item vbd-contact-bar" aria-labelledby="vbdContactLead">
+      <section class="vbd-support-item vbd-contact-bar" aria-labelledby="vbdContactTitle">
         <div>
-          <p class="vbd-sec-kicker" id="vbdContactTitle">Contact</p>
-          <p class="vbd-sec-lead" id="vbdContactLead">Bespreek je project rechtstreeks met het vakbedrijf.</p>
-          <h2 class="vbd-sr">Contact</h2>
+          <h2 id="vbdContactTitle">Contact</h2>
+          <p>Offerte of beschikbaarheid aanvragen</p>
         </div>
         <div class="vbd-contact-bar-actions">
           <a class="vbd-btn vbd-btn-call" href="tel:+3230000000">Bel</a>
@@ -398,8 +384,8 @@
   <div class="vbd-rates-sheet-panel" role="dialog" aria-modal="true" aria-labelledby="vbdRatesSheetTitle">
     <div class="vbd-rates-sheet-head">
       <div>
-        <p class="vbd-sec-kicker">Richtprijzen</p>
-        <p class="vbd-sec-lead" id="vbdRatesSheetTitle">Alle richtprijzen en voorwaarden van dit vakbedrijf.</p>
+        <p class="vbd-rates-kicker">Prijzen &amp; kosten</p>
+        <p class="vbd-rates-lead" id="vbdRatesSheetTitle">Alle richtprijzen en voorwaarden van dit vakbedrijf.</p>
       </div>
       <button type="button" class="vbd-rates-sheet-close" id="vbdRatesSheetClose" aria-label="Sluiten">×</button>
     </div>
