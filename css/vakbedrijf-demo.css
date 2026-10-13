@@ -460,7 +460,7 @@
 .vbd-rates-lead {
   margin: 0 0 1rem;
   font-family: var(--display);
-  font-size: 1.02rem;
+  font-size: 1.12rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   line-height: 1.3;
@@ -850,10 +850,6 @@
 .vbd-expertise {
   margin: 0;
   padding: 1.04rem 0 0.32rem;
-}
-.vbd-expertise .vbd-sec-lead {
-  font-size: 1.12rem; /* iets kleiner dan 20px */
-  font-weight: 600;
 }
 .vbd-expertise-list {
   margin: 0;
