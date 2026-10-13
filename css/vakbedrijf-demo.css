@@ -998,41 +998,73 @@
   }
 }
 
-/* Prices */
-.vbd-prices {
+/* Richtprijzen — editorial, aligned with expertise */
+.vbd-rates {
   margin: 0;
-  padding: 0;
-  list-style: none;
+  padding: 0.35rem 0 0.15rem;
 }
-.vbd-price {
-  padding: 0.9rem 0;
+.vbd-rates-kicker {
+  margin: 0 0 0.45rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--olive);
+}
+.vbd-rates-lead {
+  margin: 0 0 1rem;
+  font-family: var(--display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.3;
+  color: var(--ink);
+}
+.vbd-rates-table {
   border-top: 1px solid var(--line);
 }
-.vbd-price:first-child {
-  border-top: 0;
-  padding-top: 0.1rem;
-}
-.vbd-price-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+.vbd-rates-head,
+.vbd-rates-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.75rem 1rem;
   align-items: baseline;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--line);
 }
-.vbd-price-row span {
-  font-size: 0.95rem;
-  font-weight: 600;
+.vbd-rates-head {
+  padding: 0.55rem 0;
 }
-.vbd-price-row strong {
-  font-family: var(--display);
-  font-size: 1.05rem;
+.vbd-rates-head span {
+  font-size: 0.68rem;
   font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.vbd-rates-row span {
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  line-height: 1.25;
+}
+.vbd-rates-row strong {
+  font-family: var(--display);
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
   color: var(--olive-dark);
   white-space: nowrap;
+  text-align: right;
 }
-.vbd-price-note {
-  margin: 0.25rem 0 0;
+.vbd-rates-note {
+  margin: 0.85rem 0 0;
+  max-width: 36rem;
   font-size: 0.78rem;
   color: var(--muted);
+  line-height: 1.45;
 }
 
 /* Werkgebied postcode inside band */
