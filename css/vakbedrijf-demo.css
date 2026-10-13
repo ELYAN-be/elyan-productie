@@ -1023,18 +1023,25 @@
   }
 }
 
-/* Richtprijzen — zacht grijs vlak, zonder kader */
+/* Richtprijzen — licht editorial, geen zwaar vlak */
 .vbd-rates {
   margin: 0;
-  padding: 1.05rem 1.05rem 1.1rem;
-  background: var(--grey);
+  padding: 0.2rem 0 0.2rem;
+  background: transparent;
   border: 0;
-  border-radius: 14px;
+  border-radius: 0;
   box-shadow: none;
 }
 .vbd-rates[hidden] { display: none !important; }
 .vbd-rates .vbd-sec-lead {
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.45rem;
+}
+.vbd-rates-source {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--muted);
+  line-height: 1.4;
 }
 .vbd-rates-list {
   margin: 0;
@@ -1124,9 +1131,6 @@
   line-height: 1.45;
 }
 @media (min-width: 760px) {
-  .vbd-rates {
-    padding: 1.15rem 1.2rem 1.2rem;
-  }
   .vbd-rates-item {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-areas:
