@@ -12,7 +12,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=57">
+<link rel="stylesheet" href="/css/vakbedrijf-demo.css?v=58">
 </head>
 <body class="page-vbd">
 <a class="vbd-skip" href="#vbd-content">Ga naar inhoud</a>
@@ -464,7 +464,7 @@
 
   /* Prijzen & kosten — bestaande gegevens; voorwaarden alleen indien opgegeven */
   (function initRates() {
-    var PREVIEW = 3;
+    var PREVIEW = 2;
     /* types: from | range | fixed | on_request — conditions alleen tonen als aanwezig */
     var rates = [
       {
@@ -473,7 +473,7 @@
         min: 160,
         max: 230,
         unit: '/ m²',
-        conditions: 'Indicatie · Inclusief materiaal en plaatsing'
+        conditions: 'Inclusief materiaal en plaatsing'
       },
       {
         name: 'Dakisolatie',
@@ -481,7 +481,7 @@
         min: 45,
         max: 75,
         unit: '/ m²',
-        conditions: 'Indicatie · Vanaf 40 m²'
+        conditions: 'Vanaf 40 m²'
       },
       {
         name: 'Dakvenster',
