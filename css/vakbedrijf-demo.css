@@ -443,15 +443,15 @@
   border-bottom: 1px solid var(--line);
   border-radius: 0;
 }
-/* Sectiekoppen — alleen kleine groene titel in lichtgrijze balk */
+/* Sectiekoppen — subtiele markering, één geheel met ondertitel */
 .vbd-sec-head {
   display: inline-block;
   box-sizing: border-box;
   width: auto;
   max-width: 100%;
-  margin: 0 0 0.45rem;
-  padding: 0.35rem 0.55rem;
-  background: #eeeeec;
+  margin: 0 0 0.18rem;
+  padding: 0.22rem 0.4rem;
+  background: rgba(100, 102, 98, 0.08);
   border: 0;
   border-radius: 0;
 }
@@ -460,7 +460,7 @@
 .vbd-expertise-kicker,
 .vbd-rates-kicker {
   margin: 0;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -474,8 +474,11 @@
   font-size: 1.12rem;
   font-weight: 600;
   letter-spacing: -0.02em;
-  line-height: 1.3;
+  line-height: 1.28;
   color: var(--ink);
+}
+.vbd-sec-head + .vbd-sec-lead {
+  margin-top: 0;
 }
 .vbd-avail-status {
   margin: 0;
